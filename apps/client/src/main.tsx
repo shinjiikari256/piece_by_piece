@@ -27,7 +27,7 @@ import "./styles/app/people.css";
 import "./styles/app/law-tab.css";
 import "./styles/app/notes.css";
 import "./styles/app/ctx-menu.css";
-import "./styles/app/confirm-dialog.css";
+import "./styles/app/window.css";
 import "./styles/app/case-stamps.css";
 import "./styles/app/select.css";
 import "./styles/app/result.css";

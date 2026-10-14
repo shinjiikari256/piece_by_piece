@@ -13,6 +13,7 @@ import {
 import { ApiFailure, api, useAccount } from "../../state/account";
 import { Select } from "../Select";
 import { Alert } from "../alert";
+import { Dialog } from "../window";
 import { initials } from "../../util/names";
 import { formatDate } from "../../util/format";
 import { Icon } from "../icons";
@@ -373,41 +374,46 @@ function ResetPassword({ user, onClose }: { user: AdminUser; onClose: () => void
     }
   };
   return (
-    <div className="ask-backdrop" onMouseDown={(e) => e.target === e.currentTarget && onClose()}>
-      <section className="ask paper" role="dialog" aria-modal="true">
-        <h3>Сброс пароля: {user.fullName}</h3>
-        {result ? (
+    <Dialog
+      title={`Сброс пароля: ${user.fullName}`}
+      onClose={onClose}
+      actions={
+        result ? (
           <>
-            <p>Временный пароль — передайте его человеку. При входе система попросит сменить его.</p>
-            <p className="temp-password">{result}</p>
-            <div className="ask__actions">
-              <button className="btn" onClick={() => void navigator.clipboard?.writeText(result)}>
-                Скопировать
-              </button>
-              <button className="btn btn--primary" onClick={onClose}>
-                Готово
-              </button>
-            </div>
+            <button className="btn" onClick={() => void navigator.clipboard?.writeText(result)}>
+              Скопировать
+            </button>
+            <button className="btn btn--primary" onClick={onClose}>
+              Готово
+            </button>
           </>
         ) : (
           <>
-            <p className="muted">Текущий пароль перестанет действовать, открытые сессии завершатся.</p>
-            <label className="field">
-              <span className="field__label">Задать вручную (необязательно)</span>
-              <input className="input" value={manual} onChange={(e) => setManual(e.target.value)} placeholder="от 8 символов" />
-            </label>
-            {error && <Alert>{error}</Alert>}
-            <div className="ask__actions">
-              <button className="btn" onClick={onClose}>
-                Отмена
-              </button>
-              <button className="btn btn--primary" onClick={() => void run(manual.trim() || undefined)}>
-                {manual.trim() ? "Установить" : "Сгенерировать"}
-              </button>
-            </div>
+            <button className="btn" onClick={onClose}>
+              Отмена
+            </button>
+            <button className="btn btn--primary" onClick={() => void run(manual.trim() || undefined)}>
+              {manual.trim() ? "Установить" : "Сгенерировать"}
+            </button>
           </>
-        )}
-      </section>
-    </div>
+        )
+      }
+    >
+      {result ? (
+        <>
+          <p>Временный пароль — передайте его человеку. При входе система попросит сменить его.</p>
+          <p className="temp-password">{result}</p>
+        </>
+      ) : (
+        <>
+          <p className="muted">Текущий пароль перестанет действовать, открытые сессии завершатся.</p>
+          <label className="field">
+            <span className="field__label">Задать вручную (необязательно)</span>
+            <input className="input" value={manual} onChange={(e) => setManual(e.target.value)} placeholder="от 8 символов" />
+          </label>
+          {error && <Alert>{error}</Alert>}
+        </>
+      )}
+    </Dialog>
   );
 }

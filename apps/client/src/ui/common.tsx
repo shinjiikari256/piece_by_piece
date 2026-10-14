@@ -4,7 +4,8 @@ import type { PublicDeduction } from "../../../../shared/public-case";
 import { actions, useGame, type Mark } from "../state/store";
 import { FolderTabs, type FolderTab } from "./folder";
 import { Icon, type IconName } from "./icons";
-import { useWindowKey } from "./hooks";
+import { useEscape, useWindowKey } from "./hooks";
+import { Backdrop } from "./window";
 import { RELIABILITY_TONE } from "./tone";
 
 /** Результат в процентах от суммы баллов за вопросы (без бонуса за время; с бонусом может быть больше 100). */
@@ -88,24 +89,16 @@ export function TabbedModal({
 }) {
   const ref = useRef<HTMLElement>(null);
   useEnterPrimary(ref);
-  useWindowKey(
-    (e) => {
-      // поверх окна может быть подтверждение (`ask`) или открытый выпадающий список — Esc относится к ним
-      if (e.key !== "Escape" || document.querySelector(".ask-backdrop, .sel__popup")) return;
-      e.stopImmediatePropagation();
-      onClose();
-    },
-    { capture: true },
-  );
+  useEscape(onClose);
   return (
-    <div className="modal-backdrop" onMouseDown={(e) => e.target === e.currentTarget && onClose()}>
+    <Backdrop onDismiss={onClose}>
       <div className={`tabbed-modal ${tone ? `tabbed-modal--${tone}` : ""} ${size ? `tabbed-modal--${size}` : ""}`}>
         <FolderTabs tabs={tabs} active={active} onTab={onTab} onClose={onClose} className="folder--tabbed tabbed-modal__tabs" />
         <section ref={ref} className={`modal paper modal--wide modal--tabbed ${className}`} role="dialog" aria-modal="true">
           <div className="modal__body">{children}</div>
         </section>
       </div>
-    </div>
+    </Backdrop>
   );
 }
 

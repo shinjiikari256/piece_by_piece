@@ -92,8 +92,8 @@ export function Select({
     };
   }, [open]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // клик вне кнопки и списка закрывает; Esc обрабатывает onKey (фокус внутри)
-  useDismiss(open, close, [popup, button], { esc: false });
+  // клик вне кнопки и списка и Esc закрывают (Esc — верхний слой, см. useEscape)
+  useDismiss(open, close, [popup, button]);
 
   useEffect(() => {
     popup.current?.querySelector(".sel__opt.is-active")?.scrollIntoView({ block: "nearest" });
@@ -107,11 +107,7 @@ export function Select({
       }
       return;
     }
-    if (e.key === "Escape") {
-      e.preventDefault();
-      e.stopPropagation();
-      close();
-    } else if (e.key === "ArrowDown") {
+    if (e.key === "ArrowDown") {
       e.preventDefault();
       setActive((i) => Math.min(shown.length - 1, i + 1));
     } else if (e.key === "ArrowUp") {

@@ -106,10 +106,10 @@ export function App() {
   }, []);
 
   useWindowKey((e) => {
-    if (e.key !== "Escape" || document.querySelector(".sel__popup")) return;
+    if (e.key !== "Escape") return;
     const { overlay, screen, notesOpen } = store.get();
     if (screen === "intro" || screen === "result") {
-      if (!document.querySelector(".ask-backdrop")) actions.leaveToSite();
+      actions.leaveToSite();
     } else if (screen === "final") actions.backToInvestigation();
     else if (notesOpen) actions.toggleNotes(false);
     else if (overlay) actions.close();

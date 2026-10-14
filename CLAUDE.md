@@ -50,8 +50,8 @@ TypeScript · Vite 7 (одна страница `apps/client/index.html`: сай
 
 ## Окна-папки (единый стиль)
 - Полоса закладок — один компонент `apps/client/src/ui/folder.tsx` (`FolderTabs`: «назад», вкладки, крестик справа; единственная вкладка всегда выглядит активной). Им пользуются все папки.
-- В игре окна — `TabbedModal` (`ui/common.tsx`; `tone="blue"` — решение, `size="narrow"` — подсказки/заметки/осмотр; вокруг лист `.modal`): журнал, подсказки (`HintsPanel`), заметки (`NotesWindow`, `ui/notes.tsx`), осмотр (`ObjectPanel`), «Как играть» (`HowToWindow`, `ui/screens.tsx`, и в игре, и на сайте), решение (`FinalScreen`, `ui/verdict.tsx`). Диалог (`DialogueWindow`) — `FolderTabs` над листом, прижат к низу. Страницы сайта — `Folder` (`screens.tsx`). Новые окна делать через них, а не через `Modal`/`SiteModal` (остались для простых диалогов и окон сайта).
-- Esc обрабатывает `App.tsx` (закрывает верхнее окно; на экране решения — возврат к расследованию); у окон сайта (`HowToWindow`, `SiteModal`) свой перехват.
+- В игре окна — `TabbedModal` (`ui/common.tsx`; `tone="blue"` — решение, `size="narrow"` — подсказки/заметки/осмотр; вокруг лист `.modal`): журнал, подсказки (`HintsPanel`), заметки (`NotesWindow`, `ui/notes.tsx`), осмотр (`ObjectPanel`), «Как играть» (`HowToWindow`, `ui/screens.tsx`, и в игре, и на сайте), решение (`FinalScreen`, `ui/verdict.tsx`). Диалог (`DialogueWindow`) — `FolderTabs` над листом, прижат к низу. Страницы сайта — `Folder` (`screens.tsx`). Новые окна делать через них. Подложка — `Backdrop`, небольшие диалоги (подтверждение, форма) — `Dialog`, оба в `ui/window.tsx` (стили `styles/app/window.css`); подтверждения кодом — `ask()`/`tell()` из `ui/dialog.tsx`.
+- Esc: слои (`TabbedModal`, `Dialog`, выпадающий `Select`) подписываются через `useEscape` (`ui/hooks.ts`) — Esc получает только верхний слой; остальное (диалог-окно разговора, вступление, результат) обрабатывает `App.tsx`.
 - Логотип — `ui/logo.tsx` (`Logo` в шапке, `LogoArt` на главной); большая иллюстрация — самостоятельный `assets/logo-detailed.svg` (анимация внутри, обложка меняет контур через CSS `d`, не transform).
 
 

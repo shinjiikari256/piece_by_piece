@@ -92,7 +92,7 @@ body {
   .tool--decide .tool__label {
     display: none;
   }
-  .modal-backdrop {
+  .backdrop[data-layer="window"]:not([data-align]) {
     padding: 0;
     place-items: stretch;
   }
@@ -103,7 +103,7 @@ body {
     height: 100%;
     border-radius: 0;
   }
-  .dialogue-backdrop {
+  .backdrop[data-align="end"] {
     padding: 0;
   }
   .dialogue-folder {

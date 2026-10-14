@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useWindowKey } from "./hooks";
 import { MOOD_TONE } from "./tone";
+import { Backdrop } from "./window";
 import { CHAR_H, CHAR_W, drawCharacter, resolveLook, type CharFrame, type Look } from "../game/art";
 import { actions, useGame } from "../state/store";
 import { findObject } from "../content/case-utils";
@@ -159,7 +160,7 @@ export function DialogueWindow({
   });
 
   return (
-    <div className="dialogue-backdrop" key={npcId}>
+    <Backdrop align="end" key={npcId}>
       <div className="dialogue-folder">
       <FolderTabs
         tabs={[{ id: "talk", label: "Разговор", icon: "testimony" }]}
@@ -206,7 +207,7 @@ export function DialogueWindow({
         </ol>
       </section>
       </div>
-    </div>
+    </Backdrop>
   );
 }
 

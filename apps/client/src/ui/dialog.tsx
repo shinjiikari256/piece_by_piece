@@ -1,5 +1,6 @@
 import { useEffect, useRef, useSyncExternalStore } from "react";
 import { useWindowKey } from "./hooks";
+import { Dialog } from "./window";
 
 /** Окно подтверждения/сообщения вместо системных confirm/alert. */
 interface DialogRequest {
@@ -61,24 +62,25 @@ export function DialogHost() {
   useEffect(() => {
     if (current) primary.current?.focus();
   }, [current]);
-  // перехватываем раньше остальных: Esc/Enter относятся только к этому окну
+  // Enter подтверждает; перехватываем раньше остальных — он относится только к этому окну (Esc — через Dialog)
   useWindowKey(
     (e) => {
-      if (!current || (e.key !== "Escape" && e.key !== "Enter")) return;
+      if (!current || e.key !== "Enter") return;
       e.preventDefault();
       e.stopImmediatePropagation();
-      close(current.id, e.key === "Enter");
+      close(current.id, true);
     },
     { capture: true, enabled: !!current },
   );
 
   if (!current) return null;
   return (
-    <div className="ask-backdrop" onMouseDown={(e) => e.target === e.currentTarget && close(current.id, false)}>
-      <section className="ask paper" role="alertdialog" aria-modal="true" aria-labelledby={`ask-${current.id}`}>
-        <h3 id={`ask-${current.id}`}>{current.title}</h3>
-        {current.text?.split("\n").filter(Boolean).map((p, i) => <p key={i}>{p}</p>)}
-        <div className="ask__actions">
+    <Dialog
+      title={current.title}
+      role="alertdialog"
+      onClose={() => close(current.id, false)}
+      actions={
+        <>
           {current.cancelLabel && (
             <button className="btn" onClick={() => close(current.id, false)}>
               {current.cancelLabel}
@@ -87,8 +89,10 @@ export function DialogHost() {
           <button ref={primary} className={`btn ${current.danger ? "btn--danger-solid" : "btn--primary"}`} onClick={() => close(current.id, true)}>
             {current.confirmLabel}
           </button>
-        </div>
-      </section>
-    </div>
+        </>
+      }
+    >
+      {current.text?.split("\n").filter(Boolean).map((p, i) => <p key={i}>{p}</p>)}
+    </Dialog>
   );
 }

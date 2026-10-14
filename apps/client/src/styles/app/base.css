@@ -120,6 +120,14 @@ kbd {
 .btn.btn--danger:hover:not(:disabled) {
   background: var(--bad-soft);
 }
+.btn.btn--danger-solid {
+  background: var(--bad);
+  border-color: var(--bad);
+  color: var(--text-on-dark);
+}
+.btn.btn--danger-solid:hover:not(:disabled) {
+  background: var(--bad-strong);
+}
 /* размер, ширина, форма */
 .btn--sm {
   font-size: 0.9em;

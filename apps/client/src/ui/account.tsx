@@ -2,6 +2,7 @@ import { useEffect, useState, type FormEvent, type ReactNode } from "react";
 import { CONSENT_TEXT, type JoinInfo } from "../../../../shared/api";
 import { ApiFailure, account, api, clearJoinToken, pendingJoinToken, useAccount } from "../state/account";
 import { Alert } from "./alert";
+import { Dialog } from "./window";
 import { navigate } from "./router";
 import { Folder } from "./screens";
 import { readProfile, writeProfile } from "../state/profile";
@@ -248,15 +249,12 @@ export function ForcePasswordChange() {
   const me = useAccount((s) => s.me);
   if (!me?.mustChangePassword) return null;
   return (
-    <div className="ask-backdrop">
-      <section className="ask paper auth-force" role="dialog" aria-modal="true" aria-labelledby="force-title">
-        <h3 id="force-title">Задайте свой пароль</h3>
-        <p className="muted">Вы вошли с временным паролем, который выдал преподаватель. Придумайте новый — дальше входите с ним.</p>
-        <PasswordForm temporary />
-        <button className="btn" onClick={() => void account.logout()}>
-          Выйти
-        </button>
-      </section>
-    </div>
+    <Dialog title="Задайте свой пароль" className="auth-force">
+      <p className="muted">Вы вошли с временным паролем, который выдал преподаватель. Придумайте новый — дальше входите с ним.</p>
+      <PasswordForm temporary />
+      <button className="btn" onClick={() => void account.logout()}>
+        Выйти
+      </button>
+    </Dialog>
   );
 }

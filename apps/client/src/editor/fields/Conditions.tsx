@@ -1,6 +1,7 @@
 import { useState, type ReactNode } from "react";
 import { editor, useEditor, type Focus } from "../state";
 import { countRefs, renameKey, toKey } from "../keys";
+import { Dialog } from "../../ui/window";
 import { Select } from "../../ui/Select";
 import type { CaseFile } from "../../../../../shared/case";
 import { ask } from "../../ui/dialog";
@@ -145,51 +146,52 @@ export function FlagDialog({ initial, onDone }: { initial?: { id: string; name: 
     onDone(flag);
   };
   return (
-    <div className="ed-modal" onMouseDown={(e) => e.target === e.currentTarget && onDone(null)}>
-      <form
-        className="ed-modal__box"
-        onSubmit={(e) => {
-          e.preventDefault();
-          save();
-        }}
-      >
-        <h3>{initial ? "Флаг" : "Новый флаг"}</h3>
-        <p className="muted">Флаг — пометка «это уже произошло». Её ставят эффекты реплик и сопоставлений, а условия проверяют.</p>
-        <label className="ef">
-          <span className="ef__label">Название — что означает флаг</span>
-          <input
-            autoFocus
-            value={name}
-            placeholder="Тимур отдал ключ от комнаты 412"
-            onChange={(e) => {
-              setName(e.target.value);
-              if (!manualKey) setId(toKey(e.target.value));
-            }}
-          />
-        </label>
-        <label className="ef">
-          <span className="ef__label">{initial ? "Ключ (смена ключа обновит все ссылки)" : "Ключ (латиницей, собирается из названия)"}</span>
-          <input
-            className="flag-input"
-            value={id}
-            placeholder="key_412"
-            onChange={(e) => {
-              setManualKey(true);
-              setId(e.target.value.replace(/[^\w-]+/g, "_").toLowerCase());
-            }}
-          />
-          {taken && <span className="ef__hint is-bad">Такой ключ уже есть</span>}
-        </label>
-        <div className="ed-modal__actions">
+    <Dialog
+      title={initial ? "Флаг" : "Новый флаг"}
+      className="dialog--flag"
+      onClose={() => onDone(null)}
+      onSubmit={(e) => {
+        e.preventDefault();
+        save();
+      }}
+      actions={
+        <>
           <button type="button" className="btn btn--sm" onClick={() => onDone(null)}>
             Отмена
           </button>
           <button type="submit" className="btn btn--sm btn--primary" disabled={!id.trim() || !name.trim() || taken}>
             {initial ? "Сохранить" : "Добавить"}
           </button>
-        </div>
-      </form>
-    </div>
+        </>
+      }
+    >
+      <p className="muted">Флаг — пометка «это уже произошло». Её ставят эффекты реплик и сопоставлений, а условия проверяют.</p>
+      <label className="ef">
+        <span className="ef__label">Название — что означает флаг</span>
+        <input
+          autoFocus
+          value={name}
+          placeholder="Тимур отдал ключ от комнаты 412"
+          onChange={(e) => {
+            setName(e.target.value);
+            if (!manualKey) setId(toKey(e.target.value));
+          }}
+        />
+      </label>
+      <label className="ef">
+        <span className="ef__label">{initial ? "Ключ (смена ключа обновит все ссылки)" : "Ключ (латиницей, собирается из названия)"}</span>
+        <input
+          className="flag-input"
+          value={id}
+          placeholder="key_412"
+          onChange={(e) => {
+            setManualKey(true);
+            setId(e.target.value.replace(/[^\w-]+/g, "_").toLowerCase());
+          }}
+        />
+        {taken && <span className="ef__hint is-bad">Такой ключ уже есть</span>}
+      </label>
+    </Dialog>
   );
 }
 

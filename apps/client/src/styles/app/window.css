@@ -1,0 +1,54 @@
+/* ---------- Подложка и диалоги (ui/window.tsx) ---------- */
+
+/* подложка под окном: слой window — окна игры и сайта, слой dialog — диалоги поверх них; align end — окно прижато к низу */
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  background: var(--scrim);
+  animation: fade 0.15s ease-out;
+}
+.backdrop[data-layer="dialog"] {
+  z-index: 2000;
+}
+.backdrop[data-align="end"] {
+  align-items: end;
+}
+
+/* диалог: заголовок, текст, ряд кнопок (подтверждения, сообщения, небольшие формы) */
+.dialog {
+  width: min(30rem, 100%);
+  padding: 1.2rem 1.4rem;
+  border-radius: 12px;
+  box-shadow: var(--elev-4);
+  display: grid;
+  gap: 0.5rem;
+}
+.dialog h3 {
+  margin: 0;
+  font-size: 1.15rem;
+}
+.dialog p {
+  margin: 0;
+  color: var(--text-soft);
+  line-height: 1.45;
+}
+.dialog__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.6rem;
+  margin-top: 0.6rem;
+}
+/* окно флага в конструкторе: поля на всю ширину */
+.dialog--flag input {
+  width: 100%;
+}
+.dialog--flag .muted {
+  font-size: 0.88em;
+}
+.dialog--flag .flag-input {
+  max-width: none;
+}

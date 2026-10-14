@@ -146,18 +146,6 @@
 
 /* ---------- Модальные окна ---------- */
 
-.modal-backdrop,
-.dialogue-backdrop {
-  position: fixed;
-  inset: 0;
-  background: var(--scrim);
-  display: grid;
-  place-items: center;
-  padding: 1rem;
-  z-index: 50;
-  animation: fade 0.15s ease-out;
-}
-
 .modal {
   width: min(40rem, 100%);
   max-height: calc(100vh - 2rem);
