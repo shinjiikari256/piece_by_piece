@@ -4,15 +4,14 @@ import type { PublicCase, PublicDeduction } from "../../../../shared/public-case
 import { RESULT_FORMAT_VERSION, type CaseAuthority, type DeductionVerdict, type FinishInput, type RevealedHint } from "../../../../shared/judge";
 import { APP_NAME, GAME_VERSION } from "../env";
 import { navigate } from "../ui/router";
-import { accountStore } from "./account";
 import { createAutosave, pauseOnPageHide } from "./autosave";
-import { uploadResult } from "./results-sync";
 import { applyEffects, emptyProgress, meets, type Progress } from "../../../../shared/conditions";
 import { allNpcs, findObject, startLocation } from "../content/case-utils";
 import { gameBridge } from "../game/bridge";
-import { recordResult, type ResultRecord } from "./profile";
+import type { ResultRecord } from "./result-record";
 import type { Answers, Score } from "../../../../shared/scoring";
-import { clearSave, isSaveOutdated, markPaused, readSave, sanitizeSave } from "./persistence";
+import { isSaveOutdated, sanitizeSave } from "./save-data";
+import { platform } from "./platform";
 
 /** menu — страницы сайта (адрес решает какая, см. ui/router.ts); остальное — расследование. */
 export type Screen = "menu" | "intro" | "play" | "final" | "result";
@@ -80,6 +79,8 @@ export interface GameState {
   locationId: string;
   /** Куда поставить игрока при входе в локацию (null — сохранённая позиция или старт). */
   spawn: { x: number; y: number } | null;
+  /** Последняя позиция игрока: из сохранения при продолжении, затем её обновляет сцена. Не вызывает перерисовку. */
+  savedPlayer: { x: number; y: number; locationId: string } | undefined;
 }
 
 
@@ -107,6 +108,7 @@ const initialState = (): GameState => ({
   runId: 0,
   locationId: "",
   spawn: null,
+  savedPlayer: undefined,
 });
 
 let state = initialState();
@@ -234,7 +236,7 @@ export const actions = {
   /** Новое расследование: старое сохранение этого дела стирается. */
   beginInvestigation() {
     saveWarned = false;
-    if (state.caseFile) clearSave(state.caseFile.id);
+    if (state.caseFile) void platform().saves.clear(state.caseFile.id);
     set((s) => ({
       screen: "play",
       startedAt: Date.now(),
@@ -246,7 +248,7 @@ export const actions = {
   async resume(judge = authority) {
     if (!judge) return;
     const caseFile = judge.caseFile;
-    const raw = readSave(caseFile.id);
+    const raw = await platform().saves.read(caseFile.id);
     // устаревшее сохранение не загружаем — экран дела покажет предупреждение
     if (!raw || isSaveOutdated(raw, caseFile)) return actions.openCase(judge);
     const save = sanitizeSave(raw, caseFile);
@@ -270,6 +272,7 @@ export const actions = {
       conclusions: known.conclusions,
       answers: save.answers,
       locationId: caseFile.locations.some((l) => l.id === save.locationId) ? save.locationId : startLocation(caseFile).id,
+      savedPlayer: save.player,
       runId: state.runId + 1,
     });
   },
@@ -296,6 +299,11 @@ export const actions = {
     set({ locationId: exit.to, spawn: exit.spawn });
   },
 
+  /** Сцена запомнила позицию игрока (без перерисовки: меняется каждую секунду движения). */
+  rememberPlayer(player: { x: number; y: number; locationId: string }) {
+    state = { ...state, savedPlayer: player };
+  },
+
   /** Сцена забрала точку появления. */
   consumeSpawn() {
     if (state.spawn) set({ spawn: null });
@@ -303,8 +311,8 @@ export const actions = {
 
   /** Выход в главное меню; без сохранения — расследование сбрасывается. */
   exitToMenu(keepProgress: boolean) {
-    if (!keepProgress && state.caseFile) clearSave(state.caseFile.id);
-    if (keepProgress && state.caseFile) markPaused(state.caseFile.id);
+    if (!keepProgress && state.caseFile) void platform().saves.clear(state.caseFile.id);
+    if (keepProgress && state.caseFile) void platform().saves.markPaused(state.caseFile.id);
     authority = null;
     set({ ...initialState(), runId: state.runId });
   },
@@ -488,7 +496,7 @@ export const actions = {
       };
       const result = await ask((a) => a.finish(input));
       if (!result) return;
-      clearSave(c.id);
+      void platform().saves.clear(c.id);
       const { score } = result;
       const record: ResultRecord = {
         caseId: c.id,
@@ -505,9 +513,10 @@ export const actions = {
         gameVersion: GAME_VERSION,
         resultFormatVersion: RESULT_FORMAT_VERSION,
       };
-      recordResult(record);
+      // запись выполняется сразу (локально); дошёл ли результат до сервера, платформа сообщит позже
+      const delivery = platform().results.record(record);
       set({ screen: "result", score, record, debrief: result.debrief });
-      if (accountStore.get().me) void uploadResult(record, () => toast("Результат не удалось отправить на сервер — он сохранён в этом браузере"));
+      void delivery.then(({ delivered }) => delivered || toast("Результат не удалось отправить на сервер — он сохранён в этом браузере"));
     } finally {
       submitting = false;
     }

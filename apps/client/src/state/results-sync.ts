@@ -4,9 +4,9 @@ import type { ResultRecord } from "./profile";
 
 /**
  * Вошедший игрок — результат уходит в учётную запись (виден преподавателю).
- * Не получилось — остаётся в браузере, `onFail` показывает это игроку.
+ * false — не получилось: результат остаётся только в браузере.
  */
-export async function uploadResult(r: ResultRecord, onFail: () => void) {
+export async function uploadResult(r: ResultRecord): Promise<boolean> {
   const body: ResultBody = {
     caseId: r.caseId,
     caseNumber: r.number,
@@ -25,7 +25,8 @@ export async function uploadResult(r: ResultRecord, onFail: () => void) {
   };
   try {
     await api("POST", "/me/results", body);
+    return true;
   } catch {
-    onFail();
+    return false;
   }
 }

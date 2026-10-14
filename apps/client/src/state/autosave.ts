@@ -1,5 +1,5 @@
 import type { GameState } from "./store";
-import { markPaused, writeSave } from "./persistence";
+import { platform } from "./platform";
 
 /** Поля, из которых состоит сохранение. Тосты, окна и прочее на сохранение не влияют. */
 const SAVED_FIELDS = [
@@ -32,7 +32,8 @@ export function createAutosave(get: () => GameState, onFail: () => void) {
     }
     if (last && last.caseFile === s.caseFile && SAVED_FIELDS.every((k) => last![k] === s[k])) return;
     last = s;
-    const ok = writeSave({
+    // запись выполняется сразу; если хранилище её не приняло, игрок получит предупреждение
+    void platform().saves.write({
       caseId: s.caseFile.id,
       screen: s.screen as "play" | "final",
       startedAt: s.startedAt,
@@ -46,8 +47,7 @@ export function createAutosave(get: () => GameState, onFail: () => void) {
       answers: s.answers,
       locationId: s.locationId,
       caseUpdatedAt: s.caseFile.updatedAt,
-    });
-    if (!ok) onFail();
+    }).then((ok) => ok || onFail());
   };
 }
 
@@ -56,6 +56,6 @@ export function pauseOnPageHide(get: () => GameState) {
   if (typeof window === "undefined") return;
   window.addEventListener("pagehide", () => {
     const s = get();
-    if (s.caseFile && isSaving(s)) markPaused(s.caseFile.id);
+    if (s.caseFile && isSaving(s)) void platform().saves.markPaused(s.caseFile.id);
   });
 }

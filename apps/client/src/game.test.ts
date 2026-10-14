@@ -11,6 +11,9 @@ import { toPublicCase } from "../../../shared/public-case";
 import { RESULT_FORMAT_VERSION, finish as judgeFinish } from "../../../shared/judge";
 import { listResults } from "./state/profile";
 import { toResultFile } from "./state/result-file";
+import { setPlatform } from "./state/platform";
+import { createBrowserPlatform } from "./state/browser-platform";
+import { createMemoryPlatform } from "./state/memory-platform";
 
 const casesDir = path.resolve(__dirname, "content/cases");
 const caseFiles = readdirSync(casesDir).filter((f) => f.endsWith(".json"));
@@ -104,6 +107,7 @@ describe("прохождение дела №001", () => {
   };
 
   beforeEach(() => {
+    setPlatform(createMemoryPlatform());
     const c = validateCase(load("case-001.json"));
     if (!c.ok) throw new Error("invalid");
     caseFile = c.caseFile;
@@ -262,6 +266,7 @@ describe("прохождение дела №002", () => {
   };
 
   beforeEach(() => {
+    setPlatform(createMemoryPlatform());
     const c = validateCase(load("case-002.json"));
     if (!c.ok) throw new Error("invalid");
     caseFile = c.caseFile;
@@ -353,6 +358,7 @@ describe("сохранение расследования", () => {
   beforeEach(() => {
     memory.clear();
     Object.assign(globalThis, { localStorage: fakeStorage });
+    setPlatform(createBrowserPlatform());
     const c = validateCase(load("case-001.json"));
     if (!c.ok) throw new Error("invalid");
     caseFile = c.caseFile;
@@ -377,7 +383,7 @@ describe("сохранение расследования", () => {
     expect(store.get().playerNotes).toBe("проверить ключи");
   });
 
-  it("переполненное хранилище: игра продолжается, игрока предупреждают один раз", () => {
+  it("переполненное хранилище: игра продолжается, игрока предупреждают один раз", async () => {
     const real = fakeStorage.setItem;
     fakeStorage.setItem = () => {
       throw new DOMException("quota", "QuotaExceededError");
@@ -387,6 +393,7 @@ describe("сохранение расследования", () => {
       actions.addObjectToJournal("obj_computer");
       actions.interact("obj_desk");
       actions.addObjectToJournal("obj_desk");
+      await Promise.resolve(); // платформа сообщает о неудачной записи асинхронно
       const warnings = store.get().toasts.filter((t) => t.text.startsWith("Прогресс не сохраняется"));
       expect(warnings).toHaveLength(1);
       expect(progressNow()).toContain("mail_log");
@@ -542,5 +549,53 @@ describe("очные ставки и локации", () => {
     actions.travel(exit);
     expect(store.get().locationId).toBe("dorm_lobby");
     expect(store.get().spawn).toEqual(exit.spawn);
+  });
+});
+
+describe("ядро игры на платформе в памяти", () => {
+  let caseFile: CaseFile;
+  let mem: ReturnType<typeof createMemoryPlatform>;
+  const open = async (deliver = true) => {
+    mem = createMemoryPlatform({ deliver });
+    setPlatform(mem);
+    const c = validateCase(load("case-001.json"));
+    if (!c.ok) throw new Error("invalid");
+    caseFile = c.caseFile;
+    actions.openCase(new LocalAuthority(caseFile));
+    actions.beginInvestigation();
+  };
+
+  it("прогресс пишется на платформу и восстанавливается с ней, позиция игрока — тоже", async () => {
+    await open();
+    actions.interact("obj_computer");
+    actions.addObjectToJournal("obj_computer");
+    actions.close();
+    expect(mem.data.saves.get("case-001")?.progress.collected).toContain("mail_log");
+    actions.rememberPlayer({ x: 3, y: 4, locationId: caseFile.locations[0].id });
+    await mem.saves.savePlayerPosition("case-001", { x: 3, y: 4, locationId: caseFile.locations[0].id });
+    actions.exitToMenu(true);
+    expect(mem.data.saves.get("case-001")?.pausedAt).toBeTypeOf("number");
+    await actions.resume(new LocalAuthority(caseFile));
+    expect(store.get().progress.collected).toContain("mail_log");
+    expect(store.get().savedPlayer).toEqual({ x: 3, y: 4, locationId: caseFile.locations[0].id });
+  });
+
+  it("новое расследование стирает сохранение на платформе", async () => {
+    await open();
+    actions.interact("obj_computer");
+    actions.addObjectToJournal("obj_computer");
+    expect(mem.data.saves.has("case-001")).toBe(true);
+    actions.beginInvestigation();
+    expect(mem.data.saves.has("case-001")).toBe(false);
+  });
+
+  it("результат, не дошедший по назначению, — тост; доставленный — нет", async () => {
+    for (const deliver of [false, true]) {
+      await open(deliver);
+      await actions.submit(); // ответы пустые — итог считает судья, результат всё равно записывается
+      await Promise.resolve();
+      expect(mem.data.results).toHaveLength(1);
+      expect(store.get().toasts.some((t) => t.text.includes("не удалось отправить"))).toBe(!deliver);
+    }
   });
 });

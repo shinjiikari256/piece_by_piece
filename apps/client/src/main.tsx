@@ -4,6 +4,8 @@ import "./styles/index.css";
 import { App } from "./App";
 import { actions, store } from "./state/store";
 import { initAccount } from "./state/account";
+import { createBrowserPlatform } from "./state/browser-platform";
+import { setPlatform } from "./state/platform";
 
 // Отладка в консоли браузера: __game.store.get(), __game.actions.*
 if (import.meta.env.MODE === "development") Object.assign(window, { __game: { actions, store } });
@@ -12,6 +14,7 @@ if (import.meta.env.MODE === "development") Object.assign(window, { __game: { ac
 const theme = new URLSearchParams(location.search).get("theme");
 if (theme) document.documentElement.dataset.theme = theme;
 
+setPlatform(createBrowserPlatform());
 void initAccount();
 
 // Phaser рисует подписи на canvas — шрифт должен быть загружен до старта сцены.

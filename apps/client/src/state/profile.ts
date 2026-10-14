@@ -4,8 +4,8 @@ import { useSyncExternalStore } from "react";
  * В онлайн-версии (см. working/plans/PLAN.md) это переедет на сервер.
  */
 
-import type { Score } from "../../../../shared/scoring";
-import type { FinishInput } from "../../../../shared/judge";
+import type { ResultRecord } from "./result-record";
+export type { ResultRecord } from "./result-record";
 import { readJson, removeKey, writeJson } from "./storage";
 
 const PROFILE_KEY = "profile";
@@ -17,25 +17,6 @@ export interface Profile {
   group: string;
 }
 
-export interface ResultRecord {
-  caseId: string;
-  number: string;
-  title: string;
-  total: number;
-  max: number;
-  hintsUsed: number;
-  at: number;
-  /** Полный подсчёт — чтобы открыть результат из списка дел (у старых записей нет). */
-  score?: Score;
-  wrongDeductions?: number;
-  /** Чьё прохождение, если оно не своё (преподаватель открыл результат студента) — для документов. */
-  owner?: { id?: number; fullName: string; group?: string };
-  /** Что сдал игрок — по этому портал пересчитает результат при импорте файла. */
-  input?: FinishInput;
-  caseConfigVersion?: string | null;
-  gameVersion?: string;
-  resultFormatVersion?: number;
-}
 
 /** Последний результат по делу, который можно открыть. */
 export const lastResultOf = (caseId: string) => listResults().find((r) => r.caseId === caseId && r.score);

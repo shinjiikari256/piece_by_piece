@@ -1,5 +1,5 @@
 import type { SceneHost } from "../game/host";
-import { readSave, savePlayerPosition } from "./persistence";
+import { platform } from "./platform";
 import { actions, isWorldBlocked, store } from "./store";
 
 /** Хост сцены поверх стора игры. */
@@ -11,7 +11,10 @@ export function createSceneHost(): SceneHost {
     onInteract: (id) => actions.interact(id),
     confrontationWith: (id) => actions.confrontationWith(id),
     consumeSpawn: () => actions.consumeSpawn(),
-    savedPlayer: (caseId) => readSave(caseId)?.player,
-    savePlayerPosition,
+    savedPlayer: () => store.get().savedPlayer,
+    savePlayerPosition: (caseId, player) => {
+      actions.rememberPlayer(player);
+      void platform().saves.savePlayerPosition(caseId, player);
+    },
   };
 }
