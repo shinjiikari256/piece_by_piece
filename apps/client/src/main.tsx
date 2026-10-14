@@ -6,13 +6,13 @@ import { actions, store } from "./state/store";
 import { initAccount } from "./state/account";
 import { createBrowserPlatform } from "./state/browser-platform";
 import { setPlatform } from "./state/platform";
+import { initTheme } from "./ui/theme";
 
 // Отладка в консоли браузера: __game.store.get(), __game.actions.*
 if (import.meta.env.MODE === "development") Object.assign(window, { __game: { actions, store } });
 
-// Тема для проверки слоя ролей: `?theme=salad` в адресе (стили — styles/themes/)
-const theme = new URLSearchParams(location.search).get("theme");
-if (theme) document.documentElement.dataset.theme = theme;
+// тема оформления: `?theme=salad` включает и запоминает (стили — styles/themes/)
+initTheme();
 
 setPlatform(createBrowserPlatform());
 void initAccount();

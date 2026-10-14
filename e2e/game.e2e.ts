@@ -203,6 +203,38 @@ describe("игра в браузере", () => {
     await page.close();
   });
 
+  it("тема: ?theme= включает и запоминает, ?theme=default сбрасывает; параметр из адреса убирается", async () => {
+    const page = await h.page();
+    const state = () => page.evaluate(() => ({ theme: document.documentElement.dataset.theme ?? null, url: location.pathname + location.search }));
+    await page.goto(`${BASE}/cases?theme=salad`);
+    expect(await state()).toEqual({ theme: "salad", url: "/cases" });
+    await page.goto(`${BASE}/results`);
+    expect((await state()).theme).toBe("salad");
+    await page.goto(`${BASE}/results?theme=default`);
+    expect(await state()).toEqual({ theme: null, url: "/results" });
+    await page.goto(`${BASE}/cases`);
+    expect((await state()).theme).toBeNull();
+    await page.close();
+  });
+
+  it("тема: переключатель в шапке меняет и запоминает тему", async () => {
+    const page = await h.page();
+    const theme = () => page.evaluate(() => document.documentElement.dataset.theme ?? null);
+    await page.goto(`${BASE}/cases`);
+    await page.getByRole("button", { name: "Тема оформления" }).click();
+    await page.getByRole("menuitemradio", { name: /Салатная/ }).click();
+    expect(await theme()).toBe("salad");
+    await page.reload();
+    expect(await theme()).toBe("salad");
+    await page.getByRole("button", { name: "Тема оформления" }).click();
+    expect(await page.getByRole("menuitemradio", { name: /Салатная/ }).getAttribute("aria-checked")).toBe("true");
+    await page.getByRole("menuitemradio", { name: /Обычная/ }).click();
+    expect(await theme()).toBeNull();
+    await page.reload();
+    expect(await theme()).toBeNull();
+    await page.close();
+  });
+
   it("окно решения: Esc возвращает в игру, ответы остаются, без ответов решение вынести нельзя", async () => {
     const page = await h.page();
     await startCase(page);

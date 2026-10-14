@@ -1,4 +1,4 @@
-import { Suspense, lazy, useEffect, useRef, useState } from "react";
+import { Suspense, lazy, useEffect, useRef, useState, Fragment } from "react";
 import { ROLE_LABEL, STATUS_LABEL } from "../../../../shared/api";
 import { APP_NAME, DEV_EDITOR, OFFLINE } from "../env";
 import { account, isStaff, pendingJoinToken, useAccount } from "../state/account";
@@ -8,6 +8,7 @@ import { Field } from "./account";
 import { AdminPage, StatusChip } from "./admin";
 import { Loader } from "./loader";
 import { useDismiss } from "./hooks";
+import { DEFAULT_THEME_LABEL, THEMES, THEME_LABELS, setTheme, useTheme, type ThemeName } from "./theme";
 import { initials, shortName } from "../util/names";
 import { Icon } from "./icons";
 import { Logo, LogoArt } from "./logo";
@@ -77,11 +78,48 @@ function SiteHeader({ route }: { route: Route }) {
           {(staff || (server === "none" && DEV_EDITOR)) && link("/editor", "Конструктор дел", route.page === "editor")}
         </nav>
         <div className="site-header__user row">
+          <ThemeMenu />
           {server === "online" && me && <UserMenu />}
           {server !== "unknown" && !me && <SignedOut />}
         </div>
       </div>
     </header>
+  );
+}
+
+/** Выбор темы оформления: значок палитры в шапке, список тем (запоминается в браузере). */
+function ThemeMenu() {
+  const theme = useTheme();
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+  useDismiss(open, () => setOpen(false), [ref]);
+  const choice = (value: ThemeName | null, label: string) => (
+    <button
+      role="menuitemradio"
+      aria-checked={theme === value}
+      onClick={() => {
+        setTheme(value);
+        setOpen(false);
+      }}
+    >
+      {theme === value ? "✓ " : ""}
+      {label}
+    </button>
+  );
+  return (
+    <div className="user-menu theme-menu" ref={ref}>
+      <button className="icon-btn" aria-haspopup="menu" aria-expanded={open} title="Тема оформления" aria-label="Тема оформления" onClick={() => setOpen((v) => !v)}>
+        <Icon name="palette" size={20} />
+      </button>
+      {open && (
+        <div className="user-menu__popup" role="menu">
+          {choice(null, DEFAULT_THEME_LABEL)}
+          {THEMES.map((t) => (
+            <Fragment key={t}>{choice(t, THEME_LABELS[t])}</Fragment>
+          ))}
+        </div>
+      )}
+    </div>
   );
 }
 
