@@ -12,7 +12,7 @@ afterAll(() => h.stop());
 
 /** Открыть дело №001 через интерфейс и начать расследование. */
 async function startCase(page: Page) {
-  await page.goto(`${BASE}/#/cases`);
+  await page.goto(`${BASE}/cases`);
   await page.locator("button.case-file").first().click();
   await page.getByRole("button", { name: "Приступить к расследованию" }).click();
   await page.waitForFunction(() => (window as any).__game.store.get().screen === "play");
@@ -69,7 +69,7 @@ describe("игра в браузере", () => {
     const collected = await page.evaluate(() => (window as any).__game.store.get().progress.collected.length);
     await page.waitForTimeout(500); // автосохранение
     await page.reload();
-    await page.goto(`${BASE}/#/cases`);
+    await page.goto(`${BASE}/cases`);
     await page.locator("button.case-file").first().click();
     await page.getByRole("button", { name: /Продолжить/ }).click();
     await page.waitForFunction(() => (window as any).__game.store.get().screen === "play");
@@ -122,7 +122,7 @@ describe("игра в браузере", () => {
 
   it("конструктор открывается и переключает разделы без ошибок", async () => {
     const page = await h.page();
-    await page.goto(`${BASE}/#/editor`);
+    await page.goto(`${BASE}/editor`);
     await page.waitForFunction(() => (window as any).__editor);
     await page.evaluate(() => {
       const { editor, editorStore } = (window as any).__editor;
@@ -133,6 +133,73 @@ describe("игра в браузере", () => {
       await page.waitForTimeout(150);
       expect(await page.locator("body").innerText(), section).not.toBe("");
     }
+    await page.close();
+  });
+
+  it("конструктор: дело и раздел — в адресе; перезагрузка и «назад» возвращают на то же место", async () => {
+    const page = await h.page();
+    const path = () => page.evaluate(() => location.pathname);
+    await page.goto(`${BASE}/editor`);
+    await page.waitForFunction(() => (window as any).__editor);
+    expect(await path()).toBe("/editor");
+    await page.locator(".eh__case", { hasText: "Чужие письма" }).getByRole("button", { name: "Открыть" }).click();
+    await expect.poll(path).toBe("/editor/case-001/general");
+    await page.evaluate(() => (window as any).__editor.editor.goto("locations"));
+    await expect.poll(path).toBe("/editor/case-001/locations");
+    await page.reload();
+    await page.waitForFunction(() => (window as any).__editor?.editorStore.get().screen === "case");
+    expect(await page.evaluate(() => (window as any).__editor.editorStore.get().section)).toBe("locations");
+    await page.goBack();
+    await expect.poll(() => page.evaluate(() => (window as any).__editor.editorStore.get().section)).toBe("general");
+    await page.locator(".ed__home").click();
+    await expect.poll(path).toBe("/editor");
+    await page.close();
+  });
+
+  it("конструктор: выбранный элемент и вкладка — в адресе и переживают перезагрузку", async () => {
+    const page = await h.page();
+    const query = () => page.evaluate(() => location.search);
+    await page.goto(`${BASE}/editor/case-001/evidence`);
+    await page.waitForFunction(() => (window as any).__editor?.editorStore.get().screen === "case");
+    // первый элемент открыт по умолчанию — и уже записан в адрес
+    await expect.poll(query).toMatch(/item=mail_log/);
+    await page.locator(".ed__list .ed__item").nth(2).click();
+    await expect.poll(query).toMatch(/item=(?!mail_log)/);
+    const title = await page.locator(".ed__list .ed__item[aria-current]").innerText();
+    await page.getByRole("tab", { name: "Связи" }).click();
+    await expect.poll(query).toMatch(/tab=links/);
+    await page.reload();
+    await page.waitForSelector(".ed__list .ed__item[aria-current]");
+    expect(await page.locator(".ed__list .ed__item[aria-current]").innerText()).toBe(title);
+    expect(await page.getByRole("tab", { name: "Связи" }).getAttribute("aria-selected")).toBe("true");
+    // раздел сменился — параметры сброшены
+    await page.evaluate(() => (window as any).__editor.editor.goto("locations"));
+    await expect.poll(() => page.evaluate(() => location.pathname + location.search)).toMatch(/^\/editor\/case-001\/locations\?item=(?!mail_log)[\w-]+$/);
+    await page.locator(".lm__tabs .tab", { hasText: "+ локация" }).waitFor();
+    await page.close();
+  });
+
+  it("конструктор: «Запустить» сразу начинает расследование по тестовой копии дела", async () => {
+    const page = await h.page();
+    // у игрока уже есть сохранённое расследование этого дела — тестовый запуск о нём не спрашивает
+    await startCase(page);
+    await page.evaluate(() => {
+      const { actions } = (window as any).__game;
+      actions.interact("obj_computer");
+      actions.addObjectToJournal("obj_computer");
+      actions.close();
+    });
+    await page.goto(`${BASE}/editor`);
+    await page.locator(".eh__case", { hasText: "Чужие письма" }).getByRole("button", { name: "Открыть" }).click();
+    await page.getByRole("button", { name: "Запустить" }).first().click();
+    await page.waitForFunction(() => (window as any).__game?.store.get().caseFile?.id === "case-001");
+    // без вступления и без вопроса о прошлом сохранении
+    await page.waitForFunction(() => (window as any).__game.store.get().screen === "play");
+    expect(await page.evaluate(() => !!document.querySelector(".playtest-banner"))).toBe(true);
+    expect(await page.getByRole("button", { name: "Начать заново" }).count()).toBe(0);
+    // в шапке вместо «в главное меню» — стрелка назад в конструктор
+    await page.locator("a.topbar__home").click();
+    await expect.poll(() => page.evaluate(() => location.pathname)).toBe("/editor");
     await page.close();
   });
 

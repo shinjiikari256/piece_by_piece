@@ -9,6 +9,8 @@ import { ObjectFields, type JS } from "./SchemaForm";
 import { ArtThumb } from "./Pickers";
 import { EntityList, ItemText } from "./EntityList";
 import { MOOD_TONE } from "../ui/tone";
+import { setSearchParams } from "../ui/router";
+import { useUrlParam, useWriteDefaultParam } from "./url";
 import { resolveLook } from "../game/art";
 import { ask } from "../ui/dialog";
 
@@ -71,12 +73,19 @@ export function DialogueEditor({ fixedId }: { fixedId?: string } = {}) {
   const draft = useEditor((s) => s.draft);
   const confIds = new Set(draft.confrontations.map((c) => c.dialogueId));
   const ownDialogues = draft.dialogues.filter((d) => !confIds.has(d.id));
-  const [pickedId, setDialogueId] = useState(ownDialogues[0]?.id ?? "");
+  // раздел «Диалоги»: выбранный разговор и узел — в адресе (`?item=…&node=…`); встроенный разговор очной ставки адрес не трогает
+  const [urlDialogue] = useUrlParam("item", "");
+  const [urlNode] = useUrlParam("node", "");
+  const pickedId = ownDialogues.some((d) => d.id === urlDialogue) ? urlDialogue : (ownDialogues[0]?.id ?? "");
+  const setDialogueId = (id: string) => setSearchParams({ item: id === ownDialogues[0]?.id ? null : id, node: null });
+  useWriteDefaultParam("item", !!fixedId || pickedId === urlDialogue, ownDialogues[0]?.id);
   const dialogueId = fixedId ?? pickedId;
   const dlgIndex = draft.dialogues.findIndex((d) => d.id === dialogueId);
   const dialogue = dlgIndex >= 0 ? draft.dialogues[dlgIndex] : fixedId ? undefined : ownDialogues[0];
   const isConfrontation = dialogue ? confIds.has(dialogue.id) : false;
-  const [selected, setSelected] = useState<string | null>(null);
+  const [localNode, setLocalNode] = useState<string | null>(null);
+  const selected = fixedId ? localNode : urlNode || null;
+  const setSelected = (id: string | null) => (fixedId ? setLocalNode(id) : setSearchParams({ node: id }));
   // переход к узлу с ошибкой
   const focus = useEditor((s) => s.focus);
   useEffect(() => {
@@ -86,7 +95,7 @@ export function DialogueEditor({ fixedId }: { fixedId?: string } = {}) {
       setSelected(focus.sub ?? null);
     }
     if (fixedId && focus.section === "confrontations" && focus.sub) setSelected(focus.sub);
-  }, [focus, fixedId]);
+  }, [focus, fixedId]); // eslint-disable-line react-hooks/exhaustive-deps
   const [layout, setLayout] = useState<Layout>(() => loadLayout(draft.id));
   useEffect(() => setLayout(loadLayout(draft.id)), [draft.id]);
 

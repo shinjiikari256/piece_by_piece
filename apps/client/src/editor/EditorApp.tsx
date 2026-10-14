@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useWindowKey } from "../ui/hooks";
 import { formatDate } from "../util/format";
+import { useEditorUrl } from "./url";
 import { z } from "zod";
 import { CaseFile } from "../../../../shared/case";
 import { parseCase } from "../../../../shared/migrate";
@@ -48,7 +49,7 @@ function startPlaytest() {
   const { errors, draft } = editorStore.get();
   if (errors.length) return editor.goto("errors");
   editor.playtest();
-  window.location.href = `./index.html?play=${encodeURIComponent(draft.id)}&from=editor`;
+  window.location.href = `/?play=${encodeURIComponent(draft.id)}&from=editor`;
 }
 
 /** Правая кнопка в конструкторе: копирование и основные команды. */
@@ -124,6 +125,7 @@ export function EditorApp() {
   const section = useEditor((s) => s.section);
   const draft = useEditor((s) => s.draft);
   const errors = useEditor((s) => s.errors);
+  useEditorUrl(SECTIONS.map((s) => s.id).concat("errors"));
 
   // на странице конкретного дела шапка сайта не нужна — остаётся только шапка дела
   useEffect(() => {

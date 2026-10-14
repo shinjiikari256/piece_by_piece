@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { CaseFile } from "../../../../../shared/case";
-import { editor, useEditor } from "../state";
+import { editor, editorStore, useEditor } from "../state";
+import { useUrlParam, useWriteDefaultParam } from "../url";
 import { Field, ObjectFields, defaultFor, itemTitle, type JS } from "../SchemaForm";
 import { DialogueEditor } from "../DialogueGraph";
 import { LookEditor } from "../LookEditor";
@@ -18,11 +19,19 @@ export function ListSection({ field }: { field: keyof CaseFile }) {
   const draft = useEditor((s) => s.draft);
   const list = draft[field] as unknown as unknown[];
   const itemSchema: JS = SCHEMA.properties[field].items;
-  const [selected, setSelected] = useState(0);
-  // вкладка карточки не сбрасывается при переключении между элементами списка
-  const [evidenceTab, setEvidenceTab] = useState<EvidenceTab>("main");
-  const [confTab, setConfTab] = useState<"settings" | "dialogue">("settings");
-  const index = Math.min(selected, list.length - 1);
+  // выбранный элемент и вкладка карточки — в адресе (`?item=…&tab=…`); вкладка не сбрасывается при переключении между элементами
+  const [itemKey, setItemKey] = useUrlParam("item", "");
+  const [evidenceTab, setEvidenceTab] = useUrlParam<EvidenceTab>("tab", "main", EVIDENCE_TABS.map((t) => t.id));
+  const [confTab, setConfTab] = useUrlParam<"settings" | "dialogue">("tab", "settings", ["settings", "dialogue"]);
+  const keyOf = (item: unknown, i: number) => String((item as { id?: string }).id ?? i);
+  const found = list.findIndex((x, k) => keyOf(x, k) === itemKey);
+  const index = found >= 0 ? found : Math.min(0, list.length - 1);
+  useWriteDefaultParam("item", found >= 0, list.length ? keyOf(list[0], 0) : undefined);
+  // выбрать элемент по номеру в актуальном списке (после добавления и сдвига он берётся из хранилища)
+  const setSelected = (i: number) => {
+    const now = editorStore.get().draft[field] as unknown as unknown[];
+    setItemKey(now[i] === undefined ? "" : keyOf(now[i], i));
+  };
   // переход к объекту с ошибкой
   const focus = useEditor((s) => s.focus);
   useEffect(() => {

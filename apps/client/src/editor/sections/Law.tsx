@@ -1,8 +1,8 @@
 import "./Law.css";
-import { useState } from "react";
 import { editor, useEditor } from "../state";
 import { Icon } from "../../ui/icons";
 import { Tabs } from "../Tabs";
+import { useUrlParam } from "../url";
 import { ItemTools } from "../ItemTools";
 import { moveItem } from "../../util/lists";
 import { LawItemT } from "./Flags";
@@ -10,7 +10,7 @@ import { LawItemT } from "./Flags";
 /** Вкладка «Закон» у игрока: правовая база и пояснения — нумерованные списки. */
 export function LawSection() {
   const draft = useEditor((s) => s.draft);
-  const [tab, setTab] = useState<"basis" | "notes">("basis");
+  const [tab, setTab] = useUrlParam<"basis" | "notes">("tab", "basis", ["basis", "notes"]);
   const ref = draft.lawReference ?? { basis: [], notes: [] };
   const items = ref[tab] as LawItemT[];
   const setItems = (next: LawItemT[]) => editor.update((d) => ({ ...d, lawReference: { ...ref, [tab]: next } }), `law:${tab}`);

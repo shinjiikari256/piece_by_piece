@@ -8,7 +8,7 @@ import {
   TILE_NAMES,
 } from "../game/art";
 import type { Location as LocationT } from "../../../../shared/case";
-import { editor, useEditor } from "./state";
+import { editor, editorStore, useEditor } from "./state";
 import { ObjectFields } from "./SchemaForm";
 import { ask } from "../ui/dialog";
 import { MapPalette } from "./map/Palette";
@@ -19,17 +19,35 @@ import { LIST_KEY, type Selection, type Tool } from "./map/types";
 import { ObjectList } from "./map/ObjectList";
 import { LOCATION_SCHEMA, SelectedPanel, SizeInput } from "./map/panels";
 import { Tabs } from "./Tabs";
+import { useUrlParam, useWriteDefaultParam } from "./url";
 
 
+
+/** Выбранный объект из адреса (`object:obj_desk`, `start`); если такого на локации нет — ничего не выбрано. */
+function parseSelection(loc: LocationT | undefined, key: string): Selection {
+  if (!loc || !key) return null;
+  if (key === "start") return { kind: "start" };
+  const [kind, ...rest] = key.split(":");
+  const id = rest.join(":");
+  const list = { object: loc.objects, npc: loc.npcs, exit: loc.exits, door: loc.doors }[kind as "object" | "npc" | "exit" | "door"];
+  return list?.some((x) => x.id === id) ? ({ kind, id } as Selection) : null;
+}
 
 export function MapEditor() {
   const draft = useEditor((s) => s.draft);
-  const [locIndex, setLocIndex] = useState(0);
+  // выбранная локация, объект и вкладка инспектора — в адресе (`?item=…&obj=…&tab=list`)
+  const [locKey, setLocKey] = useUrlParam("item", "");
+  const found = draft.locations.findIndex((l) => l.id === locKey);
+  const locIndex = found >= 0 ? found : 0;
+  useWriteDefaultParam("item", found >= 0, draft.locations[0]?.id);
+  const setLocIndex = (i: number) => setLocKey(editorStore.get().draft.locations[i]?.id ?? "");
   const loc = draft.locations[Math.min(locIndex, draft.locations.length - 1)];
   const li = draft.locations.indexOf(loc);
   const [tool, setTool] = useState<Tool>({ kind: "select" });
-  const [sel, setSel] = useState<Selection>(null);
-  const [insp, setInsp] = useState<"props" | "list">("props");
+  const [objKey, setObjKey] = useUrlParam("obj", "");
+  const sel = parseSelection(loc, objKey);
+  const setSel = (s: Selection) => setObjKey(s === null ? "" : s.kind === "start" ? "start" : `${s.kind}:${s.id}`);
+  const [insp, setInsp] = useUrlParam<"props" | "list">("tab", "props", ["props", "list"]);
   const [npcCharacter, setNpcCharacter] = useState(draft.characters[0]?.id ?? "");
   const [hover, setHover] = useState<{ x: number; y: number; px: number; py: number } | null>(null);
   const [zoom, setZoom] = useState<number | "fit">("fit");

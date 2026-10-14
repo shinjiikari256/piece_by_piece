@@ -3,6 +3,7 @@ import { CaseFile } from "../../../../../shared/case";
 import { editor, useEditor } from "../state";
 import { FlagDialog, deleteFlag, flagUsage, type FlagUse } from "../SchemaForm";
 import { renameKey, toKey } from "../keys";
+import { useUrlParam, useWriteDefaultParam } from "../url";
 import { Icon } from "../../ui/icons";
 import { EntityList, ItemText } from "../EntityList";
 import { ask, tell } from "../../ui/dialog";
@@ -17,11 +18,12 @@ export function FlagsSection() {
   const ids = [...new Set([...(draft.flags ?? []).map((f) => f.id), ...usage.keys()])].sort((a, b) =>
     (nameOf(a) || "я").localeCompare(nameOf(b) || "я", "ru"),
   );
-  const [selected, setSelected] = useState<string | null>(ids[0] ?? null);
+  const [selected, setSelected] = useUrlParam("item", ""); // выбранный флаг — в адресе
   useEffect(() => {
     if (focus?.section === "flags" && focus.id) setSelected(focus.id);
-  }, [focus]);
+  }, [focus]); // eslint-disable-line react-hooks/exhaustive-deps
   const current = selected && ids.includes(selected) ? selected : (ids[0] ?? null);
+  useWriteDefaultParam("item", current === selected, ids[0]);
 
   return (
     <section className="ed__split">

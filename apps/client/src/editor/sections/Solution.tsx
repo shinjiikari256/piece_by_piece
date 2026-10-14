@@ -1,5 +1,5 @@
-import { useState } from "react";
 import { Tabs } from "../Tabs";
+import { useUrlParam } from "../url";
 import { CaseFile } from "../../../../../shared/case";
 import { editor, useEditor } from "../state";
 import { ObjectFields } from "../SchemaForm";
@@ -15,7 +15,7 @@ const SOLUTION_TABS = [
 
 export function SolutionSection() {
   const draft = useEditor((s) => s.draft);
-  const [tab, setTab] = useState<(typeof SOLUTION_TABS)[number]["id"]>("verdict");
+  const [tab, setTab] = useUrlParam<(typeof SOLUTION_TABS)[number]["id"]>("tab", "verdict", SOLUTION_TABS.map((t) => t.id));
   const current = SOLUTION_TABS.find((t) => t.id === tab)!;
   return (
     <section className="conf-panel">
