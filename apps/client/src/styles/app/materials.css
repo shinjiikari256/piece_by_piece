@@ -45,7 +45,8 @@
 .materials__detail {
   overflow: auto;
   min-height: 0;
-  padding-right: 0.2rem;
+  /* поля по 3px: иначе кольцо фокуса карточек у края прокручиваемой области обрезается */
+  padding: 3px 0.2rem 3px 3px;
 }
 .materials__placeholder {
   color: var(--text-muted);

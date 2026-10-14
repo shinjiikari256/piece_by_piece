@@ -1,10 +1,11 @@
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
+import { useWindowKey } from "../hooks";
 import { sourceOf } from "../../content/case-utils";
 import { resolveLook } from "../../game/art";
 import { actions, useGame, type Mark } from "../../state/store";
 import type { Evidence } from "../../../../../shared/case";
 import type { PublicDeduction as Deduction } from "../../../../../shared/public-case";
-import { EvidenceCard, FactCard, KIND_ICON, KIND_LABEL, LEVEL, MarkButtons, Reliability, kindTitle, type MaterialKind } from "../common";
+import { EvidenceCard, FactCard, INTERACTIVE, KIND_ICON, KIND_LABEL, LEVEL, MarkButtons, Reliability, kindTitle, type MaterialKind } from "../common";
 import { Icon } from "../icons";
 import { Md } from "../md";
 import { Portrait } from "../panels";
@@ -60,12 +61,35 @@ export function MaterialsTab({ match, focus }: { match: boolean; focus?: string 
   // сопоставляем пары; третий выбор заменяет второй
   const togglePick = (id: string) => setPicked((p) => (p.includes(id) ? p.filter((x) => x !== id) : p.length < 2 ? [...p, id] : [p[0], id]));
 
+  const toggleMatch = () => {
+    // уже открытый материал — первым на доску
+    setPicked(!match && selected ? [selected] : []);
+    actions.open({ kind: "journal", tab: "materials", match: !match });
+  };
+  // «Сопоставить» / «Изучить» — клавиша C (вкладка «Материалы» открыта, раз смонтирован этот компонент); по физической клавише, как остальные
+  useWindowKey((e) => {
+    if (e.code !== "KeyC" || e.repeat || e.ctrlKey || e.metaKey || e.altKey || !items.length) return;
+    if (e.target instanceof Element && e.target.closest('input, textarea, [aria-haspopup], [role="listbox"]')) return;
+    e.preventDefault();
+    toggleMatch();
+  });
+
+  // В режиме сопоставления карточку выбирает только пробел, а Enter — само сопоставление (главная кнопка доски: «Сопоставить», «Очистить», «Новое сопоставление»)
+  const root = useRef<HTMLDivElement>(null);
+  useWindowKey((e) => {
+    if (!match || e.key !== "Enter" || e.repeat) return;
+    if (e.target instanceof Element && e.target.closest(INTERACTIVE) && !e.target.closest(".materials__list")) return; // остальные кнопки нажимаются сами
+    e.preventDefault();
+    e.stopImmediatePropagation(); // иначе Enter нажмёт «Изучить» — основную кнопку окна
+    root.current?.querySelector<HTMLButtonElement>(".board__result .btn:not(:disabled)")?.click();
+  });
+
   if (!items.length) {
     return <p className="empty">Пока пусто. Осматривайте предметы и расспрашивайте людей — найденное попадёт сюда.</p>;
   }
 
   return (
-    <div className="materials">
+    <div className="materials" ref={root}>
       <div className="materials__bar">
         <Select
           variant="filter"
@@ -118,13 +142,9 @@ export function MaterialsTab({ match, focus }: { match: boolean; focus?: string 
         </span>
         <button
           className={`btn materials__match ${match ? "btn--primary" : ""}`}
-          onClick={() => {
-            // уже открытый материал — первым на доску
-            setPicked(!match && selected ? [selected] : []);
-            actions.open({ kind: "journal", tab: "materials", match: !match });
-          }}
+          onClick={toggleMatch}
         >
-          <Icon name={match ? "evidence" : "link"} size={16} /> {match ? "Изучить" : "Сопоставить"}
+          <Icon name={match ? "evidence" : "link"} size={16} /> {match ? "Изучить" : "Сопоставить"} <kbd>C</kbd>
         </button>
       </div>
 

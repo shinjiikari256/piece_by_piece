@@ -1,7 +1,7 @@
 import { actions, useGame } from "../../state/store";
 import type { PublicQuestion as Question } from "../../../../../shared/public-case";
 import { useEffect, useRef, useState } from "react";
-import { useWindowKey } from "../hooks";
+import { useArrowNav, useWindowKey } from "../hooks";
 import { EvidenceCard, TabbedModal } from "../common";
 import type { FolderTab } from "../folder";
 import type { IconName } from "../icons";
@@ -74,6 +74,7 @@ export function FinalScreen() {
     main.current?.querySelector<HTMLElement>(".final2__q")?.focus({ preventScroll: true });
   }, [step]);
 
+  useArrowNav(main, OPTION); // вариантов может быть больше девяти, а карточки лежат рядами: по ним ходим вертикальными стрелками
   useWindowKey((e) => {
     if (e.target instanceof Element && e.target.closest("input, textarea"))
       return;
@@ -90,16 +91,7 @@ export function FinalScreen() {
       const id = optionsOf(q)[at];
       if (q.kind === "single" && id) actions.setAnswer(q.id, [id]);
       setStep((v) => Math.min(questions.length, v + 1));
-    } else if (e.key === "ArrowDown" || e.key === "ArrowUp") {
-      // вариантов может быть больше девяти, а карточки лежат рядами: по ним ходим вертикальными стрелками, по кругу
-      const items = [...(main.current?.querySelectorAll<HTMLElement>(OPTION) ?? [])];
-      if (!items.length) return;
-      e.preventDefault();
-      const at = items.indexOf(document.activeElement as HTMLElement);
-      const step = e.key === "ArrowDown" ? 1 : -1;
-      items[at === -1 ? (step > 0 ? 0 : items.length - 1) : (at + step + items.length) % items.length].focus();
-    }
-    else if (q && /^[1-9]$/.test(e.key)) {
+    } else if (q && /^[1-9]$/.test(e.key)) {
       const id = optionsOf(q)[Number(e.key) - 1];
       if (id) toggle(q, id);
     }

@@ -4,7 +4,7 @@ import type { PublicDeduction } from "../../../../shared/public-case";
 import { actions, useGame, type Mark } from "../state/store";
 import { FolderTabs, type FolderTab } from "./folder";
 import { Icon, type IconName } from "./icons";
-import { useEscape, useWindowKey } from "./hooks";
+import { useEscape, useScrollKeys, useWindowKey } from "./hooks";
 import { Backdrop } from "./window";
 import { RELIABILITY_TONE } from "./tone";
 
@@ -89,6 +89,7 @@ export function TabbedModal({
 }) {
   const ref = useRef<HTMLElement>(null);
   useEnterPrimary(ref);
+  useScrollKeys(ref); // ↑ ↓ PageUp PageDown Home End прокручивают окно и без фокуса внутри
   useEscape(onClose);
   return (
     <Backdrop onDismiss={onClose}>

@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useArrowNav, useWindowKey } from "../hooks";
 import { actions, useGame } from "../../state/store";
 import type { PublicDeduction as Deduction } from "../../../../../shared/public-case";
 import { FactCard, kindTitle } from "../common";
@@ -17,6 +18,17 @@ export function MatchPanel({ picked, onRemove, onClear }: { picked: string[]; on
   const caseFile = useCase();
   const solved = useGame((s) => s.progress.deductions);
   const [state, setState] = useState<MatchState>({ step: "pick" });
+  const root = useRef<HTMLElement>(null);
+  // пока показаны варианты ответа, стрелки ходят по ним (у журнала при этом навигация по карточкам выключена), а цифра выбирает вариант (фокус — Enter нажимает)
+  const OPTIONS = ".deduction__options .choice";
+  useArrowNav(root, OPTIONS);
+  useWindowKey((e) => {
+    if (e.ctrlKey || e.metaKey || e.altKey || !/^[1-9]$/.test(e.key)) return;
+    const option = root.current?.querySelectorAll<HTMLElement>(OPTIONS)[Number(e.key) - 1];
+    if (!option) return;
+    e.preventDefault();
+    option.focus();
+  });
   const pickedKey = picked.join("+");
   useEffect(() => setState({ step: "pick" }), [pickedKey]);
   // ключ карточки: id улики или «fact:<id сопоставления>»
@@ -42,7 +54,7 @@ export function MatchPanel({ picked, onRemove, onClear }: { picked: string[]; on
   };
 
   return (
-    <section className="board board--compact">
+    <section className="board board--compact" ref={root}>
       <div className="pins pins--pair">
         {picked.length === 2 && <span className="pins__string" style={{ left: "25%", width: "50%" }} />}
         {[0, 1].map((i) => {
@@ -86,9 +98,10 @@ export function MatchPanel({ picked, onRemove, onClear }: { picked: string[]; on
           <div className="deduction">
             <p className="deduction__q">{state.deduction.question}</p>
             <div className="deduction__options">
-              {state.deduction.options.map((o) => (
+              {state.deduction.options.map((o, i) => (
                 <button key={o.id} className="choice" onClick={() => answer(state.deduction, o.id)}>
-                  {o.text}
+                  <span className="choice__num">{i + 1}</span>
+                  <span className="choice__text">{o.text}</span>
                 </button>
               ))}
             </div>

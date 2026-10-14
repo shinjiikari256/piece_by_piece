@@ -94,3 +94,54 @@ export function useFocusTrap(root: RefObject<HTMLElement | null>) {
     };
   }, [root]);
 }
+
+/**
+ * ↑ / ↓ переводят фокус по кругу между элементами `selector` внутри `root` (карточки, варианты ответа).
+ * `active` — условие, при котором навигация включена (у вложенного списка с приоритетом внешний выключается). Не мешает полям ввода и выпадающим спискам; если фокус не на элементе, ↓ ставит его на первый, ↑ — на последний.
+ */
+export function useArrowNav(root: RefObject<HTMLElement | null>, selector: string, active: () => boolean = () => true) {
+  useWindowKey((e) => {
+    if (e.key !== "ArrowDown" && e.key !== "ArrowUp") return;
+    if (!active()) return;
+    if (e.ctrlKey || e.metaKey || e.altKey || e.defaultPrevented) return;
+    if (e.target instanceof Element && e.target.closest('input, textarea, [aria-haspopup], [role="listbox"]')) return;
+    const items = [...(root.current?.querySelectorAll<HTMLElement>(selector) ?? [])];
+    if (!items.length) return;
+    e.preventDefault();
+    const at = items.indexOf(document.activeElement as HTMLElement);
+    const step = e.key === "ArrowDown" ? 1 : -1;
+    items[at === -1 ? (step > 0 ? 0 : items.length - 1) : (at + step + items.length) % items.length].focus();
+  });
+}
+
+const SCROLL_KEYS: Record<string, (height: number) => number> = {
+  ArrowDown: () => 48,
+  ArrowUp: () => -48,
+  PageDown: (h) => h * 0.9,
+  PageUp: (h) => -h * 0.9,
+  Home: () => -Infinity,
+  End: () => Infinity,
+};
+
+/**
+ * Прокрутка окна клавишами ↑ ↓ PageUp PageDown Home End, когда фокус вне прокручиваемой области (на подложке или вкладках):
+ * браузер там прокручивать нечего. Если фокус внутри области или стрелки уже заняты (навигация по карточкам), ничего не делаем.
+ */
+export function useScrollKeys(root: RefObject<HTMLElement | null>) {
+  useWindowKey((e) => {
+    const delta = SCROLL_KEYS[e.key];
+    if (!delta || e.ctrlKey || e.metaKey || e.altKey || e.shiftKey || e.defaultPrevented) return;
+    if (e.target instanceof Element && e.target.closest('input, textarea, select, [aria-haspopup], [role="listbox"]')) return;
+    // первая (внешняя) прокручиваемая область окна, которой есть что прокручивать
+    const scroller = [...(root.current?.querySelectorAll<HTMLElement>("*") ?? [])].find(
+      (x) => x.scrollHeight > x.clientHeight + 1 && /auto|scroll/.test(getComputedStyle(x).overflowY),
+    );
+    if (!scroller || scroller.contains(document.activeElement)) return; // внутри области браузер прокрутит сам
+    // стрелки могут занять обработчики, подключённые позже, — решаем после всех
+    setTimeout(() => {
+      if (e.defaultPrevented) return;
+      const by = delta(scroller.clientHeight);
+      scroller.scrollTo({ top: Number.isFinite(by) ? scroller.scrollTop + by : by < 0 ? 0 : scroller.scrollHeight });
+    });
+  });
+}

@@ -1,4 +1,5 @@
-import { useWindowKey } from "../hooks";
+import { useRef } from "react";
+import { useArrowNav, useWindowKey } from "../hooks";
 import { actions, useGame, type JournalTab } from "../../state/store";
 
 import { TabbedModal } from "../common";
@@ -17,7 +18,13 @@ export const JOURNAL_TABS: { id: JournalTab; label: string; icon: IconName }[] =
   { id: "law", label: "Закон", icon: "law" },
 ];
 
+/** Карточки, по которым ходят ↑ / ↓: материалы и фигуранты (список слева, не подробности справа). */
+const CARDS = ".materials__list button.evidence-card, .materials__list button.person-card";
+
 export function Journal({ tab, match, focus }: { tab: JournalTab; match?: boolean; focus?: string }) {
+  const content = useRef<HTMLDivElement>(null);
+  // пока на доске показаны варианты сопоставления, стрелки ходят по ним (match.tsx), а не по карточкам
+  useArrowNav(content, CARDS, () => !content.current?.querySelector(".deduction__options"));
   useWindowKey((e) => {
     if (e.key !== "ArrowLeft" && e.key !== "ArrowRight") return;
     if (e.target instanceof Element && e.target.closest("input, textarea")) return;
@@ -33,7 +40,7 @@ export function Journal({ tab, match, focus }: { tab: JournalTab; match?: boolea
       onTab={(id) => actions.open({ kind: "journal", tab: id as JournalTab })}
       className="journal"
     >
-      <div className="journal__content">
+      <div className="journal__content" ref={content}>
         {tab === "brief" && <BriefTab />}
         {tab === "materials" && <MaterialsTab key={focus} match={!!match} focus={focus} />}
         {tab === "characters" && <CharactersTab key={focus} focus={focus} />}

@@ -133,7 +133,6 @@ export function runTool(tool: ToolKey) {
 
 function BottomBar() {
   const [focus, setFocus] = useState<string | null>(null);
-  const hintsUsed = useGame((s) => s.hintsUsed);
 
   useEffect(() => {
     gameBridge.focusListeners.add(setFocus);
@@ -168,7 +167,7 @@ function BottomBar() {
       </button>
       <button onMouseDown={keepFocus} className="tool" onClick={() => runTool("hints")}>
         <span className="tool__icon"><Icon name="bulb" /></span>
-        <span className="tool__label ellipsis">Подсказка {hintsUsed > 0 && `(${hintsUsed}/3)`}</span>
+        <span className="tool__label ellipsis">Подсказка</span>
         <kbd>{KEY_LABEL.hints}</kbd>
       </button>
       <button onMouseDown={keepFocus} className="tool tool--decide" onClick={() => runTool("final")}>

@@ -148,6 +148,102 @@ describe("игра в браузере", () => {
     await page.close();
   });
 
+  it("журнал с клавиатуры: ↑/↓ ходят по карточкам материалов и фигурантов, Enter открывает", async () => {
+    const page = await h.page();
+    await startCase(page);
+    await page.evaluate(() => {
+      const { actions } = (window as any).__game;
+      for (const id of ["obj_computer", "obj_desk"]) {
+        actions.interact(id);
+        actions.addObjectToJournal(id);
+        actions.close();
+      }
+    });
+    await page.keyboard.press("KeyM");
+    await page.locator(".folder__tab", { hasText: "Материалы" }).click();
+    const focused = () => page.evaluate(() => document.activeElement?.className ?? "");
+    await page.keyboard.press("ArrowDown");
+    expect(await focused()).toContain("evidence-card");
+    const first = await page.evaluate(() => document.activeElement?.textContent);
+    await page.keyboard.press("ArrowDown");
+    expect(await page.evaluate(() => document.activeElement?.textContent)).not.toBe(first);
+    await page.keyboard.press("Enter");
+    expect(await page.evaluate(() => document.activeElement?.getAttribute("aria-pressed"))).toBe("true");
+    // C переключает «Сопоставить» / «Изучить»
+    await page.keyboard.press("KeyC");
+    await page.getByRole("button", { name: /Изучить/ }).waitFor();
+    await page.keyboard.press("KeyC");
+    await page.getByRole("button", { name: /Сопоставить/ }).waitFor();
+    // сопоставление: открытый материал сразу на доске; карточку выбирает пробел, Enter сопоставляет
+    await page.keyboard.press("KeyC");
+    expect(await page.locator(".pin-slot.is-filled").count()).toBe(1);
+    await page.keyboard.press("ArrowDown");
+    await page.keyboard.press("Enter"); // выбор карточки — не Enter: вторая пара не появилась
+    expect(await page.locator(".pin-slot.is-filled").count()).toBe(1);
+    await page.keyboard.press("Space");
+    expect(await page.locator(".pin-slot.is-filled").count()).toBe(2);
+    await page.keyboard.press("Enter");
+    await page.locator(".board__result .verdict, .board__result .deduction").first().waitFor();
+    await page.keyboard.press("KeyC");
+    // у фигурантов то же
+    await page.locator(".folder__tab", { hasText: "Фигуранты" }).click();
+    await page.keyboard.press("ArrowDown");
+    expect(await focused()).toContain("person-card");
+    await page.close();
+  });
+
+  it("варианты сопоставления пронумерованы: стрелки и цифры ходят по ним, а не по карточкам материалов", async () => {
+    const page = await h.page();
+    await startCase(page);
+    const pair = await page.evaluate(() => {
+      const { actions, store } = (window as any).__game;
+      const talk = (npc: string, ...choices: string[]) => {
+        actions.interact(npc);
+        choices.forEach((c) => actions.choose(c));
+        actions.close();
+      };
+      talk("npc_alina", "what", "back", "pass", "back");
+      talk("npc_gusev", "key", "back");
+      ["obj_computer", "obj_desk", "obj_cabinet", "obj_board", "obj_guard_post"].forEach((id) => {
+        actions.interact(id);
+        actions.addObjectToJournal(id);
+        actions.close();
+      });
+      return store.get().caseFile.deductions[0].evidenceIds as string[];
+    });
+    await page.keyboard.press("KeyM");
+    await page.locator(".folder__tab", { hasText: "Материалы" }).click();
+    await page.keyboard.press("KeyC");
+    for (const id of pair) await page.locator(`.materials__list [data-mark-key="${id}"]`).click();
+    await page.keyboard.press("Enter");
+    await page.locator(".deduction__options .choice").first().waitFor();
+    expect(await page.locator(".deduction__options .choice__num").allTextContents()).toEqual(["1", "2", "3"].slice(0, await page.locator(".deduction__options .choice").count()));
+    await page.keyboard.press("ArrowDown");
+    expect(await page.evaluate(() => document.activeElement?.classList.contains("choice"))).toBe(true);
+    await page.keyboard.press("Digit2");
+    expect(await page.evaluate(() => document.activeElement?.querySelector(".choice__num")?.textContent)).toBe("2");
+    await page.close();
+  });
+
+  it("вкладка «Закон»: стрелки прокручивают текст без перевода фокуса в область просмотра", async () => {
+    const page = await h.page();
+    await page.setViewportSize({ width: 1000, height: 500 }); // низкое окно: текст закона не помещается
+    await startCase(page);
+    await page.keyboard.press("KeyM");
+    await page.locator(".folder__tab", { hasText: "Закон" }).click();
+    const scroller = () =>
+      page.evaluate(() => {
+        const el = [...document.querySelectorAll(".tabbed-modal *")].find((x) => x.scrollHeight > x.clientHeight + 1 && /auto|scroll/.test(getComputedStyle(x).overflowY));
+        return { scrollable: !!el, top: el?.scrollTop ?? 0 };
+      });
+    expect((await scroller()).scrollable).toBe(true);
+    await page.keyboard.press("ArrowDown");
+    await expect.poll(async () => (await scroller()).top).toBeGreaterThan(0);
+    await page.keyboard.press("Home");
+    await expect.poll(async () => (await scroller()).top).toBe(0);
+    await page.close();
+  });
+
   it("окна открываются и закрываются", async () => {
     const page = await h.page();
     await startCase(page);
