@@ -1,4 +1,5 @@
 import { formatDate } from "../../util/format";
+import { mixColors } from "../../util/colors";
 import { APP_NAME } from "../../env";
 import { C, PAGE_H, PAGE_W, Tone, centered, diamond, divider, font, paper, spaced, toneColor } from "./common";
 
@@ -190,11 +191,11 @@ export function drawCertificate(canvas: HTMLCanvasElement, d: CertificateData) {
 
   // заголовок — золотом с лёгкой тенью
   const title = ctx.createLinearGradient(0, 470, 0, 650);
-  title.addColorStop(0, "#c9a15f");
-  title.addColorStop(0.5, "#8a6a3a");
-  title.addColorStop(1, "#b48d55");
+  title.addColorStop(0, mixColors(C.gold, "#ffffff", 0.15));
+  title.addColorStop(0.5, C.goldDark);
+  title.addColorStop(1, C.gold);
   ctx.save();
-  ctx.shadowColor = "rgba(60, 40, 10, 0.25)";
+  ctx.shadowColor = C.shadow;
   ctx.shadowOffsetY = 6;
   ctx.shadowBlur = 8;
   ctx.fillStyle = title;

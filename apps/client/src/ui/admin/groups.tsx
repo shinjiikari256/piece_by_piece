@@ -265,6 +265,9 @@ function QrCode({ text }: { text: string }) {
 }
 
 /** QR-код картинкой PNG (для печати и слайдов). */
+/** QR всегда чёрный на белом: цвета темы не используем, иначе код перестанет читаться сканером. */
+const QR_BACKGROUND = "#ffffff";
+
 async function downloadQr(text: string, name: string) {
   const svg = renderSVG(text, { border: 2 });
   const img = new Image();
@@ -276,7 +279,7 @@ async function downloadQr(text: string, name: string) {
   canvas.height = size;
   const ctx = canvas.getContext("2d")!;
   ctx.imageSmoothingEnabled = false;
-  ctx.fillStyle = "#fff";
+  ctx.fillStyle = QR_BACKGROUND;
   ctx.fillRect(0, 0, size, size);
   ctx.drawImage(img, 0, 0, size, size);
   const a = document.createElement("a");

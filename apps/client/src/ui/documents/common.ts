@@ -1,22 +1,31 @@
 
+import { mixColors, roleColor } from "../../util/colors";
+
 /** A4 при 200 dpi. */
 export const PAGE_W = 1654;
 export const PAGE_H = 2339;
 
+/**
+ * Цвета документов — роли из CSS (`styles/tokens/roles.css`), читаются при рисовании: грамота и результат следуют теме.
+ * Золото листа — рамка «обвязки» (`--border-chrome`), тёмный и светлый оттенки считаются от него.
+ */
 export const C = {
-  paper: "#fbf7ee",
-  paperEdge: "#f0e5cd",
-  ink: "#2b231c",
-  soft: "#6b5d4f",
-  muted: "#8a7b6b",
-  line: "#e0d4bd",
-  gold: "#b48d55",
-  goldDark: "#8a6a3a",
-  goldLight: "#d9bd8c",
-  accent: "#2b4c7e",
-  good: "#2e7d4f",
-  warn: "#a0701a",
-  bad: "#b03a2e",
+  get paper() { return roleColor("--bg-paper", "#fbf7ee"); },
+  get paperEdge() { return roleColor("--bg-paper-dim", "#f3ecdc"); },
+  get surface() { return roleColor("--bg-surface", "#ffffff"); },
+  get onDark() { return roleColor("--text-on-dark", "#ffffff"); },
+  get ink() { return roleColor("--text", "#2b231c"); },
+  get soft() { return roleColor("--text-soft", "#5d5247"); },
+  get muted() { return roleColor("--text-muted", "#887a6b"); },
+  get line() { return roleColor("--border", "#e0d4bd"); },
+  get gold() { return roleColor("--border-chrome", "#b48d55"); },
+  get goldDark() { return mixColors(this.gold, "#000000", 0.25); },
+  get goldLight() { return mixColors(this.gold, "#ffffff", 0.35); },
+  get accent() { return roleColor("--accent", "#2b4c7e"); },
+  get good() { return roleColor("--good", "#2e7d4f"); },
+  get warn() { return roleColor("--warn-strong", "#e0b23c"); },
+  get bad() { return roleColor("--bad", "#b03a2e"); },
+  get shadow() { return roleColor("--overlay-dark-2", "rgba(20, 12, 4, 0.18)"); },
 };
 
 export type Tone = "good" | "warn" | "bad";

@@ -168,7 +168,7 @@ export function drawResultPages(d: ResultDocData): HTMLCanvasElement[] {
     ctx.textAlign = "right";
     ctx.font = font(400, 36, "PT Mono");
     ctx.fillText(`${s.points}/${s.max}`, M + CONTENT_W, y + 50);
-    rounded(ctx, M, y + 78, CONTENT_W, 30, 15, "#efe6d2");
+    rounded(ctx, M, y + 78, CONTENT_W, 30, 15, C.paperEdge);
     if (s.points > 0) rounded(ctx, M, y + 78, Math.max(30, (CONTENT_W * s.points) / Math.max(1, s.max)), 30, 15, toneColor(tonePct(pct)));
     y += 140;
   }
@@ -185,7 +185,7 @@ export function drawResultPages(d: ResultDocData): HTMLCanvasElement[] {
   const tw = (CONTENT_W - gap * (tiles.length - 1)) / tiles.length;
   tiles.forEach((t, i) => {
     const x = M + i * (tw + gap);
-    rounded(ctx, x, y, tw, 210, 22, "#fffdf8", C.line);
+    rounded(ctx, x, y, tw, 210, 22, C.surface, C.line);
     ctx.textAlign = "left";
     ctx.fillStyle = t.color;
     ctx.font = font(700, 60);
@@ -215,7 +215,7 @@ export function drawResultPages(d: ResultDocData): HTMLCanvasElement[] {
     const ok = a.points >= a.max && a.max > 0;
     const partial = a.points > 0 && !ok;
     const stripe = ok ? C.good : partial ? C.warn : C.bad;
-    rounded(ctx, M, y, CONTENT_W, h, 22, "#fffdf8", C.line);
+    rounded(ctx, M, y, CONTENT_W, h, 22, C.surface, C.line);
     ctx.save();
     ctx.beginPath();
     ctx.roundRect(M, y, CONTENT_W, h, 22);
@@ -228,7 +228,7 @@ export function drawResultPages(d: ResultDocData): HTMLCanvasElement[] {
     ctx.font = font(400, 36, "PT Mono");
     const bw = ctx.measureText(badge).width + 44;
     rounded(ctx, M + CONTENT_W - bw - 30, y + 30, bw, 58, 29, ok ? C.good : partial ? C.warn : C.bad);
-    ctx.fillStyle = "#fff";
+    ctx.fillStyle = C.onDark;
     ctx.textAlign = "center";
     ctx.fillText(badge, M + CONTENT_W - 30 - bw / 2, y + 71);
     // вопрос

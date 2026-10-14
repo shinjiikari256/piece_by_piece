@@ -15,6 +15,7 @@
     "generate:case": "tsx scripts/generate-case.ts",
     "touch:cases": "tsx scripts/touch-cases.ts",
     "generate:licenses": "tsx scripts/licenses.ts",
+    "audit:colors": "tsx scripts/audit-colors.ts",
     "export:offline": "tsx scripts/export-offline.ts",
     "server:dev": "tsx watch apps/server/src/main.ts",
     "db:up": "docker compose up -d db",
