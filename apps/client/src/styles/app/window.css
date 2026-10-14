@@ -11,6 +11,10 @@
   background: var(--scrim);
   animation: fade 0.15s ease-out;
 }
+/* фокус уходит на подложку, чтобы Tab начинался с начала окна; кольцо ей ни к чему */
+.backdrop:focus {
+  outline: none;
+}
 .backdrop[data-layer="dialog"] {
   z-index: 2000;
 }

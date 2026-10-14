@@ -1,5 +1,5 @@
-import { useId, type FormEvent, type ReactNode } from "react";
-import { useEscape } from "./hooks";
+import { useId, useRef, type FormEvent, type ReactNode } from "react";
+import { useEscape, useFocusTrap } from "./hooks";
 
 /**
  * Затемнённая подложка под окном. `layer="window"` — окна игры и сайта, `layer="dialog"` — диалоги поверх них;
@@ -16,8 +16,10 @@ export function Backdrop({
   onDismiss?: () => void;
   children: ReactNode;
 }) {
+  const ref = useRef<HTMLDivElement>(null);
+  useFocusTrap(ref);
   return (
-    <div className="backdrop" data-layer={layer} data-align={align} onMouseDown={(e) => e.target === e.currentTarget && onDismiss?.()}>
+    <div ref={ref} tabIndex={-1} className="backdrop" data-layer={layer} data-align={align} onMouseDown={(e) => e.target === e.currentTarget && onDismiss?.()}>
       {children}
     </div>
   );

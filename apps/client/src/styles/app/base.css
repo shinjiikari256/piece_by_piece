@@ -154,9 +154,12 @@ kbd {
 .btn:focus-visible,
 .tool:focus-visible,
 .option:focus-visible,
+.answer-opt:focus-visible,
+.folder__tab:focus-visible,
+.link-btn:focus-visible,
 .evidence-card:focus-visible {
-  outline: 3px solid var(--warn);
-  outline-offset: 2px;
+  outline: 3px solid var(--ring-focus);
+  outline-offset: 0;
 }
 
 .icon-btn {

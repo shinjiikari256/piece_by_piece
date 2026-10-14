@@ -95,6 +95,59 @@ describe("игра в браузере", () => {
     await page.close();
   });
 
+  it("Enter на вступлении начинает расследование (фокус не остаётся на карточке дела под окном)", async () => {
+    const page = await h.page();
+    await page.goto(`${BASE}/cases`);
+    await page.locator("button.case-file").first().click();
+    await page.getByRole("button", { name: "Приступить к расследованию" }).waitFor();
+    await page.keyboard.press("Enter");
+    await page.waitForFunction(() => (window as any).__game.store.get().screen === "play");
+    await page.close();
+  });
+
+  it("решение проходится с клавиатуры: фокус остаётся в окне, Tab/Enter ведут по шагам", async () => {
+    const page = await h.page();
+    await startCase(page);
+    await page.evaluate(() => (window as any).__game.actions.goFinal());
+    const inside = () => page.evaluate(() => !!document.activeElement?.closest(".backdrop"));
+    // Tab ходит по кругу внутри окна, не уходя в страницу под ним
+    for (let i = 0; i < 40; i++) {
+      await page.keyboard.press("Tab");
+      expect(await inside()).toBe(true);
+    }
+    // с модификатором цифры и стрелки браузеру, а не игре
+    await page.keyboard.press("Control+Digit1");
+    expect(await page.evaluate(() => Object.keys((window as any).__game.store.get().answers).length)).toBe(0);
+    await page.keyboard.press("Digit1");
+    expect(await page.evaluate(() => Object.keys((window as any).__game.store.get().answers).length)).toBe(1);
+    // стрелки вверх/вниз ходят по вариантам, пробел выбирает и снимает выбор
+    const focused = () => page.evaluate(() => document.activeElement?.className ?? "");
+    await page.keyboard.press("ArrowDown");
+    expect(await focused()).toContain("answer-opt");
+    await page.keyboard.press("ArrowDown");
+    await page.keyboard.press("Space");
+    expect(await page.evaluate(() => (window as any).__game.store.get().answers.q_right)).toHaveLength(1);
+    await page.keyboard.press("ArrowUp");
+    expect(await page.evaluate(() => document.activeElement?.getAttribute("aria-pressed"))).toBe("false");
+    // единственный выбор: Enter на варианте выбирает его и идёт дальше
+    await page.keyboard.press("ArrowDown");
+    await page.keyboard.press("ArrowDown");
+    await page.keyboard.press("Enter");
+    expect(await page.evaluate(() => (window as any).__game.store.get().answers.q_right)).toHaveLength(1);
+    await page.getByText("Вопрос 2 из 5").waitFor();
+    // Enter без фокуса на варианте — «Далее»
+    await page.keyboard.press("Enter");
+    await page.getByText("Вопрос 3 из 5").waitFor();
+    // Enter на «Далее» с клавиатуры; после перехода фокус не теряется
+    for (let step = 0; step < 3; step++) {
+      while (!/Далее|К решению/.test((await page.evaluate(() => document.activeElement?.textContent)) ?? "")) await page.keyboard.press("Tab");
+      await page.keyboard.press("Enter");
+    }
+    await page.getByRole("heading", { name: "Решение" }).waitFor();
+    expect(await page.evaluate(() => document.activeElement?.tagName)).toBe("H2");
+    await page.close();
+  });
+
   it("окна открываются и закрываются", async () => {
     const page = await h.page();
     await startCase(page);

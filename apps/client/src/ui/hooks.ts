@@ -59,3 +59,38 @@ export function useDismiss(open: boolean, onClose: () => void, inside: RefObject
   }, [open]);
   useEscape(() => close.current(), open && esc);
 }
+
+const FOCUSABLE = 'a[href], button:not(:disabled), input:not(:disabled), textarea:not(:disabled), [tabindex]:not([tabindex="-1"])';
+
+/**
+ * Окно держит фокус: при открытии фокус уходит в окно, Tab и Shift+Tab ходят по кругу внутри, при закрытии фокус возвращается.
+ * Без этого Tab уходил в страницу под подложкой. Корню окна нужен `tabIndex={-1}`.
+ */
+export function useFocusTrap(root: RefObject<HTMLElement | null>) {
+  useEffect(() => {
+    const el = root.current;
+    if (!el) return;
+    const previous = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    if (!el.contains(document.activeElement)) el.focus({ preventScroll: true });
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== "Tab") return;
+      const items = [...el.querySelectorAll<HTMLElement>(FOCUSABLE)].filter((x) => x.offsetParent !== null);
+      const first = items[0];
+      const last = items.at(-1);
+      const active = document.activeElement;
+      if (!first || !last) e.preventDefault();
+      else if (e.shiftKey && (active === first || active === el)) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && active === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    };
+    el.addEventListener("keydown", onKey);
+    return () => {
+      el.removeEventListener("keydown", onKey);
+      if (previous?.isConnected) previous.focus({ preventScroll: true });
+    };
+  }, [root]);
+}

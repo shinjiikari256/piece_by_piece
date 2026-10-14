@@ -1,5 +1,5 @@
-import { useEffect, type ReactNode } from "react";
-import { useWindowKey } from "./ui/hooks";
+import { useEffect, useRef, type ReactNode } from "react";
+import { useFocusTrap, useWindowKey } from "./ui/hooks";
 import { actions, store, useGame } from "./state/store";
 import { readPlaytest } from "./content/drafts";
 import { validateCase } from "./content/validate";
@@ -62,8 +62,13 @@ function gameMenu({ target, selection }: MenuContext): MenuItem[] {
 
 /** Вступление и результат — папкой поверх страницы сайта; клик по затемнению или Esc закрывает. */
 function SiteOverlay({ children }: { children: ReactNode }) {
+  // фокус уходит в окно: иначе Enter нажимал кнопку на странице под ним (карточку дела)
+  const ref = useRef<HTMLDivElement>(null);
+  useFocusTrap(ref);
   return (
     <div
+      ref={ref}
+      tabIndex={-1}
       className="site-overlay"
       onMouseDown={(e) => {
         if ((e.target as HTMLElement).classList.contains("menu")) actions.leaveToSite();

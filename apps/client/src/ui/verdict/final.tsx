@@ -1,6 +1,6 @@
 import { actions, useGame } from "../../state/store";
 import type { PublicQuestion as Question } from "../../../../../shared/public-case";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useWindowKey } from "../hooks";
 import { EvidenceCard, TabbedModal } from "../common";
 import type { FolderTab } from "../folder";
@@ -27,6 +27,8 @@ const STEP_TITLES: Record<Question["category"], string> = {
 };
 
 const DECISION_TAB = "__decision__";
+/** Варианты ответа на экране в порядке, в котором они показаны. */
+const OPTION = "button.answer-opt, button.suspect, button.evidence-card";
 
 export function FinalScreen() {
   const caseFile = useGame((s) => s.caseFile)!;
@@ -62,12 +64,41 @@ export function FinalScreen() {
       );
   };
 
+  // после смены шага фокус не должен пропадать (кнопка шага исчезла) — переходим к заголовку вопроса
+  const main = useRef<HTMLDivElement>(null);
+  const opened = useRef(false);
+  useEffect(() => {
+    if (!opened.current) return void (opened.current = true); // при открытии фокус остаётся у окна: Tab начинается с вкладок
+    const active = document.activeElement;
+    if (active && active !== document.body && !active.classList.contains("backdrop")) return;
+    main.current?.querySelector<HTMLElement>(".final2__q")?.focus({ preventScroll: true });
+  }, [step]);
+
   useWindowKey((e) => {
     if (e.target instanceof Element && e.target.closest("input, textarea"))
       return;
+    if (e.ctrlKey || e.metaKey || e.altKey) return;
     if (e.key === "ArrowRight")
       setStep((v) => Math.min(questions.length, v + 1));
     else if (e.key === "ArrowLeft") setStep((v) => Math.max(0, v - 1));
+    else if (e.key === "Enter" && q && !e.repeat) {
+      // Enter на выбранном стрелками варианте: один ответ — выбрать его и перейти дальше; несколько — только дальше (выбор — пробелом)
+      const items = [...(main.current?.querySelectorAll<HTMLElement>(OPTION) ?? [])];
+      const at = items.indexOf(document.activeElement as HTMLElement);
+      if (at === -1) return; // фокус не на варианте: Enter нажимает основную кнопку окна
+      e.preventDefault();
+      const id = optionsOf(q)[at];
+      if (q.kind === "single" && id) actions.setAnswer(q.id, [id]);
+      setStep((v) => Math.min(questions.length, v + 1));
+    } else if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+      // вариантов может быть больше девяти, а карточки лежат рядами: по ним ходим вертикальными стрелками, по кругу
+      const items = [...(main.current?.querySelectorAll<HTMLElement>(OPTION) ?? [])];
+      if (!items.length) return;
+      e.preventDefault();
+      const at = items.indexOf(document.activeElement as HTMLElement);
+      const step = e.key === "ArrowDown" ? 1 : -1;
+      items[at === -1 ? (step > 0 ? 0 : items.length - 1) : (at + step + items.length) % items.length].focus();
+    }
     else if (q && /^[1-9]$/.test(e.key)) {
       const id = optionsOf(q)[Number(e.key) - 1];
       if (id) toggle(q, id);
@@ -90,14 +121,14 @@ export function FinalScreen() {
       tone="blue"
       className="final-window"
     >
-      <div className="final2__main col">
+      <div className="final2__main col" ref={main}>
         {q && (
           <>
             <p className="final2__kicker">
               Вопрос {step + 1} из {questions.length}
               {q.kind === "multi" && " · можно выбрать несколько"}
             </p>
-            <h2 className="final2__q">{q.prompt}</h2>
+            <h2 className="final2__q" tabIndex={-1}>{q.prompt}</h2>
 
             {q.source === "inline" && (
               <ol className="answers list-reset">
@@ -170,7 +201,7 @@ export function FinalScreen() {
         {isReview && (
           <>
             <p className="final2__kicker">Все ответы</p>
-            <h2 className="final2__q">Решение</h2>
+            <h2 className="final2__q" tabIndex={-1}>Решение</h2>
             <dl className="review-list">
               {questions.map((x, i) => (
                 <div key={x.id} className={isDone(x) ? "" : "is-missing"}>

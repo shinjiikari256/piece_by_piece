@@ -8,5 +8,6 @@
   --elev-tab: 0 -3px 8px rgba(var(--pal-shadow-rgb), 0.18); /* активная вкладка отбрасывает тень вверх */
   --elev-tab-inset: inset 0 -4px 5px -3px rgba(var(--pal-shadow-rgb), 0.16); /* неактивная вкладка чуть утоплена */
   --ring-selected: 0 0 0 2px var(--accent) inset; /* выбранная карточка */
+  --ring-focus: color-mix(in srgb, var(--accent) 35%, transparent); /* кольцо фокуса с клавиатуры: полупрозрачный accent; рисуется outline, чтобы не затирать тени */
   --marker-current: inset 3px 0 0 var(--accent); /* метка текущего пункта списка и навигации */
 }

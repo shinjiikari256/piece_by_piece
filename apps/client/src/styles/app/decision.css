@@ -142,6 +142,9 @@
   letter-spacing: 0.06em;
   font-size: 0.8em;
 }
+.final2__q:focus {
+  outline: none;
+}
 .final2__q {
   font-size: 1.7em;
   margin: 0 0 0.6rem;
