@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { useWindowKey } from "./hooks";
 import { percentOf } from "../util/format";
+import { FROM_EDITOR } from "../env";
+import { Link } from "./router";
 import { PhaserGame } from "../game/PhaserGame";
 import { gameBridge } from "../game/bridge";
 import { actions, store, useGame } from "../state/store";
@@ -51,15 +53,22 @@ function TopBar() {
   return (
     <header className="topbar">
       <div className="topbar__case">
-        <button
-          className="icon-btn topbar__home"
-          onMouseDown={keepFocus}
-          onClick={() => actions.open({ kind: "exit" })}
-          title="В главное меню (Esc)"
-          aria-label="В главное меню"
-        >
-          <Icon name="home" size={20} />
-        </button>
+        {FROM_EDITOR ? (
+          // тестовый запуск: стрелка ведёт обратно в конструктор
+          <Link className="icon-btn topbar__home" to="/editor" title="Вернуться в конструктор" aria-label="Вернуться в конструктор">
+            <Icon name="back" size={20} />
+          </Link>
+        ) : (
+          <button
+            className="icon-btn topbar__home"
+            onMouseDown={keepFocus}
+            onClick={() => actions.open({ kind: "exit" })}
+            title="В главное меню (Esc)"
+            aria-label="В главное меню"
+          >
+            <Icon name="home" size={20} />
+          </button>
+        )}
         <span className="topbar__number">Дело №{caseFile.number}</span>
         <span className="topbar__title">{caseFile.title}</span>
       </div>

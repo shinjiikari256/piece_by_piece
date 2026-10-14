@@ -52,7 +52,8 @@ export default defineConfig(({ mode }) => {
   return {
     root: import.meta.dirname,
     plugins: [react(), brandTitle(), fullReloadOnCode(), ...(offline ? [viteSingleFile(), embedLicenses()] : [])],
-    base: "./",
+    // онлайн-сборка — с корня (адреса вида /cases/x); офлайн-файл открывается с диска, пути относительные
+    base: offline ? "./" : "/",
     // dev: запросы /api уходят на сервер (pnpm server:dev); если он не запущен — игра работает локально
     server: { proxy: { "/api": process.env.API_URL ?? "http://localhost:8787" } },
     define: { __GAME_VERSION__: JSON.stringify(pkg.version) },

@@ -1,6 +1,8 @@
 /* ---------- Итерация 2 ---------- */
 
 .topbar__home {
+  display: inline-flex; /* в тестовом запуске это ссылка, а не кнопка */
+  text-decoration: none;
   font-size: 1.4em;
   color: var(--text);
   padding: 0.1em 0.4em;

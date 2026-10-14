@@ -21,7 +21,8 @@ export class ApiFailure extends Error {
 export async function api<T>(method: string, path: string, body?: unknown): Promise<T> {
   let res: Response;
   try {
-    res = await fetch(`./api${path}`, {
+    // абсолютный адрес: страница может быть на любом пути (/admin/users), относительный ./api уехал бы вместе с ним
+    res = await fetch(`/api${path}`, {
       method,
       credentials: "same-origin",
       headers: body === undefined ? undefined : { "content-type": "application/json" },
@@ -31,6 +32,8 @@ export async function api<T>(method: string, path: string, body?: unknown): Prom
     throw new ApiFailure(0, "network", "Нет связи с сервером");
   }
   const json = await res.json().catch(() => null);
+  // 200 с не-JSON (например, страница сайта вместо API) — это не ответ сервера
+  if (res.ok && json === null && res.status !== 204) throw new ApiFailure(res.status, "network", "Сервер вернул не ответ API");
   if (!res.ok) {
     if (json?.error) throw new ApiFailure(res.status, json.error, json.message ?? "Ошибка");
     throw new ApiFailure(res.status, "network", "Сервер недоступен");

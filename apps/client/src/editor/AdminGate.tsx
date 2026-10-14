@@ -1,3 +1,4 @@
+import { Link } from "../ui/router";
 import type { ReactNode } from "react";
 import { isStaff, useAccount } from "../state/account";
 import { ForcePasswordChange } from "../ui/account";
@@ -29,9 +30,9 @@ export function AdminGate({ children }: { children: ReactNode }) {
             : "Войдите под учётной записью преподавателя."}
       </p>
       {server === "online" && !me && (
-        <a className="btn btn--primary" href="#/login">
+        <Link className="btn btn--primary" to="/login">
           Вход
-        </a>
+        </Link>
       )}
     </div>
   );

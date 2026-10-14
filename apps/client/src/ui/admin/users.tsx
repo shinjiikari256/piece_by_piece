@@ -18,7 +18,7 @@ import { initials } from "../../util/names";
 import { formatDate } from "../../util/format";
 import { Icon } from "../icons";
 import { ask } from "../dialog";
-import { navigate } from "../router";
+import { Link, navigate } from "../router";
 import { Field } from "../account";
 import { ResultsTable, fromServer } from "../results";
 import { openResult } from "../screens";
@@ -149,7 +149,7 @@ export function UsersSection({ groups, isAdmin, onChanged }: { groups: AdminGrou
           </thead>
           <tbody>
             {all.map((u) => (
-              <tr key={u.id} className="is-link" data-selected={selected.has(u.id) || undefined} onClick={() => navigate(`#/admin/users/${u.id}`)}>
+              <tr key={u.id} className="is-link" data-selected={selected.has(u.id) || undefined} onClick={() => navigate(`/admin/users/${u.id}`)}>
                 <td className="check" onClick={(e) => e.stopPropagation()}>
                   <input type="checkbox" checked={selected.has(u.id)} disabled={u.id === meId} onChange={() => toggle(u.id)} aria-label={`Выбрать ${u.fullName}`} />
                 </td>
@@ -234,7 +234,7 @@ export function UserPage({ id, groups, isAdmin }: { id: number; groups: AdminGro
     if (!ok) return;
     try {
       await api("DELETE", `/admin/users/${u.id}`);
-      navigate("#/admin/users");
+      navigate("/admin/users");
     } catch (e) {
       fail(e);
     }
@@ -344,9 +344,9 @@ export function UserPage({ id, groups, isAdmin }: { id: number; groups: AdminGro
 function BackHead() {
   return (
     <header className="page__head page__head--back">
-      <a className="btn btn--icon" href="#/admin/users" title="К списку пользователей" aria-label="К списку пользователей">
+      <Link className="btn btn--icon" to="/admin/users" title="К списку пользователей" aria-label="К списку пользователей">
         <Icon name="back" />
-      </a>
+      </Link>
       <h1>Страница пользователя</h1>
     </header>
   );

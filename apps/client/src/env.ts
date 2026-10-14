@@ -12,6 +12,9 @@ export const OFFLINE = import.meta.env.MODE === "offline";
 /** Без сервера конструктор открыт только при разработке (`pnpm dev`); в сборке он работает через сервер. */
 export const DEV_EDITOR = !OFFLINE && import.meta.env.MODE === "development";
 
+/** Игру запустили из конструктора (`?play=<id>&from=editor`): тестовая копия дела; читается один раз при загрузке, до очистки адреса. */
+export const FROM_EDITOR = typeof location !== "undefined" && !OFFLINE && new URLSearchParams(location.search).get("from") === "editor";
+
 /** Версия клиента (package.json) — пишется в результат. */
 export const GAME_VERSION: string = __GAME_VERSION__;
 

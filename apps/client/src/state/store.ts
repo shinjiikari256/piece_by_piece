@@ -210,7 +210,7 @@ export const actions = {
   goMenu: () => {
     authority = null;
     set(initialState());
-    navigate("#/");
+    navigate("/");
   },
   /** Сменился адрес (ссылка в шапке, «назад» в браузере) на вступлении или результате — показать страницу сайта. */
   leaveToSite() {
@@ -223,7 +223,7 @@ export const actions = {
   goSelect: () => {
     authority = null;
     set(initialState());
-    navigate("#/cases");
+    navigate("/cases");
   },
   showHowTo: () => set({ overlay: { kind: "howto" } }),
 

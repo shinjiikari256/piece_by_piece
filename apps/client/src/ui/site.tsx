@@ -11,7 +11,7 @@ import { useDismiss } from "./hooks";
 import { initials, shortName } from "../util/names";
 import { Icon } from "./icons";
 import { Logo, LogoArt } from "./logo";
-import { navigate, useRoute, type Route } from "./router";
+import { Link, navigate, useRoute, type Route } from "./router";
 import { CaseList, HowToContent, HowToWindow, useCaseList } from "./screens";
 import { ResultsPage } from "./results-page";
 
@@ -24,7 +24,7 @@ export function Site() {
   const route = useRoute();
   // открыли по ссылке регистрации — сразу форма
   useEffect(() => {
-    if (pendingJoinToken() && route.page !== "register") navigate("#/register");
+    if (pendingJoinToken() && route.page !== "register") navigate("/register");
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
@@ -58,23 +58,23 @@ function SiteHeader({ route }: { route: Route }) {
   const server = useAccount((s) => s.server);
   const me = useAccount((s) => s.me);
   const staff = server === "online" && isStaff(me);
-  const link = (href: string, label: string, active: boolean) => (
-    <a href={href} className="site-nav__link" aria-current={active ? "page" : undefined}>
+  const link = (path: string, label: string, active: boolean) => (
+    <Link to={path} className="site-nav__link" aria-current={active ? "page" : undefined}>
       {label}
-    </a>
+    </Link>
   );
   return (
     <header className="site-header">
       <div className="site-header__inner">
-        <a className="logo" href="#/">
+        <Link className="logo" to="/">
           <Logo />
           {APP_NAME}
-        </a>
+        </Link>
         <nav className="site-nav">
-          {link("#/cases", "Дела", route.page === "cases")}
-          {link("#/results", "Результаты", route.page === "results")}
-          {staff && link("#/admin/users", "Пользователи", route.page === "admin" && route.section === "users")}
-          {(staff || (server === "none" && DEV_EDITOR)) && link("#/editor", "Конструктор дел", route.page === "editor")}
+          {link("/cases", "Дела", route.page === "cases")}
+          {link("/results", "Результаты", route.page === "results")}
+          {staff && link("/admin/users", "Пользователи", route.page === "admin" && route.section === "users")}
+          {(staff || (server === "none" && DEV_EDITOR)) && link("/editor", "Конструктор дел", route.page === "editor")}
         </nav>
         <div className="site-header__user row">
           {server === "online" && me && <UserMenu />}
@@ -91,13 +91,13 @@ function SignedOut() {
   return (
     <>
       {guest && (
-        <a className="site-guest" href="#/guest" title="Вы играете как гость — изменить ФИО">
+        <Link className="site-guest" to="/guest" title="Вы играете как гость — изменить ФИО">
           {shortName(guest)} <span>гость</span>
-        </a>
+        </Link>
       )}
-      <a className="btn btn--primary btn--sm" href="#/login">
+      <Link className="btn btn--primary btn--sm" to="/login">
         Вход
-      </a>
+      </Link>
     </>
   );
 }
@@ -107,10 +107,10 @@ function UserMenu() {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   useDismiss(open, () => setOpen(false), [ref]);
-  const item = (href: string, label: string) => (
-    <a href={href} role="menuitem" onClick={() => setOpen(false)}>
+  const item = (path: string, label: string) => (
+    <Link to={path} role="menuitem" onClick={() => setOpen(false)}>
       {label}
-    </a>
+    </Link>
   );
   return (
     <div className="user-menu" ref={ref}>
@@ -127,15 +127,15 @@ function UserMenu() {
               {me.login} · {ROLE_LABEL[me.role]}
             </span>
           </div>
-          {item("#/account", "Личный кабинет")}
-          {isStaff(me) && item("#/admin/groups", me.role === "admin" ? "Группы" : "Мои группы")}
-          {me.role === "admin" && item("#/admin/settings", "Настройки")}
+          {item("/account", "Личный кабинет")}
+          {isStaff(me) && item("/admin/groups", me.role === "admin" ? "Группы" : "Мои группы")}
+          {me.role === "admin" && item("/admin/settings", "Настройки")}
           <hr />
           <button
             role="menuitem"
             onClick={() => {
               setOpen(false);
-              void account.logout().then(() => navigate("#/"));
+              void account.logout().then(() => navigate("/"));
             }}
           >
             Выйти
@@ -163,16 +163,16 @@ function Landing() {
             отвечает и чем это доказать.
           </p>
           <div className="hero__actions">
-            <a className="btn btn--primary btn--big" href="#/cases">
+            <Link className="btn btn--primary btn--big" to="/cases">
               Выбрать дело
-            </a>
+            </Link>
             <button className="btn btn--big" onClick={() => setHowto(true)}>
               Как играть
             </button>
           </div>
           {server === "online" && !me && (
             <p className="muted hero__note">
-              <a href="#/login">Войдите</a> или <a href="#/register">зарегистрируйтесь</a>, чтобы результаты видел преподаватель.
+              <Link to="/login">Войдите</Link> или <Link to="/register">зарегистрируйтесь</Link>, чтобы результаты видел преподаватель.
             </p>
           )}
         </div>
@@ -226,7 +226,7 @@ function AccountPage() {
   const server = useAccount((s) => s.server);
   const me = useAccount((s) => s.me);
   useEffect(() => {
-    if (server === "online" && !me) navigate("#/login");
+    if (server === "online" && !me) navigate("/login");
   }, [server, me]);
   if (server === "unknown") return null;
   // без сервера учётных записей нет: вход преподавателя и гость

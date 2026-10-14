@@ -7,7 +7,7 @@
 
 ```bash
 pnpm install
-pnpm dev        # http://localhost:5173 — сайт и игра, конструктор: http://localhost:5173/#/editor
+pnpm dev        # http://localhost:5173 — сайт и игра, конструктор: http://localhost:5173/editor
 ```
 
 ## Команды
@@ -64,7 +64,7 @@ apps/
       state/store.ts     состояние игры и все действия игрока
       game/              Phaser: сцена, процедурный pixel-art, мост к React
       ui/                React-интерфейс: меню, журнал, диалоги, сопоставление, финал, разбор
-      editor/            конструктор дел (раздел #/editor)
+      editor/            конструктор дел (раздел /editor)
   server/                API (Hono + PostgreSQL + Drizzle): src/, drizzle.config.ts
 shared/                  код клиента и сервера: Zod-схема дела, условия, баллы, судья, контракт API
 scripts/                 generate-case, validate-cases, export-offline
@@ -105,7 +105,7 @@ scripts/                 generate-case, validate-cases, export-offline
 
 ## Конструктор дел
 
-раздел «Конструктор дел» (`#/editor`, ссылка в шапке у преподавателя):
+раздел «Конструктор дел» (`/editor`, ссылка в шапке у преподавателя):
 
 - формы для всех разделов дела, ссылки на персонажей/улики/узлы — выпадающими списками с поиском;
 - облики персонажей и предметы выбираются плитками с картинками;

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any -- код внутри page.evaluate работает с window.__game */
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { BASE, start, type Harness } from "./harness";
 
@@ -10,7 +11,7 @@ afterAll(() => h.stop());
 describe("учётная запись против сервера (PGlite)", () => {
   it("регистрация, выход и повторный вход", async () => {
     const page = await h.page();
-    await page.goto(`${BASE}/#/register`);
+    await page.goto(`${BASE}/register`);
     const inputs = page.locator("form input.input");
     await inputs.nth(0).fill("Иванова Анна Сергеевна");
     await inputs.nth(1).fill("ivanova");
@@ -24,12 +25,44 @@ describe("учётная запись против сервера (PGlite)", () 
 
     await page.evaluate(() => fetch("/api/auth/logout", { method: "POST" }));
     expect(await login()).toBeNull();
-    await page.goto(`${BASE}/#/login`);
+    await page.goto(`${BASE}/login`);
     await page.reload(); // клиент заново спрашивает сервер, кто вошёл
     await page.locator("form input.input").first().fill("ivanova");
     await page.locator("form input[type=password]").fill("password123");
     await page.locator("form button.btn--primary, form button[type=submit]").last().click();
     await expect.poll(login).toBe("ivanova");
+    await page.close();
+  });
+
+  it("страницы админки работают по глубоким адресам (запросы к API не зависят от пути страницы)", async () => {
+    const page = await h.page();
+    await page.goto(`${BASE}/login`);
+    await page.locator("form input.input").first().fill("admin");
+    await page.locator("form input[type=password]").fill("adminpass1");
+    await page.locator("form button.btn--primary, form button[type=submit]").last().click();
+    await expect.poll(() => page.evaluate(async () => (await (await fetch("/api/me")).json()).login ?? null)).toBe("admin");
+    for (const path of ["/admin/users", "/admin/groups", "/admin/settings"]) {
+      await page.goto(`${BASE}${path}`);
+      await page.locator(".page h1").first().waitFor();
+    }
+    await page.goto(`${BASE}/admin/users`);
+    await expect.poll(() => page.locator("table.table tbody tr").count()).toBeGreaterThan(0);
+    await page.close();
+  });
+
+  it("тестовый запуск из конструктора с учётной записью: сразу начинается расследование, поверх баннер «вернуться в конструктор»", async () => {
+    const page = await h.page();
+    await page.goto(`${BASE}/login`);
+    await page.locator("form input.input").first().fill("admin");
+    await page.locator("form input[type=password]").fill("adminpass1");
+    await page.locator("form button.btn--primary, form button[type=submit]").last().click();
+    await expect.poll(() => page.evaluate(async () => (await (await fetch("/api/me")).json()).login ?? null)).toBe("admin");
+    await page.goto(`${BASE}/editor`);
+    await page.locator(".eh__case", { hasText: "Чужие письма" }).getByRole("button", { name: "Открыть" }).click();
+    await page.getByRole("button", { name: "Запустить" }).first().click();
+    await page.waitForTimeout(2500);
+    const state = await page.evaluate(() => ({ screen: (window as any).__game?.store.get().screen, caseId: (window as any).__game?.store.get().caseFile?.id, banner: !!document.querySelector(".playtest-banner") }));
+    expect(state).toEqual({ screen: "play", caseId: "case-001", banner: true });
     await page.close();
   });
 });

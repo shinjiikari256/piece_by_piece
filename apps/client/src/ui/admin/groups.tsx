@@ -1,3 +1,4 @@
+import { siteUrl } from "../router";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { renderSVG } from "uqr";
 import {
@@ -200,7 +201,7 @@ function GroupDetail({ group, isAdmin, staff, reload }: { group: AdminGroup; isA
   );
 }
 
-const linkUrl = (l: JoinLink) => `${new URL("./", location.href).href}?join=${l.token}`;
+const linkUrl = (l: JoinLink) => `${siteUrl()}?join=${l.token}`;
 
 /** Ссылка регистрации: QR всегда на виду, адрес с копированием, срок и счётчики, действия. */
 function LinkCard({ link: l, group, act }: { link: JoinLink; group: AdminGroup; act: (call: () => Promise<unknown>) => Promise<void> }) {

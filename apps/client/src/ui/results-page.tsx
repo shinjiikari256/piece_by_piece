@@ -1,3 +1,4 @@
+import { Link } from "./router";
 import { useEffect, useMemo, useState } from "react";
 import type { ResultsFilters, ResultsPage as ResultsPageData, ResultsStats } from "../../../../shared/api";
 import { resultsStats } from "../../../../shared/results-stats";
@@ -158,7 +159,7 @@ function LocalResults({ online }: { online: boolean }) {
         {online && (
           <>
             {" "}
-            <a href="#/login">Войдите</a>, чтобы они сохранялись в учётной записи и были видны преподавателю.
+            <Link to="/login">Войдите</Link>, чтобы они сохранялись в учётной записи и были видны преподавателю.
           </>
         )}
       </p>
@@ -211,9 +212,9 @@ function EmptyResults({ filtered }: { filtered: boolean }) {
     <div className="card empty-state">
       <p>{filtered ? "По этим фильтрам прохождений нет." : "Завершённых дел пока нет."}</p>
       {!filtered && (
-        <a className="btn btn--primary" href="#/cases">
+        <Link className="btn btn--primary" to="/cases">
           Выбрать дело
-        </a>
+        </Link>
       )}
     </div>
   );

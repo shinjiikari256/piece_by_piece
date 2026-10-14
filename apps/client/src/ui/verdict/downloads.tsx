@@ -1,3 +1,4 @@
+import { siteUrl } from "../router";
 import { useGame } from "../../state/store";
 import { useEffect, useRef, useState } from "react";
 import { scoreTone } from "../common";
@@ -145,7 +146,7 @@ export function Downloads({ record, grade, names }: { record: ResultRecord | nul
 const EMBEDDED_BROWSER = typeof navigator !== "undefined" && /\b(Electron|Code)\//.test(navigator.userAgent);
 
 function EmbeddedBrowserNote() {
-  const url = location.href.split("#")[0];
+  const url = siteUrl();
   return (
     <Alert tone="warn" icon as="div" className="embedded-note">
       <b>Этот браузер не умеет сохранять файлы</b> (встроенный браузер VS Code). Откройте игру в обычном браузере — Chrome, Firefox,

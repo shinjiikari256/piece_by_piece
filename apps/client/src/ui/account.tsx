@@ -3,7 +3,7 @@ import { CONSENT_TEXT, type JoinInfo } from "../../../../shared/api";
 import { ApiFailure, account, api, clearJoinToken, pendingJoinToken, useAccount } from "../state/account";
 import { Alert } from "./alert";
 import { Dialog } from "./window";
-import { navigate } from "./router";
+import { Link, navigate, useRoute } from "./router";
 import { Folder } from "./screens";
 import { readProfile, writeProfile } from "../state/profile";
 
@@ -55,14 +55,15 @@ export function AuthPage({ tab }: { tab: AuthTab }) {
   const server = useAccount((s) => s.server);
   const me = useAccount((s) => s.me);
   // уже вошли — вкладки входа ни к чему: сразу в личный кабинет
+  const route = useRoute();
   useEffect(() => {
     // форма входа/регистрации сама уводит дальше — перенаправляем, только если адрес всё ещё здесь
-    if (me && /^#\/(login|register|guest)\b/.test(location.hash)) navigate("#/account");
-  }, [me]);
+    if (me && ["login", "register", "guest"].includes(route.page)) navigate("/account");
+  }, [me, route.page]);
   if (server === "unknown" || me) return null;
   return (
     <div className="auth-folder">
-      <Folder tabs={AUTH_TABS} active={tab} onTab={(id) => navigate(`#/${id}`)}>
+      <Folder tabs={AUTH_TABS} active={tab} onTab={(id) => navigate(`/${id}`)}>
         {tab === "guest" ? (
           <GuestForm />
         ) : server !== "online" ? (
@@ -84,9 +85,9 @@ function NoServer() {
       <p className="muted">
         Вход и регистрация работают, когда доступен сервер. Сейчас можно играть без входа — результаты останутся в этом браузере.
       </p>
-      <a className="btn btn--primary" href="#/guest">
+      <Link className="btn btn--primary" to="/guest">
         Играть без входа
-      </a>
+      </Link>
     </div>
   );
 }
@@ -96,7 +97,7 @@ function LoginForm() {
   const [password, setPassword] = useState("");
   const { busy, error, submit } = useSubmit(async () => {
     await account.login({ login, password });
-    navigate("#/");
+    navigate("/");
   });
   return (
     <form className="form auth-pane" onSubmit={submit}>
@@ -136,7 +137,7 @@ function RegisterForm() {
       joinToken: join ? (token ?? undefined) : undefined,
     });
     clearJoinToken();
-    navigate("#/account");
+    navigate("/account");
   });
   return (
     <form className="form auth-pane" onSubmit={submit}>

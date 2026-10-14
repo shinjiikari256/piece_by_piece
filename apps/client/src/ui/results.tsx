@@ -1,3 +1,4 @@
+import { Link } from "./router";
 import type { ResultListItem, ServerResult } from "../../../../shared/api";
 import type { Score } from "../../../../shared/scoring";
 import type { ResultRecord } from "../state/profile";
@@ -98,9 +99,9 @@ export function ResultsTable({ rows, onOpen, showUser }: { rows: ResultRow[]; on
               <td>
                 {r.user ? (
                   <>
-                    <a href={`#/admin/users/${r.user.id}`} onClick={(e) => e.stopPropagation()}>
+                    <Link to={`/admin/users/${r.user.id}`} onClick={(e) => e.stopPropagation()}>
                       {r.user.fullName}
-                    </a>
+                    </Link>
                     {r.user.group && <div className="muted small">{r.user.group}</div>}
                   </>
                 ) : (

@@ -5,18 +5,17 @@ import { readPlaytest } from "./content/drafts";
 import { validateCase } from "./content/validate";
 import { LocalAuthority } from "./content/local-authority";
 import { Icon } from "./ui/icons";
-import { OFFLINE } from "./env";
+import { FROM_EDITOR, OFFLINE } from "./env";
 
 // запоминаем до того, как адрес очистится
 const PARAMS = new URLSearchParams(location.search);
 const PLAY_ID = OFFLINE ? null : PARAMS.get("play");
-const FROM_EDITOR = !OFFLINE && PARAMS.get("from") === "editor";
 if (FROM_EDITOR) document.body.classList.add("is-playtest");
 import { GameView, runTool } from "./ui/GameView";
 import { ContextMenu, copyText, type MenuContext, type MenuItem } from "./ui/contextmenu";
 import { Intro } from "./ui/screens";
 import { Site } from "./ui/site";
-import { useRoute } from "./ui/router";
+import { Link, subscribeRoute, useRoute } from "./ui/router";
 import { FinalScreen, ResultScreen } from "./ui/verdict";
 import { DialogHost, tell } from "./ui/dialog";
 import { ForcePasswordChange } from "./ui/account";
@@ -91,19 +90,20 @@ export function App() {
   const screen = useGame((s) => s.screen);
   const route = useRoute();
 
-  // конструктор открывает дело в игре: ?play=<id>&from=editor — тестовая копия, сохранять не обязательно
+  // конструктор запускает дело: ?play=<id>&from=editor — тестовая копия, расследование начинается сразу
   useEffect(() => {
     if (!PLAY_ID) return;
     history.replaceState(null, "", location.pathname);
     const result = validateCase(readPlaytest());
-    if (result.ok) actions.openCase(new LocalAuthority(result.caseFile));
-    else void tell({ title: "Не удалось открыть дело", text: "Тестовая копия не найдена или содержит ошибки — откройте конструктор." });
+    if (result.ok) {
+      // «Запустить» — сразу расследование заново, без вступления и вопроса о прошлом сохранении
+      actions.openCase(new LocalAuthority(result.caseFile));
+      actions.beginInvestigation();
+    } else void tell({ title: "Не удалось открыть дело", text: "Тестовая копия не найдена или содержит ошибки — откройте конструктор." });
   }, []);
 
-  useEffect(() => {
-    window.addEventListener("hashchange", actions.leaveToSite);
-    return () => window.removeEventListener("hashchange", actions.leaveToSite);
-  }, []);
+  // смена адреса на вступлении и результате возвращает на сайт
+  useEffect(() => subscribeRoute(actions.leaveToSite), []);
 
   useWindowKey((e) => {
     if (e.key !== "Escape") return;
@@ -119,9 +119,9 @@ export function App() {
   return (
     <>
       {FROM_EDITOR && (
-        <a className="playtest-banner" href="./#/editor">
+        <Link className="playtest-banner" to="/editor">
           <Icon name="back" size={15} /> Тестовый запуск · вернуться в конструктор
-        </a>
+        </Link>
       )}
       {(screen === "menu" || screen === "intro" || screen === "result") && <Site />}
       {screen === "intro" && (
