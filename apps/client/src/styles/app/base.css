@@ -2,6 +2,7 @@
   /* Под проектор: базовый размер растёт с экраном */
   font-size: clamp(15px, 0.55vw + 9px, 22px);
   color-scheme: light;
+  accent-color: var(--accent); /* флажки, переключатели, ползунки — цветом темы */
 }
 
 * {

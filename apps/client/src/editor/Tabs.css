@@ -2,10 +2,10 @@
 
 .tabs {
   /* локальная палитра закладок: неактивная — песочная, активная — бумага */
-  --tab-bg: #dccaa6;
+  --tab-bg: color-mix(in srgb, var(--bg-chrome) 65%, var(--bg-paper));
   --tab-ink: var(--text-on-chrome);
-  --tab-edge: #c9b48c;
-  --tab-hover: #e6d6b6;
+  --tab-edge: color-mix(in srgb, var(--border-chrome) 55%, var(--bg-paper));
+  --tab-hover: color-mix(in srgb, var(--bg-chrome) 45%, var(--bg-paper));
 
   display: flex;
 }

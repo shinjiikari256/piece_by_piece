@@ -14,8 +14,8 @@
 .tabbed-modal,
 .dialogue-folder {
   --folder-sheet: var(--bg-chrome);
-  --folder-tab: #c09b64;
-  --folder-tab-hover: #ceaa73;
+  --folder-tab: var(--bg-chrome-dim);
+  --folder-tab-hover: var(--bg-chrome-hover);
   --folder-tab-ink: var(--text-on-chrome);
   --folder-tab-active-ink: var(--text-on-chrome);
 }
@@ -86,8 +86,8 @@
 }
 .case-file {
   /* локальная палитра папок-дел: светлая «манильская» бумага */
-  --case-folder-edge: #e0c48f;
-  --case-folder-paper: #fffdf7;
+  --case-folder-edge: color-mix(in srgb, var(--bg-chrome) 75%, var(--bg-paper));
+  --case-folder-paper: color-mix(in srgb, var(--bg-paper) 45%, var(--bg-surface));
 
   width: 100%;
   border: none;
@@ -237,9 +237,9 @@
 }
 /* синяя папка — вынесение решения: та же тема папок, переопределены только переменные; размер постоянный, ответы прокручиваются внутри */
 .tabbed-modal--blue {
-  --folder-sheet: #bcd0ea;
-  --folder-tab: #8fa9cc;
-  --folder-tab-hover: #a3bbdb;
+  --folder-sheet: var(--accent-line);
+  --folder-tab: color-mix(in srgb, var(--accent) 35%, var(--accent-line));
+  --folder-tab-hover: color-mix(in srgb, var(--accent) 25%, var(--accent-line));
   --folder-tab-ink: var(--accent-strong);
   --folder-tab-active-ink: var(--accent-strong);
 }

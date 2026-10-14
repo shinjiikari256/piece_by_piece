@@ -2,8 +2,8 @@
 
 .dg {
   /* локальная палитра графа: фон полотна и цвет связей (линии, порты, подписи «назад») */
-  --dg-bg: #f6f0e2;
-  --dg-wire: #8a6440;
+  --dg-bg: color-mix(in srgb, var(--bg-paper-dim) 60%, var(--bg-paper));
+  --dg-wire: color-mix(in srgb, var(--border-chrome) 70%, black);
 
   display: grid;
   grid-template-columns: 15rem 1fr 24rem;
