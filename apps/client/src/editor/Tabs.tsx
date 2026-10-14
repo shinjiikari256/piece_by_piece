@@ -1,3 +1,4 @@
+import "./Tabs.css";
 import type { ReactNode } from "react";
 
 export interface TabItem<T extends string = string> {

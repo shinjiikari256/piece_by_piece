@@ -1,3 +1,4 @@
+import "./case-stamps.css";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { caseRepository, type CaseSummary } from "../content/repository";
 import { actions, useGame } from "../state/store";

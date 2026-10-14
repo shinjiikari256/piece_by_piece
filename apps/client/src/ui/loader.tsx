@@ -1,3 +1,4 @@
+import "./loader.css";
 /** Индикатор загрузки по центру своей области: вращающееся кольцо и подпись. */
 export function Loader({ label = "Загрузка…" }: { label?: string }) {
   return (

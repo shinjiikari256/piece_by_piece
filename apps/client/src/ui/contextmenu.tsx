@@ -1,3 +1,4 @@
+import "./contextmenu.css";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { Icon, type IconName } from "./icons";
 

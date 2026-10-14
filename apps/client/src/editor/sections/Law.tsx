@@ -1,3 +1,4 @@
+import "./Law.css";
 import { useState } from "react";
 import { editor, useEditor } from "../state";
 import { Icon } from "../../ui/icons";

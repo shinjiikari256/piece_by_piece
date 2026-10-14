@@ -1,0 +1,50 @@
+/* Все стили главного куска: порядок подключения задаёт каскад — новые файлы добавлять по смыслу группы. */
+
+/* Шрифты */
+@import "@fontsource/rubik/cyrillic-400.css";
+@import "@fontsource/rubik/cyrillic-500.css";
+@import "@fontsource/rubik/cyrillic-700.css";
+@import "@fontsource/rubik/latin-400.css";
+@import "@fontsource/rubik/latin-700.css";
+@import "@fontsource/pt-mono/cyrillic-400.css";
+@import "@fontsource/pt-mono/latin-400.css";
+
+/* Токены: сырая палитра → роли → эффекты → размеры, затем темы (переопределяют роли) */
+@import "./tokens/palette.css";
+@import "./tokens/roles.css";
+@import "./tokens/effects.css";
+@import "./tokens/layout.css";
+@import "./themes/salad.css";
+
+/* Общее: сброс, базовые элементы, тоны, состояния */
+@import "./app/base.css";
+@import "./app/tone.css";
+@import "./app/states.css";
+
+/* Игра и компоненты интерфейса (порядок важен: позже подключённый перекрывает более раннего) */
+@import "./app/menu-game.css";
+@import "./app/dialogue.css";
+@import "./app/journal.css";
+@import "./app/endgame.css";
+@import "./app/decision.css";
+@import "./app/mobile.css";
+@import "./app/folders.css";
+@import "./app/materials.css";
+@import "./app/people.css";
+@import "./app/law-tab.css";
+@import "./app/notes.css";
+@import "./app/window.css";
+@import "./app/select.css";
+@import "./app/result.css";
+@import "./app/alert.css";
+
+/* Сайт вокруг игры */
+@import "./site/shell.css";
+@import "./site/pages.css";
+@import "./site/forms.css";
+@import "./site/landing.css";
+@import "./site/tables.css";
+@import "./site/account.css";
+@import "./site/admin.css";
+@import "./site/responsive.css";
+@import "./site/results.css";

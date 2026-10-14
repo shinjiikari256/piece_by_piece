@@ -1,0 +1,12 @@
+/* Стили конструктора: подключаются вместе с разделом #/editor (EditorRoute), после основных; порядок задаёт каскад. */
+
+@import "./shell.css";
+@import "./forms.css";
+@import "./map.css";
+@import "./dialogue-graph.css";
+@import "./pickers-and-looks.css";
+@import "./toolbar.css";
+@import "./home.css";
+@import "./lists.css";
+@import "./conditions-effects.css";
+@import "./flags.css";
