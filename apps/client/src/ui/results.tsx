@@ -1,4 +1,7 @@
+import { useRef } from "react";
 import { Link } from "./router";
+import { useArrowNav } from "./hooks";
+import { ROW, rowKeys } from "./table-rows";
 import type { ResultListItem, ServerResult } from "../../../../shared/api";
 import type { Score } from "../../../../shared/scoring";
 import type { ResultRecord } from "../state/result-record";
@@ -74,8 +77,11 @@ const bonusMax = (r: ResultRow) => r.record?.score?.timeBonus?.max ?? 0;
 const percent = (r: ResultRow) => Math.round(scorePercent(r.total, r.max, bonusMax(r)));
 
 export function ResultsTable({ rows, onOpen, showUser }: { rows: ResultRow[]; onOpen: (row: ResultRow) => void; showUser?: boolean }) {
+  const table = useRef<HTMLTableElement>(null);
+  useArrowNav(table, ROW, { within: true });
+  const firstOpen = rows.findIndex((r) => r.record);
   return (
-    <table className="table">
+    <table className="table" ref={table}>
       <thead>
         <tr>
           {showUser && <th>Кто</th>}
@@ -88,12 +94,13 @@ export function ResultsTable({ rows, onOpen, showUser }: { rows: ResultRow[]; on
         </tr>
       </thead>
       <tbody>
-        {rows.map((r) => (
+        {rows.map((r, i) => (
           <tr
             key={r.key}
             className={r.record ? "is-link" : ""}
             onClick={() => r.record && onOpen(r)}
             title={r.record ? "Открыть результат и разбор" : undefined}
+            {...(r.record ? rowKeys(i === firstOpen, () => onOpen(r)) : {})}
           >
             {showUser && (
               <td>

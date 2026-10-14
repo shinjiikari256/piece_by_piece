@@ -1,5 +1,6 @@
 import type { CSSProperties } from "react";
 import { Icon, type IconName } from "./icons";
+import { useTabKeys } from "./hooks";
 
 export interface FolderTab {
   id: string;
@@ -28,6 +29,7 @@ export function FolderTabs({
   onClose?: () => void;
   className?: string;
 }) {
+  useTabKeys(tabs, active, onTab);
   return (
     <div className={`folder__tabs ${className}`} role="tablist">
       {back && (

@@ -41,6 +41,10 @@
 .table tr.is-link {
   cursor: pointer;
 }
+.table tr.is-link:focus-visible {
+  outline: 3px solid var(--ring-focus);
+  outline-offset: -3px;
+}
 .table tr.is-link:hover {
   background: var(--bg-paper);
 }

@@ -7,6 +7,7 @@ import type { ResultRecord } from "../state/result-record";
 import { lastResultOf } from "../state/result-record";
 import { platform } from "../state/platform";
 import { usePlatformValue } from "../state/platform-hooks";
+import { useScrollKeys } from "./hooks";
 import { Alert } from "./alert";
 import { Loader } from "./loader";
 import { percentOf } from "../util/format";
@@ -79,6 +80,7 @@ export function Folder({
 }) {
   const ref = useRef<HTMLElement>(null);
   useEnterPrimary(ref);
+  useScrollKeys(ref);
   return (
     <main className="menu" ref={ref}>
       <div

@@ -47,6 +47,20 @@ describe("учётная запись против сервера (PGlite)", () 
     }
     await page.goto(`${BASE}/admin/users`);
     await expect.poll(() => page.locator("table.table tbody tr").count()).toBeGreaterThan(0);
+    // меню пользователя: стрелки ходят по пунктам, Esc закрывает и возвращает фокус на кнопку
+    await page.locator(".user-menu__button").click();
+    expect(await page.evaluate(() => document.activeElement?.getAttribute("role"))).toBe("menuitem");
+    await page.keyboard.press("ArrowDown");
+    const second = await page.evaluate(() => document.activeElement?.textContent);
+    await page.keyboard.press("ArrowUp");
+    expect(await page.evaluate(() => document.activeElement?.textContent)).not.toBe(second);
+    await page.keyboard.press("Escape");
+    expect(await page.evaluate(() => document.activeElement?.className)).toContain("user-menu__button");
+    // строка таблицы доступна с клавиатуры: первая в Tab, Enter открывает пользователя
+    expect(await page.locator("tr.is-link").first().getAttribute("tabindex")).toBe("0");
+    await page.locator("tr.is-link").first().focus();
+    await page.keyboard.press("Enter");
+    await expect.poll(() => page.evaluate(() => location.pathname)).toMatch(/^\/admin\/users\/\d+$/);
     await page.close();
   });
 

@@ -79,10 +79,7 @@ export function FinalScreen() {
     if (e.target instanceof Element && e.target.closest("input, textarea"))
       return;
     if (e.ctrlKey || e.metaKey || e.altKey) return;
-    if (e.key === "ArrowRight")
-      setStep((v) => Math.min(questions.length, v + 1));
-    else if (e.key === "ArrowLeft") setStep((v) => Math.max(0, v - 1));
-    else if (e.key === "Enter" && q && !e.repeat) {
+    if (e.key === "Enter" && q && !e.repeat) {
       // Enter на выбранном стрелками варианте: один ответ — выбрать его и перейти дальше; несколько — только дальше (выбор — пробелом)
       const items = [...(main.current?.querySelectorAll<HTMLElement>(OPTION) ?? [])];
       const at = items.indexOf(document.activeElement as HTMLElement);

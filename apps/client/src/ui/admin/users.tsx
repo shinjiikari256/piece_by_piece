@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   ROLE_LABEL,
   ROLE_OPTIONS,
@@ -19,6 +19,8 @@ import { formatDate } from "../../util/format";
 import { Icon } from "../icons";
 import { ask } from "../dialog";
 import { Link, navigate, setSearchParams, useSearchParam } from "../router";
+import { useArrowNav } from "../hooks";
+import { ROW, rowKeys } from "../table-rows";
 import { Field } from "../account";
 import { ResultsTable, fromServer } from "../results";
 import { openResult } from "../screens";
@@ -35,6 +37,8 @@ export function UsersSection({ groups, isAdmin, onChanged }: { groups: AdminGrou
   const [q, setQ] = useState("");
   const [selected, setSelected] = useState<Set<number>>(new Set());
   const meId = useAccount((s) => s.me?.id);
+  const table = useRef<HTMLTableElement>(null);
+  useArrowNav(table, ROW, { within: true });
 
   const load = useCallback(() => {
     const params = new URLSearchParams();
@@ -130,7 +134,7 @@ export function UsersSection({ groups, isAdmin, onChanged }: { groups: AdminGrou
       )}
 
       <div className="card card--flush">
-        <table className="table">
+        <table className="table" ref={table}>
           <thead>
             <tr>
               <th className="check">
@@ -150,8 +154,15 @@ export function UsersSection({ groups, isAdmin, onChanged }: { groups: AdminGrou
             </tr>
           </thead>
           <tbody>
-            {all.map((u) => (
-              <tr key={u.id} className="is-link" data-selected={selected.has(u.id) || undefined} onClick={() => navigate(`/admin/users/${u.id}`)}>
+            {all.map((u, i) => (
+              <tr
+                key={u.id}
+                className="is-link"
+                data-selected={selected.has(u.id) || undefined}
+                onClick={() => navigate(`/admin/users/${u.id}`)}
+                // Enter — открыть пользователя, пробел — отметить (кроме себя)
+                {...rowKeys(i === 0, () => navigate(`/admin/users/${u.id}`), () => u.id !== meId && toggle(u.id))}
+              >
                 <td className="check" onClick={(e) => e.stopPropagation()}>
                   <input type="checkbox" checked={selected.has(u.id)} disabled={u.id === meId} onChange={() => toggle(u.id)} aria-label={`Выбрать ${u.fullName}`} />
                 </td>

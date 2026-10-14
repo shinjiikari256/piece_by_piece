@@ -160,6 +160,13 @@ describe("игра в браузере", () => {
       }
     });
     await page.keyboard.press("KeyM");
+    // ← / → переключают вкладки журнала
+    const activeTab = () => page.evaluate(() => document.querySelector('.folder__tab[aria-selected="true"]')?.textContent);
+    const before = await activeTab();
+    await page.keyboard.press("ArrowRight");
+    expect(await activeTab()).not.toBe(before);
+    await page.keyboard.press("ArrowLeft");
+    expect(await activeTab()).toBe(before);
     await page.locator(".folder__tab", { hasText: "Материалы" }).click();
     const focused = () => page.evaluate(() => document.activeElement?.className ?? "");
     await page.keyboard.press("ArrowDown");

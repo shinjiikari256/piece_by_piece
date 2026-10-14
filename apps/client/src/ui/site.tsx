@@ -7,7 +7,7 @@ import { AuthPage, PasswordForm } from "./account";
 import { Field } from "./account";
 import { AdminPage, StatusChip } from "./admin";
 import { Loader } from "./loader";
-import { useDismiss } from "./hooks";
+import { useDismiss, useMenuKeys } from "./hooks";
 import { DEFAULT_THEME_LABEL, THEMES, THEME_LABELS, setTheme, useTheme, type ThemeName } from "./theme";
 import { initials, shortName } from "../util/names";
 import { Icon } from "./icons";
@@ -93,6 +93,7 @@ function ThemeMenu() {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   useDismiss(open, () => setOpen(false), [ref]);
+  useMenuKeys(open, ref);
   const choice = (value: ThemeName | null, label: string) => (
     <button
       role="menuitemradio"
@@ -145,6 +146,7 @@ function UserMenu() {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   useDismiss(open, () => setOpen(false), [ref]);
+  useMenuKeys(open, ref);
   const item = (path: string, label: string) => (
     <Link to={path} role="menuitem" onClick={() => setOpen(false)}>
       {label}

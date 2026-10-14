@@ -1,5 +1,5 @@
 import { useRef } from "react";
-import { useArrowNav, useWindowKey } from "../hooks";
+import { useArrowNav } from "../hooks";
 import { actions, useGame, type JournalTab } from "../../state/store";
 
 import { TabbedModal } from "../common";
@@ -24,15 +24,7 @@ const CARDS = ".materials__list button.evidence-card, .materials__list button.pe
 export function Journal({ tab, match, focus }: { tab: JournalTab; match?: boolean; focus?: string }) {
   const content = useRef<HTMLDivElement>(null);
   // пока на доске показаны варианты сопоставления, стрелки ходят по ним (match.tsx), а не по карточкам
-  useArrowNav(content, CARDS, () => !content.current?.querySelector(".deduction__options"));
-  useWindowKey((e) => {
-    if (e.key !== "ArrowLeft" && e.key !== "ArrowRight") return;
-    if (e.target instanceof Element && e.target.closest("input, textarea")) return;
-    const i = JOURNAL_TABS.findIndex((t) => t.id === tab);
-    const next = JOURNAL_TABS[(i + (e.key === "ArrowRight" ? 1 : -1) + JOURNAL_TABS.length) % JOURNAL_TABS.length];
-    actions.open({ kind: "journal", tab: next.id });
-  });
-
+  useArrowNav(content, CARDS, { active: () => !content.current?.querySelector(".deduction__options") });
   return (
     <TabbedModal
       tabs={JOURNAL_TABS.map((t) => ({ id: t.id, label: t.label, icon: t.icon }))}

@@ -97,18 +97,20 @@ export function useFocusTrap(root: RefObject<HTMLElement | null>) {
 
 /**
  * ↑ / ↓ переводят фокус по кругу между элементами `selector` внутри `root` (карточки, варианты ответа).
- * `active` — условие, при котором навигация включена (у вложенного списка с приоритетом внешний выключается). Не мешает полям ввода и выпадающим спискам; если фокус не на элементе, ↓ ставит его на первый, ↑ — на последний.
+ * `active` — условие, при котором навигация включена (у вложенного списка с приоритетом внешний выключается); `within` — только когда фокус уже внутри `root`. Не мешает полям ввода и выпадающим спискам; если фокус не на элементе, ↓ ставит его на первый, ↑ — на последний.
  */
-export function useArrowNav(root: RefObject<HTMLElement | null>, selector: string, active: () => boolean = () => true) {
+export function useArrowNav(root: RefObject<HTMLElement | null>, selector: string, { active = () => true, within = false }: { active?: () => boolean; within?: boolean } = {}) {
   useWindowKey((e) => {
     if (e.key !== "ArrowDown" && e.key !== "ArrowUp") return;
     if (!active()) return;
+    // within: на странице стрелки прокручивают её, а в списке — только когда фокус уже внутри
+    if (within && !root.current?.contains(document.activeElement)) return;
     if (e.ctrlKey || e.metaKey || e.altKey || e.defaultPrevented) return;
     if (e.target instanceof Element && e.target.closest('input, textarea, [aria-haspopup], [role="listbox"]')) return;
     const items = [...(root.current?.querySelectorAll<HTMLElement>(selector) ?? [])];
     if (!items.length) return;
     e.preventDefault();
-    const at = items.indexOf(document.activeElement as HTMLElement);
+    const at = items.findIndex((x) => x.contains(document.activeElement)); // фокус может быть на кнопке внутри строки
     const step = e.key === "ArrowDown" ? 1 : -1;
     items[at === -1 ? (step > 0 ? 0 : items.length - 1) : (at + step + items.length) % items.length].focus();
   });
@@ -144,4 +146,52 @@ export function useScrollKeys(root: RefObject<HTMLElement | null>) {
       scroller.scrollTo({ top: Number.isFinite(by) ? scroller.scrollTop + by : by < 0 ? 0 : scroller.scrollHeight });
     });
   });
+}
+
+/**
+ * ← / → переключают вкладки окна по кругу (в полях ввода и списках не мешают). Подключается в `FolderTabs`,
+ * поэтому работает во всех папках — журнал, решение, результат, вход.
+ */
+export function useTabKeys(tabs: { id: string }[], active: string, onTab?: (id: string) => void) {
+  useWindowKey((e) => {
+    if (!onTab || tabs.length < 2 || (e.key !== "ArrowLeft" && e.key !== "ArrowRight")) return;
+    if (e.ctrlKey || e.metaKey || e.altKey || e.shiftKey || e.defaultPrevented) return;
+    if (e.target instanceof Element && e.target.closest('input, textarea, select, [aria-haspopup], [role="listbox"]')) return;
+    const at = tabs.findIndex((t) => t.id === active);
+    e.preventDefault();
+    onTab(tabs[(at + (e.key === "ArrowRight" ? 1 : -1) + tabs.length) % tabs.length].id);
+  });
+}
+
+/**
+ * Клавиатура выпадающего меню (`[aria-haspopup]` + `role="menu"` с пунктами `role="menuitem*"` внутри `root`):
+ * при открытии фокус на первом пункте, ↑ / ↓ / Home / End ходят по пунктам по кругу (с кнопки меню ↓ открывает первый пункт),
+ * при закрытии фокус, оставшийся без элемента, возвращается на кнопку меню. Закрытие по Esc — в `useDismiss`.
+ */
+export function useMenuKeys(open: boolean, root: RefObject<HTMLElement | null>) {
+  const items = () => [...(root.current?.querySelectorAll<HTMLElement>('[role^="menuitem"]') ?? [])];
+  const wasOpen = useRef(false);
+  useEffect(() => {
+    const was = wasOpen.current;
+    wasOpen.current = open;
+    if (open) {
+      items()[0]?.focus();
+      return;
+    }
+    const el = root.current;
+    if (was && el && (!document.activeElement || document.activeElement === document.body)) el.querySelector<HTMLElement>("[aria-haspopup]")?.focus();
+  }, [open]); // eslint-disable-line react-hooks/exhaustive-deps
+  useWindowKey(
+    (e) => {
+      if (!["ArrowDown", "ArrowUp", "Home", "End"].includes(e.key) || e.ctrlKey || e.metaKey || e.altKey) return;
+      if (!root.current?.contains(document.activeElement)) return;
+      const list = items();
+      if (!list.length) return;
+      e.preventDefault();
+      const at = list.indexOf(document.activeElement as HTMLElement);
+      const next = e.key === "Home" ? 0 : e.key === "End" ? list.length - 1 : (at + (e.key === "ArrowDown" ? 1 : -1) + list.length) % list.length;
+      list[at === -1 && e.key === "ArrowUp" ? list.length - 1 : at === -1 ? 0 : next].focus();
+    },
+    { enabled: open },
+  );
 }
