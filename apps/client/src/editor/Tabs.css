@@ -18,6 +18,7 @@
   overflow-y: hidden;
 }
 .tabs--inline {
+  flex-wrap: wrap; /* узкая панель (внешность персонажа): вкладки переносятся, а не обрезаются */
   border-bottom: 1px solid var(--border);
   margin-bottom: 0.8rem;
 }

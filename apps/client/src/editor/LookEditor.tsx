@@ -12,8 +12,8 @@ import {
 } from "../game/art";
 import type { AccentStyle, Appearance, Character, CustomLook, HairStyle } from "../../../../shared/case";
 import { ArtThumb } from "./Pickers";
-import { Icon } from "../ui/icons";
 import { Tabs } from "./Tabs";
+import { Alert } from "../ui/alert";
 
 /**
  * Редактор внешности персонажа: образец как отправная точка + свои
@@ -134,10 +134,9 @@ export function LookEditor({
           </button>
         )}
         {twin && (
-          <div className='ed__warn' role='alert'>
-            <Icon name='alert' size={16} />
-            <span>Так же выглядит «{twin.name}» — игрокам будет трудно их различать.</span>
-          </div>
+          <Alert tone='warn' icon>
+            Так же выглядит «{twin.name}» — игрокам будет трудно их различать.
+          </Alert>
         )}
       </div>
 
