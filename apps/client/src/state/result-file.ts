@@ -1,4 +1,5 @@
-import type { ResultRecord, Profile } from "./profile";
+import type { ResultRecord } from "./result-record";
+import type { Profile } from "./platform";
 import { OFFLINE } from "../env";
 
 /**

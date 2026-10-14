@@ -18,7 +18,7 @@ import { initials } from "../../util/names";
 import { formatDate } from "../../util/format";
 import { Icon } from "../icons";
 import { ask } from "../dialog";
-import { Link, navigate } from "../router";
+import { Link, navigate, setSearchParams, useSearchParam } from "../router";
 import { Field } from "../account";
 import { ResultsTable, fromServer } from "../results";
 import { openResult } from "../screens";
@@ -29,7 +29,9 @@ import { StatusChip, date, fail } from "./index";
 export function UsersSection({ groups, isAdmin, onChanged }: { groups: AdminGroup[]; isAdmin: boolean; onChanged: () => void }) {
   const [users, setUsers] = useState<AdminUser[] | null>(null);
   const [status, setStatus] = useState("");
-  const [group, setGroup] = useState("");
+  // фильтр по группе живёт в адресе: на него ведут ссылки из групп
+  const group = useSearchParam("group") ?? "";
+  const setGroup = (v: string) => setSearchParams({ group: v });
   const [q, setQ] = useState("");
   const [selected, setSelected] = useState<Set<number>>(new Set());
   const meId = useAccount((s) => s.me?.id);
@@ -157,7 +159,15 @@ export function UsersSection({ groups, isAdmin, onChanged }: { groups: AdminGrou
                   <b>{u.fullName}</b>
                 </td>
                 <td className="mono">{u.login}</td>
-                <td>{u.group?.name ?? <span className="muted">—</span>}</td>
+                <td>
+                  {u.group ? (
+                    <Link to={`/admin/groups?group=${u.group.id}`} onClick={(e) => e.stopPropagation()}>
+                      {u.group.name}
+                    </Link>
+                  ) : (
+                    <span className="muted">—</span>
+                  )}
+                </td>
                 <td>{ROLE_LABEL[u.role]}</td>
                 <td>
                   <StatusChip status={u.status} />
@@ -274,11 +284,18 @@ export function UserPage({ id, groups, isAdmin }: { id: number; groups: AdminGro
           </div>
           <div className="pair">
             <Field label="Группа">
-              <Select
-                value={u.group ? String(u.group.id) : "none"}
-                onChange={(v) => void patch({ groupId: v === "none" ? null : Number(v) })}
-                options={[{ value: "none", label: "Без группы" }, ...groups.map((g) => ({ value: String(g.id), label: g.name }))]}
-              />
+              <div className="row">
+                <Select
+                  value={u.group ? String(u.group.id) : "none"}
+                  onChange={(v) => void patch({ groupId: v === "none" ? null : Number(v) })}
+                  options={[{ value: "none", label: "Без группы" }, ...groups.map((g) => ({ value: String(g.id), label: g.name }))]}
+                />
+                {u.group && (
+                  <Link className="btn btn--icon" to={`/admin/groups?group=${u.group.id}`} title="Открыть группу" aria-label="Открыть группу">
+                    <Icon name="link" />
+                  </Link>
+                )}
+              </div>
             </Field>
             <Field label="Дата регистрации">
               <input className="input" value={`${formatDate(u.createdAt)}${u.viaLink ? " · по ссылке группы" : ""}`} disabled />

@@ -5,7 +5,8 @@ import { Alert } from "./alert";
 import { Dialog } from "./window";
 import { Link, navigate, useRoute } from "./router";
 import { Folder } from "./screens";
-import { readProfile, writeProfile } from "../state/profile";
+import { EMPTY_PROFILE, platform } from "../state/platform";
+import { usePlatformValue } from "../state/platform-hooks";
 
 const message = (e: unknown) => (e instanceof ApiFailure ? e.message : "Что-то пошло не так. Попробуйте ещё раз.");
 
@@ -174,15 +175,17 @@ function RegisterForm() {
 
 /** Гость: только ФИО — оно попадёт в грамоту, PDF результата и файл для преподавателя. */
 function GuestForm() {
-  const [name, setName] = useState(() => readProfile().name);
-  const [saved, setSaved] = useState(false);
+  const [saved] = usePlatformValue(() => platform().profile.read(), EMPTY_PROFILE);
+  const [typed, setTyped] = useState<string | null>(null);
+  const name = typed ?? saved.name;
+  const [done, setDone] = useState(false);
   return (
     <form
       className="form auth-pane"
       onSubmit={(e) => {
         e.preventDefault();
-        writeProfile({ ...readProfile(), name: name.trim() });
-        setSaved(true);
+        void platform().profile.read().then((profile) => platform().profile.write({ ...profile, name: name.trim() }));
+        setDone(true);
       }}
     >
       <h1>Без входа</h1>
@@ -192,14 +195,14 @@ function GuestForm() {
           className="input"
           value={name}
           onChange={(e) => {
-            setName(e.target.value);
-            setSaved(false);
+            setTyped(e.target.value);
+            setDone(false);
           }}
           placeholder="Иванова Анна Сергеевна"
           autoComplete="name"
         />
       </Field>
-      {saved && <p className="form__ok">Сохранено в этом браузере.</p>}
+      {done && <p className="form__ok">Сохранено в этом браузере.</p>}
       <button className="btn btn--primary btn--block" type="submit">
         Сохранить
       </button>

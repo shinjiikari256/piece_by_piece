@@ -1,4 +1,4 @@
-import { siteUrl } from "../router";
+import { Link, setSearchParams, siteUrl, useSearchParam } from "../router";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { renderSVG } from "uqr";
 import {
@@ -15,7 +15,10 @@ import { date, fail } from "./index";
 
 export function GroupsSection({ groups, isAdmin, reload }: { groups: AdminGroup[]; isAdmin: boolean; reload: () => void }) {
   const [name, setName] = useState("");
-  const [open, setOpen] = useState<number | null>(null);
+  // открытая группа — в адресе (`?group=<id>`): на неё ведут ссылки из списка пользователей
+  const param = useSearchParam("group");
+  const open = param && groups.some((g) => String(g.id) === param) ? Number(param) : null;
+  const setOpen = (id: number | null) => setSearchParams({ group: id === null ? null : String(id) });
   const [staff, setStaff] = useState<AdminUser[]>([]);
   useEffect(() => {
     if (!isAdmin) return;
@@ -120,6 +123,13 @@ function GroupDetail({ group, isAdmin, staff, reload }: { group: AdminGroup; isA
           </div>
         </section>
       )}
+
+      <section className="group__section">
+        <h3>Студенты</h3>
+        <Link className="btn btn--sm" to={`/admin/users?group=${group.id}`}>
+          Показать студентов группы ({group.students})
+        </Link>
+      </section>
 
       <section className="group__section">
         <h3>Ссылки для регистрации</h3>

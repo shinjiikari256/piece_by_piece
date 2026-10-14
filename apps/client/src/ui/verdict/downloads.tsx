@@ -4,22 +4,26 @@ import { useEffect, useRef, useState } from "react";
 import { scoreTone } from "../common";
 import { useAccount } from "../../state/account";
 import { downloadCertificate, downloadResultPdf, drawCertificate, drawResultPages, type CertificateData, type ResultDocData } from "../documents";
-import { GAME_VERSION, OFFLINE } from "../../env";
+import { GAME_VERSION } from "../../env";
 import { Alert } from "../alert";
 import { Icon } from "../icons";
-import { readProfile, writeProfile, type ResultRecord } from "../../state/profile";
+import type { ResultRecord } from "../../state/result-record";
+import { EMPTY_PROFILE, platform, type Profile } from "../../state/platform";
+import { usePlatformValue } from "../../state/platform-hooks";
 import { downloadResult } from "../../state/result-file";
 
 export function Downloads({ record, grade, names }: { record: ResultRecord | null; grade: string; names: Record<string, string> }) {
   const server = useAccount((s) => s.server);
   const me = useAccount((s) => s.me);
   const signedIn = server === "online" && !!me;
-  const [profile, setProfile] = useState(readProfile);
+  const [saved] = usePlatformValue(() => platform().profile.read(), EMPTY_PROFILE);
+  const [draft, setDraft] = useState<Profile | null>(null);
+  const profile = draft ?? saved;
   const [tried, setTried] = useState(false);
   const edit = (patch: Partial<typeof profile>) => {
     const next = { ...profile, ...patch };
-    setProfile(next);
-    writeProfile(next);
+    setDraft(next);
+    void platform().profile.write(next);
   };
   const caseFile = useGame((s) => s.caseFile)!;
   const score = useGame((s) => s.score)!;
@@ -66,7 +70,7 @@ export function Downloads({ record, grade, names }: { record: ResultRecord | nul
       })),
     })),
     gameVersion: record?.gameVersion ?? GAME_VERSION,
-    source: OFFLINE ? "офлайн-версия" : "",
+    source: platform().capabilities.offline ? "офлайн-версия" : "",
   };
 
   return (

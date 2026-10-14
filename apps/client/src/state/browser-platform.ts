@@ -1,6 +1,7 @@
 import { accountStore } from "./account";
-import { clearSave, markPaused, readSave, savePlayerPosition, writeSave } from "./persistence";
-import { recordResult } from "./profile";
+import { clearSave, listSaves, markPaused, readSave, savePlayerPosition, writeSave } from "./persistence";
+import { clearResults, listResults, readProfile, recordResult, subscribeProfile, writeProfile } from "./profile";
+import { OFFLINE } from "../env";
 import type { GamePlatform } from "./platform";
 import { uploadResult } from "./results-sync";
 
@@ -12,6 +13,7 @@ import { uploadResult } from "./results-sync";
 export function createBrowserPlatform(): GamePlatform {
   return {
     saves: {
+      list: async () => listSaves(),
       read: async (caseId) => readSave(caseId),
       write: async (save) => writeSave(save),
       clear: async (caseId) => void clearSave(caseId),
@@ -24,6 +26,14 @@ export function createBrowserPlatform(): GamePlatform {
         const signedIn = !!accountStore.get().me;
         return { delivered: signedIn ? await uploadResult(result) : true };
       },
+      list: async () => listResults(),
+      clear: async () => clearResults(),
     },
+    profile: {
+      read: async () => readProfile(),
+      write: async (profile) => writeProfile(profile),
+      subscribe: subscribeProfile,
+    },
+    capabilities: { offline: OFFLINE },
   };
 }

@@ -2,7 +2,7 @@ import { Suspense, lazy, useEffect, useRef, useState, Fragment } from "react";
 import { ROLE_LABEL, STATUS_LABEL } from "../../../../shared/api";
 import { APP_NAME, DEV_EDITOR, OFFLINE } from "../env";
 import { account, isStaff, pendingJoinToken, useAccount } from "../state/account";
-import { useGuestName } from "../state/profile";
+import { useProfile } from "../state/platform-hooks";
 import { AuthPage, PasswordForm } from "./account";
 import { Field } from "./account";
 import { AdminPage, StatusChip } from "./admin";
@@ -125,7 +125,7 @@ function ThemeMenu() {
 
 /** Без входа: имя гостя (если указал) и «Вход». */
 function SignedOut() {
-  const guest = useGuestName();
+  const guest = useProfile().name.trim();
   return (
     <>
       {guest && (

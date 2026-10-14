@@ -1,7 +1,7 @@
 import { Link } from "./router";
 import type { ResultListItem, ServerResult } from "../../../../shared/api";
 import type { Score } from "../../../../shared/scoring";
-import type { ResultRecord } from "../state/profile";
+import type { ResultRecord } from "../state/result-record";
 import { scorePercent, scoreTone } from "./common";
 import { formatDate } from "../util/format";
 

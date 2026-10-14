@@ -2,22 +2,18 @@ import "./case-stamps.css";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { caseRepository, type CaseSummary } from "../content/repository";
 import { actions, useGame } from "../state/store";
-import {
-  clearSave,
-  formatDate,
-  isSaveOutdated,
-  listSaves,
-  readSave,
-  type SaveData,
-} from "../state/persistence";
-import { lastResultOf } from "../state/profile";
+import { formatDate, isSaveOutdated, type SaveData } from "../state/save-data";
+import type { ResultRecord } from "../state/result-record";
+import { lastResultOf } from "../state/result-record";
+import { platform } from "../state/platform";
+import { usePlatformValue } from "../state/platform-hooks";
 import { Alert } from "./alert";
 import { Loader } from "./loader";
 import { percentOf } from "../util/format";
 import { FolderTabs, type FolderTab } from "./folder";
 import { DIFFICULTY, TabbedModal, scoreTone, useEnterPrimary } from "./common";
 import { DEFAULT_BONUS_SCORE } from "../../../../shared/scoring";
-import { OFFLINE, embeddedCases } from "../env";
+import { embeddedCases } from "../env";
 import { creditText } from "./credit";
 
 export function useCaseList() {
@@ -38,7 +34,8 @@ export async function resumeCase(id: string) {
 }
 
 /** Последний сохранённый результат дела — сразу на экран результата. */
-export async function openResult(caseId: string, record = lastResultOf(caseId)) {
+export async function openResult(caseId: string, record?: ResultRecord) {
+  record ??= lastResultOf(await platform().results.list(), caseId);
   if (!record) return;
   await actions.showResult(await caseRepository.open(caseId), record);
 }
@@ -106,13 +103,15 @@ export function Folder({
 }
 
 export function CaseList({ cases }: { cases: CaseSummary[] | null }) {
-  const saves = new Map(listSaves().map((s) => [s.caseId, s]));
+  const [saveList] = usePlatformValue(() => platform().saves.list(), [] as SaveData[]);
+  const [results] = usePlatformValue(() => platform().results.list(), [] as ResultRecord[]);
+  const saves = new Map(saveList.map((s) => [s.caseId, s]));
   return (
     <>
       {!cases && <Loader label="Загружаем дела…" />}
       {cases?.length === 0 && (
         <p>
-          {!OFFLINE
+          {!platform().capabilities.offline
             ? "Нет ни одного корректного сценария. Проверьте src/content/cases."
             : embeddedCases()
               ? "В этом файле нет ни одного корректного дела. Соберите файл заново командой pnpm export:offline."
@@ -124,7 +123,7 @@ export function CaseList({ cases }: { cases: CaseSummary[] | null }) {
           const save = saves.get(c.id);
           const outdated = save && save.caseUpdatedAt !== c.updatedAt;
           // пока дело ведётся, прошлый результат не показываем: на карточке только штамп «Ведётся»
-          const last = save ? undefined : lastResultOf(c.id);
+          const last = save ? undefined : lastResultOf(results, c.id);
           return (
             <li key={c.id} className={`case-files__item has-stamps-${(save ? 1 : 0) + (last ? 1 : 0)}`}>
               <button className="case-file" onClick={() => openCase(c.id)}>
@@ -234,12 +233,14 @@ export function HowToWindow({ onClose }: { onClose: () => void }) {
 
 export function Intro() {
   const caseFile = useGame((s) => s.caseFile)!;
-  const [save, setSave] = useState(() => readSave(caseFile.id));
+  const [loaded] = usePlatformValue(() => platform().saves.read(caseFile.id), null as SaveData | null, [caseFile.id]);
+  const [cleared, setCleared] = useState(false);
+  const save = cleared ? null : loaded;
   const [confirmReset, setConfirmReset] = useState(false);
   const outdated = save && isSaveOutdated(save, caseFile);
   const reset = () => {
-    clearSave(caseFile.id);
-    setSave(null);
+    void platform().saves.clear(caseFile.id);
+    setCleared(true);
     setConfirmReset(false);
   };
 

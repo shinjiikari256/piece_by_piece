@@ -1,9 +1,11 @@
 import { Link } from "./router";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import type { ResultsFilters, ResultsPage as ResultsPageData, ResultsStats } from "../../../../shared/api";
 import { resultsStats } from "../../../../shared/results-stats";
 import { api, isStaff, useAccount } from "../state/account";
-import { clearResults, listResults } from "../state/profile";
+import { platform } from "../state/platform";
+import type { ResultRecord } from "../state/result-record";
+import { usePlatformValue } from "../state/platform-hooks";
 import { Select } from "./Select";
 import { ask, tell } from "./dialog";
 import { Icon } from "./icons";
@@ -123,11 +125,10 @@ function ServerResults({ staff }: { staff: boolean }) {
 }
 
 function LocalResults({ online }: { online: boolean }) {
-  const [version, setVersion] = useState(0);
   const [caseId, setCaseId] = useState("");
   const [page, setPage] = useState(1);
   const [stats, setStats] = useState(false);
-  const all = useMemo(() => listResults(), [version]); // eslint-disable-line react-hooks/exhaustive-deps
+  const [all, reload] = usePlatformValue(() => platform().results.list(), [] as ResultRecord[]);
   const cases = [...new Map(all.map((r) => [r.caseId, r])).values()];
   const filtered = all.filter((r) => !caseId || r.caseId === caseId);
   const rows = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE).map(fromLocal);
@@ -142,8 +143,8 @@ function LocalResults({ online }: { online: boolean }) {
               className="linkbtn"
               onClick={async () => {
                 if (!(await ask({ title: "Очистить историю результатов?", text: "Результаты пропадут из этого браузера.", confirmLabel: "Очистить", danger: true }))) return;
-                clearResults();
-                setVersion((n) => n + 1);
+                await platform().results.clear();
+                reload();
               }}
             >
               Очистить историю

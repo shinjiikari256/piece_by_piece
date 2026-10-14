@@ -21,3 +21,6 @@ export interface ResultRecord {
   gameVersion?: string;
   resultFormatVersion?: number;
 }
+
+/** Последний результат по делу, который можно открыть (из списка, свежие сверху). */
+export const lastResultOf = (results: ResultRecord[], caseId: string) => results.find((r) => r.caseId === caseId && r.score);

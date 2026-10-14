@@ -7,8 +7,18 @@ import type { ResultRecord } from "./result-record";
  * Все операции асинхронные: сегодня данные в `localStorage`, завтра — на сервере.
  */
 
+/** Профиль игрока без учётной записи: ФИО и группа для документов. */
+export interface Profile {
+  name: string;
+  group: string;
+}
+
+export const EMPTY_PROFILE: Profile = { name: "", group: "" };
+
 /** Сохранение расследования. */
 export interface SaveStore {
+  /** Все сохранения, свежие сверху. */
+  list(): Promise<SaveData[]>;
   read(caseId: string): Promise<SaveData | null>;
   /** false — хранилище не приняло запись (игра покажет предупреждение). */
   write(save: Omit<SaveData, "v" | "savedAt" | "player">): Promise<boolean>;
@@ -23,11 +33,29 @@ export interface SaveStore {
 export interface ResultStore {
   /** `delivered: false` — результат сохранён только у игрока и не дошёл до места назначения (игра покажет предупреждение). */
   record(result: ResultRecord): Promise<{ delivered: boolean }>;
+  /** История результатов игрока, свежие сверху. */
+  list(): Promise<ResultRecord[]>;
+  clear(): Promise<void>;
+}
+
+export interface ProfileStore {
+  read(): Promise<Profile>;
+  write(profile: Profile): Promise<void>;
+  /** Профиль изменился (сохранили в другом окне экрана); возвращает отписку. */
+  subscribe(listener: () => void): () => void;
+}
+
+/** Чем отличается среда: экраны сайта спрашивают это здесь, а не у сборки. */
+export interface Capabilities {
+  /** Автономный файл без сервера (`--mode offline`): результаты — в файл, без учётных записей. */
+  offline: boolean;
 }
 
 export interface GamePlatform {
   saves: SaveStore;
   results: ResultStore;
+  profile: ProfileStore;
+  capabilities: Capabilities;
 }
 
 let current: GamePlatform | null = null;

@@ -50,6 +50,23 @@ describe("учётная запись против сервера (PGlite)", () 
     await page.close();
   });
 
+  it("админка: группа открывается по ссылке, из группы — список её студентов", async () => {
+    const page = await h.page();
+    await page.goto(`${BASE}/login`);
+    await page.locator("form input.input").first().fill("admin");
+    await page.locator("form input[type=password]").fill("adminpass1");
+    await page.locator("form button.btn--primary, form button[type=submit]").last().click();
+    await expect.poll(() => page.evaluate(async () => (await (await fetch("/api/me")).json()).login ?? null)).toBe("admin");
+    const id = await page.evaluate(async () => {
+      const res = await fetch("/api/admin/groups", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ name: "ЮР-777" }) });
+      return (await res.json()).id as number;
+    });
+    await page.goto(`${BASE}/admin/groups?group=${id}`);
+    await page.getByRole("link", { name: /Показать студентов группы/ }).click();
+    await expect.poll(() => page.evaluate(() => location.pathname + location.search)).toBe(`/admin/users?group=${id}`);
+    await page.close();
+  });
+
   it("тестовый запуск из конструктора с учётной записью: сразу начинается расследование, поверх баннер «вернуться в конструктор»", async () => {
     const page = await h.page();
     await page.goto(`${BASE}/login`);
