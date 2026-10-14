@@ -33,7 +33,7 @@ export function Site() {
       <SiteHeader route={route} />
       <main className={`site__main ${route.page === "editor" ? "site__main--editor" : ""}`}>
         {route.page === "home" && <Landing />}
-        {route.page === "cases" && <CasesPage />}
+        {(route.page === "cases" || route.page === "play") && <CasesPage />}
         {route.page === "howto" && (
           <div className="page page--narrow">
             <HowToContent />

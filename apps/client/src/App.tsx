@@ -15,7 +15,8 @@ import { GameView, runTool } from "./ui/GameView";
 import { ContextMenu, copyText, type MenuContext, type MenuItem } from "./ui/contextmenu";
 import { Intro } from "./ui/screens";
 import { Site } from "./ui/site";
-import { Link, subscribeRoute, useRoute } from "./ui/router";
+import { Link, useRoute } from "./ui/router";
+import { useGameRoute } from "./ui/game-route";
 import { FinalScreen, ResultScreen } from "./ui/verdict";
 import { DialogHost, tell } from "./ui/dialog";
 import { ForcePasswordChange } from "./ui/account";
@@ -102,8 +103,8 @@ export function App() {
     } else void tell({ title: "Не удалось открыть дело", text: "Тестовая копия не найдена или содержит ошибки — откройте конструктор." });
   }, []);
 
-  // смена адреса на вступлении и результате возвращает на сайт
-  useEffect(() => subscribeRoute(actions.leaveToSite), []);
+  // расследование в адресе; смена адреса на вступлении и результате возвращает на сайт
+  useGameRoute();
 
   useWindowKey((e) => {
     if (e.key !== "Escape") return;

@@ -68,12 +68,30 @@ describe("игра в браузере", () => {
     });
     const collected = await page.evaluate(() => (window as any).__game.store.get().progress.collected.length);
     await page.waitForTimeout(500); // автосохранение
+    expect(new URL(page.url()).pathname).toBe("/play/case-001");
     await page.reload();
-    await page.goto(`${BASE}/cases`);
-    await page.locator("button.case-file").first().click();
-    await page.getByRole("button", { name: /Продолжить/ }).click();
+    // адрес расследования возвращает в игру по сохранению, без вступления
     await page.waitForFunction(() => (window as any).__game.store.get().screen === "play");
     expect(await page.evaluate(() => (window as any).__game.store.get().progress.collected.length)).toBe(collected);
+    await page.close();
+  });
+
+  it("«назад» из игры спрашивает про выход, выход ведёт к списку дел", async () => {
+    const page = await h.page();
+    await startCase(page);
+    await page.goBack();
+    await page.waitForFunction(() => (window as any).__game.store.get().overlay?.kind === "exit");
+    expect(new URL(page.url()).pathname).toBe("/play/case-001");
+    await page.getByRole("button", { name: "Сохранить и выйти" }).click();
+    await page.waitForFunction(() => (window as any).__game.store.get().screen === "menu");
+    expect(new URL(page.url()).pathname).toBe("/cases");
+    await page.close();
+  });
+
+  it("адрес неизвестного дела ведёт к списку дел", async () => {
+    const page = await h.page();
+    await page.goto(`${BASE}/play/net-takogo`);
+    await page.waitForURL(`${BASE}/cases`);
     await page.close();
   });
 
@@ -197,8 +215,10 @@ describe("игра в браузере", () => {
     await page.waitForFunction(() => (window as any).__game.store.get().screen === "play");
     expect(await page.evaluate(() => !!document.querySelector(".playtest-banner"))).toBe(true);
     expect(await page.getByRole("button", { name: "Начать заново" }).count()).toBe(0);
-    // в шапке вместо «в главное меню» — стрелка назад в конструктор
+    expect(new URL(page.url()).pathname).toBe("/playtest");
+    // в шапке вместо «в главное меню» — стрелка назад в конструктор; сначала спрашивает про выход
     await page.locator("a.topbar__home").click();
+    await page.getByRole("button", { name: "Сохранить и выйти" }).click();
     await expect.poll(() => page.evaluate(() => location.pathname)).toBe("/editor");
     await page.close();
   });

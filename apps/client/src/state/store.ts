@@ -2,8 +2,8 @@ import { useSyncExternalStore } from "react";
 import type { Exit, Solution } from "../../../../shared/case";
 import type { PublicCase, PublicDeduction } from "../../../../shared/public-case";
 import { RESULT_FORMAT_VERSION, type CaseAuthority, type DeductionVerdict, type FinishInput, type RevealedHint } from "../../../../shared/judge";
-import { APP_NAME, GAME_VERSION } from "../env";
-import { navigate } from "../ui/router";
+import { APP_NAME, FROM_EDITOR, GAME_VERSION } from "../env";
+import { currentRoute, navigate } from "../ui/router";
 import { createAutosave, pauseOnPageHide } from "./autosave";
 import { applyEffects, emptyProgress, meets, type Progress } from "../../../../shared/conditions";
 import { allNpcs, findObject, startLocation } from "../content/case-utils";
@@ -217,6 +217,9 @@ export const actions = {
     if (state.screen !== "intro" && state.screen !== "result") return;
     authority = null;
     set(initialState());
+    // адрес расследования больше не нужен: сайт — на списке дел (или в конструкторе, если это тестовый запуск)
+    const page = currentRoute().page;
+    if (page === "play" || page === "playtest") navigate(FROM_EDITOR ? "/editor" : "/cases", { replace: true });
   },
 
   /** К списку дел. */
@@ -315,6 +318,7 @@ export const actions = {
     if (keepProgress && state.caseFile) void platform().saves.markPaused(state.caseFile.id);
     authority = null;
     set({ ...initialState(), runId: state.runId });
+    navigate(FROM_EDITOR ? "/editor" : "/cases");
   },
 
   /** Вызывается из Phaser по E/клику: объект или NPC. */

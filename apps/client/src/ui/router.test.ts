@@ -9,6 +9,8 @@ describe("маршруты сайта", () => {
     ["/results", { page: "results" }],
     ["/login", { page: "login" }],
     ["/account", { page: "account" }],
+    ["/play/case-001", { page: "play", caseId: "case-001" }],
+    ["/playtest", { page: "playtest" }],
     ["/editor", { page: "editor" }],
     ["/editor/case-001", { page: "editor", caseId: "case-001" }],
     ["/editor/case-001/locations", { page: "editor", caseId: "case-001", section: "locations" }],

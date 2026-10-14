@@ -16,6 +16,8 @@ export type Route =
   | { page: "guest" }
   | { page: "register" }
   | { page: "account" }
+  | { page: "play"; caseId: string }
+  | { page: "playtest" }
   | { page: "editor"; caseId?: string; section?: string }
   | { page: "admin"; section: "users" | "groups" | "settings"; userId?: number };
 
@@ -31,6 +33,10 @@ export function parseRoute(path: string): Route {
     case "register":
     case "account":
       return { page: parts[0] };
+    case "play":
+      return parts[1] ? { page: "play", caseId: decodeURIComponent(parts[1]) } : { page: "cases" };
+    case "playtest":
+      return { page: "playtest" };
     case "editor":
       return { page: "editor", ...(parts[1] ? { caseId: decodeURIComponent(parts[1]) } : {}), ...(parts[2] ? { section: parts[2] } : {}) };
     case "admin": {
@@ -46,6 +52,7 @@ export function parseRoute(path: string): Route {
 /** Путь страницы. */
 export function routeHref(r: Route): string {
   if (r.page === "home") return "/";
+  if (r.page === "play") return `/play/${encodeURIComponent(r.caseId)}`;
   if (r.page === "admin") return `/admin/${r.section}${r.userId ? `/${r.userId}` : ""}`;
   if (r.page === "editor") return r.caseId ? `/editor/${encodeURIComponent(r.caseId)}${r.section ? `/${r.section}` : ""}` : "/editor";
   return `/${r.page}`;
@@ -81,6 +88,9 @@ export function subscribeRoute(listener: () => void) {
   events.forEach((e) => window.addEventListener(e, listener));
   return () => events.forEach((e) => window.removeEventListener(e, listener));
 }
+
+/** Страница по текущему адресу (без подписки — для обработчиков). */
+export const currentRoute = (): Route => parseRoute(readLocation().path);
 
 export function useRoute(): Route {
   useSyncExternalStore(subscribeRoute, snapshot, () => "/");
