@@ -1,0 +1,71 @@
+/* ---------- Сайт: таблицы, статусы, плашки ---------- */
+
+/* ---------- Таблицы ---------- */
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.93rem;
+}
+.table th {
+  text-align: left;
+  font-weight: 600;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-on-dark);
+  background: var(--bg-page);
+  padding: 0.7rem 0.9rem;
+  white-space: nowrap;
+}
+.table td {
+  border-bottom: 1px solid var(--border);
+  padding: 0.7rem 0.9rem;
+  vertical-align: middle;
+}
+.table tbody tr:last-child td {
+  border-bottom: 0;
+}
+.table .num {
+  text-align: right;
+  white-space: nowrap;
+}
+.table .check {
+  width: 2.5rem;
+}
+.table input[type="checkbox"] {
+  width: 1.05em;
+  height: 1.05em;
+  accent-color: var(--accent);
+}
+.table tr.is-link {
+  cursor: pointer;
+}
+.table tr.is-link:hover {
+  background: var(--bg-paper);
+}
+.table tr[data-selected] {
+  background: var(--accent-soft);
+}
+.score-pill {
+  display: inline-block;
+  min-width: 3.2em;
+  margin-left: 0.4em;
+  padding: 0.1em 0.45em;
+  border-radius: 999px;
+  font-size: 0.8em;
+  text-align: center;
+  background: var(--tone-soft, var(--bg-paper-dim));
+  color: var(--tone-ink, var(--text-soft));
+}
+
+.status {
+  display: inline-block;
+  white-space: nowrap;
+  font-size: 0.8rem;
+  font-weight: 500;
+  padding: 0.2em 0.65em;
+  border-radius: 999px;
+  background: var(--tone-soft, var(--bg-paper-dim));
+  color: var(--tone-ink, var(--text-soft));
+}

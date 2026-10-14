@@ -1,0 +1,160 @@
+/* ---------- Экран результата: папка, цвет штампа, вкладка «Скачать», шапка с баллами ---------- */
+
+/* ---------- Результат файлом (офлайн) ---------- */
+/* результат — папка во всю высоту: вкладки «Дела / Дело №… / Результат / Разбор», содержимое прокручивается */
+.folder--tall .folder__sheet {
+  height: calc(100dvh - 7.5rem);
+}
+.folder__sheet .result {
+  width: auto;
+  margin: 0;
+  padding: 0;
+  border-top: 0;
+}
+
+/* цвет штампа с баллами — тон по доле от максимума (scoreTone → data-tone) */
+.score[data-tone],
+.case-stamp[data-tone] {
+  color: var(--tone-strong);
+  border-color: var(--tone-strong);
+}
+
+/* вкладка «Скачать»: грамота и файл результата */
+.downloads__who {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 0.6rem;
+  max-width: 48rem;
+  margin: 0.4rem 0 1rem;
+}
+.downloads__who label {
+  display: grid;
+  gap: 0.2rem;
+  font-size: 0.85em;
+  color: var(--text-soft);
+}
+.downloads__who input {
+  font-size: 1rem;
+  padding: 0.45em 0.6em;
+}
+.downloads__who label.is-invalid input {
+  border-color: var(--bad);
+}
+.downloads__grid {
+  display: grid;
+  gap: 1rem;
+  margin-top: 0.6rem;
+}
+.download-card {
+  display: flex;
+  gap: 1.4rem;
+  align-items: flex-start;
+  padding: 1.1rem 1.2rem;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--bg-surface);
+}
+.download-card h3 {
+  margin: 0.2rem 0 0.4rem;
+}
+.download-card p {
+  margin: 0 0 0.9rem;
+  max-width: 34em;
+  line-height: 1.5;
+}
+.download-card__icon {
+  display: grid;
+  place-items: center;
+  width: 150px;
+  flex: none;
+  color: var(--border-chrome);
+  padding: 1rem 0;
+}
+.certificate-preview {
+  width: 150px;
+  aspect-ratio: 1654 / 2339;
+  flex: none;
+  border-radius: 3px;
+  box-shadow: var(--elev-2);
+  background: var(--bg-paper);
+}
+@media (max-width: 640px) {
+  .downloads__who {
+    grid-template-columns: 1fr;
+  }
+  .download-card {
+    flex-direction: column;
+  }
+}
+
+.topbar__progress {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5em;
+}
+.topbar__progress .progress {
+  display: block;
+  width: 6rem;
+}
+.topbar__progress .progress__bar {
+  display: block;
+}
+.topbar__help {
+  color: inherit;
+}
+.materials__count {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3em;
+  margin-left: auto;
+  color: var(--text-soft);
+  font-size: 0.9em;
+  white-space: nowrap;
+}
+.materials__count .icon + .icon,
+.materials__count .icon:nth-of-type(2) {
+  margin-left: 0.5em;
+}
+.materials__count + .materials__match {
+  margin-left: 0.8rem;
+}
+/* оценка слева, плашка с баллами — справа на той же строке, по центру строки */
+.result__header {
+  flex-wrap: nowrap;
+  align-items: center;
+}
+.result__header > div:first-child {
+  min-width: 0;
+}
+.folder__sheet .result__header h1 {
+  margin: 0;
+  padding-right: 0;
+}
+.result__header .score {
+  flex: none;
+  /* запас со всех сторон, чтобы повёрнутый штамп не обрезался краем прокрутки */
+  margin: 0.6rem 0.5rem 0.6rem 0;
+}
+
+.alert.embedded-note {
+  align-items: flex-start;
+  margin: 0 0 1rem;
+  padding: 0.8rem 1rem;
+  border-radius: 10px;
+  line-height: 1.5;
+}
+.embedded-note code {
+  font-family: var(--font-mono);
+  background: var(--veil);
+  padding: 0 0.3em;
+  border-radius: 4px;
+}
+.embedded-note .linkbtn {
+  font: inherit;
+  background: none;
+  border: 0;
+  padding: 0;
+  color: var(--accent);
+  text-decoration: underline;
+  cursor: pointer;
+}

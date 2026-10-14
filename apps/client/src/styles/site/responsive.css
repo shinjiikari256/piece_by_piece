@@ -1,0 +1,33 @@
+/* ---------- Сайт: узкий экран (адаптив сайта) ---------- */
+
+/* ---------- Узкий экран ---------- */
+
+@media (max-width: 860px) {
+  .site-header__inner {
+    gap: 0.8rem;
+  }
+  .site-nav {
+    overflow-x: auto;
+  }
+  .user-menu__name {
+    display: none;
+  }
+  .hero {
+    grid-template-columns: 1fr;
+  }
+  .hero__art {
+    display: none;
+  }
+  .features {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+@media (max-width: 560px) {
+  .logo span + * {
+    display: none;
+  }
+  .pair,
+  .features {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,0 +1,290 @@
+/* ---------- Конструктор дел ---------- */
+
+/* раздел сайта #/editor: всё пространство под шапкой, прокрутка — внутри частей конструктора */
+.site__main--editor {
+  padding: 0;
+}
+.editor-route {
+  height: calc(100dvh - var(--header-h, 60px));
+  background: var(--bg-paper-dim);
+  font-size: 15px;
+}
+.editor-route .ed,
+.editor-route .eh,
+.editor-route > .menu {
+  height: 100%;
+}
+
+.ed {
+  height: 100vh;
+  display: grid;
+  grid-template-columns: 13rem 1fr;
+  grid-template-rows: auto 1fr;
+  position: relative;
+}
+.ed__bar {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  min-height: var(--bar-h);
+  padding: 0.5rem 1rem;
+  background: var(--bg-chrome);
+  border-bottom: 3px solid var(--border-chrome);
+}
+.ed__home {
+  text-decoration: none;
+  font-size: 1.4em;
+  color: var(--text);
+}
+.ed__title {
+  display: grid;
+  line-height: 1.2;
+}
+.ed__actions {
+  margin-left: auto;
+  display: flex;
+  gap: 0.4rem;
+  align-items: center;
+}
+.ed__play {
+  padding: 0.35em 0.9em;
+}
+.ed__status {
+  border: 2px solid var(--text);
+  border-radius: 6px;
+  padding: 0.25em 0.7em;
+  background: var(--bg-paper);
+  cursor: pointer;
+  font-weight: 500;
+}
+.ed__status.is-bad {
+  background: var(--bad-soft);
+  border-color: var(--bad);
+  color: var(--bad);
+}
+.ed__status.is-ok {
+  background: var(--good-soft);
+  border-color: var(--good);
+  color: var(--good);
+}
+.ed__menu {
+  position: relative;
+}
+
+.ed__nav {
+  background: var(--bg-paper);
+  border-right: 1px solid var(--border);
+  overflow: auto;
+  padding: 0.5rem;
+  display: grid;
+  align-content: start;
+  gap: 2px;
+}
+.ed__nav-item {
+  display: flex;
+  justify-content: space-between;
+  border: none;
+  background: transparent;
+  text-align: left;
+  padding: 0.5em 0.7em;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+}
+.ed__nav-item:hover {
+  background: var(--bg-paper-dim);
+}
+.ed__nav-item[aria-current] {
+  background: var(--accent);
+  color: var(--text-on-dark);
+}
+.ed__nav-count {
+  opacity: 0.6;
+  font-size: 0.85em;
+}
+.ed__main {
+  overflow: auto;
+  min-height: 0;
+}
+.ed__panel {
+  padding: 1rem 1.2rem;
+}
+.ed__panel--narrow {
+  max-width: 52rem;
+}
+.ed__split {
+  display: grid;
+  grid-template-columns: 18rem 1fr;
+  height: 100%;
+  min-height: 0;
+}
+.ed__list {
+  border-right: 1px solid var(--border);
+  overflow: auto;
+  background: var(--bg-paper);
+  padding: 0.5rem;
+  display: grid;
+  align-content: start;
+  gap: 0.4rem;
+}
+.ed__list ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 2px;
+}
+.ed__list li button {
+  width: 100%;
+  text-align: left;
+  border: none;
+  background: transparent;
+  padding: 0.4em 0.6em;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.92em;
+}
+.ed__list li button:hover {
+  background: var(--bg-paper-dim);
+}
+.ed__list li button[aria-current] {
+  background: var(--accent-soft);
+  box-shadow: var(--marker-current);
+}
+.ed__split > .ed__panel {
+  overflow: auto;
+}
+/* карточки ошибок */
+.err-list {
+  list-style: none;
+  margin: 1rem 0 0;
+  padding: 0;
+  display: grid;
+  gap: 0.5rem;
+}
+.err-card .alert__text {
+  font-family: var(--font-mono);
+  font-size: 0.95em;
+  color: var(--text);
+  overflow-wrap: anywhere;
+}
+.ed__nav-item--errors {
+  margin-top: 0.5rem;
+  color: var(--bad);
+  border: 1px solid var(--bad-soft);
+}
+.ed__nav-item--errors > span:first-child {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35em;
+}
+.ed__nav-item--errors[aria-current] {
+  background: var(--bad);
+  color: var(--text-on-dark);
+}
+.ed__icon-btn:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+.ed__save:disabled {
+  opacity: 0.55;
+  cursor: default;
+  filter: grayscale(0.6);
+}
+
+/* элементы списков: портрет + название + id */
+.ed__list li button.ed__item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.ed__item-art {
+  flex: none;
+  width: 2.2rem;
+  height: 2.6rem;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  border-radius: 6px;
+  background: var(--bg-paper-dim);
+}
+.ed__item-text {
+  display: grid;
+  min-width: 0;
+  line-height: 1.25;
+}
+.ed__item-id {
+  font-family: var(--font-mono);
+  font-size: 0.78em;
+  color: var(--text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* подсказки и условия */
+.ef__hint {
+  display: block;
+  font-weight: 400;
+  font-size: 0.95em;
+  color: var(--text-muted);
+}
+.cond__hint {
+  margin: 0 0 0.5rem;
+  font-size: 0.85em;
+  color: var(--text-soft);
+  background: var(--bg-paper-dim);
+  border-radius: 6px;
+  padding: 0.45rem 0.6rem;
+}
+.cond__row {
+  display: grid;
+  grid-template-columns: 15rem 1fr;
+  gap: 0.6rem;
+  align-items: center;
+  padding: 0.3rem 0;
+  border-top: 1px dashed var(--border);
+}
+.cond__title {
+  font-size: 0.85em;
+}
+.flag-input,
+.flag-picker input {
+  font-family: var(--font-mono);
+  font-size: 0.88em;
+  max-width: 11rem;
+}
+.flag-picker {
+  --gap: 0.4rem;
+}
+.ed__json {
+  display: grid;
+  grid-template-rows: auto auto 1fr;
+  height: 100%;
+  gap: 0.5rem;
+}
+.ed__json-bar {
+  display: flex;
+  gap: 0.6rem;
+  align-items: center;
+}
+.ed__json-bar h2 {
+  margin: 0 auto 0 0;
+}
+.ed__json textarea {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  width: 100%;
+  height: 100%;
+  min-height: 60vh;
+  border-radius: 8px;
+  padding: 0.7rem;
+}
+
+/* плашка: черновик не записался в браузер — на всю ширину, без скругления */
+.alert.ed__warn {
+  padding: 0.5rem 1rem;
+  border-radius: 0;
+  font-size: 0.92em;
+}

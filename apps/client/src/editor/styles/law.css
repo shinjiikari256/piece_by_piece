@@ -1,0 +1,37 @@
+/* ---------- раздел «Закон»: нумерованные записи ---------- */
+.law-ed {
+  list-style: none;
+  margin: 0 0 0.8rem;
+  padding: 0;
+  display: grid;
+  gap: 0.6rem;
+}
+.law-ed__item {
+  display: grid;
+  grid-template-columns: 2rem 1fr auto;
+  gap: 0.6rem;
+  align-items: start;
+  padding: 0.6rem;
+  background: var(--bg-paper);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+.law-ed__num {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 1.1em;
+  color: var(--accent);
+  text-align: center;
+  padding-top: 0.35em;
+}
+.law-ed__fields .law-ed__title {
+  font-weight: 700;
+}
+.law-ed__tools {
+  display: grid;
+  gap: 0.25rem;
+}
+.law-ed__chip {
+  font-size: 0.88em !important;
+  color: var(--accent);
+}

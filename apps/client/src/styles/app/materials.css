@@ -1,0 +1,269 @@
+/* ---------- Окно «Материалы» ---------- */
+
+/* окно дела фиксированного размера — не прыгает между карточками */
+.journal {
+  height: min(86vh, 56rem);
+}
+.journal .modal__body {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+.journal__content {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+}
+.materials {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+  height: 100%;
+  min-height: 0;
+}
+.materials__bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 0.9rem;
+  align-items: center;
+}
+.materials__match {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4em;
+}
+.materials__body {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
+  gap: 1.1rem;
+}
+.materials__list,
+.materials__detail {
+  overflow: auto;
+  min-height: 0;
+  padding-right: 0.2rem;
+}
+.materials__placeholder {
+  color: var(--text-muted);
+  text-align: center;
+  margin-top: 30%;
+}
+@media (max-width: 760px) {
+  .journal {
+    height: 100%;
+  }
+  .materials__body {
+    grid-template-columns: 1fr;
+    overflow: auto;
+  }
+  .materials__list,
+  .materials__detail {
+    overflow: visible;
+  }
+}
+
+/* пометки игрока */
+.evidence-card.is-unimportant {
+  opacity: 0.5;
+}
+.evidence-card.is-unimportant:hover {
+  opacity: 0.85;
+}
+.evidence-card__head > .icon {
+  color: var(--warn-strong);
+}
+.mark-buttons {
+  display: inline-flex;
+  gap: 0.3rem;
+}
+.mark-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3em;
+  border: 1px solid var(--border);
+  background: var(--bg-surface);
+  border-radius: 999px;
+  padding: 0.25em 0.75em;
+  cursor: pointer;
+  font-size: 0.88em;
+}
+.mark-btn[aria-pressed="true"],
+.mark-close[aria-pressed="true"] {
+  background: var(--text);
+  border-color: var(--text);
+  color: var(--text-on-dark);
+}
+.mark-btn:first-child[aria-pressed="true"],
+.mark-close--important[aria-pressed="true"] {
+  background: var(--warn-strong);
+  border-color: color-mix(in srgb, var(--warn-strong) 82%, black);
+  color: var(--text);
+}
+
+/* карточка материала */
+.detail__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+  align-items: center;
+  justify-content: space-between;
+}
+.detail__label {
+  font-size: 0.78em;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  font-weight: 700;
+}
+.detail__source {
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+  margin: 0;
+}
+.detail__source .portrait {
+  width: 1.4em;
+  height: 2.1em;
+  border: none;
+  background: transparent;
+}
+.detail__events {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+.event-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5em;
+  background: var(--bg-paper-dim);
+  border-radius: 999px;
+  padding: 0.2em 0.8em 0.2em 0.25em;
+  font-size: 0.88em;
+}
+.event-chip__time {
+  background: var(--text);
+  color: var(--text-on-dark);
+  border-radius: 999px;
+  padding: 0.1em 0.6em;
+  font-family: var(--font-mono);
+  font-size: 0.9em;
+  white-space: nowrap;
+}
+.detail__people {
+  --gap: 0.4rem;
+}
+.reliability {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4em;
+  font-size: 0.9em;
+  color: var(--text-soft);
+}
+.reliability b {
+  color: var(--tone-ink);
+}
+.document .md p {
+  margin: 0 0 0.6em;
+}
+.document .md p:last-child {
+  margin-bottom: 0;
+}
+.md ul {
+  margin: 0 0 0.6em;
+  padding-left: 1.2em;
+}
+.modal__title {
+  margin: 0 0 0.6rem;
+  font-size: 1.25em;
+}
+.inspect__note {
+  display: flex;
+  align-items: center;
+  gap: 0.4em;
+  margin: 0.8rem 0 0;
+}
+.inspect .detail {
+  border: none;
+  padding: 0;
+  background: transparent;
+}
+
+/* сопоставление в материалах */
+.board--compact {
+  padding: 1rem 0.8rem;
+  gap: 0.8rem;
+  height: 100%;
+  grid-template-rows: auto 1fr auto;
+}
+.board--compact .pin-slot {
+  min-height: 5.5rem;
+}
+.board--compact .pinned {
+  font-size: 0.85em;
+}
+.board__count {
+  margin: 0;
+  background: var(--veil-paper);
+  border-radius: 6px;
+  padding: 0.3em 0.7em;
+  justify-self: start;
+}
+
+/* ---------- приложения в карточке улики ---------- */
+.detail__attachments {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin: 0.6rem 0;
+}
+.attachment {
+  margin: 0;
+  max-width: 100%;
+}
+.attachment img,
+.attachment video {
+  display: block;
+  max-width: min(100%, 26rem);
+  max-height: 18rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg-surface);
+}
+.attachment figcaption {
+  font-size: 0.85em;
+  color: var(--text-muted);
+  margin-top: 0.2rem;
+}
+.attachment-link {
+  align-self: center;
+}
+
+/* ---------- фильтры материалов и пометки ---------- */
+/* ---------- фильтры материалов ---------- */
+.materials__reset {
+  font-size: 0.85em;
+}
+.pins--pair {
+  grid-template-columns: repeat(2, 1fr);
+}
+button.person-chip {
+  border: 1px solid transparent;
+  font: inherit;
+  cursor: pointer;
+}
+button.person-chip:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+/* отмеченная кнопка не светлеет при наведении (иначе белый текст на белом) */
+.mark-close[aria-pressed="true"]:hover:not(:disabled) {
+  background: var(--text);
+}
+.mark-close--important[aria-pressed="true"]:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--warn-strong) 92%, black);
+}

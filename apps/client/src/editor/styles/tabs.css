@@ -1,0 +1,56 @@
+/* ---------- Вкладки конструктора (editor/Tabs.tsx): активная поднята и сливается с листом, как на главной ---------- */
+
+.tabs {
+  /* локальная палитра закладок: неактивная — песочная, активная — бумага */
+  --tab-bg: #dccaa6;
+  --tab-ink: var(--text-on-chrome);
+  --tab-edge: #c9b48c;
+  --tab-hover: #e6d6b6;
+
+  display: flex;
+}
+.tabs--bar {
+  align-items: flex-end;
+  padding: 0.5rem 0.8rem 0;
+  background: var(--bg-paper-dim);
+  border-bottom: 1px solid var(--border);
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+.tabs--inline {
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 0.8rem;
+}
+.tab {
+  border: 1px solid var(--tab-edge);
+  border-bottom: none;
+  border-radius: 8px 8px 0 0;
+  padding: 0.45rem 1rem;
+  background: var(--tab-bg);
+  color: var(--tab-ink);
+  box-shadow: var(--elev-tab-inset);
+  font: inherit;
+  font-weight: 500;
+  white-space: nowrap;
+  cursor: pointer;
+  margin-bottom: -1px;
+}
+.tab + .tab {
+  margin-left: -1px; /* соседние рамки не удваиваются */
+}
+.tab:hover:not([aria-selected="true"]) {
+  background: var(--tab-hover);
+}
+.tab[aria-selected="true"] {
+  background: var(--bg-paper);
+  color: var(--text);
+  font-weight: 700;
+  border-color: var(--border);
+  border-top: 3px solid var(--accent);
+  box-shadow: var(--elev-tab);
+  position: relative;
+  z-index: 1;
+}
+.tab--add {
+  font-weight: 700;
+}

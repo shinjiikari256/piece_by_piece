@@ -1,0 +1,59 @@
+/* ---------- Тоны: разметка задаёт data-tone, компонент рисует себя через --tone* ---------- */
+/* --tone — основной цвет, --tone-soft — заливка, --tone-line — рамка, --tone-strong — насыщенный, --tone-ink — текст на заливке, --tone-on — текст на основном цвете */
+
+[data-tone="accent"] {
+  --tone: var(--accent);
+  --tone-soft: var(--accent-soft);
+  --tone-line: var(--accent-line);
+  --tone-strong: var(--accent-strong);
+  --tone-ink: var(--accent-ink);
+  --tone-on: var(--text-on-dark);
+}
+[data-tone="good"] {
+  --tone: var(--good);
+  --tone-soft: var(--good-soft);
+  --tone-line: var(--good-line);
+  --tone-strong: var(--good-strong);
+  --tone-ink: var(--good-ink);
+  --tone-on: var(--text-on-dark);
+}
+[data-tone="warn"] {
+  --tone: var(--warn);
+  --tone-soft: var(--warn-soft);
+  --tone-line: var(--warn-line);
+  --tone-strong: var(--warn-strong);
+  --tone-ink: var(--warn-ink);
+  --tone-on: var(--text);
+}
+[data-tone="bad"] {
+  --tone: var(--bad);
+  --tone-soft: var(--bad-soft);
+  --tone-line: var(--bad-line);
+  --tone-strong: var(--bad-strong);
+  --tone-ink: var(--bad-ink);
+  --tone-on: var(--text-on-dark);
+}
+[data-tone="evidence"] {
+  --tone: var(--evidence);
+  --tone-soft: var(--evidence-soft);
+  --tone-line: var(--evidence-line);
+  --tone-strong: var(--evidence-strong);
+  --tone-ink: var(--evidence-ink);
+  --tone-on: var(--text-on-dark);
+}
+[data-tone="testimony"] {
+  --tone: var(--testimony);
+  --tone-soft: var(--testimony-soft);
+  --tone-line: var(--testimony-line);
+  --tone-strong: var(--testimony-strong);
+  --tone-ink: var(--testimony-ink);
+  --tone-on: var(--text-on-dark);
+}
+[data-tone="conclusion"] {
+  --tone: var(--conclusion);
+  --tone-soft: var(--conclusion-soft);
+  --tone-line: var(--conclusion-line);
+  --tone-strong: var(--conclusion-strong);
+  --tone-ink: var(--conclusion-ink);
+  --tone-on: var(--text);
+}

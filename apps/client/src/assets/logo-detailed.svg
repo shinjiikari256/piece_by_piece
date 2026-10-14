@@ -1,0 +1,160 @@
+<svg xmlns="http://www.w3.org/2000/svg" class="lg-art" viewBox="0 0 360 290" role="img" aria-label="Папка с делом: три улики на красной нити">
+  <style>
+    .lg-art {
+      overflow: visible;
+      font-family: "Rubik", "PT Mono", system-ui, sans-serif;
+      /* локальная палитра логотипа: все цвета рисунка; значения тут, остальное — var(--lg-…) */
+      /* папка */
+      --lg-kraft-light: #d4b07a;
+      --lg-kraft-dark: #b48d55;
+      --lg-folder-back: #a47f4b;
+      --lg-folder-edge: #8f6c3b;
+      --lg-folder-label: #2b221b;
+      /* лист под карточками */
+      --lg-sheet-under: #efe5cf;
+      --lg-sheet-under-edge: #c9b48e;
+      --lg-sheet-edge: #d6c6a5;
+      --lg-sheet-lines: #e6dcc3;
+      --lg-paper-light: #fffdf7;
+      --lg-paper-dark: #f3ecdc;
+      --lg-glow: #fff3c4;
+      /* карточки */
+      --lg-card-edge: #8a7656;
+      --lg-card-fold: #e4d6b4;
+      --lg-photo: #c8bda6;
+      --lg-silhouette: #6d6253;
+      --lg-band: #b9ab8e;
+      --lg-lines: #a89a7e;
+      --lg-pin: #8f8574;
+      --lg-pin-edge: #4a4236;
+      --lg-signature: #3a3f6b;
+      /* нить и штамп */
+      --lg-thread: #c0392b;
+      --lg-stamp: #a6412b;
+      /* цвета при наведении */
+      --lg-hover-card-a: #f6e7bd;
+      --lg-hover-card-b: #f5d6d0;
+      --lg-hover-card-c: #d5e3f4;
+      --lg-hover-photo: #a9c1d9;
+      --lg-gold: #d9a441;
+      --lg-red: #d6483a;
+      --lg-blue: #3f7fcf;
+    }
+    .lg-thread { stroke-dasharray: 100; stroke-dashoffset: 0; }
+    .lg-card, .lg-photo, .lg-print, .lg-pin, .lg-band, .lg-glow { transition: fill 0.35s, stroke 0.35s, opacity 0.35s; }
+    .lg-stamp { opacity: 0.88; transition: opacity 0.3s 0.5s; }
+    .lg-art:hover .lg-stamp { opacity: 0; transition: opacity 0.15s 0s; }
+    .lg-glow { opacity: 0; }
+    .lg-cover { d: path("M10 63Q10 52 21 52L218 42Q229 42 229 53L229 273Q229 284 218 284L21 274Q10 274 10 263Z"); transition: d 0.7s cubic-bezier(0.3, 0.7, 0.2, 1); }
+    .lg-art:hover .lg-cover { d: path("M10 63Q10 52 21 52L58 39Q69 39 69 50L69 276Q69 287 58 287L21 274Q10 274 10 263Z"); }
+    .lg-art:hover .lg-thread { animation: lg-draw 0.9s ease-out 0.3s backwards; }
+    .lg-art:hover .lg-card--a { fill: var(--lg-hover-card-a); }
+    .lg-art:hover .lg-card--b { fill: var(--lg-hover-card-b); }
+    .lg-art:hover .lg-card--c { fill: var(--lg-hover-card-c); }
+    .lg-art:hover .lg-band--a { fill: var(--lg-gold); }
+    .lg-art:hover .lg-band--b { fill: var(--lg-red); }
+    .lg-art:hover .lg-band--c { fill: var(--lg-blue); }
+    .lg-art:hover .lg-pin--a { fill: var(--lg-gold); }
+    .lg-art:hover .lg-pin--b { fill: var(--lg-red); }
+    .lg-art:hover .lg-pin--c { fill: var(--lg-blue); }
+    .lg-art:hover .lg-photo { fill: var(--lg-hover-photo); }
+    .lg-art:hover .lg-print { stroke: var(--lg-blue); }
+        .lg-art:hover .lg-glow { opacity: 0.35; }
+    @keyframes lg-draw { from { stroke-dashoffset: 100; } to { stroke-dashoffset: 0; } }
+    @media (prefers-reduced-motion: reduce) {
+      .lg-art:hover .lg-thread { animation: none; }
+      .lg-cover { transition: none; }
+      .lg-card, .lg-photo, .lg-print, .lg-pin, .lg-band, .lg-glow, .lg-stamp { transition: none !important; }
+    }
+  </style>
+  <defs>
+    <linearGradient id="lg-kraft" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="var(--lg-kraft-light)" />
+      <stop offset="1" stop-color="var(--lg-kraft-dark)" />
+    </linearGradient>
+    <linearGradient id="lg-paper" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="var(--lg-paper-light)" />
+      <stop offset="1" stop-color="var(--lg-paper-dark)" />
+    </linearGradient>
+    <radialGradient id="lg-spot" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="var(--lg-glow)" stop-opacity="0.9" />
+      <stop offset="1" stop-color="var(--lg-glow)" stop-opacity="0" />
+    </radialGradient>
+  </defs>
+
+  <rect width="360" height="290" fill="transparent" />
+
+  <!-- задняя стенка папки с вкладкой -->
+  <path d="M10 46V30a10 10 0 0 1 10-10h104a10 10 0 0 1 8 4l12 18h196a10 10 0 0 1 10 10v212a12 12 0 0 1-12 12H22a12 12 0 0 1-12-12Z" fill="var(--lg-folder-back)" />
+  <text x="28" y="40" font-size="13" font-weight="700" letter-spacing="1.6" fill="var(--lg-folder-label)">ДЕЛО №001</text>
+
+  <!-- листы внутри -->
+  <g transform="rotate(2.2 180 160)">
+    <rect x="30" y="62" width="300" height="200" rx="4" fill="var(--lg-sheet-under)" stroke="var(--lg-sheet-under-edge)" stroke-width="1" />
+  </g>
+  <g transform="rotate(-1.4 180 160)">
+    <rect x="26" y="58" width="304" height="204" rx="4" fill="url(#lg-paper)" stroke="var(--lg-sheet-edge)" stroke-width="1" />
+    <g stroke="var(--lg-sheet-lines)" stroke-width="1">
+      <path d="M40 92H316M40 124H316M40 156H316M40 188H316M40 220H316" />
+    </g>
+  </g>
+
+  <!-- нить: тень и сама нить (треугольник через булавки) -->
+  <path d="M180 84Q256 96 268 168Q180 206 92 168Q104 96 180 84Z" fill="none" stroke="rgba(60,30,20,0.18)" stroke-width="4" stroke-linejoin="round" transform="translate(2 3)" />
+  <path class="lg-thread" pathLength="100" d="M180 84Q256 96 268 168Q180 206 92 168Q104 96 180 84Z" fill="none" stroke="var(--lg-thread)" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" />
+
+  <!-- A: фото -->
+  <g transform="translate(180 84) rotate(-4)">
+    <ellipse class="lg-glow" cx="0" cy="34" rx="62" ry="50" fill="url(#lg-spot)" />
+    <rect x="-44" y="2" width="88" height="70" rx="3" fill="rgba(60,40,20,0.2)" transform="translate(2 3)" />
+    <path class="lg-card lg-card--a" d="M-44 2H34L44 12V72H-44Z" fill="var(--lg-paper-light)" stroke="var(--lg-card-edge)" stroke-width="1.4" stroke-linejoin="round" />
+    <path d="M34 2V12H44Z" fill="var(--lg-card-fold)" stroke="var(--lg-card-edge)" stroke-width="1.2" stroke-linejoin="round" />
+    <rect class="lg-photo" x="-36" y="12" width="54" height="40" rx="2" fill="var(--lg-photo)" />
+    <circle cx="-9" cy="27" r="8" fill="var(--lg-silhouette)" />
+    <path d="M-27 52c0-12 8-16 18-16s18 4 18 16Z" fill="var(--lg-silhouette)" />
+    <rect class="lg-band lg-band--a" x="-36" y="58" width="36" height="5" rx="2" fill="var(--lg-band)" />
+    <path d="M22 18h14M22 26h14M22 34h10" stroke="var(--lg-lines)" stroke-width="2" stroke-linecap="round" />
+    <circle class="lg-pin lg-pin--a" cx="0" cy="0" r="5" fill="var(--lg-pin)" stroke="var(--lg-pin-edge)" stroke-width="1.2" />
+    <circle cx="-1.5" cy="-1.5" r="1.6" fill="#fff" opacity="0.8" />
+  </g>
+
+  <!-- B: документ с надорванным углом -->
+  <g transform="translate(92 168) rotate(-8)">
+    <path d="M-40 4H42V70H-40Z" fill="rgba(60,40,20,0.2)" transform="translate(2 3)" />
+    <path class="lg-card lg-card--b" d="M-42 2H30L44 16V68H-42Z" fill="var(--lg-paper-light)" stroke="var(--lg-card-edge)" stroke-width="1.4" stroke-linejoin="round" />
+    <path d="M30 2V16H44Z" fill="var(--lg-card-fold)" stroke="var(--lg-card-edge)" stroke-width="1.2" stroke-linejoin="round" />
+    <rect class="lg-band lg-band--b" x="-34" y="10" width="44" height="6" rx="2" fill="var(--lg-band)" />
+    <path d="M-34 26H34M-34 34H28M-34 42H34M-34 50H20" stroke="var(--lg-lines)" stroke-width="2" stroke-linecap="round" />
+    <path d="M-34 60h22" stroke="var(--lg-silhouette)" stroke-width="2.4" stroke-linecap="round" />
+    <path d="M-34 58c4-8 7 6 11-2s6 4 10-1" fill="none" stroke="var(--lg-signature)" stroke-width="1.2" stroke-linecap="round" />
+    <circle class="lg-pin lg-pin--b" cx="0" cy="0" r="5" fill="var(--lg-pin)" stroke="var(--lg-pin-edge)" stroke-width="1.2" />
+    <circle cx="-1.5" cy="-1.5" r="1.6" fill="#fff" opacity="0.8" />
+  </g>
+
+  <!-- C: отпечаток -->
+  <g transform="translate(268 168) rotate(7)">
+    <path d="M-40 4H42V70H-40Z" fill="rgba(60,40,20,0.2)" transform="translate(2 3)" />
+    <path class="lg-card lg-card--c" d="M-44 2H34L44 12V68H-44Z" fill="var(--lg-paper-light)" stroke="var(--lg-card-edge)" stroke-width="1.4" stroke-linejoin="round" />
+    <path d="M34 2V12H44Z" fill="var(--lg-card-fold)" stroke="var(--lg-card-edge)" stroke-width="1.2" stroke-linejoin="round" />
+    <g class="lg-print" fill="none" stroke="var(--lg-silhouette)" stroke-width="1.5" stroke-linecap="round">
+      <path d="M-22 44c0-10 8-18 18-18s18 8 18 18" />
+      <path d="M-16 46c0-7 5-13 12-13s12 6 12 13" />
+      <path d="M-10 48c0-4 3-8 6-8s6 4 6 8" />
+      <path d="M-26 40c2-14 12-22 22-22s20 8 22 22" />
+      <path d="M-30 46c0-6 1-8 2-10" />
+    </g>
+    <rect class="lg-band lg-band--c" x="-36" y="56" width="40" height="5" rx="2" fill="var(--lg-band)" />
+    <path d="M12 56h20" stroke="var(--lg-lines)" stroke-width="2" stroke-linecap="round" />
+    <circle class="lg-pin lg-pin--c" cx="0" cy="0" r="5" fill="var(--lg-pin)" stroke="var(--lg-pin-edge)" stroke-width="1.2" />
+    <circle cx="-1.5" cy="-1.5" r="1.6" fill="#fff" opacity="0.8" />
+  </g>
+
+  <!-- передняя обложка закреплена слева и распахивается к зрителю: свободный край приближается и уходит влево
+       (меняется контур, не transform); высота и скругления — как у задней стенки -->
+  <path class="lg-cover" d="M10 63Q10 52 21 52L218 42Q229 42 229 53L229 273Q229 284 218 284L21 274Q10 274 10 263Z" fill="url(#lg-kraft)" stroke="var(--lg-folder-edge)" stroke-width="1.4" stroke-linejoin="round" />
+  <!-- штамп на обложке: пока она отходит — гаснет, когда вернулась — проступает снова -->
+  <g class="lg-stamp" transform="rotate(-9 112 236)">
+    <rect x="42" y="221" width="140" height="30" rx="5" fill="none" stroke="var(--lg-stamp)" stroke-width="3" />
+    <text x="112" y="242" text-anchor="middle" font-size="15" font-weight="800" letter-spacing="1.6" fill="var(--lg-stamp)">НЕ РАСКРЫТО</text>
+  </g>
+</svg>

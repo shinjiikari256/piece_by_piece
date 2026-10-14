@@ -1,0 +1,93 @@
+/* ---------- Сайт: страница, карточки, сетки, пустые состояния ---------- */
+
+/* ---------- Страница ---------- */
+
+.site__main {
+  padding: 2rem 16px 4rem;
+}
+.page {
+  max-width: 1100px;
+  margin: 0 auto;
+}
+.page--narrow {
+  max-width: 720px;
+}
+.page--wide {
+  max-width: 1200px;
+}
+.page h1 {
+  font-size: 1.75rem;
+  margin: 0;
+}
+.page h2 {
+  font-size: 1.2rem;
+  margin: 1.8rem 0 0.8rem;
+}
+.card h2 {
+  margin-top: 0;
+}
+.page__head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.2rem;
+}
+/* заголовок со стрелкой назад слева */
+.page__head--back {
+  justify-content: flex-start;
+  align-items: center;
+}
+.small {
+  font-size: 0.85em;
+}
+.mono {
+  font-family: var(--font-mono);
+  font-size: 0.92em;
+}
+
+.card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1.25rem 1.4rem;
+  box-shadow: var(--elev-1);
+}
+.card + .card {
+  margin-top: 1rem;
+}
+/* в сетках карточки выравнивает сама сетка */
+.features > .card,
+.groups > .card {
+  margin-top: 0;
+}
+.card--flush {
+  padding: 0;
+  overflow: auto;
+}
+.empty,
+.empty-state {
+  padding: 1.2rem 1.4rem;
+}
+.empty-state {
+  text-align: center;
+  display: grid;
+  justify-items: center;
+  gap: 0.6rem;
+}
+
+.linkbtn {
+  font: inherit;
+  background: none;
+  border: 0;
+  padding: 0;
+  color: var(--accent);
+  cursor: pointer;
+}
+.linkbtn:hover {
+  text-decoration: underline;
+}
+.linkbtn--danger {
+  color: var(--bad);
+}

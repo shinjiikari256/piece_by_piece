@@ -1,0 +1,165 @@
+/* ---------- поля формы ---------- */
+
+.ef__fields {
+  display: grid;
+  gap: 0.55rem;
+}
+.ef {
+  display: grid;
+  gap: 0.2rem;
+  min-width: 0;
+}
+.ef__label {
+  font-size: 0.82em;
+  font-weight: 500;
+  color: var(--text-soft);
+}
+.ef--num input {
+  max-width: 8rem;
+}
+.ef--bool,
+.ef__toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.4em;
+  font-size: 0.92em;
+}
+.ef--object {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.6rem 0.8rem 0.8rem;
+  background: var(--veil);
+}
+.ef--object > legend {
+  font-size: 0.85em;
+  font-weight: 700;
+  padding: 0 0.3em;
+}
+.ef__row {
+  display: grid;
+  grid-template-columns: 1fr;
+}
+.ef__row.is-optional {
+  grid-template-columns: 1fr auto;
+  gap: 0.3rem;
+  align-items: start;
+}
+.ef__remove-optional {
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  margin-top: 1.2em;
+}
+.ef__add-optional {
+  justify-self: start;
+  min-height: 1.9rem;
+  padding: 0.3em 0.8em;
+  border: 1px dashed var(--accent);
+  border-radius: 6px;
+  background: var(--bg-surface);
+  color: var(--accent);
+  font-size: 0.92em;
+  font-weight: 500;
+  cursor: pointer;
+}
+.ef__add-optional:hover {
+  background: var(--accent-soft);
+}
+.ef--variant > select {
+  justify-self: start;
+}
+.ef--array {
+  gap: 0.35rem;
+}
+.ef__array-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.ef__items {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.3rem;
+}
+.ef__items > li {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg-surface);
+}
+.ef__items > li[data-open] {
+  border-color: var(--accent);
+}
+/* у открытой карточки шапку от содержимого отделяет линия; вложенная рамка объекта не нужна */
+.ef__items > li[data-open] > .ef__item-head {
+  border-bottom: 1px solid var(--border);
+}
+.ef__item-body > .ef--object {
+  border: none;
+  padding: 0;
+  background: none;
+}
+.ef__item-head {
+  display: flex;
+  gap: 0.2rem;
+  align-items: center;
+  padding: 0.2rem;
+}
+.ef__item-title {
+  flex: 1;
+  text-align: left;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  padding: 0.25em 0.4em;
+  font-size: 0.9em;
+}
+.ef__item-body {
+  padding: 0.3rem 0.7rem 0.7rem;
+}
+.ef__chips {
+  --gap: 0.3rem;
+}
+.ef__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3em;
+  background: var(--accent-soft);
+  border-radius: 999px;
+  padding: 0.1em 0.3em 0.1em 0.7em;
+  font-size: 0.88em;
+}
+.ef__chip.is-broken {
+  background: var(--bad-soft);
+  color: var(--bad);
+}
+.ef__chip button {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  color: var(--text-muted);
+}
+.ef__strings {
+  display: grid;
+  gap: 0.3rem;
+  justify-items: start;
+}
+.ef__string-row {
+  display: flex;
+  gap: 0.3rem;
+  width: 100%;
+}
+.ef__string-row input {
+  flex: 1;
+}
+
+/* ---------- ключи ---------- */
+.key-field {
+  --gap: 0.4rem;
+}
+.key-field__input {
+  flex: 1;
+  font-family: var(--font-mono);
+}

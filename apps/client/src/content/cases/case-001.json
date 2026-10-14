@@ -1,0 +1,2448 @@
+{
+  "formatVersion": 1,
+  "id": "case-001",
+  "number": "001",
+  "title": "Чужие письма",
+  "tagline": "Кто прочитал личную переписку студентки — и имел ли он на это право?",
+  "introduction": "14 марта поздно вечером кто-то открыл университетскую почту студентки Алины Соколовой. Через два дня куратор группы при всех процитировала Алине фразу из её личного письма подруге.\n\nАлина подала заявление в полицию. Проверку поручили вам — дознавателю. Осмотрите административный корпус, опросите людей, сопоставьте факты и дайте юридическую оценку: какое право затронуто, было ли нарушение и кто за него отвечает.",
+  "topic": "correspondence_secrecy",
+  "difficulty": "medium",
+  "timeBonus": {
+    "minutes": 15,
+    "points": 10
+  },
+  "published": true,
+  "updatedAt": "2026-10-13T22:03:44Z",
+  "locations": [
+    {
+      "id": "admin_building",
+      "name": "Административный корпус, 2 этаж",
+      "tiles": [
+        "###WW####WW#######WW####WW####",
+        "#,,,,,,,,,,,,,#______________#",
+        "#,,,,,,,,,,,,,#______________#",
+        "#,,,,,,,,,,,,,#______________#",
+        "#,,,,,,,,,,,,,#______________#",
+        "#,,,,,,,,,,,,,#______________#",
+        "#,,,,,,,,,,,,,#______________#",
+        "#,,,,,,,,,,,,,#______________#",
+        "#,,,,,,,,,,,,,#______________#",
+        "#######DD############DD#######",
+        "#............................#",
+        "#............................#",
+        "#.rrrrrrrrrrrrrrrrrrrrrrrrrr.#",
+        "#............................#",
+        "#............................#",
+        "#............................#",
+        "######WW############WW########"
+      ],
+      "areas": [
+        {
+          "name": "Кабинет 214 · Деканат",
+          "x": 7,
+          "y": 7
+        },
+        {
+          "name": "Учительская",
+          "x": 21,
+          "y": 7
+        },
+        {
+          "name": "Коридор",
+          "x": 14,
+          "y": 15
+        }
+      ],
+      "playerStart": {
+        "x": 15,
+        "y": 13
+      },
+      "objects": [
+        {
+          "id": "obj_computer",
+          "sprite": "computer_desk",
+          "x": 2,
+          "y": 2,
+          "label": "Компьютер деканата",
+          "interaction": {
+            "type": "evidence",
+            "title": "Рабочий компьютер, кабинет 214",
+            "description": "На экране открыта панель администратора почтовой системы факультета. Журнал событий не очищен.",
+            "evidenceId": "mail_log"
+          }
+        },
+        {
+          "id": "obj_desk",
+          "sprite": "desk",
+          "x": 8,
+          "y": 3,
+          "label": "Стол Крылова",
+          "interaction": {
+            "type": "evidence",
+            "title": "Стол специалиста деканата",
+            "description": "Среди служебных бумаг — распечатка, совсем не похожая на служебную. Сверху приклеен стикер.",
+            "evidenceId": "printout"
+          }
+        },
+        {
+          "id": "obj_cabinet",
+          "sprite": "cabinet",
+          "x": 12,
+          "y": 1,
+          "label": "Шкаф",
+          "interaction": {
+            "type": "evidence",
+            "title": "Шкаф с папками",
+            "description": "В папке «Входящие — разное» лежит распечатка с университетского форума с пометками от руки.",
+            "evidenceId": "complaint_copy"
+          }
+        },
+        {
+          "id": "obj_board",
+          "sprite": "board",
+          "x": 11,
+          "y": 9,
+          "label": "Доска объявлений",
+          "interaction": {
+            "type": "evidence",
+            "title": "Доска объявлений",
+            "description": "Расписание, объявление о конференции и приколотое официальное Положение о корпоративной почте факультета. В углу — памятка: «Ключи от кабинетов выдаются на посту охраны под подпись».",
+            "evidenceId": "mail_policy"
+          }
+        },
+        {
+          "id": "obj_guard_post",
+          "sprite": "guard_post",
+          "x": 25,
+          "y": 12,
+          "label": "Пост охраны",
+          "interaction": {
+            "type": "evidence",
+            "title": "Пост охраны",
+            "description": "На стойке лежит раскрытый журнал выдачи ключей. Рядом — опечатанный ящик с запасными ключами, печать цела.",
+            "evidenceId": "key_log"
+          }
+        },
+        {
+          "id": "dec_chair_krylov",
+          "sprite": "chair",
+          "x": 9,
+          "y": 2,
+          "label": "",
+          "interaction": null
+        },
+        {
+          "id": "obj_printer",
+          "sprite": "printer",
+          "x": 5,
+          "y": 1,
+          "label": "Принтер",
+          "interaction": {
+            "type": "evidence",
+            "title": "Принтер PRN-214",
+            "description": "",
+            "evidenceId": "doc_printer"
+          }
+        },
+        {
+          "id": "dec_bin",
+          "sprite": "trash_bin",
+          "x": 10,
+          "y": 1,
+          "label": "",
+          "interaction": null
+        },
+        {
+          "id": "dec_plant_office",
+          "sprite": "plant",
+          "x": 1,
+          "y": 8,
+          "label": "",
+          "interaction": null
+        },
+        {
+          "id": "dec_shelf",
+          "sprite": "bookshelf",
+          "x": 16,
+          "y": 1,
+          "label": "",
+          "interaction": null
+        },
+        {
+          "id": "obj_teacher_table",
+          "sprite": "desk",
+          "x": 21,
+          "y": 3,
+          "label": "Стол в учительской",
+          "interaction": {
+            "type": "evidence",
+            "title": "Стол в учительской",
+            "description": "",
+            "evidenceId": "doc_teacher_table"
+          }
+        },
+        {
+          "id": "dec_chair_t1",
+          "sprite": "chair",
+          "x": 21,
+          "y": 2,
+          "label": "",
+          "interaction": null
+        },
+        {
+          "id": "dec_chair_t2",
+          "sprite": "chair",
+          "x": 22,
+          "y": 2,
+          "label": "",
+          "interaction": null
+        },
+        {
+          "id": "dec_cooler",
+          "sprite": "water_cooler",
+          "x": 27,
+          "y": 1,
+          "label": "",
+          "interaction": null
+        },
+        {
+          "id": "dec_plant_teachers",
+          "sprite": "plant",
+          "x": 28,
+          "y": 8,
+          "label": "",
+          "interaction": null
+        },
+        {
+          "id": "dec_bench",
+          "sprite": "bench",
+          "x": 2,
+          "y": 15,
+          "label": "",
+          "interaction": null
+        },
+        {
+          "id": "dec_plant_c1",
+          "sprite": "plant",
+          "x": 1,
+          "y": 10,
+          "label": "",
+          "interaction": null
+        },
+        {
+          "id": "dec_plant_c2",
+          "sprite": "plant",
+          "x": 13,
+          "y": 10,
+          "label": "",
+          "interaction": null
+        },
+        {
+          "id": "dec_bin_corridor",
+          "sprite": "trash_bin",
+          "x": 17,
+          "y": 10,
+          "label": "",
+          "interaction": null
+        },
+        {
+          "id": "dec_cooler_corridor",
+          "sprite": "water_cooler",
+          "x": 28,
+          "y": 10,
+          "label": "",
+          "interaction": null
+        },
+        {
+          "id": "obj_poster",
+          "sprite": "poster",
+          "x": 3,
+          "y": 9,
+          "label": "Плакат",
+          "interaction": {
+            "type": "evidence",
+            "title": "Плакат в коридоре",
+            "description": "",
+            "evidenceId": "doc_poster"
+          }
+        },
+        {
+          "id": "obj_vending",
+          "sprite": "vending",
+          "x": 15,
+          "y": 10,
+          "label": "Автомат",
+          "interaction": {
+            "type": "evidence",
+            "title": "Автомат со снеками",
+            "description": "",
+            "evidenceId": "doc_vending"
+          }
+        },
+        {
+          "id": "dec_clock",
+          "sprite": "clock",
+          "x": 20,
+          "y": 0,
+          "label": "",
+          "interaction": null
+        },
+        {
+          "id": "dec_sofa",
+          "sprite": "sofa",
+          "x": 16,
+          "y": 7,
+          "label": "",
+          "interaction": null
+        },
+        {
+          "id": "dec_rug",
+          "sprite": "rug",
+          "x": 22,
+          "y": 5,
+          "label": "",
+          "interaction": null
+        },
+        {
+          "id": "dec_lamp",
+          "sprite": "floor_lamp",
+          "x": 28,
+          "y": 4,
+          "label": "",
+          "interaction": null
+        },
+        {
+          "id": "dec_coat_rack",
+          "sprite": "coat_rack",
+          "x": 12,
+          "y": 8,
+          "label": "",
+          "interaction": null
+        },
+        {
+          "id": "dec_whiteboard",
+          "sprite": "whiteboard",
+          "x": 26,
+          "y": 0,
+          "label": "",
+          "interaction": null
+        },
+        {
+          "id": "dec_coffee",
+          "sprite": "coffee_machine",
+          "x": 15,
+          "y": 1,
+          "label": "",
+          "interaction": null
+        },
+        {
+          "id": "dec_extinguisher",
+          "sprite": "fire_extinguisher",
+          "x": 19,
+          "y": 10,
+          "label": "",
+          "interaction": null
+        },
+        {
+          "id": "dec_armchair",
+          "sprite": "armchair",
+          "x": 18,
+          "y": 7,
+          "label": "",
+          "interaction": null
+        },
+        {
+          "id": "dec_server",
+          "sprite": "server_rack",
+          "x": 13,
+          "y": 1,
+          "label": "",
+          "interaction": null
+        },
+        {
+          "id": "dec_ac_office",
+          "sprite": "air_conditioner",
+          "x": 6,
+          "y": 0,
+          "label": "",
+          "interaction": null
+        },
+        {
+          "id": "dec_ac_teachers",
+          "sprite": "air_conditioner",
+          "x": 22,
+          "y": 0,
+          "label": "",
+          "interaction": null
+        },
+        {
+          "id": "dec_chair_pc",
+          "sprite": "chair",
+          "x": 2,
+          "y": 1,
+          "label": "",
+          "interaction": null
+        }
+      ],
+      "npcs": [
+        {
+          "id": "npc_alina",
+          "characterId": "alina",
+          "dialogueId": "dlg_alina",
+          "x": 4,
+          "y": 14
+        },
+        {
+          "id": "npc_krylov",
+          "characterId": "krylov",
+          "dialogueId": "dlg_krylov",
+          "x": 10,
+          "y": 5
+        },
+        {
+          "id": "npc_lebedeva",
+          "characterId": "lebedeva",
+          "dialogueId": "dlg_lebedeva",
+          "x": 23,
+          "y": 5
+        },
+        {
+          "id": "npc_gusev",
+          "characterId": "gusev",
+          "dialogueId": "dlg_gusev",
+          "x": 27,
+          "y": 12
+        },
+        {
+          "id": "npc_kotova",
+          "characterId": "kotova",
+          "dialogueId": "dlg_kotova",
+          "x": 20,
+          "y": 14
+        },
+        {
+          "id": "npc_rybin",
+          "characterId": "rybin",
+          "dialogueId": "dlg_rybin",
+          "x": 24,
+          "y": 10
+        }
+      ],
+      "exits": [],
+      "doors": [
+        {
+          "id": "door_214",
+          "x": 7,
+          "y": 9,
+          "orientation": "h"
+        },
+        {
+          "id": "door_teachers",
+          "x": 21,
+          "y": 9,
+          "orientation": "h"
+        }
+      ]
+    }
+  ],
+  "characters": [
+    {
+      "id": "alina",
+      "name": "Алина Соколова",
+      "look": "student_f",
+      "position": "студентка 3 курса юридического факультета",
+      "description": "Подала заявление в полицию: куратор процитировала ей фразу из её личного письма."
+    },
+    {
+      "id": "krylov",
+      "name": "Игорь Валерьевич Крылов",
+      "look": "official_m",
+      "position": "специалист деканата",
+      "description": "Отвечает за документы и расписание. Держится уверенно и раздражённо."
+    },
+    {
+      "id": "lebedeva",
+      "name": "Марина Петровна Лебедева",
+      "look": "teacher_f",
+      "position": "доцент, куратор группы Алины",
+      "description": "Именно она процитировала Алине фразу из письма. Откуда она её знает?"
+    },
+    {
+      "id": "gusev",
+      "name": "Виктор Степанович Гусев",
+      "look": "guard_m",
+      "position": "охранник административного корпуса",
+      "description": "Ведёт журнал выдачи ключей. Говорит неторопливо и обстоятельно."
+    },
+    {
+      "id": "kotova",
+      "name": "Нина Ивановна Котова",
+      "look": "cleaner_f",
+      "position": "уборщица административного корпуса",
+      "description": "Убирает этаж по вечерам. Всё замечает, но не всем рассказывает."
+    },
+    {
+      "id": "rybin",
+      "name": "Олег Сергеевич Рыбин",
+      "look": "it_m",
+      "position": "системный администратор университета",
+      "description": "Отвечает за серверы и почтовую систему всего университета."
+    }
+  ],
+  "events": [
+    {
+      "id": "ev_complaint",
+      "time": "10 марта",
+      "title": "На форуме университета появилась анонимная жалоба на работу деканата"
+    },
+    {
+      "id": "ev_key",
+      "time": "14 марта, 21:30",
+      "title": "Ключ от кабинета 214 выдан Крылову"
+    },
+    {
+      "id": "ev_reset",
+      "time": "14 марта, 21:43",
+      "title": "Пароль почты Алины сброшен через панель администратора"
+    },
+    {
+      "id": "ev_access",
+      "time": "14 марта, 21:47",
+      "title": "Вход в почту Алины с компьютера кабинета 214"
+    },
+    {
+      "id": "ev_print",
+      "time": "14 марта, 21:52",
+      "title": "Письмо Алины отправлено на печать"
+    },
+    {
+      "id": "ev_shown",
+      "time": "15 марта",
+      "title": "Распечатку показали куратору группы"
+    },
+    {
+      "id": "ev_quote",
+      "time": "16 марта",
+      "title": "Куратор процитировала Алине фразу из письма"
+    }
+  ],
+  "evidence": [
+    {
+      "id": "mail_log",
+      "title": "Журнал почтовой системы",
+      "description": "Почту Алины открыли с компьютера кабинета 214 сразу после сброса пароля администратором.",
+      "details": "Почтовая система факультета · журнал событий\nУчётная запись: a.sokolova@law.univ.example\n\n14.03 21:43  СБРОС ПАРОЛЯ — инициатор: admin.krylov (панель администратора)\n14.03 21:47  ВХОД — IP 10.2.14.21 (рабочая станция, каб. 214)\n14.03 21:49  ОТКРЫТО ПИСЬМО «Re: про деканат» (кому: e.morozova@…)\n14.03 21:51  ОТКРЫТО ПИСЬМО «Re: Re: про деканат»\n14.03 21:58  ВЫХОД\n15.03 08:12  ВХОД — домашняя сеть; пользователь сменил пароль",
+      "kind": "evidence",
+      "subtype": "Цифровой след",
+      "relatedCharacters": [
+        "krylov",
+        "alina"
+      ],
+      "relatedEvents": [
+        "ev_reset",
+        "ev_access"
+      ],
+      "reliability": "high"
+    },
+    {
+      "id": "printout",
+      "title": "Распечатка личного письма",
+      "description": "Письмо Алины подруге, распечатанное на принтере кабинета 214, со стикером «Показать куратору. И.К.».",
+      "details": "«Катя, привет! Ну и неделя. В деканате опять потеряли мою справку, а мне сказали, что „студенты сами виноваты“. Деканат — это болото, честное слово. Мама просит не нервничать, у неё и так давление… Жалобу на форуме видела? Может, хоть теперь что-то поменяется. Обнимаю, А.»\n\nВнизу служебная строка принтера: PRN-214 · 14.03 21:52 · пользователь admin.krylov\nСтикер от руки: «Показать куратору. И.К.»",
+      "kind": "evidence",
+      "subtype": "Документ",
+      "relatedCharacters": [
+        "alina",
+        "krylov"
+      ],
+      "relatedEvents": [
+        "ev_print"
+      ],
+      "reliability": "high"
+    },
+    {
+      "id": "mail_policy",
+      "title": "Положение о корпоративной почте",
+      "description": "Администратор почты не вправе читать письма пользователей; пароль сбрасывается только по заявлению.",
+      "details": "Положение об использовании корпоративной электронной почты юридического факультета (выдержка)\n\n4.2. Администратор почтовой системы сбрасывает пароль пользователя только по его письменному заявлению.\n4.3. Администратор не вправе знакомиться с содержанием сообщений пользователей. Доступ к содержанию сообщений возможен только с согласия пользователя либо в случаях, прямо предусмотренных федеральным законом.\n6.1. Нарушение настоящего Положения влечёт дисциплинарную ответственность, если действия не влекут иной ответственности, установленной законодательством РФ.",
+      "kind": "evidence",
+      "subtype": "Документ",
+      "relatedCharacters": [
+        "krylov"
+      ],
+      "relatedEvents": [],
+      "reliability": "high"
+    },
+    {
+      "id": "complaint_copy",
+      "title": "Распечатка жалобы с форума",
+      "description": "Анонимная жалоба на деканат с пометкой от руки: «Автор? Проверить почту группы 3-12».",
+      "details": "Распечатка с университетского форума, 10 марта, автор — «Аноним»:\n«Деканат юрфака месяцами теряет документы студентов, а на вопросы отвечает грубо. Сколько можно?»\n\nНа полях от руки: «Автор? Проверить почту группы 3-12». Алина учится в группе 3-12.",
+      "kind": "evidence",
+      "subtype": "Документ",
+      "relatedCharacters": [
+        "krylov",
+        "alina"
+      ],
+      "relatedEvents": [
+        "ev_complaint"
+      ],
+      "reliability": "high"
+    },
+    {
+      "id": "key_log",
+      "title": "Журнал выдачи ключей",
+      "description": "14 марта ключ от кабинета 214 с 21:30 до 22:05 был у Крылова. Запасные ключи опечатаны.",
+      "details": "Журнал выдачи ключей · 14 марта\n\nкаб. 216 (учительская) · выдан 18:10 · Лебедева М.П. · сдан 18:40\nкаб. 214 (деканат) · выдан 21:30 · Крылов И.В. · сдан 22:05\n\nЯщик с запасными ключами опломбирован, пломба № 0417 не нарушена.",
+      "kind": "evidence",
+      "subtype": "Документ",
+      "relatedCharacters": [
+        "krylov",
+        "gusev",
+        "lebedeva"
+      ],
+      "relatedEvents": [
+        "ev_key"
+      ],
+      "reliability": "high"
+    },
+    {
+      "id": "alina_testimony",
+      "title": "Показания Алины",
+      "description": "Пароль никому не сообщала; 14 марта около 21:45 пришло уведомление о сбросе пароля администратором.",
+      "details": "«Пароль я никому не говорила. Четырнадцатого вечером, где-то без пятнадцати десять, пришло уведомление: „Пароль вашей учётной записи сброшен администратором“. Я решила, что это сбой, а утром поставила новый пароль. Письмо Кате — личное, я его никому не пересылала».",
+      "kind": "testimony",
+      "relatedCharacters": [
+        "alina"
+      ],
+      "relatedEvents": [
+        "ev_reset"
+      ],
+      "reliability": "medium"
+    },
+    {
+      "id": "teacher_testimony",
+      "title": "Показания Лебедевой",
+      "description": "15 марта Крылов показал ей распечатку письма Алины: «Нашёл, кто пишет жалобы».",
+      "details": "«Пятнадцатого Игорь Валерьевич зашёл в учительскую и показал распечатку. Сказал: „Нашёл, кто пишет жалобы, поговорите со своей студенткой“. Я ничего не просила и письмо в руки не брала. Зря я потом сказала Алине про „болото“…»",
+      "kind": "testimony",
+      "relatedCharacters": [
+        "lebedeva",
+        "krylov",
+        "alina"
+      ],
+      "relatedEvents": [
+        "ev_shown",
+        "ev_quote"
+      ],
+      "reliability": "high"
+    },
+    {
+      "id": "guard_testimony",
+      "title": "Показания охранника",
+      "description": "Ключ от 214 брал Крылов «отчёт доделать»; запасные ключи опечатаны.",
+      "details": "«Игорь Валерьевич взял ключ в полдесятого, сказал — отчёт доделать. Сдал около десяти. Запасные ключи в опломбированном ящике, я его не открывал».",
+      "kind": "testimony",
+      "relatedCharacters": [
+        "gusev",
+        "krylov"
+      ],
+      "relatedEvents": [
+        "ev_key"
+      ],
+      "reliability": "high"
+    },
+    {
+      "id": "krylov_denial",
+      "title": "Объяснение Крылова",
+      "description": "Утверждает, что переписку не открывал, а пароль Алина «сама кому-то дала».",
+      "details": "«Я вообще не открывал эту переписку. Пароли я сбрасываю по заявкам, а кому Соколова свой пароль раздаёт — не моё дело».",
+      "kind": "testimony",
+      "relatedCharacters": [
+        "krylov",
+        "alina"
+      ],
+      "relatedEvents": [],
+      "reliability": "low"
+    },
+    {
+      "id": "krylov_admission",
+      "title": "Признание Крылова",
+      "description": "Признал, что без заявления сбросил пароль, читал письма Алины, распечатал одно и показал куратору.",
+      "details": "«Да, я сбросил ей пароль и открыл почту. На форуме появилась жалоба на деканат, я хотел понять, кто её пишет. Нашёл письмо, распечатал, показал Марине Петровне. Заявления от Соколовой не было, решения суда тоже. Я думал, раз почта университетская…»",
+      "kind": "testimony",
+      "relatedCharacters": [
+        "krylov"
+      ],
+      "relatedEvents": [
+        "ev_reset",
+        "ev_access",
+        "ev_print",
+        "ev_shown"
+      ],
+      "reliability": "high"
+    },
+    {
+      "id": "doc_printer",
+      "title": "Принтер PRN-214",
+      "description": "На лотке забыта стопка черновиков: «Методичка по римскому праву, 2-е изд.», 40 страниц.",
+      "details": "На лотке забыта стопка черновиков: «Методичка по римскому праву, 2-е изд.», 40 страниц.\n\nИндикатор мигает: «Мало тонера». На корпусе стикер: «Не печатать личное! — Деканат».",
+      "kind": "evidence",
+      "subtype": "Документ",
+      "relatedCharacters": [],
+      "relatedEvents": [],
+      "reliability": "high"
+    },
+    {
+      "id": "doc_teacher_table",
+      "title": "Стол в учительской",
+      "description": "Стопка курсовых с пометками красной ручкой, кружка «Лучший куратор — 2019» и расписание консультаций:",
+      "details": "Стопка курсовых с пометками красной ручкой, кружка «Лучший куратор — 2019» и расписание консультаций:\n\nпн 14:00 — Лебедева М.П., ауд. 305\nср 12:30 — Орлов С.Н., ауд. 311\nпт 10:00 — Лебедева М.П., ауд. 305",
+      "kind": "evidence",
+      "subtype": "Документ",
+      "relatedCharacters": [],
+      "relatedEvents": [],
+      "reliability": "high"
+    },
+    {
+      "id": "doc_poster",
+      "title": "Плакат в коридоре",
+      "description": "Студенческий научный кружок по конституционному праву приглашает! Тема заседания: „Цифровые права студента“. Ч…",
+      "details": "«Студенческий научный кружок по конституционному праву приглашает! Тема заседания: „Цифровые права студента“. Четверг, 18:00, ауд. 214».\n\nНа плакате кто-то дорисовал усы портрету докладчика.",
+      "kind": "evidence",
+      "subtype": "Документ",
+      "relatedCharacters": [],
+      "relatedEvents": [],
+      "reliability": "high"
+    },
+    {
+      "id": "doc_vending",
+      "title": "Автомат со снеками",
+      "description": "За стеклом — шоколадки, сухарики и одинокая пачка вафель. Наклейка: «Монеты не принимает. Претензии — в АХЧ, к…",
+      "details": "За стеклом — шоколадки, сухарики и одинокая пачка вафель. Наклейка: «Монеты не принимает. Претензии — в АХЧ, каб. 102».",
+      "kind": "evidence",
+      "subtype": "Документ",
+      "relatedCharacters": [],
+      "relatedEvents": [],
+      "reliability": "high"
+    }
+  ],
+  "dialogues": [
+    {
+      "id": "dlg_alina",
+      "characterId": "alina",
+      "startNodeId": "start",
+      "nodes": [
+        {
+          "id": "start",
+          "text": "Вы по моему заявлению? Спасибо, что пришли так быстро… Я до сих пор не понимаю, как это вышло.",
+          "mood": "sad",
+          "effects": [],
+          "choices": [
+            {
+              "id": "what",
+              "text": "Что случилось?",
+              "next": "what"
+            },
+            {
+              "id": "pass",
+              "text": "Вы кому-нибудь сообщали пароль от почты?",
+              "next": "pass"
+            },
+            {
+              "id": "complaint",
+              "text": "Жалобу на деканат на форуме написали вы?",
+              "next": "complaint_lie",
+              "requires": {
+                "evidence": [
+                  "complaint_copy"
+                ]
+              }
+            },
+            {
+              "id": "complaint_press",
+              "text": "Не обманывайте. Жалоба — ваша, так?",
+              "next": "closed",
+              "requires": {
+                "flags": [
+                  "alina_lied"
+                ],
+                "notFlags": [
+                  "alina_closed",
+                  "alina_told_truth"
+                ]
+              }
+            },
+            {
+              "id": "complaint_gentle",
+              "text": "Даже если жалоба ваша, это никому не даёт права читать ваши письма. Но мне важно знать правду.",
+              "next": "complaint_truth",
+              "requires": {
+                "flags": [
+                  "alina_lied"
+                ],
+                "notFlags": [
+                  "alina_closed",
+                  "alina_told_truth"
+                ]
+              }
+            },
+            {
+              "id": "exams",
+              "text": "Как у вас с учёбой?",
+              "next": "exams"
+            },
+            {
+              "id": "bye",
+              "text": "Спасибо, я вернусь, если будут вопросы.",
+              "next": null
+            }
+          ]
+        },
+        {
+          "id": "what",
+          "text": "Шестнадцатого на паре Марина Петровна вдруг сказала мне: «Не стоит писать подругам, что деканат — это болото». Это слово было в моём письме Кате! В личном письме, с университетской почты. Откуда она его знает?",
+          "mood": "sad",
+          "effects": [
+            {
+              "type": "setFlag",
+              "flag": "knows_quote"
+            },
+            {
+              "type": "addCharacterNote",
+              "characterId": "lebedeva",
+              "text": "16 марта процитировала Алине слово «болото» из её личного письма."
+            }
+          ],
+          "choices": [
+            {
+              "id": "back",
+              "text": "Понимаю. Продолжим.",
+              "next": "start"
+            }
+          ]
+        },
+        {
+          "id": "pass",
+          "text": "Никому. Но четырнадцатого вечером, где-то без пятнадцати десять, пришло уведомление: «Пароль сброшен администратором». Я подумала — сбой. Утром поставила новый пароль.",
+          "mood": "neutral",
+          "effects": [
+            {
+              "type": "addEvidence",
+              "evidenceId": "alina_testimony"
+            }
+          ],
+          "choices": [
+            {
+              "id": "back",
+              "text": "Это важно. Спасибо.",
+              "next": "start"
+            }
+          ]
+        },
+        {
+          "id": "complaint_lie",
+          "text": "Я?.. Нет. Я тут вообще ни при чём.",
+          "mood": "nervous",
+          "effects": [
+            {
+              "type": "setFlag",
+              "flag": "alina_lied"
+            }
+          ],
+          "choices": [
+            {
+              "id": "back",
+              "text": "Хорошо.",
+              "next": "start"
+            }
+          ]
+        },
+        {
+          "id": "closed",
+          "text": "Я не обязана перед вами оправдываться! Я пришла жаловаться, а не на допрос.",
+          "mood": "angry",
+          "effects": [
+            {
+              "type": "setFlag",
+              "flag": "alina_closed"
+            }
+          ],
+          "choices": [
+            {
+              "id": "back",
+              "text": "Извините.",
+              "next": "start"
+            }
+          ]
+        },
+        {
+          "id": "complaint_truth",
+          "text": "…Да, это я. Я боялась, что за это отчислят. Но я ведь имела право написать! Разве поэтому можно читать чужие письма?",
+          "mood": "sad",
+          "effects": [
+            {
+              "type": "setFlag",
+              "flag": "alina_told_truth"
+            },
+            {
+              "type": "addCharacterNote",
+              "characterId": "alina",
+              "text": "Призналась, что анонимная жалоба на деканат — её. Сначала это отрицала."
+            }
+          ],
+          "choices": [
+            {
+              "id": "back",
+              "text": "Нельзя. Спасибо за честность.",
+              "next": "start"
+            }
+          ]
+        },
+        {
+          "id": "exams",
+          "text": "Сессия на носу, а я думаю только об этой истории… Римское право вообще не лезет в голову.",
+          "mood": "sad",
+          "effects": [],
+          "choices": [
+            {
+              "id": "back",
+              "text": "Понятно.",
+              "next": "start"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "dlg_krylov",
+      "characterId": "krylov",
+      "startNodeId": "start",
+      "nodes": [
+        {
+          "id": "start",
+          "text": "Слушаю. Только быстро — деканат закрывается.",
+          "mood": "neutral",
+          "effects": [],
+          "choices": [
+            {
+              "id": "role",
+              "text": "Чем вы занимаетесь в деканате?",
+              "next": "role",
+              "requires": {
+                "notFlags": [
+                  "krylov_hostile"
+                ]
+              }
+            },
+            {
+              "id": "ask",
+              "text": "Почему вы получили доступ к переписке Алины Соколовой?",
+              "next": "deny",
+              "requires": {
+                "notFlags": [
+                  "krylov_hostile",
+                  "krylov_admitted"
+                ]
+              }
+            },
+            {
+              "id": "press",
+              "text": "Признайтесь: это вы читали её письма!",
+              "next": "hostile",
+              "requires": {
+                "notFlags": [
+                  "krylov_hostile",
+                  "krylov_admitted"
+                ]
+              }
+            },
+            {
+              "id": "log",
+              "text": "Журнал почты: 21:43 — сброс пароля Алины через вашу учётную запись, 21:47 — вход с компьютера этого кабинета.",
+              "next": "log",
+              "requires": {
+                "deductions": [
+                  "d_access"
+                ],
+                "notFlags": [
+                  "krylov_admitted"
+                ]
+              }
+            },
+            {
+              "id": "printout",
+              "text": "Чья распечатка лежит у вас на столе? Со стикером «Показать куратору. И.К.».",
+              "next": "printout",
+              "requires": {
+                "evidence": [
+                  "printout"
+                ],
+                "notFlags": [
+                  "krylov_admitted"
+                ]
+              }
+            },
+            {
+              "id": "certificate",
+              "text": "Как заказать справку об обучении?",
+              "next": "certificate",
+              "requires": {
+                "notFlags": [
+                  "krylov_hostile"
+                ]
+              }
+            },
+            {
+              "id": "bye",
+              "text": "До свидания.",
+              "next": null
+            }
+          ]
+        },
+        {
+          "id": "role",
+          "text": "Документы, справки, расписание. Ещё администрирую корпоративную почту факультета — сбрасываю пароли тем, кто забыл.",
+          "mood": "neutral",
+          "effects": [
+            {
+              "type": "addCharacterNote",
+              "characterId": "krylov",
+              "text": "Администрирует корпоративную почту факультета: может сбрасывать пароли пользователей."
+            }
+          ],
+          "choices": [
+            {
+              "id": "back",
+              "text": "Понятно.",
+              "next": "start"
+            }
+          ]
+        },
+        {
+          "id": "deny",
+          "text": "Я вообще не открывал эту переписку. Пароли я сбрасываю по заявкам, а кому Соколова свой пароль раздаёт — не моё дело.",
+          "mood": "nervous",
+          "effects": [
+            {
+              "type": "addEvidence",
+              "evidenceId": "krylov_denial"
+            }
+          ],
+          "choices": [
+            {
+              "id": "back",
+              "text": "Запишу.",
+              "next": "start"
+            }
+          ]
+        },
+        {
+          "id": "hostile",
+          "text": "Это не ваше дело. Без доказательств разговаривать не о чем.",
+          "mood": "angry",
+          "effects": [
+            {
+              "type": "setFlag",
+              "flag": "krylov_hostile"
+            },
+            {
+              "type": "addCharacterNote",
+              "characterId": "krylov",
+              "text": "После давления без доказательств замкнулся. Теперь говорить будет только по фактам."
+            }
+          ],
+          "choices": [
+            {
+              "id": "back",
+              "text": "Хорошо. Вернусь с фактами.",
+              "next": null
+            }
+          ]
+        },
+        {
+          "id": "log",
+          "text": "Журнал… Мало ли кто сидел за моим компьютером. Кабинет не только мой.",
+          "mood": "nervous",
+          "effects": [],
+          "choices": [
+            {
+              "id": "keys",
+              "text": "Ключ от кабинета в 21:30 выдали вам, под подпись. Сдали вы его в 22:05, а запасные ключи опечатаны.",
+              "next": "admit",
+              "requires": {
+                "deductions": [
+                  "d_who"
+                ]
+              }
+            },
+            {
+              "id": "back",
+              "text": "Вернёмся к этому позже.",
+              "next": "start"
+            }
+          ]
+        },
+        {
+          "id": "printout",
+          "text": "Служебные бумаги. Вас они не касаются.",
+          "mood": "angry",
+          "effects": [],
+          "choices": [
+            {
+              "id": "teacher",
+              "text": "Марина Петровна говорит, что 15 марта вы показали ей это письмо со словами «Нашёл, кто пишет жалобы».",
+              "next": "admit",
+              "requires": {
+                "deductions": [
+                  "d_spread"
+                ]
+              }
+            },
+            {
+              "id": "back",
+              "text": "Посмотрим.",
+              "next": "start"
+            }
+          ]
+        },
+        {
+          "id": "admit",
+          "text": "…Ладно. Да, я сбросил ей пароль и открыл почту. На форуме появилась жалоба на деканат, хотел понять, кто её пишет. Нашёл письмо, распечатал, показал Марине Петровне — думал, куратор с ней поговорит. У нас были основания!",
+          "mood": "sad",
+          "effects": [
+            {
+              "type": "addEvidence",
+              "evidenceId": "krylov_admission"
+            },
+            {
+              "type": "setFlag",
+              "flag": "krylov_admitted"
+            }
+          ],
+          "choices": [
+            {
+              "id": "basis",
+              "text": "Какие основания? Заявление Алины? Решение суда?",
+              "next": "no_basis"
+            },
+            {
+              "id": "end",
+              "text": "Этого достаточно.",
+              "next": null
+            }
+          ]
+        },
+        {
+          "id": "no_basis",
+          "text": "Заявления не было. Решения суда тоже. Я думал, раз почта университетская, то и читать её можно…",
+          "mood": "sad",
+          "effects": [
+            {
+              "type": "addCharacterNote",
+              "characterId": "krylov",
+              "text": "Признал: ни заявления Алины, ни судебного решения не было."
+            }
+          ],
+          "choices": [
+            {
+              "id": "end",
+              "text": "Понятно.",
+              "next": null
+            }
+          ]
+        },
+        {
+          "id": "certificate",
+          "text": "Через электронную очередь на сайте. Три рабочих дня. Бумажные заявления больше не принимаем.",
+          "mood": "neutral",
+          "effects": [],
+          "choices": [
+            {
+              "id": "back",
+              "text": "Понятно.",
+              "next": "start"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "dlg_lebedeva",
+      "characterId": "lebedeva",
+      "startNodeId": "start",
+      "nodes": [
+        {
+          "id": "start",
+          "text": "Слушаю вас, только недолго — у меня семинар.",
+          "mood": "neutral",
+          "effects": [],
+          "choices": [
+            {
+              "id": "quote",
+              "text": "Вы процитировали Алине её личное письмо — про «болото». Откуда вы знаете его текст?",
+              "next": "source",
+              "requires": {
+                "flags": [
+                  "knows_quote"
+                ],
+                "notFlags": [
+                  "lebedeva_closed"
+                ]
+              }
+            },
+            {
+              "id": "accuse",
+              "text": "Вы читали чужую переписку!",
+              "next": "closed",
+              "requires": {
+                "notFlags": [
+                  "lebedeva_closed",
+                  "lebedeva_told"
+                ]
+              }
+            },
+            {
+              "id": "show",
+              "text": "Узнаёте эту распечатку?",
+              "next": "source",
+              "requires": {
+                "evidence": [
+                  "printout"
+                ],
+                "notFlags": [
+                  "lebedeva_told"
+                ]
+              }
+            },
+            {
+              "id": "about",
+              "text": "Что вы можете сказать об Алине?",
+              "next": "about"
+            },
+            {
+              "id": "evening",
+              "text": "Где вы были вечером 14 марта?",
+              "next": "evening"
+            },
+            {
+              "id": "work",
+              "text": "Над чем сейчас работаете?",
+              "next": "work"
+            },
+            {
+              "id": "come",
+              "text": "Пройдёмте со мной к Крылову. Повторите при нём то, что рассказали мне.",
+              "next": "come",
+              "requires": {
+                "flags": [
+                  "lebedeva_told"
+                ],
+                "notFlags": [
+                  "krylov_admitted",
+                  "lebedeva_offended"
+                ],
+                "notFollowing": [
+                  "lebedeva"
+                ]
+              }
+            },
+            {
+              "id": "release",
+              "text": "Спасибо, можете возвращаться к своим делам.",
+              "next": "release",
+              "requires": {
+                "following": [
+                  "lebedeva"
+                ]
+              }
+            },
+            {
+              "id": "bye",
+              "text": "Не буду задерживать.",
+              "next": null
+            }
+          ]
+        },
+        {
+          "id": "closed",
+          "text": "Я ничего не читала! И не позволю так со мной разговаривать. Если у вас есть что-то конкретное — показывайте.",
+          "mood": "angry",
+          "effects": [
+            {
+              "type": "setFlag",
+              "flag": "lebedeva_closed"
+            }
+          ],
+          "choices": [
+            {
+              "id": "back",
+              "text": "Простите.",
+              "next": "start"
+            }
+          ]
+        },
+        {
+          "id": "source",
+          "text": "Пятнадцатого Игорь Валерьевич зашёл в учительскую и показал распечатку. Сказал: «Нашёл, кто пишет жалобы, — поговорите со своей студенткой». Я ничего не просила… И зря я потом сказала Алине про «болото». Мне неловко.",
+          "mood": "nervous",
+          "effects": [
+            {
+              "type": "addEvidence",
+              "evidenceId": "teacher_testimony"
+            },
+            {
+              "type": "setFlag",
+              "flag": "lebedeva_told"
+            }
+          ],
+          "choices": [
+            {
+              "id": "back",
+              "text": "Спасибо за откровенность.",
+              "next": "start"
+            }
+          ]
+        },
+        {
+          "id": "about",
+          "text": "Толковая студентка, активная. Бывает резкой в суждениях — но это не преступление.",
+          "mood": "friendly",
+          "effects": [
+            {
+              "type": "addCharacterNote",
+              "characterId": "alina",
+              "text": "По словам куратора — активная, иногда резкая в суждениях."
+            }
+          ],
+          "choices": [
+            {
+              "id": "back",
+              "text": "Понятно.",
+              "next": "start"
+            }
+          ]
+        },
+        {
+          "id": "evening",
+          "text": "После пар брала ключ от учительской, около шести, минут на сорок. Потом ушла домой. Можете проверить журнал на посту.",
+          "mood": "neutral",
+          "effects": [
+            {
+              "type": "addCharacterNote",
+              "characterId": "lebedeva",
+              "text": "14 марта брала ключ от учительской (не от 214) с 18:10 до 18:40, потом ушла."
+            }
+          ],
+          "choices": [
+            {
+              "id": "back",
+              "text": "Проверю.",
+              "next": "start"
+            }
+          ]
+        },
+        {
+          "id": "work",
+          "text": "Статью о цифровых правах пишу, к конференции. Ирония, да? Не о вашем деле, не волнуйтесь.",
+          "mood": "friendly",
+          "effects": [],
+          "choices": [
+            {
+              "id": "back",
+              "text": "Понятно.",
+              "next": "start"
+            }
+          ]
+        },
+        {
+          "id": "come",
+          "text": "…Хорошо. Неприятно, но вы правы — пусть скажет сам. Идёмте.",
+          "mood": "nervous",
+          "effects": [
+            {
+              "type": "follow",
+              "characterId": "lebedeva"
+            }
+          ],
+          "choices": [
+            {
+              "id": "go",
+              "text": "Идёмте.",
+              "next": null
+            }
+          ]
+        },
+        {
+          "id": "release",
+          "text": "Хорошо. Если что — я в учительской.",
+          "mood": "neutral",
+          "effects": [
+            {
+              "type": "returnHome",
+              "characterId": "lebedeva"
+            }
+          ],
+          "choices": [
+            {
+              "id": "bye",
+              "text": "Спасибо.",
+              "next": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "dlg_gusev",
+      "characterId": "gusev",
+      "startNodeId": "start",
+      "nodes": [
+        {
+          "id": "start",
+          "text": "Пост охраны. Чем помочь?",
+          "mood": "friendly",
+          "effects": [],
+          "choices": [
+            {
+              "id": "key",
+              "text": "Кто брал ключ от кабинета 214 вечером 14 марта?",
+              "next": "key"
+            },
+            {
+              "id": "self",
+              "text": "А вы сами в кабинет не заходили?",
+              "next": "self"
+            },
+            {
+              "id": "service",
+              "text": "Как служба?",
+              "next": "service"
+            },
+            {
+              "id": "bye",
+              "text": "Спасибо.",
+              "next": null
+            }
+          ]
+        },
+        {
+          "id": "key",
+          "text": "Игорь Валерьевич, в полдесятого. Сказал — отчёт доделать. Сдал около десяти. Всё записано в журнале, он тут, на стойке.",
+          "mood": "friendly",
+          "effects": [
+            {
+              "type": "addEvidence",
+              "evidenceId": "guard_testimony"
+            }
+          ],
+          "choices": [
+            {
+              "id": "back",
+              "text": "Ясно.",
+              "next": "start"
+            }
+          ]
+        },
+        {
+          "id": "self",
+          "text": "Нет. Запасные ключи в опломбированном ящике — пломба целая, можете посмотреть. Я в тот вечер с поста не отлучался, только обход третьего этажа.",
+          "mood": "neutral",
+          "effects": [
+            {
+              "type": "addCharacterNote",
+              "characterId": "gusev",
+              "text": "В кабинет 214 не заходил; запасные ключи опломбированы."
+            }
+          ],
+          "choices": [
+            {
+              "id": "back",
+              "text": "Понятно.",
+              "next": "start"
+            }
+          ]
+        },
+        {
+          "id": "service",
+          "text": "Да спокойно. Вот только автомат в коридоре опять монеты глотает — третью жалобу за неделю пишу.",
+          "mood": "friendly",
+          "effects": [],
+          "choices": [
+            {
+              "id": "back",
+              "text": "Понятно.",
+              "next": "start"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "dlg_conf_krylov_lebedeva",
+      "characterId": "krylov",
+      "startNodeId": "start",
+      "nodes": [
+        {
+          "id": "start",
+          "speaker": "lebedeva",
+          "text": "Игорь Валерьевич, давайте честно. Вы ведь сами пришли ко мне с этой распечаткой.",
+          "mood": "nervous",
+          "effects": [],
+          "choices": [
+            {
+              "id": "look",
+              "text": "(Посмотреть на Крылова)",
+              "next": "deny"
+            }
+          ]
+        },
+        {
+          "id": "deny",
+          "speaker": "krylov",
+          "text": "Марина Петровна, вы что-то путаете. Мало ли какие бумаги по учительской ходят.",
+          "mood": "angry",
+          "effects": [],
+          "choices": [
+            {
+              "id": "ask",
+              "text": "Марина Петровна, что он сказал, когда показывал письмо?",
+              "next": "quote"
+            },
+            {
+              "id": "both",
+              "text": "Похоже, вы оба что-то недоговариваете.",
+              "next": "offended"
+            }
+          ]
+        },
+        {
+          "id": "quote",
+          "speaker": "lebedeva",
+          "text": "«Нашёл, кто пишет жалобы, поговорите со своей студенткой». Дословно. И стикер на распечатке ваш — «И.К.».",
+          "mood": "angry",
+          "effects": [],
+          "choices": [
+            {
+              "id": "wait",
+              "text": "(Молча ждать ответа Крылова)",
+              "next": "admit"
+            }
+          ]
+        },
+        {
+          "id": "admit",
+          "speaker": "krylov",
+          "text": "…Ладно. Да. Я сбросил Соколовой пароль, открыл почту, нашёл это письмо и распечатал. Хотел понять, кто пишет жалобы. Заявления от неё не было, решения суда тоже.",
+          "mood": "sad",
+          "effects": [
+            {
+              "type": "addEvidence",
+              "evidenceId": "krylov_admission"
+            },
+            {
+              "type": "setFlag",
+              "flag": "krylov_admitted"
+            },
+            {
+              "type": "returnHome",
+              "characterId": "lebedeva"
+            }
+          ],
+          "choices": [
+            {
+              "id": "end",
+              "text": "Этого достаточно. Марина Петровна, спасибо.",
+              "next": null
+            }
+          ]
+        },
+        {
+          "id": "offended",
+          "speaker": "lebedeva",
+          "text": "Я пришла помочь, а вы меня в одну кучу с ним… Разбирайтесь без меня.",
+          "mood": "angry",
+          "effects": [
+            {
+              "type": "setFlag",
+              "flag": "lebedeva_offended"
+            },
+            {
+              "type": "returnHome",
+              "characterId": "lebedeva"
+            }
+          ],
+          "choices": [
+            {
+              "id": "end",
+              "text": "…",
+              "next": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "dlg_kotova",
+      "characterId": "kotova",
+      "startNodeId": "start",
+      "nodes": [
+        {
+          "id": "start",
+          "text": "Ой, осторожно, тут мокро. Вы по какому вопросу?",
+          "mood": "friendly",
+          "effects": [],
+          "choices": [
+            {
+              "id": "evening",
+              "text": "Вы работали вечером 14 марта?",
+              "next": "evening"
+            },
+            {
+              "id": "who",
+              "text": "Кого-нибудь видели в кабинете?",
+              "next": "who"
+            },
+            {
+              "id": "job",
+              "text": "Тяжело одной на целый этаж?",
+              "next": "job"
+            },
+            {
+              "id": "bye",
+              "text": "Спасибо.",
+              "next": null
+            }
+          ]
+        },
+        {
+          "id": "evening",
+          "text": "Работала, как всегда, с восьми до одиннадцати. Около без двадцати десять мыла у двести четырнадцатого — там свет горел, и принтер жужжал. Я ещё подумала: кто ж так поздно бумаги печатает?",
+          "mood": "neutral",
+          "effects": [
+            {
+              "type": "addCharacterNote",
+              "characterId": "krylov",
+              "text": "По словам уборщицы, 14 марта около 21:40 в кабинете 214 горел свет и работал принтер."
+            }
+          ],
+          "choices": [
+            {
+              "id": "back",
+              "text": "Понятно.",
+              "next": "start"
+            }
+          ]
+        },
+        {
+          "id": "who",
+          "text": "Дверь прикрыта была, я не заглядывала — не моё дело. Голос мужской, по телефону говорил: «Да нашёл я, нашёл…»",
+          "mood": "nervous",
+          "effects": [
+            {
+              "type": "addCharacterNote",
+              "characterId": "kotova",
+              "text": "Слышала из 214 мужской голос: «Да нашёл я, нашёл…»."
+            }
+          ],
+          "choices": [
+            {
+              "id": "back",
+              "text": "Понятно.",
+              "next": "start"
+            }
+          ]
+        },
+        {
+          "id": "job",
+          "text": "А кому сейчас легко? Студенты стаканчики из автомата везде бросают. А автомат ещё и монеты глотает.",
+          "mood": "friendly",
+          "effects": [],
+          "choices": [
+            {
+              "id": "back",
+              "text": "Понятно.",
+              "next": "start"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "dlg_rybin",
+      "characterId": "rybin",
+      "startNodeId": "start",
+      "nodes": [
+        {
+          "id": "start",
+          "text": "Если вы про почту — давайте коротко, у меня сервер перезагружается.",
+          "mood": "neutral",
+          "effects": [],
+          "choices": [
+            {
+              "id": "log",
+              "text": "Журнал почтовой системы можно подделать?",
+              "next": "log"
+            },
+            {
+              "id": "reset",
+              "text": "Кто может сбросить пароль студенту?",
+              "next": "reset"
+            },
+            {
+              "id": "server",
+              "text": "Над чем работаете?",
+              "next": "server"
+            },
+            {
+              "id": "bye",
+              "text": "Спасибо.",
+              "next": null
+            }
+          ]
+        },
+        {
+          "id": "log",
+          "text": "Без доступа к серверу — нет. Записи пишет сама система, у администраторов факультетов прав на журнал нет. Видят, но править не могут.",
+          "mood": "neutral",
+          "effects": [
+            {
+              "type": "addCharacterNote",
+              "characterId": "rybin",
+              "text": "Журнал почты пишет сама система; администраторы факультетов не могут его править."
+            }
+          ],
+          "choices": [
+            {
+              "id": "back",
+              "text": "Понятно.",
+              "next": "start"
+            }
+          ]
+        },
+        {
+          "id": "reset",
+          "text": "Я и администраторы почты факультетов. У юрфака это Крылов. Сбрасывать положено только по заявлению — мы для этого форму сделали.",
+          "mood": "neutral",
+          "effects": [
+            {
+              "type": "addCharacterNote",
+              "characterId": "krylov",
+              "text": "По словам системного администратора, у Крылова есть права сбрасывать пароли почты факультета."
+            }
+          ],
+          "choices": [
+            {
+              "id": "back",
+              "text": "Понятно.",
+              "next": "start"
+            }
+          ]
+        },
+        {
+          "id": "server",
+          "text": "Обновление антиспама. Не спрашивайте, зачем на юрфаке столько писем про «выигрыш в лотерею».",
+          "mood": "friendly",
+          "effects": [],
+          "choices": [
+            {
+              "id": "back",
+              "text": "Понятно.",
+              "next": "start"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "confrontations": [
+    {
+      "id": "conf_krylov_lebedeva",
+      "characters": [
+        "krylov",
+        "lebedeva"
+      ],
+      "dialogueId": "dlg_conf_krylov_lebedeva",
+      "requires": {
+        "notFlags": [
+          "krylov_admitted"
+        ]
+      }
+    }
+  ],
+  "deductions": [
+    {
+      "id": "d_access",
+      "title": "Кто вошёл в почту",
+      "evidenceIds": [
+        "mail_log",
+        "alina_testimony"
+      ],
+      "question": "Что произошло с почтовым ящиком Алины 14 марта?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Алина сама зашла в почту с компьютера деканата",
+          "correct": false,
+          "feedback": "Алина получила уведомление о сбросе пароля дома, а вход был после сброса — уже с новым паролем."
+        },
+        {
+          "id": "b",
+          "text": "Пароль сбросили через панель администратора и вошли в ящик с компьютера кабинета 214 без ведома Алины",
+          "correct": true,
+          "feedback": "Журнал и показания Алины сходятся: сброс в 21:43, вход в 21:47, уведомление — около 21:45."
+        },
+        {
+          "id": "c",
+          "text": "Ящик взломали извне",
+          "correct": false,
+          "feedback": "IP-адрес внутренний — рабочая станция кабинета 214, а сброс выполнен из панели администратора."
+        }
+      ],
+      "conclusion": "Доступ к почте Алины получен через панель администратора с компьютера кабинета 214 — без её ведома.",
+      "effects": [
+        {
+          "type": "setFlag",
+          "flag": "d_access"
+        }
+      ]
+    },
+    {
+      "id": "d_who",
+      "title": "Кто был в кабинете",
+      "evidenceIds": [
+        "mail_log",
+        "key_log"
+      ],
+      "question": "Кто находился в кабинете 214 в момент входа в почту (21:47)?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Крылов: ключ выдан ему в 21:30 и сдан в 22:05",
+          "correct": true,
+          "feedback": "Время входа полностью попадает в интервал, когда ключ был у Крылова."
+        },
+        {
+          "id": "b",
+          "text": "Охранник — у него есть запасные ключи",
+          "correct": false,
+          "feedback": "Запасные ключи опломбированы, пломба цела."
+        },
+        {
+          "id": "c",
+          "text": "Лебедева — она брала ключ в тот вечер",
+          "correct": false,
+          "feedback": "Лебедева брала ключ от учительской (216), а не от 214, и вернула его в 18:40."
+        }
+      ],
+      "conclusion": "Во время входа в почту Алины ключ от кабинета 214 был только у Крылова.",
+      "effects": [
+        {
+          "type": "setFlag",
+          "flag": "d_who"
+        }
+      ]
+    },
+    {
+      "id": "d_basis",
+      "title": "Было ли право читать",
+      "evidenceIds": [
+        "mail_policy",
+        "mail_log"
+      ],
+      "question": "Было ли у администратора законное основание знакомиться с письмами Алины?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Да: почта корпоративная, университет вправе её читать",
+          "correct": false,
+          "feedback": "Адрес на домене университета не отменяет тайну переписки студента. Положение прямо запрещает администратору читать письма."
+        },
+        {
+          "id": "b",
+          "text": "Нет: заявления и согласия не было, а ограничение тайны переписки допускается только по судебному решению",
+          "correct": true,
+          "feedback": "Ч. 2 ст. 23 Конституции РФ и п. 4.2–4.3 Положения."
+        },
+        {
+          "id": "c",
+          "text": "Да, если есть подозрение, что студент пишет жалобы",
+          "correct": false,
+          "feedback": "Подозрение в авторстве жалобы не является законным основанием ограничивать тайну переписки."
+        }
+      ],
+      "conclusion": "Законного основания для доступа к содержанию писем не было: ни заявления Алины, ни судебного решения.",
+      "effects": [
+        {
+          "type": "setFlag",
+          "flag": "d_basis"
+        }
+      ]
+    },
+    {
+      "id": "d_spread",
+      "title": "Куда ушло письмо",
+      "evidenceIds": [
+        "printout",
+        "teacher_testimony"
+      ],
+      "question": "Что произошло с содержанием письма после доступа к почте?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Алина сама переслала письмо куратору",
+          "correct": false,
+          "feedback": "На распечатке — пользователь admin.krylov и принтер кабинета 214."
+        },
+        {
+          "id": "b",
+          "text": "Письмо распечатали и показали третьему лицу — куратору группы",
+          "correct": true,
+          "feedback": "Распечатка со стикером «Показать куратору» и показания Лебедевой подтверждают это."
+        },
+        {
+          "id": "c",
+          "text": "Письмо опубликовали на форуме",
+          "correct": false,
+          "feedback": "На форуме была только анонимная жалоба, а не письмо."
+        }
+      ],
+      "conclusion": "Содержание личного письма стало известно третьему лицу: распечатку показали куратору.",
+      "effects": [
+        {
+          "type": "setFlag",
+          "flag": "d_spread"
+        }
+      ]
+    },
+    {
+      "id": "d_motive",
+      "title": "Зачем",
+      "evidenceIds": [
+        "complaint_copy",
+        "printout"
+      ],
+      "question": "Зачем понадобилась переписка Алины?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Проверить работы студентов на плагиат",
+          "correct": false,
+          "feedback": "В материалах нет ничего о проверке учебных работ."
+        },
+        {
+          "id": "b",
+          "text": "Установить автора анонимной жалобы на деканат",
+          "correct": true,
+          "feedback": "Пометка «Автор? Проверить почту группы 3-12» и выбор письма «про деканат» говорят сами за себя."
+        },
+        {
+          "id": "c",
+          "text": "Выполнить запрос полиции",
+          "correct": false,
+          "feedback": "Ни запросов, ни судебных решений в материалах нет."
+        }
+      ],
+      "conclusion": "Мотив — найти автора критической жалобы. Это объясняет поступок, но не делает его законным.",
+      "effects": [
+        {
+          "type": "setFlag",
+          "flag": "d_motive"
+        }
+      ]
+    }
+  ],
+  "hints": [
+    {
+      "level": 1,
+      "text": "Почтовая система помнит каждый вход. Посмотрите, что осталось на компьютере в кабинете 214.",
+      "penalty": 5
+    },
+    {
+      "level": 2,
+      "text": "Сравните время входа в почту с журналом выдачи ключей на посту охраны.",
+      "penalty": 7
+    },
+    {
+      "level": 3,
+      "text": "Перечитайте статью 23 Конституции: о сообщениях в ней сказано отдельно — во второй части.",
+      "penalty": 10
+    }
+  ],
+  "questions": [
+    {
+      "id": "q_right",
+      "category": "right",
+      "prompt": "Какое право затронуто?",
+      "kind": "single",
+      "source": "inline",
+      "maxPoints": 30,
+      "options": [
+        {
+          "id": "privacy",
+          "label": "Право на личную жизнь",
+          "points": 15,
+          "feedback": "Близко: частная жизнь тоже затронута. Но ключевое действие — доступ к сообщениям, а для них в ч. 2 ст. 23 закреплено отдельное право."
+        },
+        {
+          "id": "correspondence_secrecy",
+          "label": "Тайна переписки",
+          "points": 30,
+          "feedback": "Верно: ч. 2 ст. 23 Конституции РФ."
+        },
+        {
+          "id": "free_speech",
+          "label": "Свобода слова",
+          "points": 5,
+          "feedback": "Жалоба — мотив, но вмешательство было в переписку, а не в возможность высказываться."
+        },
+        {
+          "id": "equality",
+          "label": "Равенство прав",
+          "points": 0,
+          "feedback": "Признаков дискриминации в деле нет."
+        },
+        {
+          "id": "home_inviolability",
+          "label": "Неприкосновенность жилища",
+          "points": 0,
+          "feedback": "Жилище не затрагивалось: события произошли в служебном кабинете и почтовой системе."
+        },
+        {
+          "id": "electoral_rights",
+          "label": "Избирательные права",
+          "points": 0,
+          "feedback": "Выборы в деле не фигурируют."
+        },
+        {
+          "id": "other",
+          "label": "Другое",
+          "points": 0,
+          "feedback": "Затронутое право есть в перечне."
+        }
+      ]
+    },
+    {
+      "id": "q_violation",
+      "category": "violation",
+      "prompt": "Было ли нарушение?",
+      "kind": "single",
+      "source": "inline",
+      "maxPoints": 15,
+      "options": [
+        {
+          "id": "yes",
+          "label": "Да",
+          "points": 15,
+          "feedback": "Верно: ни согласия Алины, ни судебного решения не было."
+        },
+        {
+          "id": "no",
+          "label": "Нет",
+          "points": 0,
+          "feedback": "Доступ к переписке без согласия и без судебного решения — нарушение ч. 2 ст. 23."
+        },
+        {
+          "id": "insufficient",
+          "label": "Недостаточно информации",
+          "points": 5,
+          "feedback": "Материалов достаточно: журналы, распечатка, показания и признание сходятся."
+        }
+      ]
+    },
+    {
+      "id": "q_qualification",
+      "category": "qualification",
+      "prompt": "Как можно квалифицировать действия виновного?",
+      "kind": "single",
+      "source": "inline",
+      "maxPoints": 15,
+      "options": [
+        {
+          "id": "criminal",
+          "label": "Признаки преступления: нарушение тайны переписки с использованием служебного положения (ч. 2 ст. 138 УК РФ)",
+          "points": 15,
+          "feedback": "Верно как возможная квалификация. Окончательно её определяют следствие и суд."
+        },
+        {
+          "id": "disciplinary",
+          "label": "Только дисциплинарный проступок — нарушено внутреннее Положение",
+          "points": 7,
+          "feedback": "Дисциплинарная ответственность возможна, но действия затрагивают конституционное право и содержат признаки состава ст. 138 УК РФ."
+        },
+        {
+          "id": "administrative",
+          "label": "Административное правонарушение (КоАП РФ)",
+          "points": 5,
+          "feedback": "Ст. 13.14 КоАП применяется, только если действия не содержат уголовно наказуемого деяния. Здесь есть признаки ч. 2 ст. 138 УК РФ."
+        },
+        {
+          "id": "civil",
+          "label": "Только гражданско-правовой спор о компенсации",
+          "points": 3,
+          "feedback": "Алина вправе требовать компенсации морального вреда (ст. 151 ГК РФ), но этим оценка не исчерпывается."
+        },
+        {
+          "id": "none",
+          "label": "Правонарушения нет",
+          "points": 0,
+          "feedback": "Нарушение права было, и у него есть юридические последствия."
+        }
+      ]
+    },
+    {
+      "id": "q_responsible",
+      "category": "responsible",
+      "prompt": "Кто несёт ответственность?",
+      "kind": "single",
+      "source": "characters",
+      "maxPoints": 20,
+      "options": [
+        {
+          "id": "krylov",
+          "label": "",
+          "points": 20,
+          "feedback": "Верно: он сбросил пароль, прочитал письма и показал распечатку."
+        },
+        {
+          "id": "lebedeva",
+          "label": "",
+          "points": 3,
+          "feedback": "Лебедева повела себя некорректно, процитировав письмо, но доступа к переписке не получала и не распространяла её."
+        },
+        {
+          "id": "alina",
+          "label": "",
+          "points": 0,
+          "feedback": "Алина — потерпевшая. Авторство жалобы не делает её ответственной."
+        },
+        {
+          "id": "gusev",
+          "label": "",
+          "points": 0,
+          "feedback": "Охранник лишь выдал ключ по журналу, как положено."
+        },
+        {
+          "id": "kotova",
+          "label": "",
+          "points": 0,
+          "feedback": "Уборщица — свидетель: видела и слышала то, что подтверждает картину, но к доступу к почте не причастна."
+        },
+        {
+          "id": "rybin",
+          "label": "",
+          "points": 0,
+          "feedback": "Системный администратор университета к доступу к почте Алины отношения не имеет."
+        }
+      ]
+    },
+    {
+      "id": "q_evidence",
+      "category": "evidence",
+      "prompt": "Какие доказательства это подтверждают?",
+      "kind": "multi",
+      "source": "evidence",
+      "maxPoints": 20,
+      "options": [
+        {
+          "id": "mail_log",
+          "label": "",
+          "points": 5,
+          "feedback": "Ключевое доказательство: сброс пароля и вход с компьютера 214."
+        },
+        {
+          "id": "krylov_admission",
+          "label": "",
+          "points": 4,
+          "feedback": "Признание подтверждает остальные доказательства."
+        },
+        {
+          "id": "printout",
+          "label": "",
+          "points": 3,
+          "feedback": "Показывает, что содержание письма скопировано и подготовлено для показа."
+        },
+        {
+          "id": "teacher_testimony",
+          "label": "",
+          "points": 3,
+          "feedback": "Подтверждает распространение письма третьему лицу."
+        },
+        {
+          "id": "alina_testimony",
+          "label": "",
+          "points": 2,
+          "feedback": "Подтверждает отсутствие согласия и уведомление о сбросе."
+        },
+        {
+          "id": "key_log",
+          "label": "",
+          "points": 2,
+          "feedback": "Связывает время входа с конкретным человеком."
+        },
+        {
+          "id": "mail_policy",
+          "label": "",
+          "points": 1,
+          "feedback": "Показывает отсутствие у администратора полномочий."
+        },
+        {
+          "id": "complaint_copy",
+          "label": "",
+          "points": 0,
+          "feedback": "Объясняет мотив, но не доказывает само нарушение."
+        },
+        {
+          "id": "guard_testimony",
+          "label": "",
+          "points": 0,
+          "feedback": "Вторично: повторяет журнал ключей."
+        },
+        {
+          "id": "krylov_denial",
+          "label": "",
+          "points": -4,
+          "feedback": "Это ложные показания — журнал их опровергает."
+        },
+        {
+          "id": "doc_printer",
+          "label": "",
+          "points": 0,
+          "feedback": "Это не относится к сути нарушения."
+        },
+        {
+          "id": "doc_teacher_table",
+          "label": "",
+          "points": 0,
+          "feedback": "Это не относится к сути нарушения."
+        },
+        {
+          "id": "doc_poster",
+          "label": "",
+          "points": 0,
+          "feedback": "Это не относится к сути нарушения."
+        },
+        {
+          "id": "doc_vending",
+          "label": "",
+          "points": 0,
+          "feedback": "Это не относится к сути нарушения."
+        }
+      ]
+    }
+  ],
+  "solution": {
+    "right": "correspondence_secrecy",
+    "rightText": "Право на тайну переписки и иных сообщений (ч. 2 ст. 23 Конституции РФ). Дополнительно затронута неприкосновенность частной жизни (ч. 1 ст. 23, ч. 1 ст. 24).",
+    "violation": true,
+    "responsibleCharacter": "krylov",
+    "correctAnswer": "Затронуто право на тайну переписки. Нарушение было: специалист деканата Крылов без согласия Алины и без судебного решения сбросил пароль, прочитал её письма и показал распечатку куратору. Возможная квалификация — ч. 2 ст. 138 УК РФ; кроме того, возможны дисциплинарная ответственность и компенсация морального вреда.",
+    "whatHappened": "10 марта на форуме появилась анонимная жалоба на деканат. Крылов, администрирующий почту факультета, решил найти автора. 14 марта он взял ключ от кабинета 214, в 21:43 сбросил пароль почты Алины через панель администратора, в 21:47 вошёл в ящик, прочитал письмо подруге «про деканат» и в 21:52 распечатал его. 15 марта он показал распечатку куратору группы Лебедевой, а 16 марта та процитировала Алине фразу из письма.",
+    "explanation": "Ч. 2 ст. 23 Конституции РФ гарантирует каждому тайну переписки и иных сообщений, в том числе электронных; ограничение допускается только на основании судебного решения. Ни судебного решения, ни согласия Алины не было, а внутреннее Положение прямо запрещало администратору знакомиться с содержанием писем. То, что адрес принадлежит университету, не превращает переписку студентки в служебную. Желание найти автора жалобы — мотив, а не законное основание.",
+    "legalQualification": "Действия Крылова содержат признаки преступления, предусмотренного ч. 2 ст. 138 УК РФ (нарушение тайны переписки, совершённое лицом с использованием своего служебного положения): для доступа он использовал полномочия администратора почты. Признать его виновным может только суд. Независимо от этого возможны дисциплинарное взыскание (ст. 192 ТК РФ) за нарушение Положения и требование Алины о компенсации морального вреда (ст. 151, 152.2 ГК РФ). Показ письма третьему лицу может дополнительно оцениваться по ст. 137 УК РФ, если в письме есть сведения, составляющие личную или семейную тайну — это требует отдельного анализа.",
+    "qualificationNotes": [
+      {
+        "kind": "right",
+        "applies": "yes",
+        "text": "Затронуто право на тайну переписки (ч. 2 ст. 23 Конституции РФ)."
+      },
+      {
+        "kind": "violation",
+        "applies": "yes",
+        "text": "Вмешательство произошло без согласия и без судебного решения — право нарушено."
+      },
+      {
+        "kind": "criminal",
+        "applies": "possible",
+        "text": "Признаки ч. 2 ст. 138 УК РФ (с использованием служебного положения). Окончательная оценка — за следствием и судом."
+      },
+      {
+        "kind": "administrative",
+        "applies": "possible",
+        "text": "Ст. 13.14 КоАП РФ (разглашение информации с ограниченным доступом) применяется, только если в действиях нет уголовно наказуемого деяния."
+      },
+      {
+        "kind": "civil",
+        "applies": "possible",
+        "text": "Алина вправе требовать компенсации морального вреда (ст. 150, 151, 152.2 ГК РФ)."
+      },
+      {
+        "kind": "disciplinary",
+        "applies": "possible",
+        "text": "Нарушение п. 4.2–4.3 Положения — основание для дисциплинарного взыскания (ст. 192 ТК РФ)."
+      }
+    ],
+    "keyEvidence": [
+      {
+        "evidenceId": "mail_log",
+        "why": "Фиксирует сброс пароля через учётную запись администратора и вход с компьютера кабинета 214."
+      },
+      {
+        "evidenceId": "key_log",
+        "why": "Показывает, что во время входа ключ от кабинета был только у Крылова."
+      },
+      {
+        "evidenceId": "printout",
+        "why": "Письмо распечатано под учётной записью admin.krylov с пометкой «Показать куратору»."
+      },
+      {
+        "evidenceId": "teacher_testimony",
+        "why": "Подтверждает, что содержание письма стало известно третьему лицу."
+      },
+      {
+        "evidenceId": "alina_testimony",
+        "why": "Подтверждает отсутствие согласия: пароль не сообщался, сброс стал неожиданностью."
+      },
+      {
+        "evidenceId": "mail_policy",
+        "why": "Администратор не имел полномочий читать письма и сбрасывать пароль без заявления."
+      },
+      {
+        "evidenceId": "krylov_admission",
+        "why": "Собственное признание, согласующееся с остальными доказательствами."
+      }
+    ],
+    "sources": [
+      "Конституция Российской Федерации, ст. 23, 24",
+      "Уголовный кодекс РФ, ст. 137, 138",
+      "Кодекс РФ об административных правонарушениях, ст. 13.14",
+      "Гражданский кодекс РФ, ст. 150, 151, 152.2",
+      "Трудовой кодекс РФ, ст. 192",
+      "Положение о корпоративной почте факультета — вымышленный локальный акт учебного сценария"
+    ]
+  },
+  "flags": [
+    {
+      "id": "alina_lied",
+      "name": "Алина солгала о жалобе на форуме"
+    },
+    {
+      "id": "alina_closed",
+      "name": "Алина обиделась и замкнулась"
+    },
+    {
+      "id": "alina_told_truth",
+      "name": "Алина призналась, что жалоба её"
+    },
+    {
+      "id": "knows_quote",
+      "name": "Известна фраза Лебедевой про «болото»"
+    },
+    {
+      "id": "krylov_hostile",
+      "name": "Крылов настроен враждебно"
+    },
+    {
+      "id": "krylov_admitted",
+      "name": "Крылов признался"
+    },
+    {
+      "id": "lebedeva_closed",
+      "name": "Лебедева отказалась разговаривать"
+    },
+    {
+      "id": "lebedeva_told",
+      "name": "Лебедева рассказала, откуда распечатка"
+    },
+    {
+      "id": "lebedeva_offended",
+      "name": "Лебедева обиделась после очной ставки"
+    },
+    {
+      "id": "d_access",
+      "name": "Установлено, кто вошёл в почту"
+    },
+    {
+      "id": "d_who",
+      "name": "Установлено, кто был в кабинете"
+    },
+    {
+      "id": "d_basis",
+      "name": "Установлено, было ли право читать почту"
+    },
+    {
+      "id": "d_spread",
+      "name": "Установлено, куда ушло письмо"
+    },
+    {
+      "id": "d_motive",
+      "name": "Установлен мотив"
+    }
+  ],
+  "lawReference": {
+    "basis": [
+      {
+        "article": "ч. 2 ст. 23 Конституции РФ",
+        "title": "Тайна переписки и сообщений",
+        "text": "Каждый имеет право на тайну переписки, телефонных переговоров, почтовых, телеграфных и иных сообщений. Ограничение — только на основании судебного решения.",
+        "url": "http://www.consultant.ru/document/cons_doc_LAW_28399/"
+      },
+      {
+        "article": "ч. 1 ст. 23, ч. 1 ст. 24 Конституции РФ",
+        "title": "Неприкосновенность частной жизни",
+        "text": "Сбор, хранение, использование и распространение информации о частной жизни лица без его согласия не допускаются.",
+        "url": "http://www.consultant.ru/document/cons_doc_LAW_28399/"
+      },
+      {
+        "article": "ст. 29 Конституции РФ",
+        "title": "Свобода мысли и слова",
+        "text": "Каждый вправе свободно искать, получать, передавать и распространять информацию законным способом.",
+        "url": "http://www.consultant.ru/document/cons_doc_LAW_28399/"
+      },
+      {
+        "article": "ст. 137 УК РФ",
+        "title": "Нарушение неприкосновенности частной жизни",
+        "url": "http://www.consultant.ru/document/cons_doc_LAW_10699/"
+      },
+      {
+        "article": "ст. 138 УК РФ",
+        "title": "Нарушение тайны переписки",
+        "text": "Ч. 2 — то же деяние, совершённое лицом с использованием своего служебного положения.",
+        "url": "http://www.consultant.ru/document/cons_doc_LAW_10699/"
+      },
+      {
+        "article": "ст. 13.14 КоАП РФ",
+        "title": "Разглашение информации с ограниченным доступом",
+        "text": "Лицом, получившим к ней доступ в связи с исполнением служебных обязанностей.",
+        "url": "http://www.consultant.ru/document/cons_doc_LAW_34661/"
+      },
+      {
+        "article": "локальный акт",
+        "title": "Положение о корпоративной почте факультета",
+        "text": "Кто и в каких случаях может получать доступ к почтовым ящикам. Найдите его среди материалов дела."
+      }
+    ],
+    "notes": [
+      {
+        "title": "Затронуто право",
+        "subtitle": "Какое право затронуто?",
+        "text": "То, что ситуация касается права, ещё не означает, что право нарушено, и тем более — что совершено преступление."
+      },
+      {
+        "title": "Нарушение права",
+        "subtitle": "Вмешались ли в него без согласия и без законного основания?",
+        "text": "Законное основание — закон, решение суда, служебные полномочия в установленном порядке."
+      },
+      {
+        "title": "Дисциплинарное нарушение",
+        "subtitle": "Нарушены внутренние правила организации",
+        "text": "Устав, положение, правила проживания. Отвечает работник или обучающийся перед организацией."
+      },
+      {
+        "title": "Гражданско-правовой спор",
+        "subtitle": "Потерпевший может требовать компенсации в суде",
+        "text": "Возмещение вреда и компенсация морального вреда."
+      },
+      {
+        "title": "Административное правонарушение",
+        "subtitle": "Есть состав по КоАП РФ",
+        "text": "Деяние прямо описано в статье Кодекса, наказание назначает уполномоченный орган."
+      },
+      {
+        "title": "Преступление",
+        "subtitle": "Есть все признаки состава по УК РФ — решает суд",
+        "text": "Объект, объективная сторона, субъект, субъективная сторона (умысел). Виновность устанавливает только суд."
+      }
+    ]
+  }
+}

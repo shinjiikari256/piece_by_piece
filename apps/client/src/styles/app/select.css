@@ -1,0 +1,117 @@
+/* ---------- Свой выпадающий список (ui/Select.tsx): конструктор, админка, фильтры журнала ---------- */
+
+.sel {
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+  width: 100%;
+  min-width: 0;
+  font: inherit;
+  text-align: left;
+  padding: 0.35em 0.5em;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg-surface);
+  cursor: pointer;
+}
+.sel:focus-visible,
+.sel[aria-expanded="true"] {
+  outline: 2px solid var(--accent-soft);
+  border-color: var(--accent);
+}
+.sel.is-empty .sel__value {
+  color: var(--text-muted);
+}
+.sel__value {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.sel__arrow {
+  color: var(--text-muted);
+  font-size: 0.8em;
+}
+.sel--inline,
+.sel--add {
+  width: auto;
+  max-width: 22rem;
+}
+.sel__popup {
+  position: fixed;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-surface);
+  border: 1px solid var(--accent);
+  border-radius: 8px;
+  box-shadow: var(--elev-3);
+  overflow: hidden;
+  font-size: 15px;
+}
+.sel__search {
+  margin: 0.4rem;
+}
+.sel__list {
+  overflow: auto;
+  padding: 0.25rem;
+}
+.sel__opt {
+  padding: 0.35em 0.6em;
+  border-radius: 5px;
+  cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.sel__opt.is-active {
+  background: var(--accent-soft);
+}
+.sel__opt[aria-selected="true"] {
+  font-weight: 700;
+}
+.sel__empty {
+  padding: 0.5em;
+  color: var(--text-muted);
+}
+
+/* вариант «фильтр» (журнал): подпись, картинка текущего пункта, подсветка при выбранном значении */
+.sel--filter {
+  width: auto;
+  gap: 0.4em;
+  padding: 0.4em 0.75em;
+  border-radius: 8px;
+  font-size: 0.9em;
+  min-height: 2.3rem;
+}
+.sel--filter:hover {
+  border-color: var(--accent);
+}
+.sel--filter.is-set {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+.sel--filter .sel__value {
+  flex: none;
+  font-weight: 700;
+}
+.sel__label {
+  color: var(--text-muted);
+}
+.sel__art {
+  display: inline-flex;
+  align-items: center;
+  flex: none;
+  margin-right: 0.35em;
+  vertical-align: middle;
+}
+.sel--filter .sel__art {
+  margin-right: 0;
+}
+.sel__art .portrait {
+  width: 1.1em;
+  height: 1.65em;
+  border: none;
+  background: transparent;
+  border-radius: 0;
+}

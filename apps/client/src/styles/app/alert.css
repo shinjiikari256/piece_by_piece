@@ -1,0 +1,52 @@
+/* ---------- Блоки-предупреждения (ui/alert.tsx): тон — data-tone ---------- */
+
+.alert {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin: 0;
+  padding: 0.6em 0.8em;
+  border: 1px solid var(--tone-line);
+  border-radius: 8px;
+  background: var(--tone-soft);
+  color: var(--tone-ink);
+  font-size: 0.9em;
+  box-shadow: var(--elev-1);
+}
+.alert__text {
+  flex: 1;
+}
+pre.alert {
+  white-space: pre-wrap;
+}
+
+/* с заголовком: значок сбоку, справа заголовок и под ним текст */
+.alert__body {
+  flex: 1;
+  display: grid;
+  gap: 0.25rem;
+}
+.alert__title {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.2em 0.6em;
+  font-weight: 700;
+}
+.alert__title code {
+  font-family: var(--font-mono);
+  font-weight: 400;
+  color: var(--text-muted);
+}
+
+/* весь блок — кнопка */
+.alert--click {
+  width: 100%;
+  text-align: left;
+  font: inherit;
+  font-size: 0.9em;
+  cursor: pointer;
+}
+.alert--click:hover {
+  box-shadow: var(--elev-2);
+}

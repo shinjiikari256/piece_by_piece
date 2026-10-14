@@ -1,0 +1,19 @@
+/* ---------- Состояния «выбрано» и «включено»: одно оформление на все компоненты ---------- */
+/* Разметка ставит data-selected (карточка, вариант, строка) или aria-pressed (переключатель). Селекторы с :root специфичнее простого класса компонента,
+   поэтому порядок подключения файлов не важен; свои отличия компонент задаёт составным селектором (например, .dg-node[data-selected]). */
+
+/* выбранная карточка / вариант / строка: акцентная рамка, мягкая заливка, кольцо */
+:root :is([data-selected], .look-ed__preset[aria-pressed="true"], .look-ed__option[aria-pressed="true"]):not(tr, .dg-node) {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  box-shadow: var(--ring-selected);
+}
+
+/* включённый переключатель, текущая страница пагинации, главная кнопка панели: акцентная заливка */
+:root :is(.lm__tool, .lm__swatch, .lm__thing, .look-ed__chip, .toggle-chip, .seg__btn)[aria-pressed="true"],
+:root .pager__btn[aria-current],
+:root .tool--decide {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--text-on-dark);
+}

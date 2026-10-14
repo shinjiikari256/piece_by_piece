@@ -1,0 +1,278 @@
+/* ---------- Папки (меню, список дел, вступление) ---------- */
+
+/*
+ * Тема папок (локальная, не глобальные токены). По умолчанию — бумажно-коричневая; задана на всех трёх
+ * контейнерах с закладками: папки страниц (.folder), окна-папки (.tabbed-modal) и диалог (.dialogue-folder);
+ * тема переопределяет те же переменные
+ * (так сделана синяя папка вынесения решения ниже: .tabbed-modal--blue).
+ *   --folder-sheet            лист папки (верхняя кромка) и активная закладка
+ *   --folder-tab / -hover     закладка в покое / при наведении
+ *   --folder-tab-ink          текст закладки в покое
+ *   --folder-tab-active-ink   текст активной закладки и ярлыка
+ */
+.folder,
+.tabbed-modal,
+.dialogue-folder {
+  --folder-sheet: var(--bg-chrome);
+  --folder-tab: #c09b64;
+  --folder-tab-hover: #ceaa73;
+  --folder-tab-ink: var(--text-on-chrome);
+  --folder-tab-active-ink: var(--text-on-chrome);
+}
+
+.folder {
+  width: min(46rem, 100%);
+  animation: rise 0.4s ease-out;
+}
+.folder--wide {
+  width: min(56rem, 100%);
+}
+.folder__tabs {
+  display: flex;
+  align-items: flex-end;
+  margin-left: 1.2rem;
+}
+.folder__tab,
+.folder__back {
+  background: var(--folder-sheet);
+  padding: 0.5em 1.4em 0.7em;
+  border-radius: 10px 10px 0 0;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  font-size: 0.8em;
+  color: var(--folder-tab-active-ink);
+}
+.folder__back {
+  border: none;
+  background: var(--folder-tab);
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  padding: 0.4em 1em 0.55em;
+  font: inherit;
+  font-size: 0.85em;
+  font-weight: 700;
+}
+.folder__back:hover {
+  background: var(--folder-sheet);
+}
+.folder__sheet {
+  position: relative;
+  padding: 2.2rem 2.5rem 1.8rem;
+  border-top: 10px solid var(--folder-sheet);
+}
+.folder__sheet h1 {
+  padding-right: 6em;
+}
+.folder__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+  margin-top: 1.6rem;
+  padding-top: 1.2rem;
+  border-top: 1px dashed var(--border);
+}
+.intro__title {
+  font-size: 2.2em;
+}
+
+/* дела — папки с корешком-номером */
+.case-files {
+  list-style: none;
+  padding: 0;
+  margin: 0.4rem 0 0;
+  display: grid;
+  gap: 1.1rem;
+}
+.case-file {
+  /* локальная палитра папок-дел: светлая «манильская» бумага */
+  --case-folder-edge: #e0c48f;
+  --case-folder-paper: #fffdf7;
+
+  width: 100%;
+  border: none;
+  background: transparent;
+  padding: 0;
+  text-align: left;
+  font: inherit;
+  cursor: pointer;
+  display: grid;
+}
+.case-file__tab {
+  justify-self: start;
+  margin-left: 0.8rem;
+  background: var(--case-folder-edge);
+  padding: 0.25em 1em 0.35em;
+  border-radius: 8px 8px 0 0;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  color: var(--stamp);
+}
+.case-file__body {
+  display: grid;
+  gap: 0.2em;
+  background: var(--case-folder-paper);
+  border: 1px solid var(--case-folder-edge);
+  border-top: 5px solid var(--case-folder-edge);
+  border-radius: 0 8px 8px 8px;
+  padding: 0.8rem 1.1rem;
+  transition: transform 0.12s, box-shadow 0.12s;
+}
+.case-files__item:hover .case-file__body {
+  transform: translateY(-2px);
+  box-shadow: var(--elev-2);
+}
+.case-file__title {
+  font-size: 1.3em;
+  font-weight: 700;
+}
+.case-file__tagline {
+  color: var(--text-soft);
+}
+.case-file__meta {
+  font-size: 0.85em;
+  color: var(--text-muted);
+}
+@media (max-width: 640px) {
+  .folder__sheet {
+    padding: 1.5rem 1.1rem;
+  }
+  .folder__sheet h1 {
+    padding-right: 0;
+  }
+}
+
+/* ---------- закладки и окна-папки (FolderTabs, TabbedModal) ---------- */
+
+/* ---------- закладки стартовой папки ---------- */
+.folder__tab--btn {
+  border: none;
+  font: inherit;
+  font-size: 0.8em;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  cursor: pointer;
+  background: var(--folder-tab);
+  color: var(--folder-tab-ink);
+  padding: 0.4em 1.2em 0.55em;
+}
+.folder__tab--btn:hover {
+  background: var(--folder-tab-hover);
+}
+.folder__tab--btn[aria-selected="true"] {
+  background: var(--folder-sheet);
+  color: var(--folder-tab-active-ink);
+  padding: 0.5em 1.4em 0.7em;
+}
+.folder__tabs {
+  flex-wrap: wrap;
+}
+/* активная закладка поднята и сливается с листом, перекрывая его тень */
+.folder__tabs {
+  position: relative;
+  z-index: 2;
+}
+/* соседние закладки стоят вплотную: тень справа от каждой ложится на следующую (каждая лежит над следующей, активная — над всеми) */
+.folder__tab--btn {
+  position: relative;
+  z-index: calc(10 - var(--tab-i, 10));
+  box-shadow: var(--elev-tab-inset), 3px 0 4px -2px var(--overlay-dark-2);
+}
+.folder__tab--btn[aria-selected="true"] {
+  z-index: 20;
+  padding-bottom: calc(0.7em + 8px);
+  margin-bottom: -8px;
+  box-shadow: var(--elev-tab), 3px 0 4px -2px var(--overlay-dark-2);
+}
+/* постоянный размер папки с закладками: окно не скачет при переключении */
+.folder--tabbed .folder__sheet {
+  height: min(36rem, calc(100dvh - 7rem));
+  display: flex;
+  flex-direction: column;
+}
+.folder--tabbed .folder__content {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  margin-right: -0.8rem;
+  padding-right: 0.8rem;
+}
+.folder--tabbed .folder__actions {
+  flex: none;
+}
+/* вкладка-крестик справа у окна-папки */
+.folder__tab.folder__close {
+  margin-left: auto;
+  letter-spacing: 0;
+  min-width: 2.8em;
+  text-align: center;
+}
+.folder__tabs:has(> .folder__close) {
+  margin-right: 1.2rem;
+}
+/* окно-папка в игре: вкладки сверху, крестик справа */
+.tabbed-modal {
+  width: min(70rem, 100%);
+  display: flex;
+  flex-direction: column;
+  max-height: calc(100vh - 2rem);
+}
+.tabbed-modal__tabs {
+  margin-left: 1.2rem;
+  margin-right: 1.2rem;
+  position: relative;
+  z-index: 2;
+}
+.tabbed-modal .modal {
+  width: 100%;
+  min-height: 0;
+  animation: none;
+}
+.tabbed-modal .journal {
+  height: min(80vh, 54rem);
+}
+/* компактное окно по центру: подсказки, заметки */
+.tabbed-modal--narrow {
+  width: min(40rem, 100%);
+}
+/* синяя папка — вынесение решения: та же тема папок, переопределены только переменные; размер постоянный, ответы прокручиваются внутри */
+.tabbed-modal--blue {
+  --folder-sheet: #bcd0ea;
+  --folder-tab: #8fa9cc;
+  --folder-tab-hover: #a3bbdb;
+  --folder-tab-ink: var(--accent-strong);
+  --folder-tab-active-ink: var(--accent-strong);
+}
+.tabbed-modal .final-window {
+  height: min(80vh, 50rem);
+}
+.final-window .modal__body {
+  overflow: auto;
+}
+/* у окна-папки нет заголовка, воздух вокруг содержимого — от тела окна */
+.tabbed-modal .modal__body {
+  padding: 1.6rem 2.2rem 1.8rem;
+}
+@media (max-width: 700px) {
+  .tabbed-modal .modal__body {
+    padding: 1rem 1rem 1.2rem;
+  }
+}
+
+/* ---------- окно-папка поверх страниц сайта ---------- */
+/* вступление в дело и результат — окном-папкой поверх страниц сайта */
+.site-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  background: var(--scrim);
+  animation: fade-in 0.15s ease-out;
+}
+.site-overlay > .menu {
+  height: 100%;
+}
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+}

@@ -1,0 +1,85 @@
+/* закон */
+.law2 {
+  display: grid;
+  gap: 1.6rem;
+}
+.rights-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
+  gap: 0.7rem;
+}
+.right-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-left: 5px solid var(--accent);
+  border-radius: 8px;
+  padding: 0.8rem 0.9rem;
+  display: grid;
+  gap: 0.3rem;
+  align-content: start;
+}
+.right-card__article {
+  justify-self: start;
+  background: var(--accent-soft);
+  color: var(--accent);
+  border-radius: 999px;
+  padding: 0.1em 0.7em;
+  font-size: 0.78em;
+  font-weight: 700;
+}
+.right-card p,
+.ladder p {
+  margin: 0;
+  font-size: 0.9em;
+  color: var(--text-soft);
+}
+.ladder {
+  display: grid;
+  gap: 0.5rem;
+}
+.ladder li {
+  display: grid;
+  grid-template-columns: 2.2rem 1fr;
+  gap: 0.8rem;
+  align-items: start;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.7rem 0.9rem;
+}
+.ladder li.is-base {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+.ladder__num {
+  width: 2.2rem;
+  height: 2.2rem;
+  border-radius: 50%;
+  background: var(--text);
+  color: var(--text-on-dark);
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+}
+.ladder li:not(.is-base) .ladder__num {
+  background: var(--bg-paper-dim);
+  color: var(--text);
+}
+.ladder__note {
+  display: block;
+  font-size: 0.85em;
+  color: var(--accent);
+  margin: 0.15em 0 0.3em;
+}
+
+/* ---------- нумерованные нормы и пояснения ---------- */
+/* ---------- вкладка «Закон»: нумерованные нормы и пояснения ---------- */
+.law-link {
+  display: inline-flex;
+  vertical-align: middle;
+  color: var(--accent);
+  margin-left: 0.2em;
+}
+.law-link:hover {
+  color: var(--stamp);
+}

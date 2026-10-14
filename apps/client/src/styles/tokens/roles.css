@@ -1,0 +1,80 @@
+/* ---------- Роли цвета: что цвет делает в интерфейсе. Компоненты используют только их; тема переопределяет этот слой (styles/themes/). ---------- */
+
+:root {
+  /* фоны */
+  --bg-page: var(--pal-warm-850); /* фон страницы под игрой и сайтом («стол») */
+  --bg-inverse: var(--pal-warm-950); /* тёмная заливка: шапка таблицы, подложка логотипа */
+  --bg-chrome: var(--pal-kraft-400); /* «обвязка» интерфейса: шапки, закладки папок, панели — не содержимое */
+  --bg-paper: var(--pal-warm-50); /* основной лист */
+  --bg-paper-dim: var(--pal-warm-100); /* лист чуть темнее: подложки, наведение, фон сайта */
+  --bg-surface: var(--pal-white); /* белые поверхности: карточки, поля ввода */
+
+  /* текст */
+  --text: var(--pal-warm-900);
+  --text-soft: var(--pal-warm-700);
+  --text-muted: var(--pal-warm-500);
+  --text-on-dark: var(--pal-white); /* на тёмных и акцентных заливках */
+  --text-on-chrome: var(--pal-warm-800); /* на «обвязке» (крафт) и жёлтых плашках */
+
+  /* границы */
+  --border: var(--pal-warm-200);
+  --border-strong: var(--pal-warm-300); /* кнопки и крупные элементы */
+  --border-chrome: var(--pal-kraft-600); /* нижняя рамка шапок, закладки */
+
+  /* бренд */
+  --stamp: var(--pal-stamp); /* «печатный» красно-коричневый: штампы, номера дел; ошибка и опасность — это --bad */
+
+  /* тона: у каждого один и тот же набор — основной, заливка, рамка, насыщенный (наведение), текст на заливке */
+  --accent: var(--pal-blue-700);
+  --accent-soft: var(--pal-blue-100);
+  --accent-line: var(--pal-blue-200);
+  --accent-strong: var(--pal-blue-800);
+  --accent-ink: var(--pal-blue-800);
+
+  --good: var(--pal-green-600);
+  --good-soft: var(--pal-green-100);
+  --good-line: var(--pal-green-200);
+  --good-strong: var(--pal-green-700);
+  --good-ink: var(--pal-green-700);
+
+  --warn: var(--pal-yellow-400);
+  --warn-soft: var(--pal-yellow-100);
+  --warn-line: var(--pal-yellow-300);
+  --warn-strong: var(--pal-yellow-500);
+  --warn-ink: var(--pal-warm-800);
+
+  --bad: var(--pal-red-600);
+  --bad-soft: var(--pal-red-100);
+  --bad-line: var(--pal-red-200);
+  --bad-strong: var(--pal-red-700);
+  --bad-ink: var(--pal-red-700);
+
+  /* предметные тона: вид материала */
+  --evidence: var(--pal-cyan-600);
+  --evidence-soft: var(--pal-cyan-100);
+  --evidence-line: var(--pal-cyan-200);
+  --evidence-strong: var(--pal-cyan-700);
+  --evidence-ink: var(--pal-cyan-700);
+
+  --testimony: var(--pal-purple-600);
+  --testimony-soft: var(--pal-purple-100);
+  --testimony-line: var(--pal-purple-200);
+  --testimony-strong: var(--pal-purple-700);
+  --testimony-ink: var(--pal-purple-700);
+
+  --conclusion: var(--pal-yellow-400); /* вывод (установленный факт) */
+  --conclusion-soft: var(--pal-yellow-50);
+  --conclusion-line: var(--pal-yellow-300);
+  --conclusion-strong: var(--pal-yellow-500);
+  --conclusion-ink: var(--pal-warm-800);
+
+  /* полупрозрачное тёмное: от едва заметного до затемнения под окнами */
+  --overlay-dark-1: rgba(var(--pal-shadow-rgb), 0.08); /* наведение, узор */
+  --overlay-dark-2: rgba(var(--pal-shadow-rgb), 0.18); /* тонкие линии и дорожки */
+  --scrim: rgba(var(--pal-shadow-rgb), 0.5); /* затемнение под диалогом и всеми окнами */
+  /* полупрозрачное светлое */
+  --overlay-light-1: rgba(255, 255, 255, 0.1); /* наведение и активный пункт на тёмном фоне */
+  --overlay-light-2: rgba(255, 255, 255, 0.35);
+  --veil: rgba(255, 255, 255, 0.5); /* матовая белая подложка на бумаге */
+  --veil-paper: rgba(251, 247, 238, 0.92); /* почти непрозрачная бумага */
+}

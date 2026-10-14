@@ -1,0 +1,235 @@
+/* ---------- граф диалогов ---------- */
+
+.dg {
+  /* локальная палитра графа: фон полотна и цвет связей (линии, порты, подписи «назад») */
+  --dg-bg: #f6f0e2;
+  --dg-wire: #8a6440;
+
+  display: grid;
+  grid-template-columns: 15rem 1fr 24rem;
+  height: 100%;
+  min-height: 0;
+}
+.dg__graph-wrap {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  min-height: 0;
+  min-width: 0;
+}
+.dg__graph-bar {
+  display: flex;
+  gap: 0.4rem;
+  padding: 0.4rem 0.6rem;
+  border-bottom: 1px solid var(--border);
+}
+.dg__graph {
+  overflow: auto;
+  position: relative;
+  background:
+    radial-gradient(circle, var(--overlay-dark-1) 1px, transparent 1.5px) 0 0 / 20px 20px,
+    var(--dg-bg);
+}
+.dg__canvas {
+  position: relative;
+}
+.dg__wires {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.dg__wire {
+  fill: none;
+  stroke: var(--dg-wire);
+  stroke-width: 2;
+}
+.dg__wire.is-conditional {
+  stroke-dasharray: 6 4;
+}
+.dg__wire.is-hot {
+  stroke: var(--accent);
+  stroke-width: 3;
+}
+.dg__wire.is-drawing {
+  stroke: var(--stamp);
+  stroke-dasharray: 4 3;
+}
+.dg--embedded {
+  grid-template-columns: 1fr 24rem;
+}
+.ed__list-note {
+  font-size: 0.8em;
+  margin: 0.3rem 0 0;
+}
+.dg__legend {
+  margin-left: auto;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 0.6rem;
+  align-items: center;
+  font-size: 0.78em;
+  color: var(--text-muted);
+}
+.dg__legend-mood {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25em;
+}
+.dg__legend-mood i {
+  display: inline-block;
+  width: 0.9em;
+  height: 0.9em;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  cursor: default;
+}
+.dg-tag {
+  display: inline-block;
+  border-radius: 4px;
+  padding: 0 0.35em;
+  font-size: 0.8em;
+  font-weight: 700;
+  white-space: nowrap;
+  line-height: 1.5;
+}
+.dg-tag--start {
+  background: var(--good-soft);
+  color: var(--good);
+}
+.dg-tag--cond {
+  background: var(--warn-soft);
+  color: var(--text);
+}
+.dg-tag--end {
+  background: var(--stamp);
+  color: var(--text-on-dark);
+}
+.dg-choice__tags {
+  display: flex;
+  gap: 0.2rem;
+  margin-top: 0.15em;
+}
+.dg__help {
+  font-size: 0.85em;
+  background: var(--bg-paper-dim);
+  border-radius: 8px;
+  padding: 0.5rem 0.7rem;
+}
+.dg__help p {
+  margin: 0 0 0.3rem;
+}
+.dg__help ul {
+  margin: 0;
+  padding-left: 1.1em;
+  display: grid;
+  gap: 0.2rem;
+}
+.dg__side-help {
+  font-size: 0.82em;
+  margin: 0;
+}
+.dg-node {
+  position: absolute;
+  background: var(--bg-surface);
+  border: 2px solid var(--border);
+  border-radius: 10px;
+  box-shadow: var(--elev-2);
+  font-size: 0.85em;
+}
+.dg-node[data-selected] {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft), var(--elev-2);
+}
+.dg-node.is-start {
+  border-top: 4px solid var(--good);
+}
+.dg-node__head {
+  display: flex;
+  gap: 0.4em;
+  align-items: center;
+  padding: 0.35em 0.6em;
+  background: var(--tone-soft, var(--bg-paper-dim)); /* тон — по настроению реплики (data-tone) */
+  border-radius: 8px 8px 0 0;
+  cursor: grab;
+}
+.dg-node__speaker {
+  margin-left: auto;
+  color: var(--text-muted);
+  font-size: 0.9em;
+}
+.dg-node__speaker.is-other {
+  color: var(--testimony);
+  font-weight: 700;
+}
+.dg-node__text {
+  padding: 0.4em 0.6em;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.dg-node__effects {
+  padding: 0 0.6em 0.3em;
+  color: var(--border-chrome);
+  font-size: 0.9em;
+}
+.dg-node__choices {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid var(--border);
+}
+.dg-choice {
+  position: relative;
+  padding: 0.3em 1.2em 0.3em 0.6em;
+  border-bottom: 1px dashed var(--border);
+}
+.dg-choice__text {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.dg-choice__port {
+  position: absolute;
+  right: -7px;
+  top: 50%;
+  margin-top: -6px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--dg-wire);
+  border: 2px solid var(--bg-surface);
+  cursor: crosshair;
+}
+.dg-choice__port:hover {
+  background: var(--stamp);
+}
+.dg-node__add {
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 0.3em 0.6em;
+  font-size: 0.9em;
+}
+.dg__side {
+  border-left: 1px solid var(--border);
+  overflow: auto;
+  padding: 0.8rem 1rem;
+  background: var(--bg-paper);
+  display: grid;
+  align-content: start;
+  gap: 0.6rem;
+}
+.dg__side-head {
+  --gap: 0.4rem;
+}
+.dg__side-head h3 {
+  margin: 0 auto 0 0;
+}
+.dg__back {
+  font-size: 11px;
+  fill: var(--dg-wire);
+  font-weight: 700;
+}

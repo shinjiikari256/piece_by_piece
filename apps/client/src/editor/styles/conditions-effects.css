@@ -1,0 +1,178 @@
+/* ---------- чипы-ссылки ---------- */
+.ef--refs {
+  gap: 0.35rem;
+}
+.ef__refhead > .ef__label,
+.ef__refhead > .cond__title {
+  margin-right: auto;
+}
+.ef__chip {
+  min-height: 2rem;
+  padding: 0.2em 0.35em 0.2em 0.7em;
+  font-size: 0.92em;
+  border: 1px solid var(--accent-line);
+  cursor: default;
+}
+.ef__chip.has-art {
+  padding-left: 0.25em;
+}
+.ef__chip-art canvas {
+  height: 1.6em;
+}
+.ef__chip-label {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.4em;
+  min-width: 0;
+}
+.ef__chip-x,
+.cond__remove {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  color: var(--text-muted);
+  padding: 0 0.3em;
+}
+.ef__chip-x:hover {
+  color: var(--bad);
+}
+.ef__chip--flag code {
+  font-family: var(--font-mono);
+  font-size: 0.92em;
+}
+
+/* ---------- условия: только заполненные строки ---------- */
+.cond .cond__row {
+  display: block;
+  padding: 0.4rem 0;
+  border-top: 1px dashed var(--border);
+}
+.cond .cond__row:first-of-type {
+  border-top: none;
+}
+.cond__title {
+  font-size: 0.88em;
+  font-weight: 500;
+  color: var(--text-soft);
+}
+.cond__remove:hover {
+  color: var(--bad);
+}
+.cond > .sel--add {
+  margin-top: 0.3rem;
+}
+
+/* ---------- эффекты ---------- */
+.fx {
+  display: grid;
+  gap: 0.4rem;
+}
+.fx__row {
+  display: grid;
+  grid-template-columns: 9.5rem 1fr auto;
+  gap: 0.5rem;
+  align-items: start;
+  padding: 0.4rem 0.5rem;
+  background: var(--veil);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+.fx__type {
+  font-size: 0.88em;
+  font-weight: 500;
+  color: var(--text-soft);
+  padding-top: 0.45em;
+}
+.fx > .sel--add {
+  justify-self: start;
+}
+.ef__bonus {
+  margin-top: 1.6rem;
+}
+.ef__bonus--on {
+  padding: 0.8rem 1rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--bg-paper-dim);
+}
+.ef__triple {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr auto;
+  gap: 0.8rem;
+  align-items: end;
+}
+.ef__triple label {
+  display: grid;
+  gap: 0.2rem;
+  font-size: 0.85em;
+  color: var(--text-soft);
+}
+.seg {
+  display: inline-flex;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--bg-surface);
+  min-height: var(--ctl-h);
+}
+.seg__btn {
+  border: none;
+  background: transparent;
+  padding: 0.3em 1em;
+  cursor: pointer;
+  font-weight: 500;
+  color: var(--text-soft);
+}
+.seg__btn + .seg__btn {
+  border-left: 1px solid var(--border);
+}
+.dg__side {
+  overflow-x: hidden;
+}
+.dg__side > *,
+.ef__items,
+.ef__items li,
+.ef__item-head {
+  min-width: 0;
+}
+.ef__item-head .ef__item-title {
+  flex: 1 1 0;
+}
+.ef > .seg {
+  justify-self: start;
+}
+.fx .flag-picker {
+  flex-wrap: nowrap;
+}
+.fx .flag-picker .sel {
+  flex: 1;
+}
+.ed__panel > .ef--bool {
+  margin: 0.6rem 0 1rem;
+}
+
+/* эффект: тип и ✕ сверху, выбор — на всю ширину ниже (помещается и в узком сайдбаре) */
+.fx__row {
+  grid-template-columns: 1fr auto;
+  grid-template-areas:
+    "type rm"
+    "arg arg";
+  row-gap: 0.3rem;
+}
+.fx__type {
+  grid-area: type;
+  padding-top: 0;
+}
+.fx__arg {
+  grid-area: arg;
+}
+.fx__row > .cond__remove {
+  grid-area: rm;
+}
+.fx .flag-picker {
+  flex-wrap: wrap;
+}
+.fx .flag-picker .sel {
+  flex: 1 1 12rem;
+  min-width: 0;
+}

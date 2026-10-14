@@ -1,0 +1,257 @@
+/* ---------- Сайт: каркас сайта: корень .site, шапка, логотип, меню пользователя, имя гостя ---------- */
+
+/*
+ * Страницы сайта вокруг игры: шапка, главная, вход, личный кабинет, результаты, пользователи.
+ * Обычные «привычные» страницы; папки остаются только у дел (список дел, вступление).
+ */
+
+.site {
+  --header-h: var(--bar-h);
+  height: 100%;
+  overflow: auto;
+  background: var(--bg-paper-dim);
+  color: var(--text);
+  font-size: 16px;
+}
+
+.site a:where(:not(.btn)) {
+  color: var(--accent);
+}
+
+/* ---------- Шапка ---------- */
+
+/* страница редактирования дела (конструктор): шапку сайта прячем, высота страницы — вся (--header-h используют расчёты высот конструктора) */
+.site--editing {
+  --header-h: 0px;
+}
+.site--editing > .site-header {
+  display: none;
+}
+
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  height: var(--header-h);
+  background: var(--bg-chrome); /* та же крафтовая полоса, что у шапок игры и конструктора */
+  color: var(--text);
+  border-bottom: 3px solid var(--border-chrome);
+}
+.site-header__inner {
+  max-width: 1200px;
+  height: 100%;
+  margin: 0 auto;
+  padding: 0 16px;
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+}
+.logo {
+  /* локальная палитра логотипа: цвета карточек при наведении (большой рисунок — assets/logo-detailed.svg со своей палитрой) */
+  --logo-gold: var(--warn); /* светлее крафта шапки, иначе верхняя карточка сливается с фоном */
+  --logo-red: #e0675a;
+  --logo-blue: #6f9fd8;
+
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  font-weight: 700;
+  font-size: 1.1rem;
+  letter-spacing: 0.02em;
+  color: var(--text) !important;
+  text-decoration: none;
+  white-space: nowrap;
+}
+/* логотип: в покое монохром, при наведении карточки по очереди заливаются цветом (по кругу), тёмный контур остаётся; нить не анимируется */
+.logo__svg {
+  flex: none;
+  display: block;
+}
+.logo__thread {
+  stroke: currentColor;
+}
+.logo__card {
+  fill: var(--bg-paper); /* светлая карточка на крафтовой шапке; закрывает нить под собой */
+  stroke: currentColor;
+  transition: fill 0.2s, stroke 0.2s;
+}
+.logo__pin {
+  fill: currentColor;
+  transition: fill 0.3s;
+}
+/* заливка идёт по кругу: сверху, затем по часовой стрелке */
+.logo:hover .logo__card--c,
+.logo:focus-visible .logo__card--c {
+  transition-delay: 0.12s;
+}
+.logo:hover .logo__card--b,
+.logo:focus-visible .logo__card--b {
+  transition-delay: 0.24s;
+}
+.logo:hover .logo__card--a,
+.logo:focus-visible .logo__card--a {
+  fill: var(--logo-gold);
+}
+.logo:hover .logo__card--b,
+.logo:focus-visible .logo__card--b {
+  fill: var(--logo-red);
+}
+.logo:hover .logo__card--c,
+.logo:focus-visible .logo__card--c {
+  fill: var(--logo-blue);
+}
+/* иконка-логотип на кнопке «Материалы» в игре: монохромная, как остальные иконки; карточки закрашены цветом кнопки */
+.tool .logo__card {
+  fill: var(--bg-paper);
+}
+.tool:hover:not(:disabled) .logo__card {
+  fill: var(--text-on-dark);
+}
+@media (prefers-reduced-motion: reduce) {
+  .logo__card,
+  .logo__pin {
+    transition: none;
+  }
+}
+.site-nav {
+  display: flex;
+  gap: 0.25rem;
+  flex: 1;
+  min-width: 0;
+}
+.site-nav__link {
+  color: var(--text) !important;
+  font-weight: 500;
+  text-decoration: none;
+  padding: 0.45rem 0.75rem;
+  border-radius: 7px;
+  white-space: nowrap;
+}
+.site-nav__link:hover {
+  color: var(--text) !important;
+  background: var(--overlay-dark-1);
+}
+.site-nav__link[aria-current="page"] {
+  color: var(--text) !important;
+  font-weight: 700;
+  background: var(--bg-paper);
+  box-shadow: var(--elev-1);
+}
+.site-header__user {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.avatar {
+  display: inline-grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--bg-chrome);
+  color: var(--bg-inverse);
+  font-weight: 700;
+  font-size: 0.8rem;
+  flex: none;
+}
+.site-header .avatar {
+  background: var(--bg-inverse); /* на крафтовой шапке — тёмный */
+  color: var(--bg-chrome);
+}
+.avatar--big {
+  width: 64px;
+  height: 64px;
+  font-size: 1.4rem;
+}
+
+.user-menu {
+  position: relative;
+}
+.user-menu__button {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font: inherit;
+  color: var(--text);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  padding: 0.2rem 0.6rem 0.2rem 0.2rem;
+  cursor: pointer;
+}
+.user-menu__button:hover,
+.user-menu__button[aria-expanded="true"] {
+  background: var(--overlay-dark-1);
+}
+.user-menu__button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.user-menu__caret {
+  font-size: 0.7em;
+  opacity: 0.7;
+}
+.user-menu__popup {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 8px);
+  min-width: 240px;
+  background: var(--bg-surface);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  box-shadow: var(--elev-3);
+  padding: 0.35rem;
+  display: grid;
+}
+.user-menu__who {
+  display: grid;
+  gap: 0.1rem;
+  padding: 0.55rem 0.7rem 0.6rem;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 0.3rem;
+  font-size: 0.92rem;
+}
+.user-menu__popup a,
+.user-menu__popup button {
+  font: inherit;
+  text-align: left;
+  background: none;
+  border: 0;
+  color: var(--text) !important;
+  text-decoration: none;
+  padding: 0.5rem 0.7rem;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.user-menu__popup a:hover,
+.user-menu__popup button:hover {
+  background: var(--bg-paper-dim);
+}
+.user-menu__popup hr {
+  border: 0;
+  border-top: 1px solid var(--border);
+  margin: 0.3rem 0;
+}
+
+/* имя гостя в шапке */
+.site .site-guest {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.4em;
+  color: var(--text);
+  text-decoration: none;
+  padding: 0.35rem 0.6rem;
+  border-radius: 7px;
+}
+.site .site-guest:hover {
+  background: var(--overlay-dark-1);
+}
+.site-guest span {
+  font-size: 0.75em;
+  padding: 0.05em 0.5em;
+  border-radius: 999px;
+  background: var(--overlay-dark-1);
+  color: var(--text-soft);
+}

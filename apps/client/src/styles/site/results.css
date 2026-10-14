@@ -1,0 +1,108 @@
+/* ---------- Сайт: пагинация и статистика ---------- */
+
+/* ---------- Пагинация ---------- */
+
+.pager {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-top: 0.9rem;
+}
+.pager__pages {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+.pager__btn {
+  font: inherit;
+  min-width: 2.2rem;
+  height: 2.2rem;
+  padding: 0 0.5rem;
+  border-radius: 8px;
+  border: 1px solid var(--border-strong);
+  background: var(--bg-surface);
+  color: var(--text);
+  cursor: pointer;
+}
+.pager__btn:hover:not(:disabled) {
+  border-color: var(--accent);
+}
+.pager__btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+.pager__gap {
+  padding: 0 0.3rem;
+  color: var(--text-muted);
+}
+.toolbar--inline {
+  margin: 0;
+  align-items: center;
+}
+
+/* ---------- Статистика ---------- */
+
+.analytics {
+  display: grid;
+  gap: 1.4rem;
+}
+.analytics__charts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1.4rem;
+}
+.bars h3 {
+  margin: 0 0 0.7rem;
+  font-size: 0.95rem;
+}
+.bars__row {
+  display: grid;
+  grid-template-columns: 9rem 1fr 3rem;
+  gap: 0.6rem;
+  align-items: center;
+  font-size: 0.88rem;
+  margin-bottom: 0.4rem;
+}
+.bars__label {
+  color: var(--text-soft);
+}
+.bars__track {
+  height: 0.7rem;
+  border-radius: 999px;
+  background: var(--bg-paper-dim);
+  overflow: hidden;
+}
+.bars__fill {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: var(--accent);
+}
+.bars__value {
+  text-align: right;
+  font-weight: 600;
+}
+
+.profile-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.1rem;
+}
+.input {
+  /* локальные цвета состояний поля: только чтение — бумага, недоступно — темнее */
+  --input-readonly-bg: var(--bg-paper);
+  --input-disabled-bg: var(--bg-paper-dim);
+}
+.input[readonly] {
+  background: var(--input-readonly-bg);
+}
+.input:disabled {
+  background: var(--input-disabled-bg);
+  color: var(--text-soft);
+  border-color: var(--border);
+  cursor: not-allowed;
+  opacity: 1;
+}

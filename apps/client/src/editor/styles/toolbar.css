@@ -1,0 +1,71 @@
+/* ---------- единый размер элементов управления ---------- */
+.ed {
+  --ctl-h: 2.15rem;
+}
+.ef input:not([type="checkbox"]):not([type="radio"]),
+.ef select,
+.sel,
+.law-ed__fields input,
+.flag-ed input,
+.flag-picker input,
+.flag-input {
+  min-height: var(--ctl-h);
+}
+.ed__bar .btn,
+.ed__bar .ed__icon-btn {
+  min-height: 2.4rem;
+}
+.ed__bar .ed__icon-btn {
+  min-width: 2.4rem;
+}
+/* компактные кнопки внутри строк списков */
+.ef__item-head .btn {
+  min-height: 1.9rem;
+  min-width: 1.9rem;
+  padding: 0.2em 0.5em;
+}
+
+/* ---------- шапка ---------- */
+button.ed__home {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  padding: 0.2rem;
+  display: inline-flex;
+}
+.ed__publish {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4em;
+  min-height: 2.4rem;
+  padding: 0.3em 0.9em;
+  border-radius: 999px;
+  border: 1px dashed var(--border-chrome);
+  background: var(--overlay-light-2);
+  color: var(--text-soft);
+  font-weight: 700;
+  cursor: pointer;
+}
+.ed__publish[aria-pressed="true"] {
+  border-style: solid;
+  border-color: var(--good);
+  background: var(--good-soft);
+  color: var(--good);
+}
+.ed__bar .ed__play,
+.ed__bar .ed__save,
+.ed__bar .ed__help-btn {
+  min-height: 2.4rem;
+  padding: 0.3em 1em;
+  font-size: 0.95rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4em;
+}
+.ed__help-btn[aria-expanded="true"] {
+  background: var(--bg-paper-dim);
+}
+
+.ed__nav-item[aria-current] {
+  font-weight: 700;
+}

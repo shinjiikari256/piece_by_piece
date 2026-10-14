@@ -1,0 +1,52 @@
+/* персонажи */
+.people-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(9.5rem, 1fr));
+  gap: 0.6rem;
+}
+.person-card {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  text-align: center;
+  gap: 0.2em;
+  padding: 0.8rem 0.5rem;
+  border: 2px solid var(--border);
+  border-radius: 10px;
+  background: var(--bg-surface);
+  cursor: pointer;
+  font: inherit;
+}
+.person-card:hover {
+  border-color: var(--accent);
+}
+.person-card .portrait {
+  width: 3.2em;
+  height: 4.8em;
+}
+.person-card__name {
+  font-weight: 700;
+  font-size: 0.92em;
+}
+.person-card__pos {
+  font-size: 0.78em;
+  color: var(--text-muted);
+}
+.person-card__badge {
+  position: absolute;
+  top: 0.4rem;
+  right: 0.4rem;
+  min-width: 1.5em;
+  height: 1.5em;
+  border-radius: 999px;
+  background: var(--accent);
+  color: var(--text-on-dark);
+  font-size: 0.78em;
+  font-weight: 700;
+  display: grid;
+  place-items: center;
+}
+.detail__head .portrait {
+  width: 3em;
+  height: 4.5em;
+}

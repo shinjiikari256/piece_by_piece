@@ -1,0 +1,167 @@
+/* ---------- Диалог ---------- */
+
+.dialogue-backdrop {
+  align-items: end;
+}
+/* диалог — окно-папка внизу экрана: вкладка «Разговор» и крестик сверху, сцена остаётся видна */
+.dialogue-folder {
+  width: min(60rem, 100%);
+  margin-bottom: 1rem;
+  display: flex;
+  flex-direction: column;
+  max-height: calc(100vh - 2rem);
+  animation: rise 0.2s ease-out;
+}
+.dialogue {
+  width: 100%;
+  padding: 1.3rem 1.8rem 1.4rem;
+  border-top: 10px solid var(--bg-chrome);
+  min-height: 0;
+  overflow: auto;
+}
+.dialogue__speaker {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+.portrait {
+  width: 4.5em;
+  height: 6.75em;
+  image-rendering: pixelated;
+  background: var(--bg-paper-dim);
+  border-radius: 8px;
+  border: 2px solid var(--border);
+  flex: none;
+}
+.dialogue__name {
+  font-weight: 700;
+  font-size: 1.2em;
+}
+.dialogue__position {
+  color: var(--text-muted);
+  font-size: 0.9em;
+}
+.mood {
+  display: inline-block;
+  margin-top: 0.3em;
+  font-size: 0.8em;
+  padding: 0.05em 0.5em;
+  border-radius: 999px;
+  background: var(--tone-soft, var(--bg-paper-dim));
+  color: var(--tone-ink, inherit);
+}
+.dialogue__text {
+  font-size: 1.15em;
+  margin: 0.9rem 0;
+  animation: fade 0.25s ease-out;
+}
+.dialogue__choices {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.choice {
+  width: 100%;
+  text-align: left;
+  border: 2px solid var(--border);
+  background: var(--bg-surface);
+  border-radius: 8px;
+  padding: 0.55em 0.8em;
+  cursor: pointer;
+  display: flex;
+  align-items: baseline;
+  gap: 0.6em;
+}
+/* наведение — только заливка; фокус с клавиатуры — только рамка и кольцо */
+.choice:hover {
+  background: var(--accent-soft);
+}
+.choice:focus-visible {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 35%, transparent);
+}
+.choice__num {
+  font-family: var(--font-mono);
+  color: var(--text-muted);
+}
+.choice__tag {
+  font-size: 0.75em;
+  background: var(--warn);
+  padding: 0.05em 0.45em;
+  border-radius: 4px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.choice__text {
+  flex: 1;
+}
+.choice.is-asked {
+  background: var(--bg-paper-dim);
+  color: var(--text-muted);
+}
+.choice.is-asked:hover {
+  color: var(--text);
+}
+.choice__asked {
+  color: var(--good);
+  font-weight: 700;
+}
+
+/* ---------- Карточки улик ---------- */
+
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr));
+  gap: 0.6rem;
+  align-content: start;
+}
+.evidence-card {
+  text-align: left;
+  display: grid;
+  align-content: start; /* карточки в ряду одной высоты, но содержимое не растягивается: чип, название и текст на одних местах */
+  gap: 0.25em;
+  padding: 0.7em 0.8em;
+  background: var(--bg-surface);
+  border: 2px solid transparent; /* рамки в покое нет; 2 px резервируют место под выбор */
+  border-radius: 8px;
+  box-shadow: var(--elev-1); /* вместо рамки: карточка отделяется от фона лёгкой тенью */
+  cursor: default;
+}
+button.evidence-card {
+  cursor: pointer;
+}
+/* наведение заливает карточку мягким цветом её вида (улика, показания, вывод), выбор — тонкая рамка accent; вид показывает чип */
+button.evidence-card:hover {
+  background: var(--tone-soft, var(--bg-paper-dim));
+}
+.evidence-card__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.35em;
+}
+/* чип вида: одинаковой ширины у всех видов, цвет вида — заливка чипа */
+.evidence-card__type {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35em;
+  min-width: 8.6em;
+  padding: 0.15em 0.7em;
+  border-radius: 999px;
+  background: var(--tone, var(--bg-paper-dim));
+  color: var(--tone-on, var(--text));
+  font-size: 0.72em;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.evidence-card__desc {
+  font-size: 0.85em;
+  color: var(--text-soft);
+}
+.evidence-card.is-compact {
+  padding: 0.5em 0.6em;
+  height: 100%;
+}

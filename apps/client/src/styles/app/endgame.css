@@ -1,0 +1,276 @@
+/* ---------- Подсказки ---------- */
+
+.hints {
+  display: grid;
+  gap: 0.5rem;
+}
+.hints li {
+  border: 1px dashed var(--border);
+  border-radius: 8px;
+  padding: 0.6em 0.8em;
+}
+.hints li[data-open] {
+  border-style: solid;
+  background: var(--accent-soft);
+}
+.hints p {
+  margin: 0.2em 0 0;
+}
+.hints__level {
+  font-weight: 700;
+  font-size: 0.85em;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* ---------- Финал ---------- */
+
+.final {
+  width: min(60rem, 100%);
+  margin: 0 auto;
+  padding: 1.8rem 2rem;
+  border-top: 10px solid var(--accent);
+}
+.banner {
+  background: var(--stamp);
+  color: var(--text-on-dark);
+  padding: 0.7em 1em;
+  border-radius: 8px;
+  font-weight: 500;
+}
+.question {
+  margin-top: 1.5rem;
+}
+.question h2 {
+  font-size: 1.2em;
+}
+.options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.option {
+  border: 2px solid var(--border);
+  background: var(--bg-surface);
+  border-radius: 8px;
+  padding: 0.55em 0.9em;
+  cursor: pointer;
+  text-align: left;
+}
+.option:hover {
+  border-color: var(--accent);
+}
+
+/* ---------- Результат ---------- */
+.result {
+  width: min(60rem, 100%);
+  margin: 0 auto;
+  padding: 1.8rem 2rem 2rem;
+  border-top: 10px solid var(--bg-chrome);
+}
+.result__header {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+.score {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  color: var(--stamp);
+  border: 4px solid var(--stamp);
+  border-radius: 12px;
+  padding: 0.1em 0.5em;
+  transform: rotate(-4deg);
+  animation: stamp 0.45s ease-out;
+}
+.score__total {
+  font-size: 3.2em;
+}
+.score__max {
+  font-size: 1.4em;
+}
+.breakdown {
+  list-style: none;
+  padding: 0;
+  margin: 1.2rem 0 1.5rem;
+  display: grid;
+  gap: 0.45rem;
+}
+.breakdown li {
+  display: grid;
+  grid-template-columns: 13rem 1fr 4rem;
+  gap: 1rem;
+  align-items: center;
+}
+.breakdown b {
+  text-align: right;
+  font-family: var(--font-mono);
+}
+.breakdown__bar {
+  height: 0.75rem;
+  background: var(--bg-paper-dim);
+  border-radius: 999px;
+  overflow: hidden;
+}
+.breakdown__bar span {
+  display: block;
+  height: 100%;
+  background: var(--good);
+}
+.breakdown__penalty {
+  color: var(--bad);
+}
+@media (max-width: 640px) {
+  .breakdown li {
+    grid-template-columns: 1fr 4rem;
+  }
+  .breakdown__bar {
+    display: none !important;
+  }
+}
+.result section {
+  margin-top: 1.6rem;
+}
+.answer {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.7em 0.9em;
+  margin-bottom: 0.5rem;
+  background: var(--bg-surface);
+}
+.answer__head {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  font-weight: 500;
+  margin-bottom: 0.3em;
+}
+.answer p {
+  margin: 0.2em 0;
+  font-size: 0.92em;
+}
+.debrief h3 {
+  margin-top: 1.2rem;
+  color: var(--accent);
+}
+.key-evidence li {
+  margin-bottom: 0.45em;
+  line-height: 1.45;
+}
+.qual-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.92em;
+  background: var(--bg-surface);
+}
+.qual-table th,
+.qual-table td {
+  text-align: left;
+  vertical-align: top;
+  padding: 0.5em 0.6em;
+  border-bottom: 1px solid var(--border);
+}
+.qual-table th {
+  width: 14em;
+}
+.applies {
+  font-weight: 700;
+  white-space: nowrap;
+  color: var(--tone-ink);
+}
+.sources {
+  font-size: 0.92em;
+}
+.disclaimer {
+  margin-top: 1.2rem;
+  font-size: 0.88em;
+  color: var(--text-soft);
+  background: var(--bg-paper-dim);
+  border-radius: 8px;
+  padding: 0.8em 1em;
+}
+
+/* ---------- Тосты ---------- */
+
+.toasts {
+  position: fixed;
+  top: 3.6rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: grid;
+  justify-items: center;
+  gap: 0.5rem;
+  z-index: 100;
+  pointer-events: none;
+}
+.toast {
+  background: var(--text);
+  color: var(--text-on-dark);
+  padding: 0.6em 1em;
+  border-radius: 8px;
+  border-left: 5px solid var(--warn);
+  box-shadow: var(--elev-4);
+  animation: drop 0.25s ease-out;
+  max-width: min(32rem, calc(100vw - 2rem));
+}
+
+/* ---------- Анимации ---------- */
+
+@keyframes rise {
+  from {
+    transform: translateY(12px);
+    opacity: 0;
+  }
+}
+@keyframes fade {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes drop {
+  from {
+    transform: translateY(-10px);
+    opacity: 0;
+  }
+}
+@keyframes pulse {
+  50% {
+    opacity: 0.55;
+  }
+}
+@keyframes stamp {
+  from {
+    transform: rotate(-4deg) scale(1.8);
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .intro,
+  .final,
+  .result {
+    padding: 1.5rem 1.1rem;
+  }
+  .stamp {
+    display: none;
+  }
+  .intro h1 {
+    padding-right: 0;
+  }
+  .tool__label {
+    display: none;
+  }
+  .tool kbd {
+    display: none;
+  }
+}

@@ -1,0 +1,27 @@
+/* ---------- Индикатор загрузки (ui/loader.tsx) ---------- */
+
+.loader {
+  min-height: 40vh;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 0.8rem;
+}
+.loader__ring {
+  width: 2.2rem;
+  height: 2.2rem;
+  border: 3px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: loader-spin 0.8s linear infinite;
+}
+@keyframes loader-spin {
+  to {
+    rotate: 360deg;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .loader__ring {
+    animation-duration: 2.4s;
+  }
+}

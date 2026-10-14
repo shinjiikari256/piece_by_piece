@@ -1,0 +1,80 @@
+/* ---------- Штампы на карточке дела: «Ведётся N%» и результат ---------- */
+
+/* штампы на карточке дела справа: «Ведётся N%» и результат; клик — продолжить / открыть результат */
+.case-files__item {
+  position: relative;
+}
+.case-files__item.has-stamps-1 .case-file__body {
+  padding-right: 9.5rem;
+}
+.case-files__item.has-stamps-2 .case-file__body {
+  padding-right: 18rem;
+}
+.case-stamps {
+  position: absolute;
+  right: 1.2rem;
+  top: calc(50% + 0.9rem);
+  translate: 0 -50%;
+  display: flex;
+  gap: 0.9rem;
+  align-items: center;
+  transition: translate 0.12s; /* поднимается вместе с карточкой дела при наведении */
+}
+.case-files__item:hover .case-stamps {
+  translate: 0 calc(-50% - 2px);
+}
+.case-stamp {
+  display: grid;
+  justify-items: center;
+  min-width: 6.5rem;
+  rotate: -4deg;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  color: var(--stamp);
+  background: transparent;
+  border: 3px solid currentColor;
+  border-radius: 10px;
+  padding: 0.15em 0.5em 0.1em;
+  line-height: 1.1;
+  cursor: pointer;
+}
+button.case-stamp:hover {
+  background: var(--bg-surface);
+  box-shadow: var(--elev-2);
+}
+.case-stamp__label {
+  font-size: 0.68em;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.case-stamp__total {
+  font-size: 1.7em;
+}
+.case-stamp__max {
+  font-size: 0.95em;
+}
+/* «Ведётся N%»: пунктирная синяя, наклон в другую сторону; наведение — как у штампа результата */
+.case-stamp--progress {
+  color: var(--accent);
+  border-style: dashed;
+  rotate: 3deg;
+}
+.case-stamp--progress.is-outdated {
+  color: var(--stamp);
+  padding: 0.55em 0.6em;
+}
+@media (max-width: 640px) {
+  .case-files__item.has-stamps-1 .case-file__body,
+  .case-files__item.has-stamps-2 .case-file__body {
+    padding-right: 1.1rem;
+    padding-bottom: 4.6rem;
+  }
+  .case-stamps {
+    top: auto;
+    bottom: 0.7rem;
+    translate: none;
+  }
+  .case-files__item:hover .case-stamps {
+    translate: 0 -2px;
+  }
+}

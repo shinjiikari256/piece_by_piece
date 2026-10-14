@@ -1,0 +1,33 @@
+# Локально: `pnpm db:up` (только база) + `pnpm server:dev` + `pnpm dev`.
+# Целиком в контейнерах: `docker compose up --build` → API на :8787.
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: neraskrytoe
+      POSTGRES_PASSWORD: neraskrytoe
+      POSTGRES_DB: neraskrytoe
+    ports:
+      - "5433:5432"
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U neraskrytoe"]
+      interval: 2s
+      timeout: 3s
+      retries: 15
+
+  api:
+    build: .
+    environment:
+      DATABASE_URL: postgres://neraskrytoe:neraskrytoe@db:5432/neraskrytoe
+      ADMIN_LOGIN: ${ADMIN_LOGIN:-admin}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-admin12345}
+    ports:
+      - "8787:8787"
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  db-data:

@@ -1,0 +1,43 @@
+/* ---------- Окно подтверждения (вместо confirm/alert) ---------- */
+
+/* ---------- окно подтверждения (вместо confirm/alert) ---------- */
+.ask-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  background: var(--scrim);
+}
+.ask {
+  width: min(30rem, 100%);
+  padding: 1.2rem 1.4rem;
+  border-radius: 12px;
+  box-shadow: var(--elev-4);
+  display: grid;
+  gap: 0.5rem;
+}
+.ask h3 {
+  margin: 0;
+  font-size: 1.15rem;
+}
+.ask p {
+  margin: 0;
+  color: var(--text-soft);
+  line-height: 1.45;
+}
+.ask__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.6rem;
+  margin-top: 0.6rem;
+}
+.btn.btn--danger-solid {
+  background: var(--bad);
+  border-color: var(--bad);
+  color: var(--text-on-dark);
+}
+.btn.btn--danger-solid:hover:not(:disabled) {
+  background: var(--bad-strong);
+}

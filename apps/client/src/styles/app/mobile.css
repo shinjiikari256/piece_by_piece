@@ -1,0 +1,182 @@
+/* ---------- Мобильная версия ---------- */
+
+.stage {
+  touch-action: none;
+}
+.touch {
+  /* локальная палитра сенсорного управления: светлые полупрозрачные заливка и рамки поверх игры */
+  --touch-stick-fill: rgba(251, 247, 238, 0.28);
+  --touch-stick-edge: rgba(251, 247, 238, 0.55);
+  --touch-action-edge: rgba(251, 247, 238, 0.7);
+
+  position: absolute;
+  inset: auto 0 0 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  padding: 1rem 1.2rem;
+  pointer-events: none;
+  z-index: 5;
+}
+.touch__stick {
+  pointer-events: auto;
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background: var(--touch-stick-fill);
+  border: 2px solid var(--touch-stick-edge);
+  display: grid;
+  place-items: center;
+  touch-action: none;
+}
+.touch__knob {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: var(--veil-paper);
+  box-shadow: var(--elev-2);
+}
+.touch__action {
+  pointer-events: auto;
+  width: 78px;
+  height: 78px;
+  border-radius: 50%;
+  border: 3px solid var(--touch-action-edge);
+  background: var(--scrim);
+  font-size: 2rem;
+  opacity: 0.55;
+}
+.touch__action.is-ready {
+  background: var(--warn);
+  opacity: 1;
+  animation: pulse 1.2s infinite;
+}
+body {
+  touch-action: manipulation;
+}
+@media (pointer: coarse) {
+  kbd {
+    display: none !important;
+  }
+}
+@media (max-width: 640px), (max-height: 500px) {
+  :root {
+    font-size: 15px;
+  }
+  .tool__label {
+    display: none;
+  }
+  .topbar {
+    padding: 0.35rem 0.6rem;
+    gap: 0.4rem;
+    flex-wrap: nowrap;
+  }
+  .topbar__title,
+  .progress {
+    display: none;
+  }
+  .topbar__stats {
+    gap: 0.6rem;
+    font-size: 0.9em;
+    flex-wrap: nowrap;
+  }
+  .bottombar {
+    padding: 0.35rem;
+    gap: 0.3rem;
+    flex-wrap: nowrap;
+  }
+  .tool {
+    padding: 0.45em 0.6em;
+    font-size: 1.15em;
+  }
+  .tool--decide .tool__label {
+    display: none;
+  }
+  .modal-backdrop {
+    padding: 0;
+    place-items: stretch;
+  }
+  .modal,
+  .modal--wide {
+    width: 100%;
+    max-height: 100vh;
+    height: 100%;
+    border-radius: 0;
+  }
+  .dialogue-backdrop {
+    padding: 0;
+  }
+  .dialogue-folder {
+    margin: 0;
+    max-height: 80vh;
+  }
+  .dialogue {
+    border-radius: 12px 12px 0 0;
+    padding: 0.8rem 0.9rem;
+  }
+  .portrait {
+    width: 3.2em;
+    height: 4.8em;
+  }
+  .dialogue__text {
+    font-size: 1.05em;
+  }
+  .card-grid {
+    grid-template-columns: repeat(auto-fill, minmax(9.5rem, 1fr));
+  }
+  .pins {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.4rem;
+  }
+  .pin-slot {
+    min-height: 5.5rem;
+  }
+  .pinned {
+    padding: 1rem 0.4rem 0.4rem;
+    font-size: 0.82em;
+  }
+  .board {
+    padding: 0.8rem 0.6rem;
+  }
+  .toasts {
+    top: 3rem;
+    width: calc(100vw - 2rem);
+  }
+  .result,
+  .final {
+    padding: 1.2rem 1rem;
+  }
+  .score__total {
+    font-size: 2.4em;
+  }
+  .qual-table th {
+    width: auto;
+  }
+  .menu {
+    padding: 1rem 0.6rem;
+  }
+}
+
+.timer__bonus {
+  font-size: 0.8em;
+  color: var(--good);
+}
+.timer.is-over {
+  display: inline-flex;
+  align-items: center;
+  background: transparent;
+  color: var(--text-muted);
+  opacity: 0.7;
+  cursor: help;
+  padding: 0.25em 0.4em;
+}
+.intro__bonus {
+  background: var(--good-soft);
+  border-radius: 8px;
+  padding: 0.6em 0.9em;
+  color: var(--good);
+  margin-top: 1rem;
+}
+.breakdown__bonus {
+  color: var(--good);
+}

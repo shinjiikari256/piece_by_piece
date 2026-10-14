@@ -1,0 +1,97 @@
+/* ---------- окно флага ---------- */
+.ed-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 900;
+  display: grid;
+  place-items: center;
+  background: var(--scrim);
+}
+.ed-modal__box {
+  width: min(28rem, 92vw);
+  display: grid;
+  gap: 0.6rem;
+  padding: 1.1rem 1.3rem;
+  background: var(--bg-paper);
+  border-radius: 12px;
+  box-shadow: var(--elev-4);
+}
+.ed-modal__box input {
+  width: 100%;
+  box-sizing: border-box;
+}
+.ed-modal__box h3 {
+  margin: 0;
+}
+.ed-modal__box .muted {
+  margin: 0;
+  font-size: 0.88em;
+}
+.ed-modal__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+.ef__hint.is-bad {
+  color: var(--bad);
+}
+/* окно флага: поле ключа на всю ширину окна */
+.ed-modal .flag-input {
+  max-width: none;
+}
+
+/* ---------- флаги ---------- */
+.flags {
+  list-style: none;
+  margin: 0.8rem 0 0;
+  padding: 0;
+  display: grid;
+  gap: 0.4rem;
+}
+.is-warn {
+  color: var(--bad);
+}
+
+/* ---------- раздел «Флаги»: правка и использование ---------- */
+.flag-ed {
+  display: grid;
+  gap: 0.9rem;
+}
+.flag-uses {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.35rem;
+}
+.flag-use {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 9.5rem 1fr auto;
+  gap: 0.6rem;
+  align-items: center;
+  text-align: left;
+  font: inherit;
+  font-size: 0.92em;
+  padding: 0.5rem 0.7rem;
+  background: var(--bg-paper);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  cursor: pointer;
+}
+.flag-use:hover {
+  border-color: var(--accent);
+  background: var(--bg-surface);
+}
+.flag-use svg {
+  transform: rotate(180deg);
+  color: var(--text-muted);
+}
+.flag-use__kind {
+  font-size: 0.85em;
+  font-weight: 700;
+  color: var(--tone-ink, var(--text));
+}
+.flag-ed__delete {
+  justify-self: start;
+}

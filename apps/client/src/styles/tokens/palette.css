@@ -1,0 +1,54 @@
+/* ---------- Сырая палитра: только значения, по оттенку и ступени. Компоненты её не используют — только роли (roles.css). ---------- */
+
+:root {
+  /* тёплые нейтральные: от почти чёрного коричневого до бумаги */
+  --pal-warm-950: #2b221b;
+  --pal-warm-900: #2b231c;
+  --pal-warm-850: #3a2e25;
+  --pal-warm-800: #644a2b;
+  --pal-warm-700: #5d5247;
+  --pal-warm-500: #887a6b;
+  --pal-warm-300: #cdbfa3;
+  --pal-warm-200: #e0d4bd;
+  --pal-warm-100: #f3ecdc;
+  --pal-warm-50: #fbf7ee;
+  --pal-white: #fff;
+  /* крафт */
+  --pal-kraft-400: #d4b07a;
+  --pal-kraft-600: #b48d55;
+  /* печатный красно-коричневый */
+  --pal-stamp: #a6412b;
+  /* синий */
+  --pal-blue-700: #2b4c7e;
+  --pal-blue-800: #23406b;
+  --pal-blue-200: #c9d6ea;
+  --pal-blue-100: #e3ebf7;
+  /* зелёный */
+  --pal-green-700: #256640;
+  --pal-green-600: #2e7d4f;
+  --pal-green-200: #bfe0cb;
+  --pal-green-100: #e3f3e8;
+  /* красный */
+  --pal-red-700: #8f2e24;
+  --pal-red-600: #b03a2e;
+  --pal-red-200: #efc3bd;
+  --pal-red-100: #fbe7e4;
+  /* жёлтый */
+  --pal-yellow-500: #e0b23c;
+  --pal-yellow-400: #f6d55c;
+  --pal-yellow-300: #ecd27a;
+  --pal-yellow-100: #fdf2cd;
+  --pal-yellow-50: #fff7d6;
+  /* голубой (улика) */
+  --pal-cyan-700: #1f6b8a;
+  --pal-cyan-600: #2f8fb8;
+  --pal-cyan-200: #b9dcea;
+  --pal-cyan-100: #e3f1f8;
+  /* фиолетовый (показания) */
+  --pal-purple-700: #6b4480;
+  --pal-purple-600: #8e5ea2;
+  --pal-purple-200: #dcc6e6;
+  --pal-purple-100: #f1e8f6;
+  /* основа для тёмных полупрозрачных (тени, затемнение): одного тёплого оттенка */
+  --pal-shadow-rgb: 20, 12, 4;
+}

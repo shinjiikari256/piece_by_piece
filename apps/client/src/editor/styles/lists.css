@@ -1,0 +1,68 @@
+/* ---------- списки элементов ---------- */
+.ed__list-add {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35em;
+  width: 100%;
+  min-height: 2.15rem;
+  border: 1px dashed var(--border-strong);
+  background: var(--veil);
+  border-radius: 8px;
+  color: var(--text-soft);
+  font-weight: 500;
+  cursor: pointer;
+  margin-bottom: 0.3rem;
+}
+.ed__list-add:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: var(--bg-surface);
+}
+.ed__row {
+  position: relative;
+}
+.ed__row-tools {
+  position: absolute;
+  right: 0.3rem;
+  top: 50%;
+  transform: translateY(-50%);
+  display: none;
+  gap: 2px;
+}
+.ed__row:hover .ed__row-tools {
+  display: flex;
+}
+.ed__row-tools button {
+  width: 1.7rem;
+  height: 1.7rem;
+  display: inline-grid;
+  place-items: center;
+  border: 1px solid var(--border);
+  background: var(--bg-surface);
+  border-radius: 6px;
+  cursor: pointer;
+  color: var(--text-soft);
+}
+.ed__row-tools button:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.ed__row-tools button.is-danger:hover {
+  border-color: var(--bad);
+  color: var(--bad);
+}
+.ed__row:hover .ed__item-text {
+  padding-right: 3.8rem;
+}
+.ed__item-pair {
+  display: inline-flex;
+  flex: none;
+}
+.ed__item-pair canvas + canvas {
+  margin-left: -6px;
+}
+.ed__list-empty {
+  margin: 0.4rem;
+}
+

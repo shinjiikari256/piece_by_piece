@@ -1,0 +1,336 @@
+/* ---------- выбор плитками ---------- */
+
+.tiles-picker {
+  display: grid;
+  gap: 0.4rem;
+  max-height: 22rem;
+  overflow: auto;
+  padding: 0.2rem;
+}
+.tiles-picker--look {
+  grid-template-columns: repeat(auto-fill, minmax(6.5rem, 1fr));
+}
+.tiles-picker--sprite {
+  grid-template-columns: repeat(auto-fill, minmax(7rem, 1fr));
+}
+.tile-pick {
+  display: grid;
+  justify-items: center;
+  align-content: start;
+  gap: 0.3rem;
+  padding: 0.5rem 0.3rem;
+  border: 2px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg-surface);
+  cursor: pointer;
+  font: inherit;
+}
+.tile-pick:hover {
+  border-color: var(--accent);
+}
+.tile-pick.is-taken {
+  opacity: 0.45;
+}
+.tile-pick__art {
+  height: 72px;
+  display: grid;
+  place-items: center;
+}
+.tile-pick__label {
+  font-size: 0.78em;
+  line-height: 1.2;
+  text-align: center;
+}
+.art-thumb {
+  image-rendering: pixelated;
+  display: block;
+}
+
+/* компактные плитки в узком инспекторе */
+.lm__inspector .tiles-picker--sprite {
+  grid-template-columns: repeat(auto-fill, minmax(4.6rem, 1fr));
+  max-height: 13rem;
+  gap: 0.25rem;
+}
+.lm__inspector .tile-pick {
+  padding: 0.3rem 0.15rem;
+}
+.lm__inspector .tile-pick__art {
+  height: 40px;
+}
+.lm__inspector .tile-pick__art .art-thumb {
+  max-width: 56px;
+  max-height: 38px;
+  width: auto !important;
+  height: auto !important;
+}
+.lm__inspector .tile-pick__label {
+  font-size: 0.68em;
+}
+
+/* ---------- редактор внешности ---------- */
+
+.ed__subhead {
+  margin: 1.4rem 0 0.6rem;
+}
+.look-ed {
+  display: grid;
+  grid-template-columns: 15rem minmax(0, 1fr);
+  gap: 1.2rem;
+  align-items: start;
+  background: var(--veil);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1rem;
+}
+.look-ed__preview {
+  position: sticky;
+  top: 0;
+  display: grid;
+  justify-items: center;
+  gap: 0.6rem;
+}
+.look-ed__big {
+  width: 192px;
+  height: 168px;
+  image-rendering: pixelated;
+  border-radius: 10px;
+  border: 2px solid var(--border);
+}
+.look-ed__frames {
+  display: flex;
+  gap: 0.4rem;
+}
+.look-ed__frame canvas,
+.look-ed__head canvas {
+  image-rendering: pixelated;
+  display: block;
+}
+.look-ed__frame canvas {
+  width: 48px;
+  height: 72px;
+  background: var(--bg-paper-dim);
+  border-radius: 6px;
+}
+.look-ed__head {
+  width: 40px;
+  height: 34px;
+  overflow: hidden;
+  display: block;
+}
+.look-ed__head canvas {
+  width: 40px;
+  height: 60px;
+}
+.look-ed__base {
+  margin: 0;
+  font-size: 0.85em;
+  color: var(--text-muted);
+  text-align: center;
+}
+.look-ed__controls {
+  display: grid;
+  gap: 0.9rem;
+}
+.look-ed__group h4 {
+  margin: 0 0 0.4rem;
+  font-size: 0.8em;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-soft);
+}
+.look-ed__presets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+}
+.look-ed__preset {
+  border: 2px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg-surface);
+  padding: 0.15rem 0.3rem;
+  cursor: pointer;
+}
+.look-ed__options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  margin-bottom: 0.5rem;
+}
+.look-ed__option {
+  display: grid;
+  justify-items: center;
+  gap: 0.15rem;
+  border: 2px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg-surface);
+  padding: 0.3rem 0.4rem;
+  cursor: pointer;
+  font-size: 0.75em;
+}
+.look-ed__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  margin-bottom: 0.4rem;
+}
+.look-ed__chip {
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--bg-surface);
+  padding: 0.25em 0.8em;
+  cursor: pointer;
+}
+.look-ed__colors {
+  --gap: 0.3rem;
+}
+.swatch-dot {
+  width: 1.7rem;
+  height: 1.7rem;
+  border-radius: 50%;
+  border: 2px solid var(--overlay-dark-2);
+  cursor: pointer;
+  padding: 0;
+  position: relative;
+  display: grid;
+  place-items: center;
+}
+.swatch-dot[aria-pressed="true"] {
+  outline: 3px solid var(--accent);
+  outline-offset: 1px;
+}
+.swatch-dot--custom {
+  /* локальная палитра кружка «свой цвет»: радуга для conic-gradient и обводка буквы; в общие токены не выносим */
+  --swatch-red: #e74c3c;
+  --swatch-yellow: #f1c40f;
+  --swatch-green: #2ecc71;
+  --swatch-blue: #3498db;
+  --swatch-purple: #9b59b6;
+  --swatch-text-outline: #000;
+
+  background: conic-gradient(var(--swatch-red), var(--swatch-yellow), var(--swatch-green), var(--swatch-blue), var(--swatch-purple), var(--swatch-red));
+  color: var(--text-on-dark);
+  font-weight: 700;
+  text-shadow: 0 0 3px var(--swatch-text-outline);
+  overflow: hidden;
+}
+.swatch-dot--custom input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+@media (max-width: 1100px) {
+  .look-ed {
+    grid-template-columns: 1fr;
+  }
+  .look-ed__preview {
+    position: static;
+  }
+}
+
+.look-ed__controls {
+  min-height: 22rem;
+  align-content: start;
+}
+
+/* очная ставка: вкладки «Настройки / Разговор» */
+.conf-panel {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  min-height: 0;
+  min-width: 0;
+  height: 100%;
+}
+.conf-panel > .ed__panel {
+  overflow: auto;
+}
+.conf-panel > .dg {
+  min-height: 0;
+}
+
+.ed__note {
+  font-size: 0.88em;
+  background: var(--bg-paper-dim);
+  border-radius: 6px;
+  padding: 0.45rem 0.6rem;
+  margin-bottom: 0.7rem;
+}
+.ed__note .is-warn {
+  color: var(--bad);
+  font-weight: 700;
+}
+.ef__chip-art {
+  display: inline-flex;
+  align-items: center;
+  margin-right: 0.35em;
+  vertical-align: middle;
+}
+.ef__chip-art canvas {
+  height: 1.4em;
+  width: auto;
+}
+.attach-src {
+  display: grid;
+  gap: 0.35rem;
+}
+.attach-src__row {
+  display: flex;
+  gap: 0.35rem;
+  align-items: center;
+}
+.attach-src__row input {
+  flex: 1;
+}
+.attach-src__preview {
+  max-width: 16rem;
+  max-height: 10rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  object-fit: contain;
+  background: var(--bg-surface);
+}
+
+/* справка по разделу */
+.ed__help {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 6px);
+  width: min(26rem, 90vw);
+  z-index: 40;
+  background: var(--bg-paper);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  box-shadow: var(--elev-4);
+  padding: 0.7rem 0.9rem;
+  font-size: 0.9em;
+}
+.ed__help ul {
+  margin: 0.4rem 0;
+  padding-left: 1.1em;
+  display: grid;
+  gap: 0.3rem;
+}
+.ed__help p {
+  margin: 0.4rem 0 0;
+  font-size: 0.9em;
+}
+
+/* вход в конструктор */
+.ef__item-title {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.dg__graph-bar {
+  flex-wrap: wrap;
+  align-items: center;
+}
+.dg__graph-bar .btn {
+  white-space: nowrap;
+}
+
+.conf-panel .ef__add-optional {
+  margin-bottom: 0.6rem;
+}

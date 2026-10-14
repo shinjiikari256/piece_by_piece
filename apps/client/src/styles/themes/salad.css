@@ -1,0 +1,72 @@
+/* ---------- Тема «салатная» (проверка слоя ролей): включается `?theme=salad` в адресе ---------- */
+/* Переопределяются только роли (roles.css) и основа теней; компоненты, эффекты и разметка не меняются. Игровое поле и логотип темой не затрагиваются. */
+
+:root[data-theme="salad"] {
+  --pal-shadow-rgb: 12, 34, 12;
+
+  --bg-page: #2e4a2b;
+  --bg-inverse: #213820;
+  --bg-chrome: #a9d38f;
+  --bg-paper: #f5fbea;
+  --bg-paper-dim: #e7f4d6;
+  --bg-surface: #ffffff;
+
+  --text: #1d2e18;
+  --text-soft: #44583b;
+  --text-muted: #78906b;
+  --text-on-dark: #ffffff;
+  --text-on-chrome: #27481f;
+
+  --border: #d0e4b9;
+  --border-strong: #b6d298;
+  --border-chrome: #6fa35a;
+
+  --stamp: #c2410c;
+
+  --accent: #d9480f;
+  --accent-soft: #ffe9d9;
+  --accent-line: #ffd1b0;
+  --accent-strong: #b23a0b;
+  --accent-ink: #8f2f08;
+
+  --good: #3a8f2e;
+  --good-soft: #e3f5dc;
+  --good-line: #b8e0ab;
+  --good-strong: #2d7223;
+  --good-ink: #2d7223;
+
+  --warn: #f2e04b;
+  --warn-soft: #fbf5c9;
+  --warn-line: #e6d96a;
+  --warn-strong: #c9b21f;
+  --warn-ink: #5c5410;
+
+  --bad: #c2255c;
+  --bad-soft: #fde4ee;
+  --bad-line: #f3b7cf;
+  --bad-strong: #a01b49;
+  --bad-ink: #a01b49;
+
+  --evidence: #1a9c8a;
+  --evidence-soft: #dcf5f0;
+  --evidence-line: #a9e0d6;
+  --evidence-strong: #137a6b;
+  --evidence-ink: #137a6b;
+
+  --testimony: #a0306e;
+  --testimony-soft: #fbe3f0;
+  --testimony-line: #eebad6;
+  --testimony-strong: #7f2556;
+  --testimony-ink: #7f2556;
+
+  --conclusion: #f2e04b;
+  --conclusion-soft: #fdf8d3;
+  --conclusion-line: #e6d96a;
+  --conclusion-strong: #c9b21f;
+  --conclusion-ink: #5c5410;
+
+  --overlay-dark-1: rgba(var(--pal-shadow-rgb), 0.08);
+  --overlay-dark-2: rgba(var(--pal-shadow-rgb), 0.18);
+  --scrim: rgba(var(--pal-shadow-rgb), 0.5);
+  --veil-paper: rgba(245, 251, 234, 0.92);
+}

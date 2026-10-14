@@ -1,0 +1,78 @@
+/* ---------- Сайт: формы, вход и регистрация, папка входа ---------- */
+
+/* ---------- Формы ---------- */
+
+.form {
+  display: grid;
+  gap: 1rem;
+}
+.field {
+  display: grid;
+  gap: 0.3rem;
+  min-width: 0;
+}
+.field__label {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--text-soft);
+}
+.field__hint {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+.form__check {
+  display: flex;
+  gap: 0.7rem;
+  align-items: flex-start;
+  font-size: 0.88rem;
+  color: var(--text-soft);
+  line-height: 1.45;
+  cursor: pointer;
+}
+.form__check input {
+  margin-top: 0.15em;
+  width: 1.1em;
+  height: 1.1em;
+  flex: none;
+  accent-color: var(--accent);
+}
+.form__ok {
+  margin: 0;
+  color: var(--good);
+  font-size: 0.9rem;
+}
+.form__note {
+  margin: 0;
+  text-align: center;
+  font-size: 0.88rem;
+}
+
+/* ---------- Вход и регистрация ---------- */
+.auth-force {
+  max-width: 30rem;
+}
+.auth-force .form {
+  margin: 0.8rem 0;
+}
+
+/* вход: стандартная папка с вкладками «Без входа / Вход / Регистрация», лист постоянной высоты */
+.auth-folder {
+  max-width: 46rem;
+  margin: 0 auto;
+}
+.auth-folder > .menu {
+  height: auto;
+  padding: 1.5rem 0 0;
+  overflow: visible;
+}
+.auth-folder .folder--tabbed .folder__sheet {
+  height: min(44rem, calc(100dvh - 11rem));
+}
+.auth-pane {
+  max-width: 30rem;
+  margin: 0 auto;
+}
+.auth-pane h1 {
+  font-size: 1.6rem;
+  margin: 0 0 0.4rem;
+}

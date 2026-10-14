@@ -1,0 +1,8 @@
+/* ---------- Размеры и шрифты ---------- */
+
+:root {
+  --bar-h: 60px; /* минимальная высота шапок: сайта, игры, конструктора (вместе с нижней рамкой) */
+  --radius-md: 10px;
+  --font-ui: "Rubik", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "PT Mono", ui-monospace, "Courier New", monospace;
+}
