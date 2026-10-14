@@ -72,11 +72,11 @@ export function Downloads({ record, grade, names }: { record: ResultRecord | nul
     <section className="downloads">
       {!signedIn && !owner && (
         <div className="downloads__who">
-          <label className={tried && missingName ? "is-invalid" : ""}>
+          <label className={`labeled ${tried && missingName ? "is-invalid" : ""}`}>
             <span>ФИО</span>
             <input ref={nameInput} value={profile.name} onChange={(e) => edit({ name: e.target.value })} placeholder="Иванова Анна Сергеевна" />
           </label>
-          <label>
+          <label className="labeled">
             <span>Группа</span>
             <input value={profile.group} onChange={(e) => edit({ group: e.target.value })} placeholder="ЮР-201" />
           </label>

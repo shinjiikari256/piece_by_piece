@@ -90,7 +90,7 @@ export function FinalScreen() {
       tone="blue"
       className="final-window"
     >
-      <div className="final2__main">
+      <div className="final2__main col">
         {q && (
           <>
             <p className="final2__kicker">

@@ -48,15 +48,15 @@ function TimeBonus({ draft }: { draft: CaseFile }) {
         </span>
       </span>
       <div className="ef__triple">
-        <label>
+        <label className="labeled">
           <span>Минут</span>
           <input type="number" min={1} value={tb.minutes} onChange={(e) => set({ ...tb, minutes: Math.max(1, num(e.target.value)) })} />
         </label>
-        <label>
+        <label className="labeled">
           <span>Баллов бонуса</span>
           <input type="number" min={0} value={tb.points} onChange={(e) => set({ ...tb, points: num(e.target.value) })} />
         </label>
-        <label>
+        <label className="labeled">
           <span>Порог успеха, баллов</span>
           <input
             type="number"

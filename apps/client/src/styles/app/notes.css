@@ -19,10 +19,8 @@
   display: flex;
   flex-direction: column;
 }
-.notes-window .modal__body {
-  display: flex;
-  flex-direction: column;
-  gap: 0.6rem;
+.notes-window__body {
+  --gap: 0.6rem;
 }
 .notes-window__hint {
   margin: 0;

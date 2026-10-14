@@ -101,12 +101,6 @@
   gap: 0.8rem;
   align-items: end;
 }
-.ef__triple label {
-  display: grid;
-  gap: 0.2rem;
-  font-size: 0.85em;
-  color: var(--text-soft);
-}
 .seg {
   display: inline-flex;
   border: 1px solid var(--border);

@@ -76,7 +76,7 @@ function SiteHeader({ route }: { route: Route }) {
           {staff && link("#/admin/users", "Пользователи", route.page === "admin" && route.section === "users")}
           {(staff || (server === "none" && DEV_EDITOR)) && link("#/editor", "Конструктор дел", route.page === "editor")}
         </nav>
-        <div className="site-header__user">
+        <div className="site-header__user row">
           {server === "online" && me && <UserMenu />}
           {server !== "unknown" && !me && <SignedOut />}
         </div>

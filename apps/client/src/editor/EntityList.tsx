@@ -47,7 +47,7 @@ export function EntityList<T>({
       <ul>
         {items.map((item, i) => (
           <li key={getKey(item, i)} className="ed__row" data-list-index={i}>
-            <button className="ed__item" aria-current={isActive(item, i) || undefined} onClick={() => onSelect(item, i)}>
+            <button className="ed__item row" aria-current={isActive(item, i) || undefined} onClick={() => onSelect(item, i)}>
               {renderItem(item, i)}
             </button>
             {tools && <span className="ed__row-tools">{tools(item, i)}</span>}
