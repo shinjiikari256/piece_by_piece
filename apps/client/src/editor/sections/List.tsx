@@ -8,6 +8,7 @@ import type { Character, Confrontation, Evidence } from "../../../../../shared/c
 import { Icon } from "../../ui/icons";
 import { Tabs } from "../Tabs";
 import { EntityList, ItemText } from "../EntityList";
+import { moveItem } from "../../util/lists";
 import { ArtThumb } from "../Pickers";
 import { resolveLook } from "../../game/art";
 import { ask } from "../../ui/dialog";
@@ -47,12 +48,10 @@ export function ListSection({ field }: { field: keyof CaseFile }) {
     setSelected(i + 1);
   };
   const move = (i: number, dir: -1 | 1) => {
-    const j = i + dir;
-    if (j < 0 || j >= list.length) return;
-    const next = [...list];
-    [next[i], next[j]] = [next[j], next[i]];
+    const next = moveItem(list, i, dir);
+    if (!next) return;
     editor.update((d) => ({ ...d, [field]: next }) as CaseFile);
-    setSelected(j);
+    setSelected(i + dir);
   };
   const remove = async (i: number) => {
     if (!(await ask({ title: `Удалить «${itemTitle(list[i], i)}»?`, confirmLabel: "Удалить", danger: true }))) return;

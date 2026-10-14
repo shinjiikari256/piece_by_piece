@@ -2,6 +2,8 @@ import { useState } from "react";
 import { editor, useEditor } from "../state";
 import { Icon } from "../../ui/icons";
 import { Tabs } from "../Tabs";
+import { ItemTools } from "../ItemTools";
+import { moveItem } from "../../util/lists";
 import { LawItemT } from "./Flags";
 
 /** Вкладка «Закон» у игрока: правовая база и пояснения — нумерованные списки. */
@@ -17,12 +19,9 @@ export function LawSection() {
     for (const key of ["text", "url", "article", "subtitle"] as const) if (next[i][key] === "") delete next[i][key];
     setItems(next);
   };
-  const move = (i: number, d: -1 | 1) => {
-    const j = i + d;
-    if (j < 0 || j >= items.length) return;
-    const next = [...items];
-    [next[i], next[j]] = [next[j], next[i]];
-    setItems(next);
+  const move = (i: number, dir: -1 | 1) => {
+    const next = moveItem(items, i, dir);
+    if (next) setItems(next);
   };
   return (
     <section className="conf-panel">
@@ -71,15 +70,7 @@ export function LawSection() {
                 <input value={x.url ?? ""} placeholder="Ссылка (необязательно)" onChange={(e) => set(i, { url: e.target.value })} />
               </div>
               <div className="law-ed__tools">
-                <button className="btn btn--sm" disabled={i === 0} onClick={() => move(i, -1)} title="Выше">
-                  ↑
-                </button>
-                <button className="btn btn--sm" disabled={i === items.length - 1} onClick={() => move(i, 1)} title="Ниже">
-                  ↓
-                </button>
-                <button className="btn btn--sm btn--danger" onClick={() => setItems(items.filter((_, k) => k !== i))} title="Удалить">
-                  ✕
-                </button>
+                <ItemTools index={i} count={items.length} onMove={(dir) => move(i, dir)} onRemove={() => setItems(items.filter((_, k) => k !== i))} />
               </div>
             </li>
           ))}

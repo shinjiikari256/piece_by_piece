@@ -4,6 +4,8 @@ import { useEffect, useState, type ReactNode } from "react";
 import { editor, useEditor } from "./state";
 import { caseKey, countRefs, isEntityKey, renameKey, toKey } from "./keys";
 import { Select } from "../ui/Select";
+import { ItemTools } from "./ItemTools";
+import { moveItem } from "../util/lists";
 import { ArtThumb, TilePicker } from "./Pickers";
 import { SPRITE_NAMES, resolveLook } from "../game/art";
 import type { CaseFile, Dialogue, Effect } from "../../../../shared/case";
@@ -465,13 +467,11 @@ function ArrayField({
   name: string;
 }) {
   const [open, setOpen] = useState<number | null>(null);
-  const move = (i: number, d: number) => {
-    const j = i + d;
-    if (j < 0 || j >= value.length) return;
-    const copy = [...value];
-    [copy[i], copy[j]] = [copy[j], copy[i]];
-    onChange(copy);
-    setOpen(j);
+  const move = (i: number, dir: -1 | 1) => {
+    const next = moveItem(value, i, dir);
+    if (!next) return;
+    onChange(next);
+    setOpen(i + dir);
   };
   return (
     <div className="ef ef--array">
@@ -496,15 +496,7 @@ function ArrayField({
               <button className="ef__item-title" onClick={() => setOpen(open === i ? null : i)}>
                 {open === i ? "▾" : "▸"} {itemTitle(item, i)}
               </button>
-              <button className="btn btn--sm" onClick={() => move(i, -1)} title="Выше">
-                ↑
-              </button>
-              <button className="btn btn--sm" onClick={() => move(i, 1)} title="Ниже">
-                ↓
-              </button>
-              <button className="btn btn--sm btn--danger" onClick={() => onChange(value.filter((_, j) => j !== i))} title="Удалить">
-                ✕
-              </button>
+              <ItemTools index={i} count={value.length} onMove={(dir) => move(i, dir)} onRemove={() => onChange(value.filter((_, j) => j !== i))} />
             </div>
             {open === i && (
               <div className="ef__item-body">

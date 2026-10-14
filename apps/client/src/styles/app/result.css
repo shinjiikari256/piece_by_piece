@@ -33,10 +33,6 @@
   font-size: 0.85em;
   color: var(--text-soft);
 }
-.downloads__who input {
-  font-size: 1rem;
-  padding: 0.45em 0.6em;
-}
 .downloads__who label.is-invalid input {
   border-color: var(--bad);
 }
