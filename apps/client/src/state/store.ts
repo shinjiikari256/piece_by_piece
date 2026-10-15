@@ -307,6 +307,17 @@ export const actions = {
     state = { ...state, savedPlayer: player };
   },
 
+  /**
+   * Сцена сообщает, где персонаж оказался на самом деле: дошёл, вернулся или остался на месте, когда путь закрыт.
+   * `null` — стоит на исходном месте (запись в `npcPlaces` не нужна).
+   */
+  npcPlaced(characterId: string, place: { locationId: string; x: number; y: number } | null) {
+    const npcPlaces = { ...state.progress.npcPlaces };
+    if (place) npcPlaces[characterId] = place;
+    else delete npcPlaces[characterId];
+    set({ progress: { ...state.progress, npcPlaces } });
+  },
+
   /** Сцена забрала точку появления. */
   consumeSpawn() {
     if (state.spawn) set({ spawn: null });

@@ -251,7 +251,7 @@ describe("игра в браузере", () => {
     await page.close();
   });
 
-  it("персонаж, переставленный эффектом, получает точку взаимодействия и подпись на новом месте", async () => {
+  it("moveTo: персонаж идёт пешком, пока идёт — поговорить нельзя, пришёл — точка взаимодействия на новом месте", async () => {
     const page = await h.page();
     await page.goto(`${BASE}/play/case-test-moveto`); // тестовое дело — только в режиме разработки
     await page.getByRole("button", { name: /Приступить к расследованию/ }).click();
@@ -263,15 +263,42 @@ describe("игра в браузере", () => {
       actions.choose("t1"); // Тимур идёт в клетку 22,14
       actions.close();
     });
-    const npc = await page.evaluate(() => {
+    const state = () => page.evaluate(() => {
       const scene = (window as any).__scene;
       const n = scene.npcs.get("timur");
       const item = scene.interactables.find((i: any) => i.id === "npc_timur");
-      return { tile: n.tile, x: n.x, y: n.y, item: [item.x, item.y], label: [n.labelText.x, n.labelText.y], sprite: [n.sprite.x, n.sprite.y] };
+      return { mode: n.mode, tile: [n.tile.x, n.tile.y], x: n.x, y: n.y, item: [item.x, item.y], label: n.labelText.x, sprite: n.sprite.x, place: (window as any).__game.store.get().progress.npcPlaces.timur };
     });
-    expect([npc.tile.x, npc.tile.y]).toEqual([22, 14]);
-    expect(npc.item).toEqual([npc.x, npc.y]); // подсказка «E» меряется от нового места, а не от старого
-    expect(npc.label[0]).toBe(npc.sprite[0]); // подпись над персонажем
+    // в пути: идёт (не телепорт), итоговое место в состоянии уже записано
+    await page.waitForTimeout(600);
+    const walking = await state();
+    expect(walking.mode).toBe("walker");
+    expect(walking.tile).not.toEqual([22, 14]);
+    expect(walking.place).toMatchObject({ x: 22, y: 14 });
+    // пришёл
+    await page.waitForFunction(() => (window as any).__scene.npcs.get("timur").mode === "static", null, { timeout: 25_000 });
+    const arrived = await state();
+    expect(arrived.tile).toEqual([22, 14]);
+    expect(arrived.item).toEqual([arrived.x, arrived.y]); // подсказка «E» меряется от нового места, а не от старого
+    expect(arrived.label).toBe(arrived.sprite); // подпись над персонажем
+    await page.close();
+  });
+
+  it("moveTo: путь закрыт на момент команды (заперта дверь) — персонаж остаётся, итоговое место откатывается", async () => {
+    const page = await h.page();
+    await page.goto(`${BASE}/play/case-test-moveto`);
+    await page.getByRole("button", { name: /Приступить к расследованию/ }).click();
+    await page.waitForFunction(() => (window as any).__game.store.get().screen === "play" && (window as any).__scene);
+    await page.evaluate(() => {
+      const { actions } = (window as any).__game;
+      actions.interact("npc_timur");
+      actions.choose("t_menu");
+      actions.choose("t3"); // Вика → в комнату 412, а дверь заперта
+      actions.close();
+    });
+    await page.waitForTimeout(500);
+    const vika = await page.evaluate(() => ({ mode: (window as any).__scene.npcs.get("vika").mode, place: (window as any).__game.store.get().progress.npcPlaces.vika ?? null }));
+    expect(vika).toEqual({ mode: "static", place: null });
     await page.close();
   });
 

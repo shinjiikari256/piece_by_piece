@@ -5,6 +5,8 @@ export interface Place {
   locationId: string;
   x: number;
   y: number;
+  /** Реплика персонажа, если он не сможет дойти (из эффекта `moveTo`); нужна только сцене. */
+  failText?: string;
 }
 
 export interface Progress {
@@ -94,7 +96,7 @@ export function applyEffects(
       case "moveTo":
         // идёт на своё место: итог записываем сразу, ход — дело сцены (если дойти нельзя, она вернёт фактическое место)
         next.followers = next.followers.filter((id) => id !== e.characterId);
-        next.npcPlaces[e.characterId] = { locationId: e.locationId, x: e.x, y: e.y };
+        next.npcPlaces[e.characterId] = { locationId: e.locationId, x: e.x, y: e.y, ...(e.failText ? { failText: e.failText } : {}) };
         break;
     }
   }

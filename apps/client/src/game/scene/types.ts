@@ -1,4 +1,5 @@
 import type Phaser from "phaser";
+import type { Walk } from "./walker";
 
 export interface Interactable {
   id: string;
@@ -15,7 +16,10 @@ export interface Interactable {
 export interface Npc extends Interactable {
   sprite: Phaser.GameObjects.Sprite;
   characterId: string;
-  mode: "static" | "follower";
+  /** `walker` — идёт к клетке (эффект `moveTo`): пока идёт, взаимодействие недоступно. */
+  mode: "static" | "follower" | "walker";
+  /** Текущий ход (только у `walker`). */
+  walk?: Walk;
   /** Клетка, где стоит (для static). */
   tile: { x: number; y: number };
 }

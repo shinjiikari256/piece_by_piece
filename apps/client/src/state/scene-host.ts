@@ -10,6 +10,7 @@ export function createSceneHost(): SceneHost {
     isBlocked: () => isWorldBlocked(store.get()),
     onInteract: (id) => actions.interact(id),
     confrontationWith: (id) => actions.confrontationWith(id),
+    setNpcPlace: (characterId, place) => actions.npcPlaced(characterId, place),
     consumeSpawn: () => actions.consumeSpawn(),
     savedPlayer: () => store.get().savedPlayer,
     savePlayerPosition: (caseId, player) => {

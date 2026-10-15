@@ -13,6 +13,8 @@ export interface SceneHost {
   onInteract(targetId: string): void;
   /** Очная ставка, доступная с этим персонажем. */
   confrontationWith(characterId: string): ReturnType<typeof actions.confrontationWith>;
+  /** Где персонаж оказался после хода (`null` — на исходном месте). */
+  setNpcPlace(characterId: string, place: { locationId: string; x: number; y: number } | null): void;
   /** Точка входа из двери использована. */
   consumeSpawn(): void;
   /** Сохранённая позиция игрока в деле. */
