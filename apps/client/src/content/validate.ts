@@ -1,6 +1,7 @@
 import { type CaseFile, type Condition, type Effect } from "../../../../shared/case";
 import { parseCase } from "../../../../shared/migrate";
 import { FLOOR_TILES, SPRITES, WALL_TILES, resolveLook } from "../game/art";
+import { findPath } from "../game/scene/navigation";
 
 export type ValidationResult =
   | { ok: true; caseFile: CaseFile }
@@ -60,14 +61,31 @@ function checkIntegrity(c: CaseFile): string[] {
   const checkEffects = (effects: Effect[], where: string) => {
     for (const e of effects) {
       if (e.type === "addEvidence") ref(evidence, e.evidenceId, where);
-      if (e.type === "addCharacterNote" || e.type === "follow" || e.type === "stay" || e.type === "returnHome")
+      if (e.type === "addCharacterNote" || e.type === "follow" || e.type === "stay" || e.type === "returnHome" || e.type === "moveTo")
         ref(characters, e.characterId, where);
+      if (e.type === "moveTo") checkMoveTo(e, where);
     }
+  };
+  /** `moveTo`: цель — свободный пол существующей локации; в своей локации персонаж должен дойти пешком (двери и выходы — проходимы). */
+  const checkMoveTo = (e: Extract<Effect, { type: "moveTo" }>, where: string) => {
+    if (!locationIds.has(e.locationId)) return err(`${where}: moveTo — неизвестная локация «${e.locationId}»`);
+    const isFloor = floorOf.get(e.locationId)!;
+    const cell = `${e.x},${e.y}`;
+    if (!isFloor(e.x, e.y)) return err(`${where}: moveTo — клетка ${cell} в «${e.locationId}» не пол`);
+    const base = c.locations.flatMap((l) => l.npcs.map((n) => ({ locationId: l.id, ...n }))).find((n) => n.characterId === e.characterId);
+    const occupied = occupiedOf.get(e.locationId);
+    const own = (x: number, y: number) => base?.locationId === e.locationId && base.x === x && base.y === y;
+    const blocked = (x: number, y: number) => !!occupied?.has(`${x},${y}`) && !own(x, y);
+    if (blocked(e.x, e.y)) return err(`${where}: moveTo — клетка ${cell} занята (${occupied!.get(cell)})`);
+    // достижимость проверяем, только когда персонаж начинает в той же локации (между локациями путь идёт через выходы)
+    if (base && base.locationId === e.locationId && !findPath((x, y) => isFloor(x, y) && !blocked(x, y), base, [{ x: e.x, y: e.y }]))
+      err(`${where}: moveTo — до клетки ${cell} не дойти от места персонажа «${e.characterId}»`);
   };
 
   // Карты
   const obtainable = new Set<string>();
   const floorOf = new Map<string, (x: number, y: number) => boolean>();
+  const occupiedOf = new Map<string, Map<string, string>>();
   for (const loc of c.locations) {
     const L = `location ${loc.id}`;
     const { tiles } = loc;
@@ -102,6 +120,7 @@ function checkIntegrity(c: CaseFile): string[] {
       if (spec.solid) for (let i = 0; i < spec.footprint; i++) occupy(o.x + i, o.y, `object ${o.id}`);
     }
     for (const n of loc.npcs) occupy(n.x, n.y, `npc ${n.id}`);
+    occupiedOf.set(loc.id, occupied);
     const { playerStart } = loc;
     if (!isFloor(playerStart.x, playerStart.y)) err(`${L}.playerStart: не на полу`);
     if (occupied.has(`${playerStart.x},${playerStart.y}`)) err(`${L}.playerStart: клетка занята`);

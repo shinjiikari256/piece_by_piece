@@ -51,6 +51,16 @@ export const Effect = z.discriminatedUnion("type", [
   z.object({ type: z.literal("follow"), characterId: z.string() }).describe("Персонаж идёт за игроком"),
   z.object({ type: z.literal("stay"), characterId: z.string() }).describe("Перестаёт идти следом и остаётся, где стоит"),
   z.object({ type: z.literal("returnHome"), characterId: z.string() }).describe("Возвращается на своё исходное место"),
+  z
+    .object({
+      type: z.literal("moveTo"),
+      characterId: z.string(),
+      locationId: z.string(),
+      x: z.number().int(),
+      y: z.number().int(),
+      failText: z.string().optional().describe("Что скажет персонаж, если не сможет дойти"),
+    })
+    .describe("Персонаж идёт на клетку карты и остаётся там; за игроком не следует"),
 ]);
 
 /** Приложение к улике: файл или ссылка. Для ссылки `src` — адрес (http/https), `caption` — текст, который увидит игрок. */

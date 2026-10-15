@@ -17,6 +17,8 @@ const blankEffect = (type: Effect["type"], d: FormCtx["draft"]): Effect => {
       return { type, flag: "" };
     case "addCharacterNote":
       return { type, characterId: ch, text: "" };
+    case "moveTo":
+      return { type, characterId: ch, locationId: d.locations[0]?.id ?? "", x: 0, y: 0 };
     default:
       return { type, characterId: ch };
   }

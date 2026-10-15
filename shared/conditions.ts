@@ -46,6 +46,7 @@ export interface EffectOutcome {
 
 /**
  * @param whereIs — где сейчас стоит персонаж (нужно для «stay»: остаётся там, куда дошёл).
+ * Эффект `moveTo` пишет итоговое место сразу; идёт персонаж к нему уже в сцене.
  */
 export function applyEffects(
   effects: Effect[],
@@ -89,6 +90,11 @@ export function applyEffects(
       case "returnHome":
         next.followers = next.followers.filter((id) => id !== e.characterId);
         delete next.npcPlaces[e.characterId];
+        break;
+      case "moveTo":
+        // идёт на своё место: итог записываем сразу, ход — дело сцены (если дойти нельзя, она вернёт фактическое место)
+        next.followers = next.followers.filter((id) => id !== e.characterId);
+        next.npcPlaces[e.characterId] = { locationId: e.locationId, x: e.x, y: e.y };
         break;
     }
   }

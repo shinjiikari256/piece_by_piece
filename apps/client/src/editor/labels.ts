@@ -192,4 +192,5 @@ export const ENUM_LABELS: Record<string, string> = {
   follow: "персонаж идёт следом",
   stay: "персонаж остаётся, где стоит",
   returnHome: "персонаж возвращается на место",
+  moveTo: "персонаж идёт на клетку карты",
 };
