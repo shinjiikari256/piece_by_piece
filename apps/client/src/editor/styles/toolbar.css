@@ -57,7 +57,7 @@ button.ed__home {
 .ed__bar .ed__help-btn {
   min-height: 2.4rem;
   padding: 0.3em 1em;
-  font-size: 0.95rem;
+  font-size: var(--fs-md);
   display: inline-flex;
   align-items: center;
   gap: 0.4em;

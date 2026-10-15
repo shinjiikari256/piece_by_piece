@@ -20,7 +20,7 @@
   border: none;
   background: transparent;
   font: inherit;
-  font-size: 0.92rem;
+  font-size: var(--fs-md);
   color: var(--text);
   text-align: left;
   padding: 0.4rem 0.6rem;
@@ -47,7 +47,7 @@
 }
 .ctx-menu__hint {
   font-family: var(--font-mono);
-  font-size: 0.75rem;
+  font-size: var(--fs-xs);
   opacity: 0.65;
 }
 .ctx-menu__sep {

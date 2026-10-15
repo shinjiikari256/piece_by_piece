@@ -43,15 +43,15 @@ button.case-stamp:hover {
   box-shadow: var(--elev-2);
 }
 .case-stamp__label {
-  font-size: 0.68em;
+  font-size: var(--fs-xs);
   letter-spacing: 0.12em;
   text-transform: uppercase;
 }
 .case-stamp__total {
-  font-size: 1.7em;
+  font-size: var(--fs-2xl);
 }
 .case-stamp__max {
-  font-size: 0.95em;
+  font-size: var(--fs-md);
 }
 /* «Ведётся N%»: пунктирная синяя, наклон в другую сторону; наведение — как у штампа результата */
 .case-stamp--progress {

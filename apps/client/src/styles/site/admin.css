@@ -70,11 +70,11 @@
   padding: 0.9rem 1rem;
 }
 .stat__value {
-  font-size: 1.5rem;
+  font-size: var(--fs-xl);
   font-weight: 700;
 }
 .stat__label {
-  font-size: 0.85rem;
+  font-size: var(--fs-sm);
   color: var(--text-muted);
 }
 
@@ -103,7 +103,7 @@
 .group__chev {
   margin-left: auto;
   color: var(--text-muted);
-  font-size: 0.75em;
+  font-size: var(--fs-xs);
 }
 .group__body {
   padding: 0.3rem 1.2rem 1.2rem;
@@ -111,7 +111,7 @@
 }
 .group__body h3 {
   margin: 1.3rem 0 0.3rem;
-  font-size: 1rem;
+  font-size: var(--fs-base);
 }
 .group__footer {
   display: flex;
@@ -132,7 +132,7 @@
 }
 .toggle-chip {
   font: inherit;
-  font-size: 0.88rem;
+  font-size: var(--fs-sm);
   padding: 0.3em 0.85em;
   border-radius: 999px;
   border: 1px solid var(--border-strong);
@@ -160,7 +160,7 @@
 }
 .temp-password {
   font-family: var(--font-mono);
-  font-size: 1.6rem;
+  font-size: var(--fs-xl);
   letter-spacing: 0.08em;
   text-align: center;
   padding: 0.4em;
@@ -180,7 +180,7 @@
 }
 .group__section h3 {
   margin: 0 0 0.4rem;
-  font-size: 1rem;
+  font-size: var(--fs-base);
 }
 .link-new {
   display: flex;
@@ -225,14 +225,14 @@
 }
 .link-card__url .input {
   flex: 1;
-  font-size: 0.85rem;
+  font-size: var(--fs-sm);
 }
 .link-card__meta {
   display: flex;
   flex-wrap: wrap;
   gap: 0.4rem 1rem;
   align-items: center;
-  font-size: 0.88rem;
+  font-size: var(--fs-sm);
   color: var(--text-soft);
 }
 .link-card__actions {

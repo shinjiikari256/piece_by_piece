@@ -56,7 +56,7 @@
   align-items: center;
   gap: 0.55rem;
   font-weight: 700;
-  font-size: 1.1rem;
+  font-size: var(--fs-lg);
   letter-spacing: 0.02em;
   color: var(--text) !important;
   text-decoration: none;
@@ -147,7 +147,7 @@
   background: var(--bg-chrome);
   color: var(--bg-inverse);
   font-weight: 700;
-  font-size: 0.8rem;
+  font-size: var(--fs-sm);
   flex: none;
 }
 .site-header .avatar {
@@ -157,7 +157,7 @@
 .avatar--big {
   width: 64px;
   height: 64px;
-  font-size: 1.4rem;
+  font-size: var(--fs-xl);
 }
 
 .user-menu {
@@ -184,7 +184,7 @@
   outline-offset: 2px;
 }
 .user-menu__caret {
-  font-size: 0.7em;
+  font-size: var(--fs-xs);
   opacity: 0.7;
 }
 .user-menu__popup {
@@ -206,7 +206,7 @@
   padding: 0.55rem 0.7rem 0.6rem;
   border-bottom: 1px solid var(--border);
   margin-bottom: 0.3rem;
-  font-size: 0.92rem;
+  font-size: var(--fs-md);
 }
 .user-menu__popup a,
 .user-menu__popup button {
@@ -244,7 +244,7 @@
   background: var(--overlay-dark-1);
 }
 .site-guest span {
-  font-size: 0.75em;
+  font-size: var(--fs-xs);
   padding: 0.05em 0.5em;
   border-radius: 999px;
   background: var(--overlay-dark-1);

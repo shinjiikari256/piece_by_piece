@@ -34,7 +34,7 @@
 }
 .ed__home {
   text-decoration: none;
-  font-size: 1.4em;
+  font-size: var(--fs-xl);
   color: var(--text);
 }
 .ed__title {
@@ -101,7 +101,7 @@
 }
 .ed__nav-count {
   opacity: 0.6;
-  font-size: 0.85em;
+  font-size: var(--fs-sm);
 }
 .ed__main {
   overflow: auto;
@@ -143,7 +143,7 @@
   padding: 0.4em 0.6em;
   border-radius: 6px;
   cursor: pointer;
-  font-size: 0.92em;
+  font-size: var(--fs-md);
 }
 .ed__list li button:hover {
   background: var(--bg-paper-dim);
@@ -165,7 +165,7 @@
 }
 .err-card .alert__text {
   font-family: var(--font-mono);
-  font-size: 0.95em;
+  font-size: var(--fs-md);
   color: var(--text);
   overflow-wrap: anywhere;
 }
@@ -221,7 +221,7 @@
 }
 .ed__item-id {
   font-family: var(--font-mono);
-  font-size: 0.78em;
+  font-size: var(--fs-xs);
   color: var(--text-muted);
   overflow: hidden;
   text-overflow: ellipsis;
@@ -230,7 +230,7 @@
 
 /* строка под названием пункта списка: куда подключён (диалог — люди и области) */
 .ed__item-note {
-  font-size: 0.74em;
+  font-size: var(--fs-xs);
   color: var(--text-soft);
 }
 .ed__item-note .is-warn {
@@ -241,12 +241,12 @@
 .ef__hint {
   display: block;
   font-weight: 400;
-  font-size: 0.95em;
+  font-size: var(--fs-md);
   color: var(--text-muted);
 }
 .cond__hint {
   margin: 0 0 0.5rem;
-  font-size: 0.85em;
+  font-size: var(--fs-sm);
   color: var(--text-soft);
   background: var(--bg-paper-dim);
   border-radius: 6px;
@@ -261,12 +261,12 @@
   border-top: 1px dashed var(--border);
 }
 .cond__title {
-  font-size: 0.85em;
+  font-size: var(--fs-sm);
 }
 .flag-input,
 .flag-picker input {
   font-family: var(--font-mono);
-  font-size: 0.88em;
+  font-size: var(--fs-sm);
   max-width: 11rem;
 }
 .flag-picker {
@@ -300,5 +300,5 @@
 .alert.ed__warn {
   padding: 0.5rem 1rem;
   border-radius: 0;
-  font-size: 0.92em;
+  font-size: var(--fs-md);
 }

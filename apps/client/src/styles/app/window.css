@@ -33,7 +33,7 @@
 }
 .dialog h3 {
   margin: 0;
-  font-size: 1.15rem;
+  font-size: var(--fs-lg);
 }
 .dialog p {
   margin: 0;
@@ -51,7 +51,7 @@
   width: 100%;
 }
 .dialog--flag .muted {
-  font-size: 0.88em;
+  font-size: var(--fs-sm);
 }
 .dialog--flag .flag-input {
   max-width: none;

@@ -24,13 +24,13 @@
   color: var(--accent);
   border-radius: 999px;
   padding: 0.1em 0.7em;
-  font-size: 0.78em;
+  font-size: var(--fs-xs);
   font-weight: 700;
 }
 .right-card p,
 .ladder p {
   margin: 0;
-  font-size: 0.9em;
+  font-size: var(--fs-md);
   color: var(--text-soft);
 }
 .ladder {
@@ -67,7 +67,7 @@
 }
 .ladder__note {
   display: block;
-  font-size: 0.85em;
+  font-size: var(--fs-sm);
   color: var(--accent);
   margin: 0.15em 0 0.3em;
 }

@@ -40,11 +40,11 @@
   border: 1px solid var(--border);
   border-radius: 8px;
   background: var(--bg-surface);
-  font-size: 0.78em;
+  font-size: var(--fs-xs);
   cursor: pointer;
 }
 .lm__tool-icon {
-  font-size: 1.4em;
+  font-size: var(--fs-xl);
   line-height: 1;
 }
 .lm__tool:hover,
@@ -62,7 +62,7 @@
   border: none;
   background: transparent;
   font-weight: 700;
-  font-size: 0.85em;
+  font-size: var(--fs-sm);
   text-transform: uppercase;
   letter-spacing: 0.05em;
   color: var(--text-soft);
@@ -87,7 +87,7 @@
   border: 1px solid var(--border);
   border-radius: 6px;
   background: var(--bg-surface);
-  font-size: 0.8em;
+  font-size: var(--fs-sm);
   text-align: left;
   cursor: pointer;
   min-width: 0;
@@ -101,7 +101,7 @@
   border: 1px solid var(--overlay-dark-2);
 }
 .lm__search {
-  font-size: 0.9em;
+  font-size: var(--fs-md);
   padding: 0.3em 0.5em;
 }
 .lm__things {
@@ -139,7 +139,7 @@
   height: auto !important;
 }
 .lm__thing-label {
-  font-size: 0.7em;
+  font-size: var(--fs-xs);
   line-height: 1.15;
   text-align: center;
   overflow: hidden;
@@ -148,7 +148,7 @@
   -webkit-box-orient: vertical;
 }
 .lm__note {
-  font-size: 0.8em;
+  font-size: var(--fs-sm);
   color: var(--text-muted);
   margin: 0;
 }
@@ -169,7 +169,7 @@
   background: var(--overlay-light-1);
   color: var(--text-on-dark);
   padding: 0.2rem 0.55rem;
-  font-size: 0.8em;
+  font-size: var(--fs-sm);
   cursor: pointer;
 }
 .lm__zoom button:first-child {
@@ -211,7 +211,7 @@
   padding: 0.35rem 0.8rem;
   background: var(--bg-page);
   color: var(--text-on-dark);
-  font-size: 0.82em;
+  font-size: var(--fs-sm);
 }
 .lm__coords {
   font-family: var(--font-mono);
@@ -257,12 +257,12 @@
 .size-input {
   display: grid;
   gap: 0.1rem;
-  font-size: 0.8em;
+  font-size: var(--fs-sm);
   color: var(--text-muted);
 }
 .size-input input {
   width: 5em;
-  font-size: 1.15em;
+  font-size: var(--fs-lg);
   padding: 0.3em 0.4em;
   color: var(--text);
 }
@@ -306,7 +306,7 @@
 .lm__list-head {
   margin: 0.5rem 0 0.2rem;
   padding: 0.2rem 0;
-  font-size: 0.85em;
+  font-size: var(--fs-sm);
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.06em;
@@ -323,8 +323,8 @@
 }
 .lm__group-head {
   padding: 0.2rem 0;
-  font-size: 0.82em;
-  font-weight: 600;
+  font-size: var(--fs-sm);
+  font-weight: 700;
 }
 .lm__group-body {
   padding: 0.2rem 0 0.4rem;
@@ -362,7 +362,7 @@
   height: 2rem;
 }
 .lm__row-glyph {
-  font-size: 1.2em;
+  font-size: var(--fs-lg);
   color: var(--accent);
 }
 .lm__row-text {
@@ -370,7 +370,7 @@
   min-width: 0;
 }
 .lm__row-text b {
-  font-weight: 600;
+  font-weight: 700;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -460,7 +460,7 @@
 }
 .cell-picker__status {
   margin: 0;
-  font-size: 0.9em;
+  font-size: var(--fs-md);
 }
 
 /* палитра снизу: инструменты — вертикальным списком, свёрнутая секция — узкая полоса с названием вдоль */
@@ -517,27 +517,33 @@
   padding: 0;
 }
 
-/* инспектор: компактные подписи и ровные отступы */
+/* боковые панели (инспектор карты, настройки диалога): компактные подписи и ровные отступы */
 .lm__inspector-body {
   gap: 0.6rem;
 }
-.lm__inspector h3 {
-  font-size: 1rem;
+.lm__inspector h3,
+.dg__side h3 {
+  font-size: var(--fs-base);
 }
-.lm__inspector .ef {
+.lm__inspector .ef,
+.dg__side .ef {
   gap: 0.15rem;
 }
-.lm__inspector .ef__fields {
+.lm__inspector .ef__fields,
+.dg__side .ef__fields {
   gap: 0.6rem;
 }
-.lm__inspector .ef__label {
-  font-size: 0.74em;
+.lm__inspector .ef__label,
+.dg__side .ef__label {
+  font-size: var(--fs-xs);
   letter-spacing: 0.02em;
 }
-.lm__inspector .muted {
-  font-size: 0.78em;
+.lm__inspector .muted,
+.dg__side .muted {
+  font-size: var(--fs-xs);
 }
-.lm__inspector .pair--xy {
+.lm__inspector .pair--xy,
+.dg__side .pair--xy {
   gap: 0.5rem;
 }
 .pair--xy {
@@ -550,12 +556,14 @@
   min-width: 0;
   box-sizing: border-box;
 }
-.lm__inspector .zact {
+.lm__inspector .zact,
+.dg__side .zact {
   gap: 0.6rem;
 }
-.lm__inspector .zact h4 {
+.lm__inspector .zact h4,
+.dg__side .zact h4 {
   margin: 0.2rem 0 0;
-  font-size: 0.85em;
+  font-size: var(--fs-sm);
 }
 .lm__inspector .zact__item {
   gap: 0.5rem;

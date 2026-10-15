@@ -19,7 +19,7 @@
 .law-ed__num {
   font-family: var(--font-mono);
   font-weight: 700;
-  font-size: 1.1em;
+  font-size: var(--fs-lg);
   color: var(--accent);
   text-align: center;
   padding-top: 0.35em;
@@ -32,6 +32,6 @@
   gap: 0.25rem;
 }
 .law-ed__chip {
-  font-size: 0.88em !important;
+  font-size: var(--fs-sm) !important;
   color: var(--accent);
 }

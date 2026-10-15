@@ -9,7 +9,7 @@
 .ef__chip {
   min-height: 2rem;
   padding: 0.2em 0.35em 0.2em 0.7em;
-  font-size: 0.92em;
+  font-size: var(--fs-md);
   border: 1px solid var(--accent-line);
   cursor: default;
 }
@@ -38,7 +38,7 @@
 }
 .ef__chip--flag code {
   font-family: var(--font-mono);
-  font-size: 0.92em;
+  font-size: var(--fs-md);
 }
 
 /* ---------- условия: только заполненные строки ---------- */
@@ -51,7 +51,7 @@
   border-top: none;
 }
 .cond__title {
-  font-size: 0.88em;
+  font-size: var(--fs-sm);
   font-weight: 500;
   color: var(--text-soft);
 }
@@ -78,7 +78,7 @@
   border-radius: 8px;
 }
 .fx__type {
-  font-size: 0.88em;
+  font-size: var(--fs-sm);
   font-weight: 500;
   color: var(--text-soft);
   padding-top: 0.45em;

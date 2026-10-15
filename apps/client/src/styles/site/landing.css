@@ -13,7 +13,7 @@
   margin: 0 0 0.4rem;
   text-transform: uppercase;
   letter-spacing: 0.12em;
-  font-size: 0.8rem;
+  font-size: var(--fs-sm);
   font-weight: 700;
   color: var(--stamp);
 }
@@ -22,7 +22,7 @@
   margin: 0 0 0.8rem;
 }
 .hero__lead {
-  font-size: 1.15rem;
+  font-size: var(--fs-lg);
   line-height: 1.55;
   color: var(--text-soft);
   max-width: 34em;
@@ -60,13 +60,13 @@
 }
 .feature h3 {
   margin: 0.6rem 0 0.4rem;
-  font-size: 1.05rem;
+  font-size: var(--fs-lg);
 }
 .feature p {
   margin: 0;
   color: var(--text-soft);
   line-height: 1.5;
-  font-size: 0.93rem;
+  font-size: var(--fs-md);
 }
 .feature__n {
   display: inline-grid;

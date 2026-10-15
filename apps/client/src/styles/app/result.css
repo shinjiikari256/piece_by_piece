@@ -98,7 +98,7 @@
   gap: 0.3em;
   margin-left: auto;
   color: var(--text-soft);
-  font-size: 0.9em;
+  font-size: var(--fs-md);
   white-space: nowrap;
 }
 .materials__count .icon + .icon,

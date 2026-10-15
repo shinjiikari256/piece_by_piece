@@ -98,7 +98,7 @@
 }
 .panel-rail__label {
   writing-mode: vertical-rl;
-  font-size: 0.85em;
+  font-size: var(--fs-sm);
   letter-spacing: 0.04em;
 }
 

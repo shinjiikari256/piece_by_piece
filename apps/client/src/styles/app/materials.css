@@ -90,7 +90,7 @@
   border-radius: 999px;
   padding: 0.25em 0.75em;
   cursor: pointer;
-  font-size: 0.88em;
+  font-size: var(--fs-sm);
 }
 .mark-btn[aria-pressed="true"],
 .mark-close[aria-pressed="true"] {
@@ -114,7 +114,7 @@
   justify-content: space-between;
 }
 .detail__label {
-  font-size: 0.78em;
+  font-size: var(--fs-xs);
   text-transform: uppercase;
   letter-spacing: 0.05em;
   color: var(--text-muted);
@@ -144,7 +144,7 @@
   background: var(--bg-paper-dim);
   border-radius: 999px;
   padding: 0.2em 0.8em 0.2em 0.25em;
-  font-size: 0.88em;
+  font-size: var(--fs-sm);
 }
 .event-chip__time {
   background: var(--text);
@@ -152,7 +152,7 @@
   border-radius: 999px;
   padding: 0.1em 0.6em;
   font-family: var(--font-mono);
-  font-size: 0.9em;
+  font-size: var(--fs-md);
   white-space: nowrap;
 }
 .detail__people {
@@ -162,7 +162,7 @@
   display: inline-flex;
   align-items: center;
   gap: 0.4em;
-  font-size: 0.9em;
+  font-size: var(--fs-md);
   color: var(--text-soft);
 }
 .reliability b {
@@ -180,7 +180,7 @@
 }
 .modal__title {
   margin: 0 0 0.6rem;
-  font-size: 1.25em;
+  font-size: var(--fs-lg);
 }
 .inspect__note {
   display: flex;
@@ -205,7 +205,7 @@
   min-height: 5.5rem;
 }
 .board--compact .pinned {
-  font-size: 0.85em;
+  font-size: var(--fs-sm);
 }
 .board__count {
   margin: 0;
@@ -236,7 +236,7 @@
   background: var(--bg-surface);
 }
 .attachment figcaption {
-  font-size: 0.85em;
+  font-size: var(--fs-sm);
   color: var(--text-muted);
   margin-top: 0.2rem;
 }
@@ -247,7 +247,7 @@
 /* ---------- фильтры материалов и пометки ---------- */
 /* ---------- фильтры материалов ---------- */
 .materials__reset {
-  font-size: 0.85em;
+  font-size: var(--fs-sm);
 }
 .pins--pair {
   grid-template-columns: repeat(2, 1fr);
