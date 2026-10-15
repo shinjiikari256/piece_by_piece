@@ -12,9 +12,6 @@ export function MapPalette({
   draft,
   tool,
   setTool,
-  brush,
-  setBrush,
-  lastTile,
   pickTile,
   npcCharacter,
   setNpcCharacter,
@@ -22,15 +19,12 @@ export function MapPalette({
   draft: CaseFileT;
   tool: Tool;
   setTool: (t: Tool) => void;
-  brush: "pen" | "rect";
-  setBrush: (b: "pen" | "rect") => void;
-  lastTile: string;
   pickTile: (ch: string) => void;
   npcCharacter: string;
   setNpcCharacter: (id: string) => void;
 }) {
   const [query, setQuery] = useState("");
-  const [open, setOpen] = useState<Record<string, boolean>>({ floor: true, walls: true, objects: true, people: true });
+  const [open, setOpen] = useState<Record<string, boolean>>({ tiles: true, objects: true, people: true });
   const toggle = (k: string) => setOpen((o) => ({ ...o, [k]: !o[k] }));
   // подгруппы: по умолчанию раскрыты самые частые; при поиске раскрываются все, где есть совпадения
   const [groups, setGroups] = useState<Record<string, boolean>>({ indoor: true, walls: true, furniture: true });
@@ -55,26 +49,6 @@ export function MapPalette({
     <aside className="lm__palette">
       <div className="lm__tools">
         <ToolButton on={tool.kind === "select"} onClick={() => setTool({ kind: "select" })} icon="⬚" label="Выбор" keyHint="V" />
-        <ToolButton
-          on={tool.kind === "tile" && brush === "pen"}
-          onClick={() => {
-            setBrush("pen");
-            pickTile(tool.kind === "tile" ? tool.ch : lastTile);
-          }}
-          icon="✎"
-          label="Кисть"
-          keyHint="B"
-        />
-        <ToolButton
-          on={tool.kind === "tile" && brush === "rect"}
-          onClick={() => {
-            setBrush("rect");
-            pickTile(tool.kind === "tile" ? tool.ch : lastTile);
-          }}
-          icon="▭"
-          label="Прямоуг."
-          keyHint="R"
-        />
         <ToolButton on={tool.kind === "start"} onClick={() => setTool({ kind: "start" })} icon="▶" label="Старт" />
         <ToolButton on={tool.kind === "exit"} onClick={() => setTool({ kind: "exit" })} icon="⇄" label="Выход" />
         <ToolButton
@@ -91,12 +65,9 @@ export function MapPalette({
         />
       </div>
 
-      <PaletteSection title="Пол" open={open.floor} onToggle={() => toggle("floor")}>
-        {tileGroups(FLOOR_GROUPS)}
-      </PaletteSection>
-
-      <PaletteSection title="Стены" open={open.walls} onToggle={() => toggle("walls")}>
-        {tileGroups(WALL_GROUPS)}
+      {/* пол и стены — одна группа «Клетки»: выбор клетки сразу включает кисть, Shift — прямоугольник */}
+      <PaletteSection title="Клетки" open={open.tiles} onToggle={() => toggle("tiles")}>
+        {tileGroups([...FLOOR_GROUPS, ...WALL_GROUPS])}
       </PaletteSection>
 
       <PaletteSection title={`Предметы (${SpriteKey.options.length})`} open={open.objects} onToggle={() => toggle("objects")}>

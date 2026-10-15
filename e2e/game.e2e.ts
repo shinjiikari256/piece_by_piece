@@ -520,6 +520,9 @@ describe("игра в браузере", () => {
     await page.goto(`${BASE}/editor/case-001/locations`);
     await page.waitForFunction(() => (window as any).__editor?.editorStore.get().screen === "case");
     const rect = (sel: string) => page.evaluate((s) => { const r = document.querySelector(s)!.getBoundingClientRect(); return { x: r.x, y: r.y, w: r.width, h: r.height }; }, sel);
+    // инструментов «Кисть» и «Прямоугольник» нет: выбор клетки сразу включает кисть, Shift — прямоугольник; пол и стены — одна секция «Клетки»
+    expect(await page.locator(".lm__tool").allTextContents()).toEqual(expect.not.arrayContaining([expect.stringMatching(/Кисть|Прямоуг/)]));
+    expect(await page.locator(".lm__section-head").allTextContents()).toEqual([expect.stringContaining("Клетки"), expect.stringContaining("Предметы"), expect.stringContaining("Люди")]);
     // слева по умолчанию: палитра левее карты
     expect((await rect(".lm__palette")).x).toBeLessThan((await rect(".lm__main")).x);
     await page.getByRole("button", { name: "Палитра снизу" }).click();

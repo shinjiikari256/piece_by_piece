@@ -59,8 +59,6 @@ export function MapEditor() {
   const [npcCharacter, setNpcCharacter] = useState(draft.characters[0]?.id ?? "");
   const [hover, setHover] = useState<{ x: number; y: number; px: number; py: number } | null>(null);
   const [zoom, setZoom] = useState<number | "fit">("fit");
-  const [brush, setBrush] = useState<"pen" | "rect">("pen");
-  const [lastTile, setLastTile] = useState(",");
   const [rect, setRect] = useState<{ from: { x: number; y: number }; to: { x: number; y: number } } | null>(null);
   // переход к объекту с ошибкой
   const focus = useEditor((s) => s.focus);
@@ -148,7 +146,7 @@ export function MapEditor() {
     stroke.current = { id };
     switch (tool.kind) {
       case "tile":
-        if (brush === "rect" || e.shiftKey) setRect({ from: t, to: t });
+        if (e.shiftKey) setRect({ from: t, to: t });
         else paint(t, tool.ch, id);
         break;
       case "object": {
@@ -241,10 +239,7 @@ export function MapEditor() {
     stroke.current = null;
   };
 
-  const pickTile = (ch: string) => {
-    setTool({ kind: "tile", ch });
-    setLastTile(ch);
-  };
+  const pickTile = (ch: string) => setTool({ kind: "tile", ch });
 
   const deleteSelected = () => {
     if (!sel || sel.kind === "start") return;
@@ -263,14 +258,6 @@ export function MapEditor() {
       setTool({ kind: "select" });
     }
     if (e.code === "KeyV") setTool({ kind: "select" });
-    if (e.code === "KeyB") {
-      setBrush("pen");
-      pickTile(tool.kind === "tile" ? tool.ch : lastTile);
-    }
-    if (e.code === "KeyR") {
-      setBrush("rect");
-      pickTile(tool.kind === "tile" ? tool.ch : lastTile);
-    }
   });
 
   if (!loc) return <p>Нет локаций.</p>;
@@ -305,7 +292,7 @@ export function MapEditor() {
     tool.kind === "select"
       ? ""
       : tool.kind === "tile"
-        ? `${brush === "rect" ? "Прямоугольник" : "Кисть"} «${TILE_NAMES[tool.ch]}»: ${brush === "rect" ? "растяните область" : "ведите с зажатой кнопкой (Shift — прямоугольником)"}`
+        ? `Клетка «${TILE_NAMES[tool.ch]}»: ведите с зажатой кнопкой (Shift — прямоугольником)`
         : tool.kind === "object"
           ? `Предмет «${SPRITE_NAMES[tool.sprite] ?? tool.sprite}»: кликните, куда поставить`
           : tool.kind === "npc"
@@ -325,9 +312,6 @@ export function MapEditor() {
           draft={draft}
           tool={tool}
           setTool={setTool}
-          brush={brush}
-          setBrush={setBrush}
-          lastTile={lastTile}
           pickTile={pickTile}
           npcCharacter={npcCharacter}
           setNpcCharacter={setNpcCharacter}
