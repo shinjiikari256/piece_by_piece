@@ -11,6 +11,8 @@ export function createSceneHost(): SceneHost {
     onInteract: (id) => actions.interact(id),
     hasZoneAction: (id) => actions.hasZoneAction(id),
     enterZone: (id) => actions.enterZone(id),
+    leaveZone: (id) => actions.leaveZone(id),
+    releaseFollowers: () => actions.releaseFollowers(),
     setNpcPlace: (characterId, place) => actions.npcPlaced(characterId, place),
     consumeSpawn: () => actions.consumeSpawn(),
     savedPlayer: () => store.get().savedPlayer,

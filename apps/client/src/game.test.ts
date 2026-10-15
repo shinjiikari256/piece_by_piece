@@ -1,6 +1,6 @@
 import { readdirSync, readFileSync } from "node:fs";
 import path from "node:path";
-import { beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { validateCase } from "./content/validate";
 import { scoreCase } from "../../../shared/scoring";
 import { actions, store } from "./state/store";
@@ -597,5 +597,58 @@ describe("ядро игры на платформе в памяти", () => {
       expect(mem.data.results).toHaveLength(1);
       expect(store.get().toasts.some((t) => t.text.includes("не удалось отправить"))).toBe(!deliver);
     }
+  });
+});
+
+describe("спутники: отвязка", () => {
+  const startWithZone = () => {
+    const raw = load("case-001.json") as unknown as CaseFile;
+    raw.flags = [...(raw.flags ?? []), { id: "never", name: "Никогда" }];
+    raw.locations[0].zones.push({
+      id: "z_wait",
+      name: "Закрытая",
+      cells: [{ x: 1, y: 1 }],
+      actions: [{ kind: "effects", effects: [], requires: { flags: ["never"] } }],
+    } as never);
+    const c = validateCase(raw);
+    if (!c.ok) throw new Error(c.errors.join("; "));
+    actions.openCase(new LocalAuthority(c.caseFile));
+    actions.beginInvestigation();
+    actions.interact("npc_alina");
+    ["what", "back"].forEach((id) => actions.choose(id));
+    actions.close();
+    actions.interact("npc_lebedeva");
+    ["quote", "back", "come", "go"].forEach((id) => actions.choose(id));
+    actions.close();
+  };
+  beforeEach(() => {
+    setPlatform(createMemoryPlatform());
+    vi.useFakeTimers();
+  });
+  afterEach(() => vi.useRealTimers());
+
+  it("вручную: releaseFollowers отвязывает всех", () => {
+    startWithZone();
+    expect(store.get().progress.followers).toEqual(["lebedeva"]);
+    actions.releaseFollowers();
+    expect(store.get().progress.followers).toEqual([]);
+  });
+
+  it("в области без подходящего действия спутник уходит через 3 секунды", () => {
+    startWithZone();
+    actions.enterZone("z_wait");
+    vi.advanceTimersByTime(2900);
+    expect(store.get().progress.followers).toEqual(["lebedeva"]);
+    vi.advanceTimersByTime(200);
+    expect(store.get().progress.followers).toEqual([]);
+  });
+
+  it("вышел из области до истечения 3 секунд — спутник остаётся", () => {
+    startWithZone();
+    actions.enterZone("z_wait");
+    vi.advanceTimersByTime(1500);
+    actions.leaveZone("z_wait");
+    vi.advanceTimersByTime(5000);
+    expect(store.get().progress.followers).toEqual(["lebedeva"]);
   });
 });

@@ -141,7 +141,9 @@ export class OfficeScene extends Phaser.Scene {
 
     const detachBridge = gameBridge.attach({
       interactNearest: () => {
+        // нечего трогать, а за игроком идут спутники — то же действие отпускает их
         if (this.focused) this.host.onInteract(this.focused.id);
+        else if (!this.host.isBlocked()) this.host.releaseFollowers();
       },
       whereIs: (characterId) => {
         const npc = this.npcs.get(characterId);
@@ -530,7 +532,9 @@ export class OfficeScene extends Phaser.Scene {
     const now = new Set<string>();
     for (const item of this.interactables) if (item.zone?.cells.has(key)) now.add(item.zone.id);
     const entered = [...now].filter((id) => !this.zonesIn.has(id));
+    const left = [...this.zonesIn].filter((id) => !now.has(id));
     this.zonesIn = now;
+    for (const id of left) this.host.leaveZone(id);
     for (const id of entered) this.host.enterZone(id);
   }
 
@@ -875,12 +879,15 @@ export class OfficeScene extends Phaser.Scene {
     if (!INTERACT_KEYS.has(event.code) || event.repeat) return;
     if (event.target instanceof Element && event.target.closest(UI_TARGETS)) return;
     if (this.time.now - this.overlayClosedAt < 250) return;
-    if (this.host.isBlocked() || !this.focused) return;
+    if (this.host.isBlocked()) return;
+    const release = !this.focused && this.host.getState().progress.followers.length > 0; // нечего трогать — отпускаем спутников
+    if (!this.focused && !release) return;
     // нажатие поглощаем: открывшееся окно не должно получить этот же Enter/Пробел
     event.preventDefault();
     event.stopImmediatePropagation();
     this.path = [];
-    this.host.onInteract(this.focused.id);
+    if (this.focused) this.host.onInteract(this.focused.id);
+    else this.host.releaseFollowers();
   }
 
   private updateFocus(blocked: boolean) {

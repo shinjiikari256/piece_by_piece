@@ -202,6 +202,10 @@ async function ask<T>(call: (a: CaseAuthority) => Promise<T>): Promise<T | null>
   }
 }
 
+/** Сколько спутник стоит в области без подходящего действия, прежде чем уйти домой. */
+const FOLLOWER_DISMISS_MS = 3000;
+const dismissTimers = new Map<string, ReturnType<typeof setTimeout>>();
+
 /** Устойчивый ключ действия области (не зависит от порядка в списке) — для «сработало один раз». */
 const actionKey = (zoneId: string, a: ZoneAction) =>
   `${zoneId}:${a.kind}:${a.kind === "dialogue" ? a.dialogueId : a.kind === "object" ? a.objectId : a.kind === "effects" ? JSON.stringify(a.effects) : a.to}`;
@@ -318,9 +322,38 @@ export const actions = {
   enterZone(zoneId: string) {
     if (isWorldBlocked(state)) return;
     const action = zoneAction(zoneId, true);
-    if (!action) return;
+    if (!action) {
+      // область с действиями, из которых сейчас ничего не подходит: спутники постоят и уйдут по своим местам
+      const zone = state.caseFile?.locations.flatMap((l) => l.zones).find((z) => z.id === zoneId);
+      if (zone?.actions.length && !zoneAction(zoneId) && state.progress.followers.length) {
+        const where = state.locationId;
+        clearTimeout(dismissTimers.get(zoneId));
+        dismissTimers.set(
+          zoneId,
+          setTimeout(() => {
+            dismissTimers.delete(zoneId);
+            if (state.screen === "play" && state.locationId === where) actions.releaseFollowers();
+          }, FOLLOWER_DISMISS_MS),
+        );
+      }
+      return;
+    }
     set((s) => ({ progress: { ...s.progress, fired: [...s.progress.fired, actionKey(zoneId, action)] } }));
     runZoneAction(zoneId, action);
+  },
+
+  /** Игрок вышел из области: спутники больше не «ждут» там. */
+  leaveZone(zoneId: string) {
+    clearTimeout(dismissTimers.get(zoneId));
+    dismissTimers.delete(zoneId);
+  },
+
+  /** Отвязать всех спутников: каждый возвращается на своё место пешком (вручную — кнопка «Отпустить», сама — см. `enterZone`). */
+  releaseFollowers() {
+    const ids = state.progress.followers;
+    if (!ids.length) return;
+    const { progress } = applyEffects(ids.map((characterId) => ({ type: "returnHome" as const, characterId })), state.progress);
+    set({ progress });
   },
 
   /** Переход через дверь в другую локацию; сцену перестраивает OfficeScene. */

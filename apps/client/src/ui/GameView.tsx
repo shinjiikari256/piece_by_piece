@@ -132,6 +132,7 @@ export function runTool(tool: ToolKey) {
 }
 
 function BottomBar() {
+  const followers = useGame((s) => s.progress.followers.length);
   const [focus, setFocus] = useState<string | null>(null);
 
   useEffect(() => {
@@ -152,12 +153,12 @@ function BottomBar() {
       <button
         onMouseDown={keepFocus}
         className="tool"
-        disabled={!focus}
+        disabled={!focus && !followers}
         onClick={() => gameBridge.interactNearest?.()}
-        title="Взаимодействие (E, Enter, Пробел)"
+        title={!focus && followers ? "Отпустить спутников: они вернутся на свои места (E, Enter, Пробел)" : "Взаимодействие (E, Enter, Пробел)"}
       >
-        <span className="tool__icon"><Icon name="hand" /></span>
-        <span className="tool__label ellipsis">{focus ? focus : "Взаимодействие"}</span>
+        <span className="tool__icon"><Icon name={!focus && followers ? "user" : "hand"} /></span>
+        <span className="tool__label ellipsis">{focus ? focus : followers ? "Отпустить спутников" : "Взаимодействие"}</span>
         <kbd>E</kbd>
       </button>
       <button onMouseDown={keepFocus} className="tool" onClick={() => runTool("journal")}>

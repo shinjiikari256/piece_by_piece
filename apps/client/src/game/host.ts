@@ -15,6 +15,8 @@ export interface SceneHost {
   hasZoneAction(zoneId: string): boolean;
   /** Игрок вошёл в область (срабатывает действие с автозапуском). */
   enterZone(zoneId: string): void;
+  leaveZone(zoneId: string): void;
+  releaseFollowers(): void;
   /** Где персонаж оказался после хода (`null` — на исходном месте). */
   setNpcPlace(characterId: string, place: { locationId: string; x: number; y: number } | null): void;
   /** Точка входа из двери использована. */
