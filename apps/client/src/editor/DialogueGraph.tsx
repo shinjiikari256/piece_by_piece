@@ -529,6 +529,8 @@ function effectLabel(e: DialogueNode["effects"][number]): string {
       return `улика ${e.evidenceId}`;
     case "setFlag":
       return `флаг ${e.flag}`;
+    case "removeFlag":
+      return `снять флаг ${e.flag}`;
     case "addCharacterNote":
       return `заметка о ${e.characterId}`;
     default:

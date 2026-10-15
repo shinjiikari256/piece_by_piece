@@ -8,7 +8,7 @@ import { FlagPicker } from "./Conditions";
 
 // ---------- эффекты ----------
 
-const EFFECT_TYPES: Effect["type"][] = ["addEvidence", "setFlag", "follow", "stay", "returnHome", "moveTo", "addCharacterNote"];
+const EFFECT_TYPES: Effect["type"][] = ["addEvidence", "setFlag", "removeFlag", "follow", "stay", "returnHome", "moveTo", "addCharacterNote"];
 
 const blankEffect = (type: Effect["type"], d: FormCtx["draft"]): Effect => {
   const ch = d.characters[0]?.id ?? "";
@@ -16,6 +16,7 @@ const blankEffect = (type: Effect["type"], d: FormCtx["draft"]): Effect => {
     case "addEvidence":
       return { type, evidenceId: "" };
     case "setFlag":
+    case "removeFlag":
       return { type, flag: "" };
     case "addCharacterNote":
       return { type, characterId: ch, text: "" };
@@ -44,7 +45,7 @@ export function EffectsEditor({ value, onChange, ctx }: { value: Effect[]; onCha
             {e.type === "addEvidence" && (
               <Select value={e.evidenceId} placeholder="какую улику" options={evidence} onChange={(v) => set(i, { ...e, evidenceId: v })} />
             )}
-            {e.type === "setFlag" && <FlagPicker value={e.flag} onChange={(v) => set(i, { ...e, flag: String(v) })} ctx={ctx} />}
+            {(e.type === "setFlag" || e.type === "removeFlag") && <FlagPicker value={e.flag} onChange={(v) => set(i, { ...e, flag: String(v) })} ctx={ctx} />}
             {"characterId" in e && (
               <Select value={e.characterId} placeholder="кто" options={chars} onChange={(v) => set(i, { ...e, characterId: v } as Effect)} />
             )}

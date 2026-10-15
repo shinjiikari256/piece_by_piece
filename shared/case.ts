@@ -47,6 +47,7 @@ export const Condition = z.object({
 export const Effect = z.discriminatedUnion("type", [
   z.object({ type: z.literal("addEvidence"), evidenceId: z.string() }),
   z.object({ type: z.literal("setFlag"), flag: z.string() }),
+  z.object({ type: z.literal("removeFlag"), flag: z.string() }).describe("Снять ранее поставленный флаг"),
   z.object({ type: z.literal("addCharacterNote"), characterId: z.string(), text: z.string() }),
   z.object({ type: z.literal("follow"), characterId: z.string() }).describe("Персонаж идёт за игроком"),
   z.object({ type: z.literal("stay"), characterId: z.string() }).describe("Перестаёт идти следом и остаётся, где стоит"),
@@ -231,6 +232,7 @@ const actionBase = {
 export const ZoneAction = z.discriminatedUnion("kind", [
   z.object({ kind: z.literal("dialogue"), dialogueId: z.string(), ...actionBase }).describe("Запустить диалог"),
   z.object({ kind: z.literal("object"), objectId: z.string(), ...actionBase }).describe("Взаимодействие с предметом (осмотр, улика)"),
+  z.object({ kind: z.literal("effects"), effects: z.array(Effect), ...actionBase }).describe("Применить эффекты (флаг, улика, персонаж…) без диалога"),
   z
     .object({
       kind: z.literal("exit"),

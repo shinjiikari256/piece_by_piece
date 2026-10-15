@@ -144,6 +144,7 @@ function checkIntegrity(c: CaseFile): string[] {
         checkCondition(a.requires, `${where}.requires`);
         if (a.kind === "dialogue") ref(dialogues, a.dialogueId, `${where} (диалог)`);
         if (a.kind === "exit") ref(locationIds, a.to, `${where} (выход)`);
+        if (a.kind === "effects") checkEffects(a.effects, where);
         if (a.kind === "object") {
           const o = c.locations.flatMap((l) => l.objects).find((x) => x.id === a.objectId);
           if (!o) err(`${where} (предмет): неизвестная ссылка «${a.objectId}»`);
@@ -243,10 +244,11 @@ function checkIntegrity(c: CaseFile): string[] {
   const condFlags = (cond?: Condition) => [...(cond?.flags ?? []), ...(cond?.notFlags ?? [])].forEach((f) => usedFlags.add(f));
   for (const dl of c.dialogues)
     for (const n of dl.nodes) {
-      n.effects.forEach((e) => e.type === "setFlag" && usedFlags.add(e.flag));
+      n.effects.forEach((e) => (e.type === "setFlag" || e.type === "removeFlag") && usedFlags.add(e.flag));
       n.choices.forEach((ch) => condFlags(ch.requires));
     }
-  c.deductions.forEach((x) => x.effects.forEach((e) => e.type === "setFlag" && usedFlags.add(e.flag)));
+  c.deductions.forEach((x) => x.effects.forEach((e) => (e.type === "setFlag" || e.type === "removeFlag") && usedFlags.add(e.flag)));
+  c.locations.forEach((l) => l.zones.forEach((z) => z.actions.forEach((a) => a.kind === "effects" && a.effects.forEach((e) => (e.type === "setFlag" || e.type === "removeFlag") && usedFlags.add(e.flag)))));
   c.locations.forEach((l) => l.npcs.forEach((n) => n.dialogues.forEach((nd) => condFlags(nd.requires))));
   c.locations.forEach((l) => l.zones.forEach((z) => z.actions.forEach((a) => condFlags(a.requires))));
   c.locations.forEach((l) => l.doors.forEach((d) => condFlags(d.requires)));

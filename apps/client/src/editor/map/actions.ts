@@ -4,6 +4,7 @@ import type { CaseFile, ZoneAction } from "../../../../../shared/case";
 export function actionSummary(a: ZoneAction, draft: CaseFile): string {
   if (a.kind === "dialogue") return `диалог «${a.dialogueId}»`;
   if (a.kind === "object") return `предмет «${a.objectId}»`;
+  if (a.kind === "effects") return `эффекты (${a.effects.length})`;
   return `выход → ${draft.locations.find((l) => l.id === a.to)?.name ?? a.to}`;
 }
 

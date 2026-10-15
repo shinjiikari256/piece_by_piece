@@ -24,6 +24,15 @@ describe("эффект moveTo: ядро", () => {
   });
 });
 
+describe("эффект removeFlag", () => {
+  it("снимает флаг, повторно — безопасно; исходное состояние не меняется", () => {
+    const start = { ...emptyProgress(), flags: ["a", "b"] };
+    const { progress } = applyEffects([{ type: "removeFlag", flag: "a" }, { type: "removeFlag", flag: "нет_такого" }], start);
+    expect(progress.flags).toEqual(["b"]);
+    expect(start.flags).toEqual(["a", "b"]);
+  });
+});
+
 describe("эффект moveTo: валидатор", () => {
   const withEffect = (effect: Effect, mutate?: (c: CaseFile) => void) => {
     const c = structuredClone(case001) as unknown as CaseFile;

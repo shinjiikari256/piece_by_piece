@@ -29,10 +29,10 @@ export function flagsOf(d: FormCtx["draft"]): string[] {
   };
   for (const dl of d.dialogues)
     for (const n of dl.nodes) {
-      n.effects.forEach((e) => e.type === "setFlag" && out.add(e.flag));
+      n.effects.forEach((e) => (e.type === "setFlag" || e.type === "removeFlag") && out.add(e.flag));
       n.choices.forEach((ch) => cond(ch.requires));
     }
-  d.deductions.forEach((x) => x.effects.forEach((e) => e.type === "setFlag" && out.add(e.flag)));
+  d.deductions.forEach((x) => x.effects.forEach((e) => (e.type === "setFlag" || e.type === "removeFlag") && out.add(e.flag)));
   d.locations.forEach((l) => {
     l.doors.forEach((door) => cond(door.requires));
     l.npcs.forEach((n) => n.dialogues.forEach((nd) => cond(nd.requires)));
@@ -42,7 +42,7 @@ export function flagsOf(d: FormCtx["draft"]): string[] {
 }
 
 export interface FlagUse {
-  kind: "ставит" | "проверяет" | "проверяет отсутствие";
+  kind: "ставит" | "снимает" | "проверяет" | "проверяет отсутствие";
   where: string;
   focus: Focus;
 }
@@ -60,7 +60,7 @@ export function flagUsage(d: FormCtx["draft"]): Map<string, FlagUse[]> {
   for (const dl of d.dialogues)
     for (const n of dl.nodes) {
       n.effects.forEach(
-        (e) => e.type === "setFlag" && add(e.flag, { kind: "ставит", where: `Разговор: ${who(dl.characterId)} — реплика «${n.text.slice(0, 50)}»`, focus: dialogueFocus(dl.id, n.id) }),
+        (e) => (e.type === "setFlag" || e.type === "removeFlag") && add(e.flag, { kind: e.type === "setFlag" ? "ставит" : "снимает", where: `Разговор: ${who(dl.characterId)} — реплика «${n.text.slice(0, 50)}»`, focus: dialogueFocus(dl.id, n.id) }),
       );
       n.choices.forEach((ch) => cond(ch.requires, `Разговор: ${who(dl.characterId)} — вариант «${ch.text.slice(0, 50)}»`, dialogueFocus(dl.id, n.id)));
     }
@@ -88,7 +88,7 @@ export function deleteFlag(d: CaseFile, flag: string): CaseFile {
     const { requires: _old, ...rest } = x;
     return (Object.keys(r).length ? { ...rest, requires: r } : rest) as T;
   };
-  const noSet = <E extends { type: string; flag?: string }>(effects: E[]) => effects.filter((e) => !(e.type === "setFlag" && e.flag === flag));
+  const noSet = <E extends { type: string; flag?: string }>(effects: E[]) => effects.filter((e) => !((e.type === "setFlag" || e.type === "removeFlag") && e.flag === flag));
   return {
     ...d,
     flags: (d.flags ?? []).filter((f) => f.id !== flag),

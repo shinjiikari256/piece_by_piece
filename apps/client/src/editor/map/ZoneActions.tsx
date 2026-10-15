@@ -1,11 +1,12 @@
 import { useState } from "react";
-import type { CaseFile, Condition, Zone, ZoneAction } from "../../../../../shared/case";
+import type { CaseFile, Condition, Effect, Zone, ZoneAction } from "../../../../../shared/case";
+import { EffectsEditor } from "../fields/Effects";
 import { Select } from "../../ui/Select";
 import { moveItem } from "../../util/lists";
 import { ConditionEditor } from "../fields/Conditions";
 import { CellPicker } from "./CellPicker";
 
-const KIND_LABEL: Record<ZoneAction["kind"], string> = { dialogue: "Диалог", object: "Предмет", exit: "Выход" };
+const KIND_LABEL: Record<ZoneAction["kind"], string> = { dialogue: "Диалог", object: "Предмет", effects: "Эффекты", exit: "Выход" };
 
 /** Первое подходящее по порядку действие срабатывает — порядок меняют стрелками. */
 export function ZoneActions({ zone, draft, onChange }: { zone: Zone; draft: CaseFile; onChange: (actions: ZoneAction[]) => void }) {
@@ -17,6 +18,7 @@ export function ZoneActions({ zone, draft, onChange }: { zone: Zone; draft: Case
   const blank = (kind: ZoneAction["kind"]): ZoneAction => {
     if (kind === "dialogue") return { kind, dialogueId: draft.dialogues[0]?.id ?? "" };
     if (kind === "object") return { kind, objectId: objects[0]?.value ?? "" };
+    if (kind === "effects") return { kind, effects: [] };
     const to = draft.locations.find((l) => !l.zones.includes(zone))?.id ?? draft.locations[0].id;
     return { kind, to, spawn: draft.locations.find((l) => l.id === to)?.playerStart ?? { x: 0, y: 0 } };
   };
@@ -45,6 +47,7 @@ export function ZoneActions({ zone, draft, onChange }: { zone: Zone; draft: Case
           </div>
           {a.kind === "dialogue" && <Select value={a.dialogueId} placeholder="какой диалог" options={dialogues} onChange={(v) => set(i, { ...a, dialogueId: v })} />}
           {a.kind === "object" && <Select value={a.objectId} placeholder="какой предмет" options={objects} onChange={(v) => set(i, { ...a, objectId: v })} />}
+          {a.kind === "effects" && <EffectsEditor value={a.effects} ctx={{ draft }} onChange={(v) => set(i, { ...a, effects: v as Effect[] })} />}
           {a.kind === "exit" && (
             <>
               <Select
@@ -89,7 +92,7 @@ export function ZoneActions({ zone, draft, onChange }: { zone: Zone; draft: Case
         className="sel--add"
         value=""
         placeholder="+ действие"
-        options={(["dialogue", "object", "exit"] as const).map((k) => ({ value: k, label: KIND_LABEL[k] }))}
+        options={(["dialogue", "object", "effects", "exit"] as const).map((k) => ({ value: k, label: KIND_LABEL[k] }))}
         onChange={(k) => onChange([...zone.actions, blank(k as ZoneAction["kind"])])}
       />
       {picking !== null && zone.actions[picking]?.kind === "exit" && (

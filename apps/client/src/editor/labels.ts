@@ -188,6 +188,7 @@ export const ENUM_LABELS: Record<string, string> = {
   possible: "возможно",
   addEvidence: "добавить улику в дело",
   setFlag: "поставить флаг",
+  removeFlag: "снять флаг",
   addCharacterNote: "заметка о персонаже",
   follow: "персонаж идёт следом",
   stay: "персонаж остаётся, где стоит",

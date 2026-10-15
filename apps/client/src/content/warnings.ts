@@ -45,6 +45,7 @@ export function caseWarnings(c: CaseFile): string[] {
     );
     l.zones.forEach((z) =>
       z.actions.forEach((a) => {
+        if (a.kind === "effects") effects(a.effects);
         positive(a.requires);
       }),
     );

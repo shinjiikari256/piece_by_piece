@@ -367,6 +367,9 @@ describe("игра в браузере", () => {
     await placeAt(14, 10);
     await page.waitForTimeout(400);
     expect(await overlay()).toBeNull();
+    // область с действием «эффекты» и автозапуском сама ставит флаг
+    await placeAt(2, 14);
+    await page.waitForFunction(() => (window as any).__game.store.get().progress.flags.includes("visited_corner"));
     // область без автозапуска: подсказка появляется внутри, E запускает диалог
     await placeAt(23, 13);
     await page.waitForFunction(() => (window as any).__scene.focused?.id === "zone:zone_corridor_end");

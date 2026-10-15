@@ -203,7 +203,8 @@ async function ask<T>(call: (a: CaseAuthority) => Promise<T>): Promise<T | null>
 }
 
 /** Устойчивый ключ действия области (не зависит от порядка в списке) — для «сработало один раз». */
-const actionKey = (zoneId: string, a: ZoneAction) => `${zoneId}:${a.kind}:${a.kind === "dialogue" ? a.dialogueId : a.kind === "object" ? a.objectId : a.to}`;
+const actionKey = (zoneId: string, a: ZoneAction) =>
+  `${zoneId}:${a.kind}:${a.kind === "dialogue" ? a.dialogueId : a.kind === "object" ? a.objectId : a.kind === "effects" ? JSON.stringify(a.effects) : a.to}`;
 
 /** Первое подходящее действие области: условие выполнено, цель существует; `auto` — только с автозапуском и ещё не сработавшие. */
 function zoneAction(zoneId: string, auto = false): ZoneAction | undefined {
@@ -223,7 +224,11 @@ function runZoneAction(zoneId: string, a: ZoneAction) {
     const dialogue = state.caseFile?.dialogues.find((d) => d.id === a.dialogueId);
     if (dialogue) enterNode(`zone:${zoneId}`, dialogue.id, dialogue.startNodeId);
   } else if (a.kind === "object") actions.interact(a.objectId);
-  else actions.travel({ to: a.to, spawn: a.spawn });
+  else if (a.kind === "effects") {
+    const { progress, newEvidence } = applyEffects(a.effects, state.progress, whereIs);
+    set({ progress });
+    announceEvidence(newEvidence);
+  } else actions.travel({ to: a.to, spawn: a.spawn });
 }
 
 const choiceKey = (dialogueId: string, nodeId: string, choiceId: string) =>

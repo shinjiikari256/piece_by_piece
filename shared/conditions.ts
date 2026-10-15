@@ -79,6 +79,9 @@ export function applyEffects(
       case "setFlag":
         if (!next.flags.includes(e.flag)) next.flags.push(e.flag);
         break;
+      case "removeFlag":
+        next.flags = next.flags.filter((f) => f !== e.flag);
+        break;
       case "addCharacterNote": {
         const notes = next.characterNotes[e.characterId] ?? [];
         if (!notes.includes(e.text)) next.characterNotes[e.characterId] = [...notes, e.text];
