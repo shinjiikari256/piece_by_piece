@@ -405,12 +405,46 @@ describe("игра в браузере", () => {
     // выбрана — панель со свойствами, название меняется
     await page.locator(".lm__inspector input").first().fill("Проходная");
     expect((await zones())[0].name).toBe("Проходная");
+    // ключ области меняется вручную
+    await page.locator(".lm__inspector .key-field__input").fill("zone_gate");
+    await page.keyboard.press("Enter");
+    expect((await zones())[0].id).toBe("zone_gate");
     // стереть одну клетку (Alt)
     await page.keyboard.down("Alt");
     await page.mouse.click(cell(7, 5).x, cell(7, 5).y);
     await page.keyboard.up("Alt");
     z = await zones();
     expect(z[0].cells).toHaveLength(2);
+    await page.close();
+  });
+
+  it("конструктор: триггер диалога — область, которую можно создать прямо из диалога", async () => {
+    const page = await h.page();
+    await page.goto(`${BASE}/editor/case-001/dialogues`);
+    await page.waitForFunction(() => (window as any).__editor?.editorStore.get().screen === "case");
+    const draft = () => page.evaluate(() => (window as any).__editor.editorStore.get().draft);
+    const dialogueId = await page.locator(".ed__list .ed__item[aria-current] code").innerText();
+    await page.locator(".dg__trigger .sel").first().click();
+    await page.locator('[role="option"]', { hasText: "Область на карте" }).click(); // зон ещё нет — сразу открывается создание
+    await page.locator('input[placeholder^="Например"]').fill("У окна");
+    expect(await page.getByRole("button", { name: "Создать", exact: true }).isDisabled()).toBe(true); // нет клеток
+    const canvas = page.locator(".cell-picker__canvas");
+    const box = (await canvas.boundingBox())!;
+    const dims = await page.evaluate(() => { const l = (window as any).__editor.editorStore.get().draft.locations[0]; return { w: l.tiles[0].length, h: l.tiles.length }; });
+    const at = (x: number, y: number) => ({ x: box.x + (box.width / dims.w) * (x + 0.5), y: box.y + (box.height / dims.h) * (y + 0.5) });
+    await page.mouse.move(at(10, 5).x, at(10, 5).y);
+    await page.mouse.down();
+    await page.mouse.move(at(12, 5).x, at(12, 5).y, { steps: 4 });
+    await page.mouse.up();
+    await page.getByRole("button", { name: "Создать", exact: true }).click();
+    const d = await draft();
+    const zone = d.locations[0].zones[0];
+    expect(zone).toMatchObject({ name: "У окна" });
+    expect(zone.cells.length).toBe(3);
+    expect(d.dialogues.find((x: any) => x.id === dialogueId).trigger).toEqual({ kind: "zone", zoneId: zone.id });
+    // автозапуск
+    await page.getByLabel(/Запускать сам/).check();
+    expect((await draft()).dialogues.find((x: any) => x.id === dialogueId).trigger.auto).toBe(true);
     await page.close();
   });
 

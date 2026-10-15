@@ -9,6 +9,7 @@ import { ObjectFields, type JS } from "./SchemaForm";
 import { ArtThumb } from "./Pickers";
 import { EntityList, ItemText } from "./EntityList";
 import { PanelGrip, PanelRail, panelVars, usePanel } from "./panels";
+import { DialogueTrigger } from "./fields/DialogueTrigger";
 import { MOOD_TONE } from "../ui/tone";
 import { setSearchParams } from "../ui/router";
 import { useUrlParam, useWriteDefaultParam } from "./url";
@@ -205,6 +206,16 @@ export function DialogueEditor({ fixedId }: { fixedId?: string } = {}) {
         <PanelRail panel={sidePanel} />
       ) : (
         <aside className="dg__side">
+          {!isConfrontation && (
+            <DialogueTrigger
+              draft={draft}
+              dialogue={dialogue}
+              onChange={(fn) => updateDialogue(fn)}
+              onCreateZone={(locationId, zone) =>
+                editor.update((c) => ({ ...c, locations: c.locations.map((l) => (l.id === locationId ? { ...l, zones: [...l.zones, zone] } : l)) }))
+              }
+            />
+          )}
           {node ? (
             <>
               <div className="dg__side-head row">

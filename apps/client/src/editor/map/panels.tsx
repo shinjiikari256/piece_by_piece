@@ -1,10 +1,14 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { z } from "zod";
 import {
   drawTile,
 } from "../../game/art";
 import { Door, Exit, Location, LocationObject, NpcPlacement } from "../../../../../shared/case";
-import type { CaseFile as CaseFileT, Location as LocationT } from "../../../../../shared/case";
+import type { CaseFile as CaseFileT, Location as LocationT, Zone } from "../../../../../shared/case";
+import { Icon } from "../../ui/icons";
+import { ask, tell } from "../../ui/dialog";
+import { editor } from "../state";
+import { zoneKey } from "./ZoneCreator";
 import { Field, ObjectFields, type JS } from "../SchemaForm";
 import { ConditionEditor } from "../fields/Conditions";
 import type { Condition } from "../../../../../shared/case";
@@ -68,6 +72,7 @@ export function SelectedPanel({
   onClose,
   tool,
   setTool,
+  onSelect,
 }: {
   loc: LocationT;
   sel: NonNullable<Selection>;
@@ -77,6 +82,7 @@ export function SelectedPanel({
   onClose: () => void;
   tool: Tool;
   setTool: (t: Tool) => void;
+  onSelect: (s: Selection) => void;
 }) {
   const back = (
     <button className="link-btn lm__back" onClick={onClose}>
@@ -108,9 +114,8 @@ export function SelectedPanel({
           <span className="ef__label">Название</span>
           <input value={zone.name} onChange={(e) => updateLoc((l) => ({ ...l, zones: l.zones.map((z) => (z.id === zone.id ? { ...z, name: e.target.value } : z)) }), `zone-name:${zone.id}`)} />
         </label>
-        <p className="muted">
-          Ключ <code>{zone.id}</code> · клеток: {zone.cells.length}
-        </p>
+        <ZoneKeyField zone={zone} draft={draft} onRenamed={(key) => onSelect({ kind: "zone", id: key })} />
+        <p className="muted">Клеток: {zone.cells.length}</p>
         <div className="seg" role="group" aria-label="Рисование области">
           <button className="seg__btn" aria-pressed={drawing && !(tool as { erase?: boolean }).erase} onClick={() => setTool({ kind: "zone" })}>
             Дорисовать
@@ -152,6 +157,51 @@ export function SelectedPanel({
         Удалить (Delete)
       </button>
     </>
+  );
+}
+
+/** Ключ области: меняется только вручную (Enter или уход с поля); ссылки в триггерах диалогов заменяются вместе с ним. */
+function ZoneKeyField({ zone, draft, onRenamed }: { zone: Zone; draft: CaseFileT; onRenamed: (key: string) => void }) {
+  const [text, setText] = useState(zone.id);
+  useEffect(() => setText(zone.id), [zone.id]);
+  const suggestion = zoneKey(draft, zone.name);
+  const commit = async (next: string) => {
+    const key = next.trim();
+    if (!key || key === zone.id) return setText(zone.id);
+    if (draft.locations.some((l) => l.zones.some((z) => z.id === key))) {
+      setText(zone.id);
+      return tell({ title: "Ключ уже занят", text: `«${key}» уже есть у другой области — выберите другой.` });
+    }
+    const used = draft.dialogues.filter((d) => d.trigger?.zoneId === zone.id).length;
+    if (used > 0 && !(await ask({ title: "Переименовать ключ?", text: `Ключ «${zone.id}» используется в ${used} диалог(ах). Он заменится на «${key}» во всех триггерах.`, confirmLabel: "Переименовать" }))) return setText(zone.id);
+    editor.update((c) => ({
+      ...c,
+      locations: c.locations.map((l) => ({ ...l, zones: l.zones.map((z) => (z.id === zone.id ? { ...z, id: key } : z)) })),
+      dialogues: c.dialogues.map((d) => (d.trigger?.zoneId === zone.id ? { ...d, trigger: { ...d.trigger, zoneId: key } } : d)),
+    }));
+    onRenamed(key); // выбор области в адресе идёт по ключу
+  };
+  return (
+    <div className="ef">
+      <span className="ef__label">Ключ</span>
+      <div className="key-field row">
+        <input
+          className="key-field__input"
+          value={text}
+          onChange={(e) => setText(e.target.value.replace(/[^\w-]+/g, "_"))}
+          onBlur={() => void commit(text)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") void commit(text);
+            if (e.key === "Escape") setText(zone.id);
+          }}
+        />
+        {suggestion !== zone.id && (
+          <button className="btn btn--sm btn--icon" onClick={() => void commit(suggestion)} title="Сгенерировать из названия" aria-label="Сгенерировать из названия">
+            <Icon name="sparkle" size={16} />
+          </button>
+        )}
+      </div>
+    </div>
   );
 }
 

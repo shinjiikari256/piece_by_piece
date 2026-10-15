@@ -457,7 +457,7 @@ export function MapEditor() {
                 }}
               />
             ) : sel ? (
-              <SelectedPanel loc={loc} sel={sel} updateLoc={updateLoc} onDelete={deleteSelected} draft={draft} onClose={() => setSel(null)} tool={tool} setTool={setTool} />
+              <SelectedPanel loc={loc} sel={sel} updateLoc={updateLoc} onDelete={deleteSelected} draft={draft} onClose={() => setSel(null)} tool={tool} setTool={setTool} onSelect={setSel} />
             ) : (
               <>
                 <h3>Локация</h3>
