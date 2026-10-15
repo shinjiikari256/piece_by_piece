@@ -10,7 +10,7 @@ import {
 import { LocationObject, NpcPlacement } from "../../../../../shared/case";
 import type { CaseFile as CaseFileT, Location as LocationT } from "../../../../../shared/case";
 import { doorCanvas, lookCanvas, T, useSpriteCanvases } from "./canvases";
-import { normRect } from "./helpers";
+import { normRect, zoneColor } from "./helpers";
 import type { PxRect } from "./helpers";
 import type { Tool, DoorT } from "./types";
 
@@ -24,11 +24,13 @@ export interface MapRenderState {
   hover: { x: number; y: number } | null;
   rect: { from: { x: number; y: number }; to: { x: number; y: number } } | null;
   selected: PxRect | null;
+  /** Выбранная область — рисуется ярче. */
+  zoneSel?: string | null;
 }
 
 /** Перерисовать холст: клетки, предметы, люди, двери, наведение, выделение. */
 export function renderMap(cv: HTMLCanvasElement, s: MapRenderState) {
-  const { loc, art, characters, tool, npcCharacter, hover, rect, selected } = s;
+  const { loc, art, characters, tool, npcCharacter, hover, rect, selected, zoneSel } = s;
   const w = loc.tiles[0]?.length ?? 0;
   const h = loc.tiles.length;
   cv.width = w * T;
@@ -46,6 +48,24 @@ export function renderMap(cv: HTMLCanvasElement, s: MapRenderState) {
     ...loc.doors.map((d) => ({ y: d.orientation === "v" ? d.y + 1 : d.y, draw: () => drawDoorAt(ctx, d) })),
   ].sort((a, b) => a.y - b.y);
   items.forEach((i) => i.draw());
+
+  // области-триггеры: цветная заливка клеток, подпись у верхней левой клетки
+  for (const z of loc.zones) {
+    const on = z.id === zoneSel || (tool.kind === "zone" && !zoneSel);
+    ctx.fillStyle = zoneColor(z.id, on ? 0.38 : 0.24);
+    for (const c of z.cells) ctx.fillRect(c.x * T, c.y * T, T, T);
+    if (z.id === zoneSel) {
+      ctx.strokeStyle = zoneColor(z.id, 0.95);
+      ctx.lineWidth = 1;
+      for (const c of z.cells) ctx.strokeRect(c.x * T + 0.5, c.y * T + 0.5, T - 1, T - 1);
+    }
+    const first = [...z.cells].sort((a, b) => a.y - b.y || a.x - b.x)[0];
+    if (first) {
+      ctx.fillStyle = "rgba(20,12,4,0.85)";
+      ctx.font = "bold 7px sans-serif";
+      ctx.fillText(z.name, first.x * T + 1, first.y * T + 7);
+    }
+  }
 
   // старт, выходы, подписи зон
   ctx.strokeStyle = "#2e9e5b";
@@ -72,12 +92,22 @@ export function renderMap(cv: HTMLCanvasElement, s: MapRenderState) {
     if (tool.kind === "npc") drawNpc(ctx, { id: "", characterId: npcCharacter, dialogueId: "", x: hover.x, y: hover.y });
     if (tool.kind === "tile") drawTile(ctx, tool.ch, hover.x * T, hover.y * T, {});
     if (tool.kind === "door") drawDoorAt(ctx, { id: "", x: hover.x, y: hover.y, orientation: tool.orientation });
+    if (tool.kind === "zone") {
+      ctx.fillStyle = tool.erase ? "rgba(224,88,74,0.7)" : "rgba(46,158,91,0.7)";
+      ctx.fillRect(hover.x * T, hover.y * T, T, T);
+    }
     ctx.restore();
     const fw = tool.kind === "object" ? SPRITES[tool.sprite].footprint : tool.kind === "door" && tool.orientation === "h" ? 2 : 1;
     const fh = tool.kind === "door" && tool.orientation === "v" ? 2 : 1;
     ctx.strokeStyle = "rgba(255,255,255,0.9)";
     ctx.lineWidth = 1;
     ctx.strokeRect(hover.x * T + 0.5, hover.y * T + 0.5, fw * T - 1, fh * T - 1);
+  }
+  if (rect && tool.kind === "zone") {
+    const r = normRect(rect);
+    ctx.strokeStyle = tool.erase ? "#e0584a" : "#2e9e5b";
+    ctx.lineWidth = 1;
+    ctx.strokeRect(r.x * T + 0.5, r.y * T + 0.5, r.w * T - 1, r.h * T - 1);
   }
   if (rect && tool.kind === "tile") {
     const r = normRect(rect);

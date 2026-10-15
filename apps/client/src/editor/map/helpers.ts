@@ -63,6 +63,15 @@ const tileRect = (x: number, y: number): PxRect => ({ x: x * T, y: y * T, w: T, 
 export function selectionBox(loc: LocationT | undefined, s: Selection): PxRect | null {
   if (!s || !loc) return null;
   if (s.kind === "start") return tileRect(loc.playerStart.x, loc.playerStart.y);
+  if (s.kind === "zone") {
+    const z = loc.zones.find((x) => x.id === s.id);
+    if (!z?.cells.length) return null;
+    const xs = z.cells.map((c) => c.x);
+    const ys = z.cells.map((c) => c.y);
+    const x0 = Math.min(...xs);
+    const y0 = Math.min(...ys);
+    return { x: x0 * T, y: y0 * T, w: (Math.max(...xs) - x0 + 1) * T, h: (Math.max(...ys) - y0 + 1) * T };
+  }
   if (s.kind === "object") {
     const o = loc.objects.find((x) => x.id === s.id);
     return o ? objectRect(o) : null;
@@ -115,4 +124,25 @@ export function cellFree(loc: LocationT, x: number, y: number, characterId?: str
   const solid = loc.objects.some((o) => SPRITES[o.sprite].solid && y === o.y && x >= o.x && x < o.x + SPRITES[o.sprite].footprint);
   const person = loc.npcs.some((n) => n.x === x && n.y === y && n.characterId !== characterId);
   return !solid && !person;
+}
+
+/** Клетки области после добавления или стирания клеток `cells` (без повторов). */
+export function zoneCells(current: { x: number; y: number }[], cells: { x: number; y: number }[], add: boolean) {
+  const key = (c: { x: number; y: number }) => `${c.x},${c.y}`;
+  const touched = new Set(cells.map(key));
+  if (!add) return current.filter((c) => !touched.has(key(c)));
+  const have = new Set(current.map(key));
+  return [...current, ...cells.filter((c) => !have.has(key(c)))];
+}
+
+/** Все клетки прямоугольника. */
+export function rectCells(r: { x: number; y: number; w: number; h: number }) {
+  return Array.from({ length: r.w * r.h }, (_, i) => ({ x: r.x + (i % r.w), y: r.y + Math.floor(i / r.w) }));
+}
+
+/** Цвет области на карте: оттенок по id, чтобы соседние области различались. */
+export function zoneColor(id: string, alpha: number) {
+  let hash = 0;
+  for (const ch of id) hash = (hash * 31 + ch.charCodeAt(0)) % 360;
+  return `hsla(${hash}, 70%, 50%, ${alpha})`;
 }

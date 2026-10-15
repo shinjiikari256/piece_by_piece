@@ -493,6 +493,7 @@
   padding: 0.2rem;
 }
 .lm[data-dock="bottom"] .lm__palette .lm__section:not([data-open]) .lm__section-title {
+  display: block; /* writing-mode не действует на строчный элемент */
   writing-mode: vertical-rl;
   transform: rotate(180deg);
 }

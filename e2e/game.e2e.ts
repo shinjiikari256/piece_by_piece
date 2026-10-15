@@ -382,6 +382,38 @@ describe("игра в браузере", () => {
     await page.close();
   });
 
+  it("конструктор: инструмент «Область» создаёт именованную область, дорисовывает и стирает клетки", async () => {
+    const page = await h.page();
+    await page.goto(`${BASE}/editor/case-001/locations`);
+    await page.waitForFunction(() => (window as any).__editor?.editorStore.get().screen === "case");
+    await page.locator(".lm__tool", { hasText: "Область" }).click();
+    const canvas = page.locator(".lm__canvas");
+    const box = (await canvas.boundingBox())!;
+    const dims = await page.evaluate(() => { const l = (window as any).__editor.editorStore.get().draft.locations[0]; return { w: l.tiles[0].length, h: l.tiles.length }; });
+    const cell = (x: number, y: number) => ({ x: box.x + (box.width / dims.w) * (x + 0.5), y: box.y + (box.height / dims.h) * (y + 0.5) });
+    const zones = () => page.evaluate(() => (window as any).__editor.editorStore.get().draft.locations[0].zones as { id: string; name: string; cells: { x: number; y: number }[] }[]);
+    // мазок по трём клеткам создаёт область
+    await page.mouse.move(cell(5, 5).x, cell(5, 5).y);
+    await page.mouse.down();
+    await page.mouse.move(cell(6, 5).x, cell(6, 5).y, { steps: 3 });
+    await page.mouse.move(cell(7, 5).x, cell(7, 5).y, { steps: 3 });
+    await page.mouse.up();
+    let z = await zones();
+    expect(z).toHaveLength(1);
+    expect(z[0].cells).toHaveLength(3);
+    expect(z[0].name).toMatch(/Область/);
+    // выбрана — панель со свойствами, название меняется
+    await page.locator(".lm__inspector input").first().fill("Проходная");
+    expect((await zones())[0].name).toBe("Проходная");
+    // стереть одну клетку (Alt)
+    await page.keyboard.down("Alt");
+    await page.mouse.click(cell(7, 5).x, cell(7, 5).y);
+    await page.keyboard.up("Alt");
+    z = await zones();
+    expect(z[0].cells).toHaveLength(2);
+    await page.close();
+  });
+
   it("окна открываются и закрываются", async () => {
     const page = await h.page();
     await startCase(page);
@@ -576,6 +608,9 @@ describe("игра в браузере", () => {
     const full = await sectionWidth();
     await page.locator(".lm__section-head").first().click();
     expect(await sectionWidth()).toBeLessThan(full / 3);
+    // название свёрнутой секции повёрнуто вдоль: выше, чем шире, и стрелка остаётся сверху
+    const title = await page.evaluate(() => { const r = document.querySelector(".lm__palette .lm__section:not([data-open]) .lm__section-title")!.getBoundingClientRect(); return { w: r.width, h: r.height }; });
+    expect(title.h).toBeGreaterThan(title.w);
     await page.locator(".lm__section-head").first().click();
     expect(await sectionWidth()).toBeGreaterThan(full / 2);
     // высота: стрелка вверх у границы делает панель выше

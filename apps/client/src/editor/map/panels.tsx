@@ -9,7 +9,7 @@ import { Field, ObjectFields, type JS } from "../SchemaForm";
 import { ConditionEditor } from "../fields/Conditions";
 import type { Condition } from "../../../../../shared/case";
 import { T } from "./canvases";
-import { LIST_KEY, type Selection } from "./types";
+import { LIST_KEY, type Selection, type Tool } from "./types";
 
 
 const OBJECT_SCHEMA: JS = z.toJSONSchema(LocationObject);
@@ -32,7 +32,7 @@ export function PaletteGroup({ title, count, open, onToggle, children }: { title
   return (
     <div className="lm__group">
       <button className="lm__group-head" onClick={onToggle} aria-expanded={open}>
-        <span>{open ? "▾" : "▸"}</span> <span className="lm__section-title">{title}</span> <small>{count}</small>
+        <span>{open ? "▾" : "▸"}</span> {title} <small>{count}</small>
       </button>
       {open && <div className="lm__group-body">{children}</div>}
     </div>
@@ -43,7 +43,7 @@ export function PaletteSection({ title, open, onToggle, children }: { title: str
   return (
     <section className="lm__section" data-open={open || undefined}>
       <button className="lm__section-head" onClick={onToggle}>
-        <span>{open ? "▾" : "▸"}</span> {title}
+        <span>{open ? "▾" : "▸"}</span> <span className="lm__section-title">{title}</span>
       </button>
       {open && <div className="lm__section-body">{children}</div>}
     </section>
@@ -66,6 +66,8 @@ export function SelectedPanel({
   onDelete,
   draft,
   onClose,
+  tool,
+  setTool,
 }: {
   loc: LocationT;
   sel: NonNullable<Selection>;
@@ -73,6 +75,8 @@ export function SelectedPanel({
   onDelete: () => void;
   draft: CaseFileT;
   onClose: () => void;
+  tool: Tool;
+  setTool: (t: Tool) => void;
 }) {
   const back = (
     <button className="link-btn lm__back" onClick={onClose}>
@@ -87,6 +91,41 @@ export function SelectedPanel({
         <p className="muted">
           Клетка {loc.playerStart.x}, {loc.playerStart.y}. Перетащите маркер ▶ на карте.
         </p>
+      </>
+    );
+  }
+  if (sel.kind === "zone") {
+    const zone = loc.zones.find((z) => z.id === sel.id);
+    if (!zone) return null;
+    const drawing = tool.kind === "zone";
+    const users = draft.dialogues.filter((d) => d.trigger?.zoneId === zone.id);
+    return (
+      <>
+        {back}
+        <h3>Область</h3>
+        <p className="muted">Именованная область карты. Её выбирают как триггер диалога: он запускается по клавише взаимодействия или сам, когда игрок входит.</p>
+        <label className="ef">
+          <span className="ef__label">Название</span>
+          <input value={zone.name} onChange={(e) => updateLoc((l) => ({ ...l, zones: l.zones.map((z) => (z.id === zone.id ? { ...z, name: e.target.value } : z)) }), `zone-name:${zone.id}`)} />
+        </label>
+        <p className="muted">
+          Ключ <code>{zone.id}</code> · клеток: {zone.cells.length}
+        </p>
+        <div className="seg" role="group" aria-label="Рисование области">
+          <button className="seg__btn" aria-pressed={drawing && !(tool as { erase?: boolean }).erase} onClick={() => setTool({ kind: "zone" })}>
+            Дорисовать
+          </button>
+          <button className="seg__btn" aria-pressed={drawing && !!(tool as { erase?: boolean }).erase} onClick={() => setTool({ kind: "zone", erase: true })}>
+            Стереть
+          </button>
+        </div>
+        <p className="muted">На карте: ведите мышью по клеткам, Shift — прямоугольником, Alt — стереть.</p>
+        <div className="lm__stats">
+          {users.length ? users.map((d) => <span key={d.id}>диалог «{d.id}»</span>) : <span>на область пока нет диалогов</span>}
+        </div>
+        <button className="btn btn--sm btn--danger" onClick={onDelete}>
+          Удалить (Delete)
+        </button>
       </>
     );
   }

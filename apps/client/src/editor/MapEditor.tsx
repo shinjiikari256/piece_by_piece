@@ -13,7 +13,7 @@ import { ObjectFields } from "./SchemaForm";
 import { ask } from "../ui/dialog";
 import { MapPalette } from "./map/Palette";
 import { renderMap } from "./map/render";
-import { addLocation, normRect, pickTopmost, resize, selectionBox } from "./map/helpers";
+import { addLocation, normRect, pickTopmost, rectCells, resize, selectionBox, zoneCells } from "./map/helpers";
 import { T, doorCanvas, doorTiles, lookCanvas, useSpriteCanvases } from "./map/canvases";
 import { LIST_KEY, type Selection, type Tool } from "./map/types";
 import { ObjectList } from "./map/ObjectList";
@@ -32,7 +32,7 @@ function parseSelection(loc: LocationT | undefined, key: string): Selection {
   if (key === "start") return { kind: "start" };
   const [kind, ...rest] = key.split(":");
   const id = rest.join(":");
-  const list = { object: loc.objects, npc: loc.npcs, exit: loc.exits, door: loc.doors }[kind as "object" | "npc" | "exit" | "door"];
+  const list = { object: loc.objects, npc: loc.npcs, exit: loc.exits, door: loc.doors, zone: loc.zones }[kind as "object" | "npc" | "exit" | "door" | "zone"];
   return list?.some((x) => x.id === id) ? ({ kind, id } as Selection) : null;
 }
 
@@ -70,7 +70,7 @@ export function MapEditor() {
   }, [focus]); // eslint-disable-line react-hooks/exhaustive-deps
   const canvas = useRef<HTMLCanvasElement>(null);
   const art = useSpriteCanvases();
-  const stroke = useRef<{ id: number; drag?: { dx: number; dy: number } } | null>(null);
+  const stroke = useRef<{ id: number; drag?: { dx: number; dy: number }; zone?: string; add?: boolean } | null>(null);
 
   const updateLoc = (fn: (l: LocationT) => LocationT, merge?: string) =>
     editor.update((d) => ({ ...d, locations: d.locations.map((l, i) => (i === li ? fn(l) : l)) }), merge);
@@ -79,7 +79,7 @@ export function MapEditor() {
   useEffect(() => {
     const cv = canvas.current;
     if (!cv || !loc) return;
-    renderMap(cv, { loc, art, characters: draft.characters, tool, npcCharacter, hover, rect, selected: selectionBox(loc, sel) });
+    renderMap(cv, { loc, art, characters: draft.characters, tool, npcCharacter, hover, rect, selected: sel?.kind === "zone" ? null : selectionBox(loc, sel), zoneSel: sel?.kind === "zone" ? sel.id : null });
   });
 
   // ---------- мышь ----------
@@ -123,8 +123,15 @@ export function MapEditor() {
     const door = loc.doors.find((d) => doorTiles(d).some((p) => p.x === t.x && p.y === t.y));
     if (door) return { kind: "door", id: door.id };
     const obj = [...loc.objects].reverse().find((o) => t.y === o.y && t.x >= o.x && t.x < o.x + SPRITES[o.sprite].footprint);
-    return obj ? { kind: "object", id: obj.id } : null;
+    if (obj) return { kind: "object", id: obj.id };
+    // область — самый нижний слой: выбирается, если в клетке больше ничего нет
+    const zone = loc.zones.find((z) => z.cells.some((c) => c.x === t.x && c.y === t.y));
+    return zone ? { kind: "zone", id: zone.id } : null;
   };
+
+  /** Добавить (`add`) или стереть клетки области; один мазок мыши — один шаг отмены. */
+  const paintZone = (zoneId: string, cells: { x: number; y: number }[], add: boolean, strokeId: number) =>
+    updateLoc((l) => ({ ...l, zones: l.zones.map((z) => (z.id === zoneId ? { ...z, cells: zoneCells(z.cells, cells, add) } : z)) }), `zone:${strokeId}`);
 
   const paint = (t: { x: number; y: number }, ch: string, id: number) =>
     updateLoc(
@@ -185,6 +192,23 @@ export function MapEditor() {
         setTool({ kind: "select" });
         break;
       }
+      case "zone": {
+        const add = !(tool.erase || e.altKey);
+        let zid = sel?.kind === "zone" ? sel.id : null;
+        stroke.current.add = add;
+        if (!zid) {
+          if (!add) break;
+          // область не выбрана — первый мазок создаёт новую
+          const taken = draft.locations.flatMap((l) => l.zones.map((z) => z.id));
+          zid = uniqueId("zone_", taken);
+          const zone = { id: zid, name: `Область ${taken.length + 1}`, cells: e.shiftKey ? [] : [{ x: t.x, y: t.y }] };
+          updateLoc((l) => ({ ...l, zones: [...l.zones, zone] }), `zone:${id}`);
+          setSel({ kind: "zone", id: zid });
+        } else if (!e.shiftKey) paintZone(zid, [t], add, id);
+        if (e.shiftKey) setRect({ from: t, to: t });
+        stroke.current.zone = zid;
+        break;
+      }
       case "select": {
         const h = hit(t);
         setSel(h);
@@ -200,6 +224,7 @@ export function MapEditor() {
   const posOf = (s: Selection) => {
     if (!s) return null;
     if (s.kind === "start") return loc.playerStart;
+    if (s.kind === "zone") return null;
     const list = loc[LIST_KEY[s.kind]] as { id: string; x: number; y: number }[];
     return list.find((x) => x.id === s.id) ?? null;
   };
@@ -212,8 +237,14 @@ export function MapEditor() {
       if (rect) return setRect({ ...rect, to: t });
       return paint(t, tool.ch, stroke.current.id);
     }
+    if (tool.kind === "zone") {
+      const zid = stroke.current.zone;
+      if (!zid) return;
+      if (rect) return setRect({ ...rect, to: t });
+      return paintZone(zid, [t], stroke.current.add ?? true, stroke.current.id);
+    }
     const drag = stroke.current.drag;
-    if (tool.kind !== "select" || !sel || !drag) return;
+    if (tool.kind !== "select" || !sel || sel.kind === "zone" || !drag) return;
     const x = t.x - drag.dx;
     const y = t.y - drag.dy;
     const pos = posOf(sel);
@@ -225,6 +256,7 @@ export function MapEditor() {
   };
 
   const onUp = () => {
+    if (rect && tool.kind === "zone" && stroke.current?.zone) paintZone(stroke.current.zone, rectCells(normRect(rect)), stroke.current.add ?? true, stroke.current.id);
     if (rect && tool.kind === "tile") {
       const r = normRect(rect);
       const ch = tool.ch;
@@ -241,8 +273,19 @@ export function MapEditor() {
 
   const pickTile = (ch: string) => setTool({ kind: "tile", ch });
 
-  const deleteSelected = () => {
+  const deleteSelected = async () => {
     if (!sel || sel.kind === "start") return;
+    if (sel.kind === "zone") {
+      const used = draft.dialogues.filter((d) => d.trigger?.zoneId === sel.id);
+      if (used.length && !(await ask({ title: "Удалить область?", text: `Её запускают диалоги (${used.map((d) => d.id).join(", ")}): у них пропадёт триггер.`, confirmLabel: "Удалить", danger: true }))) return;
+      editor.update((d) => ({
+        ...d,
+        locations: d.locations.map((l, i) => (i === li ? { ...l, zones: l.zones.filter((z) => z.id !== sel.id) } : l)),
+        dialogues: d.dialogues.map((dlg) => (dlg.trigger?.zoneId === sel.id ? { ...dlg, trigger: undefined } : dlg)),
+      }));
+      setSel(null);
+      return;
+    }
     const key = LIST_KEY[sel.kind];
     updateLoc((l) => ({ ...l, [key]: (l[key] as { id: string }[]).filter((it) => it.id !== sel.id) }));
     setSel(null);
@@ -268,6 +311,10 @@ export function MapEditor() {
     const h = hit(hover);
     if (!h) return "";
     if (h.kind === "start") return "Старт игрока";
+    if (h.kind === "zone") {
+      const z = loc.zones.find((x) => x.id === h.id)!;
+      return `Область «${z.name}» · клеток: ${z.cells.length}`;
+    }
     if (h.kind === "npc") {
       const n = loc.npcs.find((x) => x.id === h.id)!;
       const ch = draft.characters.find((c) => c.id === n.characterId);
@@ -297,6 +344,10 @@ export function MapEditor() {
           ? `Предмет «${SPRITE_NAMES[tool.sprite] ?? tool.sprite}»: кликните, куда поставить`
           : tool.kind === "npc"
             ? `Человек «${draft.characters.find((c) => c.id === npcCharacter)?.name ?? ""}»: кликните, куда поставить`
+            : tool.kind === "zone"
+              ? sel?.kind === "zone"
+                ? `Область «${loc.zones.find((z) => z.id === sel.id)?.name ?? ""}»: ${tool.erase ? "стирайте клетки" : "ведите с зажатой кнопкой, чтобы дорисовать"} (Shift — прямоугольником, Alt — стереть)`
+                : "Область: ведите с зажатой кнопкой — первая клетка создаст новую область (Shift — прямоугольником)"
             : tool.kind === "start"
               ? "Старт игрока: кликните по клетке пола"
               : tool.kind === "door"
@@ -406,7 +457,7 @@ export function MapEditor() {
                 }}
               />
             ) : sel ? (
-              <SelectedPanel loc={loc} sel={sel} updateLoc={updateLoc} onDelete={deleteSelected} draft={draft} onClose={() => setSel(null)} />
+              <SelectedPanel loc={loc} sel={sel} updateLoc={updateLoc} onDelete={deleteSelected} draft={draft} onClose={() => setSel(null)} tool={tool} setTool={setTool} />
             ) : (
               <>
                 <h3>Локация</h3>
