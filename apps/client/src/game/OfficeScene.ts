@@ -277,12 +277,7 @@ export class OfficeScene extends Phaser.Scene {
       if (want.mode !== npc.mode || (want.mode === "static" && (want.tile.x !== npc.tile.x || want.tile.y !== npc.tile.y))) {
         this.npcTiles.delete(`${npc.tile.x},${npc.tile.y}`);
         npc.mode = want.mode;
-        if (want.mode === "static") {
-          // остаётся там, где стоит сейчас, если это и есть его новое место
-          npc.tile = { x: want.tile.x, y: want.tile.y };
-          npc.sprite.setPosition((npc.tile.x + 0.5) * TILE, (npc.tile.y + 1) * TILE - 2);
-          this.npcTiles.add(`${npc.tile.x},${npc.tile.y}`);
-        }
+        if (want.mode === "static") this.placeNpc(npc, want.tile);
       }
     }
     for (const [characterId, want] of wanted) {
@@ -319,6 +314,19 @@ export class OfficeScene extends Phaser.Scene {
     this.makeClickable(npc);
     this.interactables.push(npc);
     this.npcs.set(characterId, npc);
+  }
+
+  /** Ставит стоящего персонажа на клетку целиком: спрайт, точка взаимодействия, подпись, занятая клетка. */
+  private placeNpc(npc: Npc, tile: { x: number; y: number }) {
+    npc.tile = { x: tile.x, y: tile.y };
+    const cx = (tile.x + 0.5) * TILE;
+    const bottom = (tile.y + 1) * TILE - 2;
+    npc.sprite.setPosition(cx, bottom).setDepth(bottom);
+    npc.x = cx;
+    npc.y = bottom - TILE / 2;
+    npc.footprint = [npc.tile];
+    npc.labelText.setPosition(cx, bottom - CHAR_H * SCALE - 4);
+    this.npcTiles.add(`${tile.x},${tile.y}`);
   }
 
   private removeNpc(npc: Npc) {

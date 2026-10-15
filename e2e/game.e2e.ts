@@ -251,6 +251,30 @@ describe("игра в браузере", () => {
     await page.close();
   });
 
+  it("персонаж, переставленный эффектом, получает точку взаимодействия и подпись на новом месте", async () => {
+    const page = await h.page();
+    await page.goto(`${BASE}/play/case-test-moveto`); // тестовое дело — только в режиме разработки
+    await page.getByRole("button", { name: /Приступить к расследованию/ }).click();
+    await page.waitForFunction(() => (window as any).__game.store.get().screen === "play" && (window as any).__scene);
+    await page.evaluate(() => {
+      const { actions } = (window as any).__game;
+      actions.interact("npc_timur");
+      actions.choose("t_menu");
+      actions.choose("t1"); // Тимур идёт в клетку 22,14
+      actions.close();
+    });
+    const npc = await page.evaluate(() => {
+      const scene = (window as any).__scene;
+      const n = scene.npcs.get("timur");
+      const item = scene.interactables.find((i: any) => i.id === "npc_timur");
+      return { tile: n.tile, x: n.x, y: n.y, item: [item.x, item.y], label: [n.labelText.x, n.labelText.y], sprite: [n.sprite.x, n.sprite.y] };
+    });
+    expect([npc.tile.x, npc.tile.y]).toEqual([22, 14]);
+    expect(npc.item).toEqual([npc.x, npc.y]); // подсказка «E» меряется от нового места, а не от старого
+    expect(npc.label[0]).toBe(npc.sprite[0]); // подпись над персонажем
+    await page.close();
+  });
+
   it("окна открываются и закрываются", async () => {
     const page = await h.page();
     await startCase(page);

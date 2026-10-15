@@ -104,7 +104,8 @@ function bundledSources(): Record<string, unknown> {
   if (OFFLINE) return Object.fromEntries((embeddedCases()?.cases ?? []).map((c, i) => [`embedded #${i + 1}`, c]));
   const cases = import.meta.glob("./cases/*.json", { eager: true, import: "default" });
   // тестовые дела для разработки (`content/test-cases`): в сборку не попадают
-  const tests = import.meta.env.DEV ? import.meta.glob("./test-cases/*.json", { eager: true, import: "default" }) : {};
+  const devMode = import.meta.env.MODE === "development" || import.meta.env.MODE === "test"; // не DEV: при NODE_ENV=production в оболочке он ложен и в dev-сервере
+  const tests = devMode ? import.meta.glob("./test-cases/*.json", { eager: true, import: "default" }) : {};
   return { ...cases, ...tests };
 }
 
