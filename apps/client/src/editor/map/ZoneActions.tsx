@@ -72,7 +72,7 @@ export function ZoneActions({ zone, draft, onChange }: { zone: Zone; draft: Case
                 set(i, (e.target.checked ? { ...rest, auto: true } : rest) as ZoneAction);
               }}
             />
-            Само при входе
+            Автоматически
           </label>
           <ConditionEditor
             value={(a.requires ?? {}) as Condition}

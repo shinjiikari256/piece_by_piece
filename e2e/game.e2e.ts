@@ -472,7 +472,7 @@ describe("игра в браузере", () => {
     await page.mouse.click(at(5, 5).x, at(5, 5).y);
     await page.locator(".zact .sel--add").click();
     await page.locator('[role="option"]', { hasText: "Выход" }).click();
-    await page.getByLabel(/Само при входе/).check();
+    await page.getByLabel(/Автоматически/).check();
     const zone = await page.evaluate(() => (window as any).__editor.editorStore.get().draft.locations[0].zones[0]);
     expect(zone.actions).toHaveLength(1);
     expect(zone.actions[0]).toMatchObject({ kind: "exit", auto: true });

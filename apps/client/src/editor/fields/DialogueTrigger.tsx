@@ -30,7 +30,7 @@ export function DialogueTrigger({ draft, dialogue }: { draft: CaseFile; dialogue
         <div key={zone.id} className="row">
           <span className="ellipsis">
             {loc.name} · <b>{zone.name}</b>
-            {zone.actions.some((a) => a.kind === "dialogue" && a.dialogueId === dialogue.id && a.auto) && <small> · сам при входе</small>}
+            {zone.actions.some((a) => a.kind === "dialogue" && a.dialogueId === dialogue.id && a.auto) && <small> · автоматически</small>}
           </span>
           <button
             className="btn btn--sm btn--icon"
