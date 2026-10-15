@@ -7,47 +7,95 @@ import { useUrlParam, useWriteDefaultParam } from "../url";
 import { Icon } from "../../ui/icons";
 import { EntityList, ItemText } from "../EntityList";
 import { ask, tell } from "../../ui/dialog";
+import { Dialog } from "../../ui/window";
+import { CounterDialog, CounterEditor } from "./Counters";
 
-/** Флаги: слева список (название и ключ), справа — правка и где используется. */
+type Entry = { kind: "flag" | "counter"; id: string };
+
+/** Переменные дела одним списком: значок — тип (флаг, счётчик; позже — другие); слева список, справа правка. */
 export function FlagsSection() {
   const draft = useEditor((s) => s.draft);
   const focus = useEditor((s) => s.focus);
-  const [dialog, setDialog] = useState(false);
+  const [dialog, setDialog] = useState<"flag" | "counter" | "pick" | null>(null);
   const usage = flagUsage(draft);
   const nameOf = (id: string) => draft.flags?.find((f) => f.id === id)?.name ?? "";
-  const ids = [...new Set([...(draft.flags ?? []).map((f) => f.id), ...usage.keys()])].sort((a, b) =>
+  const flagIds = [...new Set([...(draft.flags ?? []).map((f) => f.id), ...usage.keys()])].sort((a, b) =>
     (nameOf(a) || "я").localeCompare(nameOf(b) || "я", "ru"),
   );
-  const [selected, setSelected] = useUrlParam("item", ""); // выбранный флаг — в адресе
+  const counters = [...(draft.counters ?? [])].sort((a, b) => (a.name || "я").localeCompare(b.name || "я", "ru"));
+  const entries: Entry[] = [...flagIds.map((id) => ({ kind: "flag" as const, id })), ...counters.map((c) => ({ kind: "counter" as const, id: c.id }))];
+  const [selected, setSelected] = useUrlParam("item", ""); // выбранный флаг или счётчик — в адресе
   useEffect(() => {
     if (focus?.section === "flags" && focus.id) setSelected(focus.id);
   }, [focus]); // eslint-disable-line react-hooks/exhaustive-deps
-  const current = selected && ids.includes(selected) ? selected : (ids[0] ?? null);
-  useWriteDefaultParam("item", current === selected, ids[0]);
+  const current = entries.find((e) => e.id === selected) ?? entries[0] ?? null;
+  useWriteDefaultParam("item", current?.id === selected, entries[0]?.id);
 
   return (
     <section className="ed__split">
       <EntityList
-        items={ids}
-        getKey={(id) => id}
-        isActive={(id) => id === current}
-        onSelect={(id) => setSelected(id)}
-        onAdd={() => setDialog(true)}
-        addLabel="Добавить флаг"
-        empty="Флагов пока нет."
-        renderItem={(id) => <ItemText title={nameOf(id) || "без названия"} id={id} warn={!nameOf(id)} />}
+        items={entries}
+        getKey={(e) => `${e.kind}:${e.id}`}
+        isActive={(e) => e.id === current?.id}
+        onSelect={(e) => setSelected(e.id)}
+        onAdd={() => setDialog("pick")}
+        addLabel="Добавить переменную"
+        empty="Переменных пока нет."
+        renderItem={(e) =>
+          e.kind === "flag" ? (
+            <>
+              <span className="ed__item-kind" title="Флаг"><Icon name="flag" size={16} /></span>
+              <ItemText title={nameOf(e.id) || "без названия"} id={e.id} warn={!nameOf(e.id)} />
+            </>
+          ) : (
+            <>
+              <span className="ed__item-kind" title="Счётчик"><Icon name="counter" size={16} /></span>
+              <ItemText title={counters.find((c) => c.id === e.id)?.name || "без названия"} id={e.id} warn={!counters.find((c) => c.id === e.id)?.name} />
+            </>
+          )
+        }
       />
       <div className="ed__panel ed__panel--narrow">
-        {current ? (
-          <FlagEditor key={current} id={current} name={nameOf(current)} uses={usage.get(current) ?? []} onRenamed={setSelected} />
+        {current?.kind === "flag" ? (
+          <FlagEditor key={current.id} id={current.id} name={nameOf(current.id)} uses={usage.get(current.id) ?? []} onRenamed={setSelected} />
+        ) : current ? (
+          <CounterEditor key={current.id} counter={counters.find((c) => c.id === current.id)!} onRenamed={setSelected} />
         ) : (
-          <p className="muted">Флаг — пометка «это уже произошло». Его ставят эффекты, а проверяют условия.</p>
+          <p className="muted">
+            Флаг — пометка «это уже произошло»: его ставят эффекты, а проверяют условия. Счётчик — число (очки доверия, попытки): эффекты прибавляют или задают его, условия проверяют границы.
+          </p>
         )}
       </div>
-      {dialog && (
+      {dialog === "pick" && (
+        <Dialog
+          title="Новая переменная"
+          onClose={() => setDialog(null)}
+          actions={
+            <>
+              <button className="btn" onClick={() => setDialog("flag")}>
+                <Icon name="flag" size={15} /> Флаг
+              </button>
+              <button className="btn" onClick={() => setDialog("counter")}>
+                <Icon name="counter" size={15} /> Счётчик
+              </button>
+            </>
+          }
+        >
+          <p className="muted">Тип переменной: флаг — «произошло или нет», счётчик — число.</p>
+        </Dialog>
+      )}
+      {dialog === "counter" && (
+        <CounterDialog
+          onDone={(id) => {
+            setDialog(null);
+            if (id) setSelected(id);
+          }}
+        />
+      )}
+      {dialog === "flag" && (
         <FlagDialog
           onDone={(f) => {
-            setDialog(false);
+            setDialog(null);
             if (f) setSelected(f);
           }}
         />
@@ -60,7 +108,7 @@ function FlagEditor({ id, name, uses, onRenamed }: { id: string; name: string; u
   const draft = useEditor((s) => s.draft);
   const [key, setKey] = useState(id);
   const setName = (v: string) =>
-    editor.update((d) => ({ ...d, flags: [...(d.flags ?? []).filter((f) => f.id !== id), { id, name: v }] }), `flag:${id}`);
+    editor.update((d) => ({ ...d, flags: [...(d.flags ?? []).filter((f) => f.id !== id), { ...(d.flags ?? []).find((f) => f.id === id), id, name: v }] }), `flag:${id}`);
   const commitKey = async () => {
     const next = key.trim();
     if (!next || next === id) return setKey(id);
@@ -99,7 +147,7 @@ function FlagEditor({ id, name, uses, onRenamed }: { id: string; name: string; u
     <div className="flag-ed">
       <label className="ef">
         <span className="ef__label">Название — что означает флаг</span>
-        <input value={name} placeholder="Тимур отдал ключ от комнаты 412" onChange={(e) => setName(e.target.value)} />
+        <input value={name} placeholder="Название флага" onChange={(e) => setName(e.target.value)} />
       </label>
       <label className="ef">
         <span className="ef__label">Ключ (смена обновит все ссылки — с подтверждением)</span>
@@ -120,6 +168,16 @@ function FlagEditor({ id, name, uses, onRenamed }: { id: string; name: string; u
             </button>
           )}
         </div>
+      </label>
+      <label className="ef ef--bool">
+        <input
+          type="checkbox"
+          checked={!!draft.flags?.find((f) => f.id === id)?.initial}
+          onChange={(e) =>
+            editor.update((d) => ({ ...d, flags: [...(d.flags ?? []).filter((f) => f.id !== id), { id, name, ...(e.target.checked ? { initial: true } : {}) }] }))
+          }
+        />
+        Стоит с начала расследования
       </label>
       <div className="ef">
         <span className="ef__label">Где используется ({uses.length})</span>

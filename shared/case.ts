@@ -43,6 +43,16 @@ const BaseCondition = z.object({
   following: z.array(z.string()).optional().describe("Эти персонажи идут за игроком"),
   notFollowing: z.array(z.string()).optional().describe("Эти персонажи не идут за игроком"),
   inLocation: z.array(z.string()).optional().describe("Игрок сейчас в одной из этих локаций"),
+  counters: z
+    .array(
+      z.object({
+        counterId: z.string(),
+        min: z.number().int().optional().describe("Значение не меньше"),
+        max: z.number().int().optional().describe("Значение не больше"),
+      }),
+    )
+    .optional()
+    .describe("Значения счётчиков в заданных границах"),
 });
 
 export const Condition = BaseCondition.extend({
@@ -56,6 +66,9 @@ export const Effect = z.discriminatedUnion("type", [
   z.object({ type: z.literal("addEvidence"), evidenceId: z.string() }),
   z.object({ type: z.literal("setFlag"), flag: z.string() }),
   z.object({ type: z.literal("removeFlag"), flag: z.string() }).describe("Снять ранее поставленный флаг"),
+  z
+    .object({ type: z.literal("changeCounter"), counterId: z.string(), mode: z.enum(["add", "set"]), value: z.number().int() })
+    .describe("Изменить счётчик: прибавить (можно отрицательное) или задать значение"),
   z.object({ type: z.literal("addCharacterNote"), characterId: z.string(), text: z.string() }),
   z.object({ type: z.literal("follow"), characterId: z.string() }).describe("Персонаж идёт за игроком"),
   z.object({ type: z.literal("stay"), characterId: z.string() }).describe("Перестаёт идти следом и остаётся, где стоит"),
@@ -424,9 +437,19 @@ export const CaseFile = z.object({
   /** Устарело: тема-право раскрывала ответ; оставлено для старых файлов. */
   topic: z.string().optional(),
   flags: z
-    .array(z.object({ id: z.string(), name: z.string().describe("Что означает флаг, по-русски") }))
+    .array(
+      z.object({
+        id: z.string(),
+        name: z.string().describe("Что означает флаг, по-русски"),
+        initial: z.boolean().optional().describe("Стоит с начала расследования"),
+      }),
+    )
     .optional()
     .describe("Флаги дела: пометки «это уже произошло» с русскими названиями"),
+  counters: z
+    .array(z.object({ id: z.string(), name: z.string().describe("Что считает счётчик, по-русски"), initial: z.number().int().optional().describe("Значение в начале расследования (по умолчанию 0)") }))
+    .optional()
+    .describe("Счётчики дела: числа, которые меняют эффекты и проверяют условия"),
   lawReference: z
     .object({
       basis: z.array(LawBasis).describe("Правовая база: статьи нормативных актов, другие документы"),

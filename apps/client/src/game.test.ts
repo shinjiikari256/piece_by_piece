@@ -675,3 +675,18 @@ describe("moveTo с областью", () => {
     expect(store.get().progress.npcPlaces.krylov).toMatchObject({ locationId: loc.id, x: start.x, y: start.y });
   });
 });
+
+describe("начальные флаги и счётчики в игре", () => {
+  it("расследование начинается с отмеченными флагами и начальными значениями счётчиков", () => {
+    const raw = load("case-001.json") as unknown as CaseFile;
+    raw.flags = [...(raw.flags ?? []), { id: "ready", name: "Готово", initial: true }];
+    raw.counters = [{ id: "trust", name: "Доверие", initial: 3 }];
+    const c = validateCase(raw);
+    if (!c.ok) throw new Error(c.errors.join("; "));
+    setPlatform(createMemoryPlatform());
+    actions.openCase(new LocalAuthority(c.caseFile));
+    actions.beginInvestigation();
+    expect(store.get().progress.flags).toContain("ready");
+    expect(store.get().progress.counters).toEqual({ trust: 3 });
+  });
+});

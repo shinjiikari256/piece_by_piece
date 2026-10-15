@@ -40,6 +40,9 @@ function checkIntegrity(c: CaseFile): string[] {
     if (other) err(`characters: у «${ch.id}» такая же внешность, как у «${other}»`);
     else seenLooks.set(key, ch.id);
   }
+  const counterIds = unique("counters", (c.counters ?? []).map((x) => x.id));
+  (c.flags ?? []).forEach((f) => counterIds.has(f.id) && err(`counters: ключ «${f.id}» занят и флагом, и счётчиком — ключи должны отличаться`));
+  (c.counters ?? []).forEach((x) => x.name.trim() || err(`counters: у счётчика «${x.id}» нет названия`));
   const evidence = unique("evidence", c.evidence.map((x) => x.id));
   const events = unique("events", c.events.map((x) => x.id));
   const dialogues = unique("dialogues", c.dialogues.map((x) => x.id));
@@ -62,11 +65,16 @@ function checkIntegrity(c: CaseFile): string[] {
     cond?.following?.forEach((id) => ref(characters, id, where));
     cond?.notFollowing?.forEach((id) => ref(characters, id, where));
     cond?.inLocation?.forEach((id) => ref(locationIds, id, where));
+    cond?.counters?.forEach((r) => {
+      ref(counterIds, r.counterId, where);
+      if (r.min !== undefined && r.max !== undefined && r.min > r.max) err(`${where}: счётчик «${r.counterId}» — «от» больше «до»`);
+    });
     cond?.anyOf?.forEach((alt) => checkCondition(alt, where));
   };
   const checkEffects = (effects: Effect[], where: string) => {
     for (const e of effects) {
       if (e.type === "addEvidence") ref(evidence, e.evidenceId, where);
+      if (e.type === "changeCounter") ref(counterIds, e.counterId, where);
       if (e.type === "addCharacterNote" || e.type === "follow" || e.type === "stay" || e.type === "returnHome" || e.type === "moveTo")
         ref(characters, e.characterId, where);
       if (e.type === "moveTo") checkMoveTo(e, where);
@@ -271,7 +279,7 @@ function checkIntegrity(c: CaseFile): string[] {
   c.locations.forEach((l) => l.npcs.forEach((n) => n.dialogues.forEach((nd) => condFlags(nd.requires))));
   c.locations.forEach((l) => l.zones.forEach((z) => z.actions.forEach((a) => condFlags(a.requires))));
   c.locations.forEach((l) => l.doors.forEach((d) => condFlags(d.requires)));
-  for (const f of usedFlags) if (!named.has(f)) err(`flags: у флага «${f}» нет названия — добавьте его в разделе «Флаги»`);
+  for (const f of usedFlags) if (!named.has(f)) err(`flags: у флага «${f}» нет названия — добавьте его в разделе «Переменные»`);
   c.lawReference?.basis.forEach((x, i) => x.title.trim() || err(`lawReference: у нормы №${i + 1} нет названия`));
   c.lawReference?.notes.forEach((x, i) => x.title.trim() || err(`lawReference: у пояснения №${i + 1} нет заголовка`));
   const combos = c.deductions.map((d) => [...d.evidenceIds].sort().join("+"));

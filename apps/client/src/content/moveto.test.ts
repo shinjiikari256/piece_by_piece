@@ -1,7 +1,8 @@
 import { describe, expect, it } from "vitest";
+import { emptyProgress, applyEffects, meets, startProgress } from "../../../../shared/conditions";
 import case002 from "./cases/case-002.json";
+import { deleteCounter } from "../editor/sections/Counters";
 import { migrateCase } from "../../../../shared/migrate";
-import { emptyProgress, applyEffects, meets } from "../../../../shared/conditions";
 import type { CaseFile, Effect } from "../../../../shared/case";
 import case001 from "./cases/case-001.json";
 import testCase from "./test-cases/case-test-moveto.json";
@@ -256,5 +257,49 @@ describe("старт игрока: один на дело", () => {
     old.formatVersion = 3;
     const r = migrateCase(old);
     expect(r.ok && (r.data.locations as { playerStart?: unknown }[]).map((l) => !!l.playerStart)).toEqual([true, ...Array(case002.locations.length - 1).fill(false)]);
+  });
+});
+
+describe("счётчики и начальные флаги", () => {
+  const withCounters = () => {
+    const c = structuredClone(case001) as unknown as CaseFile;
+    c.counters = [{ id: "trust", name: "Доверие", initial: 2 }];
+    c.flags = [...(c.flags ?? []), { id: "ready", name: "Готово", initial: true }];
+    return c;
+  };
+  it("startProgress: начальные флаги и значения счётчиков", () => {
+    const p = startProgress(withCounters());
+    expect(p.flags).toContain("ready");
+    expect(p.counters).toEqual({ trust: 2 });
+  });
+  it("changeCounter: прибавить / задать; условие по границам", () => {
+    const p = startProgress(withCounters());
+    const up = applyEffects([{ type: "changeCounter", counterId: "trust", mode: "add", value: 3 }], p).progress;
+    expect(up.counters.trust).toBe(5);
+    expect(p.counters.trust).toBe(2); // исходное не меняется
+    expect(applyEffects([{ type: "changeCounter", counterId: "trust", mode: "set", value: -1 }], up).progress.counters.trust).toBe(-1);
+    expect(meets({ counters: [{ counterId: "trust", min: 3, max: 5 }] }, up)).toBe(true);
+    expect(meets({ counters: [{ counterId: "trust", min: 6 }] }, up)).toBe(false);
+    expect(meets({ counters: [{ counterId: "none", max: 0 }] }, up)).toBe(true); // нет значения — 0
+  });
+  it("валидатор: счётчик без названия, неизвестная ссылка, «от» больше «до»", () => {
+    const c = withCounters();
+    c.counters![0].name = " ";
+    c.dialogues[0].nodes[0].effects.push({ type: "changeCounter", counterId: "нет", mode: "add", value: 1 });
+    c.locations[0].doors.push({ id: "d_cnt", x: 0, y: 0, orientation: "h", requires: { counters: [{ counterId: "trust", min: 5, max: 1 }] } } as never);
+    const r = validateCase(c);
+    const text = r.ok ? "" : r.errors.join("\n");
+    expect(text).toContain("нет названия");
+    expect(text).toContain("неизвестная ссылка «нет»");
+    expect(text).toContain("«от» больше «до»");
+  });
+  it("deleteCounter убирает счётчик, эффекты и строки условий", () => {
+    const c = withCounters();
+    c.dialogues[0].nodes[0].effects.push({ type: "changeCounter", counterId: "trust", mode: "add", value: 1 });
+    c.dialogues[0].nodes[0].choices[0].requires = { counters: [{ counterId: "trust", min: 1 }] };
+    const out = deleteCounter(c, "trust");
+    expect(out.counters).toEqual([]);
+    expect(JSON.stringify(out)).not.toContain("trust");
+    expect(out.dialogues[0].nodes[0].choices[0].requires).toBeUndefined();
   });
 });

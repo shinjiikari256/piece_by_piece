@@ -1513,6 +1513,56 @@
               "next": "t6"
             },
             {
+              "id": "t7",
+              "text": "7. Счётчик: доверие +1 (в начале 1)",
+              "next": "t7"
+            },
+            {
+              "id": "t8",
+              "text": "8. Видно при доверии от 3 (счётчик в условии)",
+              "next": "t8",
+              "requires": {
+                "counters": [
+                  {
+                    "counterId": "test_trust",
+                    "min": 3
+                  }
+                ]
+              }
+            },
+            {
+              "id": "t9",
+              "text": "9. Видно, если стоит начальный флаг",
+              "next": "t9",
+              "requires": {
+                "flags": [
+                  "test_ready"
+                ]
+              }
+            },
+            {
+              "id": "t10",
+              "text": "10. «Или»: доверие от 3 либо игрок в холле",
+              "next": "t10",
+              "requires": {
+                "anyOf": [
+                  {
+                    "counters": [
+                      {
+                        "counterId": "test_trust",
+                        "min": 3
+                      }
+                    ]
+                  },
+                  {
+                    "inLocation": [
+                      "dorm_lobby"
+                    ]
+                  }
+                ]
+              }
+            },
+            {
               "id": "back",
               "text": "Назад к разговору",
               "next": "start"
@@ -1701,6 +1751,65 @@
             {
               "id": "menu",
               "text": "К списку проверок",
+              "next": "t_menu"
+            }
+          ]
+        },
+        {
+          "id": "t7",
+          "text": "Доверие выросло на 1.",
+          "mood": "neutral",
+          "effects": [
+            {
+              "type": "changeCounter",
+              "counterId": "test_trust",
+              "mode": "add",
+              "value": 1
+            }
+          ],
+          "choices": [
+            {
+              "id": "back_menu",
+              "text": "Назад к списку",
+              "next": "t_menu"
+            }
+          ]
+        },
+        {
+          "id": "t8",
+          "text": "Доверие достигло трёх — этот пункт открылся.",
+          "mood": "neutral",
+          "effects": [],
+          "choices": [
+            {
+              "id": "back_menu",
+              "text": "Назад к списку",
+              "next": "t_menu"
+            }
+          ]
+        },
+        {
+          "id": "t9",
+          "text": "Начальный флаг стоит с самого начала.",
+          "mood": "neutral",
+          "effects": [],
+          "choices": [
+            {
+              "id": "back_menu",
+              "text": "Назад к списку",
+              "next": "t_menu"
+            }
+          ]
+        },
+        {
+          "id": "t10",
+          "text": "Сработало условие «или».",
+          "mood": "neutral",
+          "effects": [],
+          "choices": [
+            {
+              "id": "back_menu",
+              "text": "Назад к списку",
               "next": "t_menu"
             }
           ]
@@ -3191,6 +3300,11 @@
     {
       "id": "visited_corner",
       "name": "Заглянули в угол коридора"
+    },
+    {
+      "id": "test_ready",
+      "name": "[ТЕСТ] Начальный флаг",
+      "initial": true
     }
   ],
   "lawReference": {
@@ -3262,5 +3376,12 @@
         "text": "Объект, объективная сторона, субъект, субъективная сторона (умысел). Виновность устанавливает только суд."
       }
     ]
-  }
+  },
+  "counters": [
+    {
+      "id": "test_trust",
+      "name": "[ТЕСТ] Доверие",
+      "initial": 1
+    }
+  ]
 }

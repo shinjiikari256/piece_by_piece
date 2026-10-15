@@ -6,7 +6,7 @@ import { RESULT_FORMAT_VERSION, type CaseAuthority, type DeductionVerdict, type 
 import { APP_NAME, FROM_EDITOR, GAME_VERSION } from "../env";
 import { currentRoute, navigate } from "../ui/router";
 import { createAutosave, pauseOnPageHide } from "./autosave";
-import { applyEffects, emptyProgress, meets, type Progress } from "../../../../shared/conditions";
+import { applyEffects, emptyProgress, meets, startProgress, type Progress } from "../../../../shared/conditions";
 import { allNpcs, findObject, startLocation, zoneTargetCell } from "../content/case-utils";
 import { gameBridge } from "../game/bridge";
 import type { ResultRecord } from "./result-record";
@@ -294,12 +294,15 @@ export const actions = {
   /** Новое расследование: старое сохранение этого дела стирается. */
   beginInvestigation() {
     saveWarned = false;
-    if (state.caseFile) void platform().saves.clear(state.caseFile.id);
+    const caseId = state.caseFile?.id;
     set((s) => ({
       screen: "play",
+      progress: startProgress(s.caseFile),
       startedAt: Date.now(),
       runId: s.runId + 1,
     }));
+    // стираем старое сохранение после смены состояния: автосохранение только что записало новое начало, а оно не нужно, пока игрок ничего не сделал
+    if (caseId) void platform().saves.clear(caseId);
   },
 
   /** Продолжить по сохранению; без аргумента — уже открытое дело (экран вступления). */

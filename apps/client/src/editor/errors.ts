@@ -25,7 +25,7 @@ const SECTION_LABEL: Record<SectionId, string> = {
   solution: "Решение",
   law: "Закон для игрока",
   authorship: "Авторство",
-  flags: "Флаги",
+  flags: "Переменные",
   json: "JSON",
   errors: "Ошибки",
 };
@@ -74,5 +74,7 @@ export function locateError(message: string, c: CaseFile): LocatedError {
   if (/^lawReference/.test(message)) return make("law");
   if ((m = message.match(/^flags: у флага «([^»]+)»/))) return make("flags", { id: m[1] });
   if (/^flags/.test(message)) return make("flags");
+  if ((m = message.match(/^counters: у счётчика «([^»]+)»/))) return make("flags", { id: m[1] });
+  if (/^counters/.test(message)) return make("flags");
   return make("general");
 }

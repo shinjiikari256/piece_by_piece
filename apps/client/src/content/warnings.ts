@@ -22,10 +22,13 @@ export function caseWarnings(c: CaseFile): string[] {
   for (const l of c.locations) for (const z of l.zones) if (!z.actions.length) out.push(`location ${l.id}/zone ${z.id}: у области нет действий — она ничего не делает`);
 
   // флаги: условие ждёт флаг, который никто не ставит (обратное — флаг поставлен, но не проверяется — не предупреждаем: так пишут «история» дела)
-  const set = new Set<string>();
+  const set = new Set<string>((c.flags ?? []).filter((f) => f.initial).map((f) => f.id)); // начальные флаги стоят с самого начала
   const effects = (list: Effect[]) => list.forEach((e) => e.type === "setFlag" && set.add(e.flag));
   const needsSetting = new Set<string>(); // проверяемые «флаг стоит» — их обязательно кто-то ставит
-  const positive = (cnd: Condition | undefined) => cnd?.flags?.forEach((f) => needsSetting.add(f));
+  const positive = (cnd: Condition | undefined): void => {
+    cnd?.flags?.forEach((f) => needsSetting.add(f));
+    cnd?.anyOf?.forEach(positive);
+  };
   for (const d of c.dialogues)
     for (const n of d.nodes) {
       effects(n.effects);

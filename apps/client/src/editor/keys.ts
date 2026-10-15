@@ -14,11 +14,11 @@ export const caseKey = (number: string) => `case-${toKey(number) || "new"}`;
 const REF_FIELDS = new Set([
   "characterId", "speaker", "responsibleCharacter", "relatedCharacters", "following", "notFollowing", "characters",
   "evidenceId", "evidenceIds", "evidence", "deductions", "relatedEvents", "dialogueId", "to",
-  "flag", "flags", "notFlags", "locationId", "inLocation",
+  "flag", "flags", "notFlags", "locationId", "inLocation", "counterId",
 ]);
 
 /** Коллекции верхнего уровня, ключи которых переименовываются вместе со ссылками. */
-const ENTITY_COLLECTIONS = ["characters", "evidence", "deductions", "events", "locations", "dialogues", "flags"] as const;
+const ENTITY_COLLECTIONS = ["characters", "evidence", "deductions", "events", "locations", "dialogues", "flags", "counters"] as const;
 
 /** Это ключ элемента верхнего уровня (а не узла диалога или предмета на карте)? */
 export function isEntityKey(d: Record<string, unknown>, key: string): boolean {

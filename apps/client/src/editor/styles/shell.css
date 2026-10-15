@@ -302,3 +302,10 @@
   border-radius: 0;
   font-size: var(--fs-md);
 }
+
+/* значок типа переменной (флаг, счётчик) в списке */
+.ed__item-kind {
+  flex: none;
+  display: inline-flex;
+  color: var(--text-muted);
+}

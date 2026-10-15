@@ -19,6 +19,8 @@ export type Condition = {
   following?: string[];
   notFollowing?: string[];
   inLocation?: string[];
+  /** Значения счётчиков в границах (пустая граница — без ограничения). */
+  counters?: { counterId: string; min?: number; max?: number }[];
   /** «Или»: хотя бы один из вариантов (каждый — набор строк «и»). */
   anyOf?: Omit<Condition, "anyOf">[];
 };
@@ -190,7 +192,7 @@ export function FlagDialog({ initial, onDone }: { initial?: { id: string; name: 
         <input
           autoFocus
           value={name}
-          placeholder="Тимур отдал ключ от комнаты 412"
+          placeholder="Название флага"
           onChange={(e) => {
             setName(e.target.value);
             if (!manualKey) setId(toKey(e.target.value));
@@ -202,7 +204,7 @@ export function FlagDialog({ initial, onDone }: { initial?: { id: string; name: 
         <input
           className="flag-input"
           value={id}
-          placeholder="key_412"
+          placeholder="ключ латиницей"
           onChange={(e) => {
             setManualKey(true);
             setId(e.target.value.replace(/[^\w-]+/g, "_").toLowerCase());
@@ -214,7 +216,7 @@ export function FlagDialog({ initial, onDone }: { initial?: { id: string; name: 
   );
 }
 
-type ListKey = Exclude<keyof Condition, "anyOf">;
+type ListKey = Exclude<keyof Condition, "anyOf" | "counters">;
 
 /** Условие показа: только заполненные строки + «+ условие». Строки — «и»; варианты «или» — отдельные вложенные условия. */
 export function ConditionEditor({ value, onChange, ctx, label, nested }: { value: Condition; onChange: (v: unknown) => void; ctx: FormCtx; label: ReactNode; nested?: boolean }) {
@@ -237,11 +239,22 @@ export function ConditionEditor({ value, onChange, ctx, label, nested }: { value
     { key: "inLocation", title: "Игрок в локации (любой из)", options: d.locations.map((l) => ({ value: l.id, label: l.name })) },
   ];
   const shown = rows.filter((r) => value[r.key]?.length || added.includes(r.key));
+  const addCounters = "__counters__";
   const free = rows.filter((r) => !shown.includes(r));
   const removeRow = (key: ListKey) => {
     setAdded((a) => a.filter((k) => k !== key));
     set(key, []);
   };
+  const counterRows = value.counters ?? [];
+  const [countersOpen, setCountersOpen] = useState(false);
+  const showCounters = counterRows.length > 0 || countersOpen;
+  const setCounters = (list: NonNullable<Condition["counters"]>) => {
+    const next = { ...value };
+    if (list.length) next.counters = list;
+    else delete next.counters;
+    onChange(next);
+  };
+  const bound = (v: string) => (v === "" ? undefined : Math.trunc(Number(v)));
   const alts = value.anyOf ?? [];
   const setAlts = (list: Omit<Condition, "anyOf">[]) => {
     const next = { ...value };
@@ -270,13 +283,36 @@ export function ConditionEditor({ value, onChange, ctx, label, nested }: { value
           </div>
         );
       })}
-      {free.length > 0 && (
+      {showCounters && (
+        <div className="cond__row">
+          <span className="cond__title">Счётчики в границах</span>
+          {counterRows.map((r, i) => (
+            <div key={i} className="cond__counter">
+              <Select
+                value={r.counterId}
+                placeholder="какой счётчик"
+                options={(d.counters ?? []).map((x) => ({ value: x.id, label: x.name || x.id }))}
+                onChange={(v) => setCounters(counterRows.map((x, k) => (k === i ? { ...x, counterId: v } : x)))}
+              />
+              <input type="number" value={r.min ?? ""} placeholder="от" onChange={(e) => setCounters(counterRows.map((x, k) => (k === i ? { ...x, min: bound(e.target.value) } : x)))} />
+              <input type="number" value={r.max ?? ""} placeholder="до" onChange={(e) => setCounters(counterRows.map((x, k) => (k === i ? { ...x, max: bound(e.target.value) } : x)))} />
+              <button className="cond__remove" onClick={() => setCounters(counterRows.filter((_, k) => k !== i))} title="Убрать строку">
+                ✕
+              </button>
+            </div>
+          ))}
+          <button className="btn btn--sm cond__or" onClick={() => setCounters([...counterRows, { counterId: d.counters?.[0]?.id ?? "" }])}>
+            + счётчик
+          </button>
+        </div>
+      )}
+      {(free.length > 0 || !showCounters) && (
         <Select
           className="sel--add"
           value=""
-          placeholder={shown.length ? "+ ещё условие" : "+ условие"}
-          options={free.map((r) => ({ value: r.key, label: r.title }))}
-          onChange={(k) => setAdded((a) => [...a, k as ListKey])}
+          placeholder={shown.length || showCounters ? "+ ещё условие" : "+ условие"}
+          options={[...free.map((r) => ({ value: r.key as string, label: r.title })), ...(showCounters ? [] : [{ value: addCounters, label: "Значение счётчика" }])]}
+          onChange={(k) => (k === addCounters ? (setCountersOpen(true), setCounters([...counterRows, { counterId: d.counters?.[0]?.id ?? "" }])) : setAdded((a) => [...a, k as ListKey]))}
         />
       )}
       {!nested && (

@@ -18,6 +18,8 @@ export interface Progress {
   followers: string[];
   /** Персонажи, оставшиеся не на своём исходном месте. */
   npcPlaces: Record<string, Place>;
+  /** Значения счётчиков дела (нет записи — 0 или начальное значение, см. `startProgress`). */
+  counters: Record<string, number>;
   /** Диалоги с автозапуском по входу в область, которые уже сработали (один раз за прохождение). */
   fired: string[];
 }
@@ -28,6 +30,7 @@ export const emptyProgress = (): Progress => ({
   deductions: [],
   characterNotes: {},
   followers: [],
+  counters: {},
   npcPlaces: {},
   fired: [],
 });
@@ -40,11 +43,24 @@ function meetsAll(cond: Omit<Condition, "anyOf">, p: Progress, locationId?: stri
     (cond.deductions ?? []).every((id) => p.deductions.includes(id)) &&
     (cond.following ?? []).every((id) => p.followers.includes(id)) &&
     (cond.notFollowing ?? []).every((id) => !p.followers.includes(id)) &&
+    (cond.counters ?? []).every((r) => {
+      const v = p.counters?.[r.counterId] ?? 0;
+      return (r.min === undefined || v >= r.min) && (r.max === undefined || v <= r.max);
+    }) &&
     (!cond.inLocation?.length || (locationId !== undefined && cond.inLocation.includes(locationId)))
   );
 }
 
 /** @param locationId — где сейчас игрок (для `inLocation`; не передан — такое условие не выполняется). */
+/** Начало расследования: флаги и счётчики с начальными значениями из дела. */
+export function startProgress(c: { flags?: { id: string; initial?: boolean }[]; counters?: { id: string; initial?: number }[] } | null | undefined): Progress {
+  return {
+    ...emptyProgress(),
+    flags: (c?.flags ?? []).filter((f) => f.initial).map((f) => f.id),
+    counters: Object.fromEntries((c?.counters ?? []).filter((x) => x.initial).map((x) => [x.id, x.initial!])),
+  };
+}
+
 export function meets(cond: Condition | undefined, p: Progress, locationId?: string): boolean {
   if (!cond) return true;
   return meetsAll(cond, p, locationId) && (!cond.anyOf?.length || cond.anyOf.some((alt) => meetsAll(alt, p, locationId)));
@@ -70,6 +86,7 @@ export function applyEffects(
     flags: [...p.flags],
     characterNotes: { ...p.characterNotes },
     followers: [...p.followers],
+    counters: { ...(p.counters ?? {}) },
     npcPlaces: { ...p.npcPlaces },
     fired: [...(p.fired ?? [])],
   };
@@ -93,6 +110,9 @@ export function applyEffects(
         if (!notes.includes(e.text)) next.characterNotes[e.characterId] = [...notes, e.text];
         break;
       }
+      case "changeCounter":
+        next.counters[e.counterId] = e.mode === "add" ? (next.counters[e.counterId] ?? 0) + e.value : e.value;
+        break;
       case "follow":
         if (!next.followers.includes(e.characterId)) next.followers.push(e.characterId);
         break;

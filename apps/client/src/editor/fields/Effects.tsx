@@ -11,7 +11,7 @@ const cellOf = (l: Parameters<typeof firstFloorCell>[0] | undefined) => (l ? l.p
 
 // ---------- эффекты ----------
 
-const EFFECT_TYPES: Effect["type"][] = ["addEvidence", "setFlag", "removeFlag", "follow", "stay", "returnHome", "moveTo", "addCharacterNote"];
+const EFFECT_TYPES: Effect["type"][] = ["addEvidence", "setFlag", "removeFlag", "changeCounter", "follow", "stay", "returnHome", "moveTo", "addCharacterNote"];
 
 const blankEffect = (type: Effect["type"], d: FormCtx["draft"]): Effect => {
   const ch = d.characters[0]?.id ?? "";
@@ -21,6 +21,8 @@ const blankEffect = (type: Effect["type"], d: FormCtx["draft"]): Effect => {
     case "setFlag":
     case "removeFlag":
       return { type, flag: "" };
+    case "changeCounter":
+      return { type, counterId: d.counters?.[0]?.id ?? "", mode: "add", value: 1 };
     case "addCharacterNote":
       return { type, characterId: ch, text: "" };
     case "moveTo":
@@ -49,6 +51,27 @@ export function EffectsEditor({ value, onChange, ctx }: { value: Effect[]; onCha
               <Select value={e.evidenceId} placeholder="какую улику" options={evidence} onChange={(v) => set(i, { ...e, evidenceId: v })} />
             )}
             {(e.type === "setFlag" || e.type === "removeFlag") && <FlagPicker value={e.flag} onChange={(v) => set(i, { ...e, flag: String(v) })} ctx={ctx} />}
+            {e.type === "changeCounter" && (
+              <>
+                <Select
+                  value={e.counterId}
+                  placeholder="какой счётчик"
+                  options={(d.counters ?? []).map((x) => ({ value: x.id, label: x.name || x.id }))}
+                  onChange={(v) => set(i, { ...e, counterId: v })}
+                />
+                <div className="pair">
+                  <Select
+                    value={e.mode}
+                    options={[
+                      { value: "add", label: ENUM_LABELS.add },
+                      { value: "set", label: ENUM_LABELS.set },
+                    ]}
+                    onChange={(v) => set(i, { ...e, mode: v as "add" | "set" })}
+                  />
+                  <input type="number" value={e.value} onChange={(ev) => set(i, { ...e, value: Math.trunc(Number(ev.target.value)) || 0 })} />
+                </div>
+              </>
+            )}
             {"characterId" in e && (
               <Select value={e.characterId} placeholder="кто" options={chars} onChange={(v) => set(i, { ...e, characterId: v } as Effect)} />
             )}
