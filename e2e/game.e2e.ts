@@ -328,6 +328,28 @@ describe("игра в браузере", () => {
     await page.close();
   });
 
+  it("клик по области-выходу: игрок идёт в неё и переходит в другую локацию", async () => {
+    const page = await h.page();
+    await page.goto(`${BASE}/play/case-test-moveto`);
+    await page.getByRole("button", { name: /Приступить к расследованию/ }).click();
+    await page.waitForFunction(() => (window as any).__game.store.get().screen === "play" && (window as any).__scene);
+    await page.evaluate(() => {
+      const scene = (window as any).__scene;
+      const cell = scene.location.zones.find((z: any) => z.id === "stairs_down_a").cells[0] as { x: number; y: number };
+      // наведение на выход показывает подпись и курсор-«руку», уход убирает
+      const at = { worldX: (cell.x + 0.5) * 32, worldY: (cell.y + 0.5) * 32 };
+      const label = scene.interactables.find((i: any) => i.zone?.id === "stairs_down_a").labelText;
+      scene.input.emit("pointermove", at, []);
+      if (!label.visible || scene.input.manager.canvas.style.cursor !== "pointer") throw new Error("нет подсказки при наведении на выход");
+      scene.input.emit("pointermove", { worldX: 0, worldY: 0 }, []);
+      if (label.visible) throw new Error("подпись выхода не пропала");
+      // тот же путь, что у настоящего клика по пустому месту карты (поле — в мировых координатах)
+      scene.input.emit("pointerdown", { worldX: (cell.x + 0.5) * 32, worldY: (cell.y + 0.5) * 32 }, []);
+    });
+    await page.waitForFunction(() => (window as any).__game.store.get().locationId === "dorm_lobby", undefined, { timeout: 15000 });
+    await page.close();
+  });
+
   it("взаимодействие не проходит сквозь стену: плакат на стене читается только спереди", async () => {
     const page = await h.page();
     await page.goto(`${BASE}/play/case-test-moveto`);

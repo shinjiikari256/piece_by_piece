@@ -136,7 +136,27 @@ export class OfficeScene extends Phaser.Scene {
     this.input.on("pointerdown", (pointer: Phaser.Input.Pointer, over: Phaser.GameObjects.GameObject[]) => {
       if (over.length || this.host.isBlocked() || this.time.now - this.overlayClosedAt < 250) return;
       this.pendingInteraction = null;
-      this.walkTo(nearestFree(this.isFreeFn, { x: Math.floor(pointer.worldX / TILE), y: Math.floor(pointer.worldY / TILE) }));
+      const tile = { x: Math.floor(pointer.worldX / TILE), y: Math.floor(pointer.worldY / TILE) };
+      const exit = this.exitZoneAt(tile);
+      if (exit) return this.goThroughExit(exit);
+      this.walkTo(nearestFree(this.isFreeFn, tile));
+    });
+
+    // наведение на выход: подпись области и курсор-«рука» (клик ведёт к нему и проходит)
+    this.input.on("pointermove", (pointer: Phaser.Input.Pointer, over: Phaser.GameObjects.GameObject[]) => {
+      const tile = { x: Math.floor(pointer.worldX / TILE), y: Math.floor(pointer.worldY / TILE) };
+      const zone = over.length || this.host.isBlocked() ? undefined : this.exitZoneAt(tile);
+      const item = zone ? this.interactables.find((i) => i.zone?.id === zone.id) : undefined;
+      if (item === this.hoveredExit) return;
+      if (this.hoveredExit && this.hoveredExit !== this.focused) this.hoveredExit.labelText.setVisible(false);
+      this.hoveredExit = item;
+      item?.labelText.setVisible(true);
+      this.input.setDefaultCursor(item ? "pointer" : "");
+    });
+    this.input.on("pointerout", () => {
+      if (this.hoveredExit && this.hoveredExit !== this.focused) this.hoveredExit.labelText.setVisible(false);
+      this.hoveredExit = undefined;
+      this.input.setDefaultCursor("");
     });
 
     const detachBridge = gameBridge.attach({
@@ -501,6 +521,7 @@ export class OfficeScene extends Phaser.Scene {
   private buildZones() {
     ensureExitTextures(this.textures);
     this.zonesIn = new Set();
+    this.hoveredExit = undefined;
     for (const z of this.location.zones ?? []) {
       if (!z.cells.length) continue;
       const cells = new Set(z.cells.map((c) => `${c.x},${c.y}`));
@@ -521,6 +542,27 @@ export class OfficeScene extends Phaser.Scene {
       this.interactables.push(item);
     }
   }
+
+  /** Область-выход под клеткой, у которой сейчас есть подходящее действие (клик по ней — идти и пройти). */
+  private exitZoneAt(tile: Tile) {
+    return this.location.zones?.find(
+      (z) => z.actions.some((a) => a.kind === "exit") && z.cells.some((c) => c.x === tile.x && c.y === tile.y) && this.host.hasZoneAction(z.id),
+    );
+  }
+
+  /** Клик по выходу: игрок идёт в область и по приходу проходит (автовыход срабатывает сам при входе); уже стоит внутри — проходит сразу. */
+  private goThroughExit(zone: { id: string; cells: Tile[]; actions: { kind: string; auto?: boolean }[] }) {
+    const here = this.tileOf(this.player);
+    if (zone.cells.some((c) => c.x === here.x && c.y === here.y)) {
+      this.path = [];
+      this.host.onInteract(`zone:${zone.id}`);
+      return;
+    }
+    if (this.walkTo(zone.cells.filter((c) => this.isFree(c.x, c.y))) && !zone.actions.some((a) => a.kind === "exit" && a.auto)) this.pendingInteraction = `zone:${zone.id}`;
+  }
+
+  /** Выход под курсором (подпись показана, пока наведён). */
+  private hoveredExit: Interactable | undefined;
 
   /** В каких областях игрок стоит сейчас (чтобы заметить вход). */
   private zonesIn = new Set<string>();
