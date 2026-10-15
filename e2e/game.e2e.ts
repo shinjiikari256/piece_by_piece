@@ -353,6 +353,106 @@ describe("игра в браузере", () => {
     await page.close();
   });
 
+  it("конструктор: стрелки ходят между разделами и списком, разделы — одна остановка в Tab", async () => {
+    const page = await h.page();
+    await page.goto(`${BASE}/editor/case-001/evidence`);
+    await page.waitForFunction(() => (window as any).__editor?.editorStore.get().screen === "case");
+    expect(await page.locator(".ed__nav-item[tabindex='0']").count()).toBe(1);
+    const label = () => page.evaluate(() => document.activeElement?.textContent ?? "");
+    await page.locator(".ed__list .ed__item[aria-current]").focus();
+    await page.keyboard.press("ArrowLeft"); // из списка — к разделам, на текущий
+    expect(await page.evaluate(() => document.activeElement?.getAttribute("aria-current"))).toBe("true");
+    const current = await label();
+    await page.keyboard.press("ArrowUp"); // по разделам
+    expect(await label()).not.toBe(current);
+    await page.keyboard.press("ArrowDown");
+    await page.keyboard.press("ArrowRight"); // из разделов — в список
+    expect(await page.evaluate(() => document.activeElement?.classList.contains("ed__item"))).toBe(true);
+    await page.keyboard.press("ArrowRight"); // из списка — к содержимому раздела
+    expect(await page.evaluate(() => !!document.activeElement?.closest(".ed__split > .ed__panel"))).toBe(true);
+    await page.keyboard.press("Escape"); // и обратно к выбранному пункту списка
+    expect(await page.evaluate(() => document.activeElement?.classList.contains("ed__item"))).toBe(true);
+    await page.close();
+  });
+
+  it("конструктор: боковые панели локаций и диалогов меняют ширину, сворачиваются и помнят размер", async () => {
+    const page = await h.page();
+    for (const [path, host] of [["locations", ".lm"], ["dialogues", ".dg"]] as const) {
+      await page.goto(`${BASE}/editor/case-001/${path}`);
+      await page.waitForFunction(() => (window as any).__editor?.editorStore.get().screen === "case");
+      const right = page.locator(`${host} > .panel-grip[data-side="right"]`);
+      const width = () => page.evaluate((sel) => document.querySelector<HTMLElement>(sel)!.style.getPropertyValue("--col-right"), host);
+      await right.focus();
+      const before = parseInt(await width() || "0") || (await page.evaluate((sel) => parseInt(getComputedStyle(document.querySelector(sel)!).gridTemplateColumns.split(" ").at(-1)!), host));
+      await page.keyboard.press("ArrowLeft"); // к основному блоку — шире
+      await expect.poll(async () => parseInt(await width())).toBeGreaterThan(before);
+      // мышью: потянуть границу влево
+      const grown = parseInt(await width());
+      const box = (await right.boundingBox())!;
+      await page.mouse.move(box.x + 2, box.y + 40);
+      await page.mouse.down();
+      await page.mouse.move(box.x - 58, box.y + 40, { steps: 5 });
+      await page.mouse.up();
+      await expect.poll(async () => parseInt(await width())).toBeGreaterThan(grown + 40);
+      // свернуть и развернуть
+      await right.focus();
+      await page.keyboard.press("Enter");
+      await page.locator(`${host} > .panel-rail[data-side="right"]`).waitFor();
+      await page.reload();
+      await page.locator(`${host} > .panel-rail[data-side="right"]`).waitFor(); // свёрнутость помнится
+      await page.locator(`${host} > .panel-rail[data-side="right"]`).click();
+      await right.waitFor();
+      expect(parseInt(await width())).toBeGreaterThan(before); // и ширина тоже
+    }
+    await page.close();
+  });
+
+  it("конструктор: порядок локаций меняется кнопками, «Сделать стартовой» ставит локацию первой", async () => {
+    const page = await h.page();
+    await page.goto(`${BASE}/editor/case-001/locations`);
+    await page.waitForFunction(() => (window as any).__editor?.editorStore.get().screen === "case");
+    const ids = () => page.evaluate(() => (window as any).__editor.editorStore.get().draft.locations.map((l: any) => l.id) as string[]);
+    await page.locator(".lm__tabs .tab--add").click(); // в деле одна локация — добавим вторую
+    const [first, second] = await ids();
+    expect(second).toBeTruthy();
+    await page.getByRole("button", { name: "← Влево" }).click();
+    expect((await ids()).slice(0, 2)).toEqual([second, first]);
+    await page.getByRole("button", { name: "Вправо →" }).click();
+    expect((await ids()).slice(0, 2)).toEqual([first, second]);
+    await page.getByRole("button", { name: /Сделать стартовой/ }).click();
+    expect((await ids())[0]).toBe(second);
+    await page.close();
+  });
+
+  it("конструктор: палитру локации можно поставить снизу под карту; выбор помнится, панель меняет высоту и сворачивается", async () => {
+    const page = await h.page();
+    await page.goto(`${BASE}/editor/case-001/locations`);
+    await page.waitForFunction(() => (window as any).__editor?.editorStore.get().screen === "case");
+    const rect = (sel: string) => page.evaluate((s) => { const r = document.querySelector(s)!.getBoundingClientRect(); return { x: r.x, y: r.y, w: r.width, h: r.height }; }, sel);
+    // слева по умолчанию: палитра левее карты
+    expect((await rect(".lm__palette")).x).toBeLessThan((await rect(".lm__main")).x);
+    await page.getByRole("button", { name: "Палитра снизу" }).click();
+    await page.waitForSelector('.lm[data-dock="bottom"]');
+    const [palette, main] = [await rect(".lm__palette"), await rect(".lm__main")];
+    expect(palette.y).toBeGreaterThanOrEqual(main.y + main.h - 1); // ниже карты
+    expect(palette.w).toBeGreaterThan(400);
+    // высота: стрелка вверх у границы делает панель выше
+    const grip = page.locator('.lm > .panel-grip[data-side="bottom"]');
+    await grip.focus();
+    await page.keyboard.press("ArrowUp");
+    await expect.poll(async () => (await rect(".lm__palette")).h).toBeGreaterThan(palette.h);
+    // выбор переживает перезагрузку
+    await page.reload();
+    await page.waitForSelector('.lm[data-dock="bottom"]');
+    // свернуть: остаётся полоса
+    await page.locator('.lm > .panel-grip[data-side="bottom"]').focus();
+    await page.keyboard.press("Enter");
+    await page.locator('.lm > .panel-rail[data-side="bottom"]').waitFor();
+    await page.getByRole("button", { name: "Палитра слева" }).click();
+    await page.waitForSelector('.lm[data-dock="left"]');
+    await page.close();
+  });
+
   it("конструктор: «Запустить» сразу начинает расследование по тестовой копии дела", async () => {
     const page = await h.page();
     // у игрока уже есть сохранённое расследование этого дела — тестовый запуск о нём не спрашивает

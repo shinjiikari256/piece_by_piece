@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from "react";
-import { useWindowKey } from "../ui/hooks";
+import { useArrowNav, useWindowKey } from "../ui/hooks";
 import { formatDate } from "../util/format";
 import { useEditorUrl } from "./url";
+import { setMapDock, useMapDock } from "./layout";
 import { z } from "zod";
 import { CaseFile } from "../../../../shared/case";
 import { parseCase } from "../../../../shared/migrate";
@@ -148,6 +149,31 @@ export function EditorApp() {
     else editor.undo();
   });
 
+  // Блоки раздела: разделы → список → содержимое. Разделы — одна остановка в Tab (текущий раздел), по ним ходят ↑ / ↓;
+  // → уводит вправо (из разделов — в список, из списка — к первому полю содержимого), ← из списка возвращает к разделам, Esc из содержимого — к списку.
+  const nav = useRef<HTMLElement>(null);
+  useArrowNav(nav, ".ed__nav-item", { within: true });
+  useWindowKey((e) => {
+    if (e.ctrlKey || e.metaKey || e.altKey || e.shiftKey || e.defaultPrevented) return;
+    const active = document.activeElement;
+    const focus = (el: HTMLElement | null | undefined) => {
+      if (!el) return;
+      e.preventDefault();
+      el.focus();
+    };
+    const first = (root: Element | null | undefined) =>
+      [...(root?.querySelectorAll<HTMLElement>('input:not(:disabled), textarea:not(:disabled), button:not(:disabled), a[href], [tabindex]:not([tabindex="-1"])') ?? [])].find((x) => x.offsetParent !== null);
+    if (e.key === "ArrowRight" && active?.closest(".ed__nav")) {
+      focus(document.querySelector<HTMLElement>(".ed__main .ed__item[aria-current]") ?? first(document.querySelector(".ed__main")));
+    } else if (e.key === "ArrowRight" && active?.classList.contains("ed__item")) {
+      focus(first(document.querySelector(".ed__split > .ed__panel")));
+    } else if (e.key === "ArrowLeft" && active?.classList.contains("ed__item")) {
+      focus(document.querySelector<HTMLElement>(".ed__nav-item[aria-current]") ?? document.querySelector<HTMLElement>(".ed__nav-item"));
+    } else if (e.key === "Escape" && active?.closest(".ed__split > .ed__panel")) {
+      focus(document.querySelector<HTMLElement>(".ed__list .ed__item[aria-current]"));
+    }
+  });
+
   if (screen === "home") {
     return (
       <>
@@ -162,15 +188,15 @@ export function EditorApp() {
       <Toolbar />
       <StorageWarning />
       <ContextMenu build={editorMenu} />
-      <nav className="ed__nav">
+      <nav className="ed__nav" ref={nav}>
         {SECTIONS.map((s) => (
-          <button key={s.id} className="ed__nav-item" aria-current={section === s.id || undefined} onClick={() => editor.goto(s.id)} title={s.hint}>
+          <button key={s.id} className="ed__nav-item" tabIndex={section === s.id || (section === "errors" && !errors.length && s.id === "general") ? 0 : -1} aria-current={section === s.id || undefined} onClick={() => editor.goto(s.id)} title={s.hint}>
             {s.label}
             <span className="ed__nav-count">{countFor(draft, s.id)}</span>
           </button>
         ))}
         {errors.length > 0 && (
-          <button className="ed__nav-item ed__nav-item--errors" aria-current={section === "errors" || undefined} onClick={() => editor.goto("errors")}>
+          <button className="ed__nav-item ed__nav-item--errors" tabIndex={section === "errors" ? 0 : -1} aria-current={section === "errors" || undefined} onClick={() => editor.goto("errors")}>
             <span>
               <Icon name="alert" size={15} /> Ошибки
             </span>
@@ -417,6 +443,7 @@ function Toolbar() {
   const canRedo = useEditor((s) => s.future.length > 0);
   const [openHelp, setOpenHelp] = useState(false);
   const section = useEditor((s) => s.section);
+  const dock = useMapDock();
 
   return (
     <header className="ed__bar">
@@ -436,6 +463,16 @@ function Toolbar() {
         <Icon name={draft.published ? "eye" : "dim"} size={16} /> {draft.published ? "Видно игрокам" : "Скрыто"}
       </button>
       <div className="ed__actions">
+        {section === "locations" && (
+          <span className="seg" role="group" aria-label="Расположение палитры">
+            <button className="seg__btn" aria-pressed={dock === "left"} onClick={() => setMapDock("left")} title="Палитра слева от карты" aria-label="Палитра слева">
+              <Icon name="dock-left" size={24} />
+            </button>
+            <button className="seg__btn" aria-pressed={dock === "bottom"} onClick={() => setMapDock("bottom")} title="Палитра под картой" aria-label="Палитра снизу">
+              <Icon name="dock-bottom" size={24} />
+            </button>
+          </span>
+        )}
         <button className="icon-btn ed__icon-btn" disabled={!canUndo} onClick={editor.undo} title="Отменить (Ctrl+Z)">
           <Icon name="undo" />
         </button>

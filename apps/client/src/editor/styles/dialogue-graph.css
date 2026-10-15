@@ -6,7 +6,7 @@
   --dg-wire: color-mix(in srgb, var(--border-chrome) 70%, black);
 
   display: grid;
-  grid-template-columns: 15rem 1fr 24rem;
+  grid-template-columns: var(--col-left, 15rem) 1fr var(--col-right, 24rem);
   height: 100%;
   min-height: 0;
 }
@@ -54,7 +54,7 @@
   stroke-dasharray: 4 3;
 }
 .dg--embedded {
-  grid-template-columns: 1fr 24rem;
+  grid-template-columns: 1fr var(--col-right, 24rem);
 }
 .ed__list-note {
   font-size: 0.8em;

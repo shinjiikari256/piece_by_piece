@@ -1,5 +1,6 @@
-import type { ReactNode } from "react";
+import { useRef, type ReactNode } from "react";
 import { Icon } from "../ui/icons";
+import { useArrowNav } from "../ui/hooks";
 
 /** Название и ключ (id) пункта списка в две строки; `warn` — название выделено как проблемное. */
 export function ItemText({ title, id, warn }: { title: ReactNode; id?: string; warn?: boolean }) {
@@ -39,8 +40,11 @@ export function EntityList<T>({
   empty?: string;
   note?: ReactNode;
 }) {
+  // ↑ / ↓ ходят по пунктам, когда фокус уже в списке (Enter выбирает)
+  const root = useRef<HTMLDivElement>(null);
+  useArrowNav(root, ".ed__item", { within: true });
   return (
-    <div className="ed__list">
+    <div className="ed__list" ref={root}>
       <button className="ed__list-add" onClick={onAdd}>
         <Icon name="plus" size={15} /> {addLabel}
       </button>

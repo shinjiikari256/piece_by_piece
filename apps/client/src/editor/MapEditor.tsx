@@ -19,6 +19,9 @@ import { LIST_KEY, type Selection, type Tool } from "./map/types";
 import { ObjectList } from "./map/ObjectList";
 import { LOCATION_SCHEMA, SelectedPanel, SizeInput } from "./map/panels";
 import { Tabs } from "./Tabs";
+import { moveItem } from "../util/lists";
+import { useMapDock } from "./layout";
+import { PanelGrip, PanelRail, panelVars, usePanel } from "./panels";
 import { useUrlParam, useWriteDefaultParam } from "./url";
 
 
@@ -34,6 +37,11 @@ function parseSelection(loc: LocationT | undefined, key: string): Selection {
 }
 
 export function MapEditor() {
+  const palettePanel = usePanel("map-palette", "Палитра", "left", { width: 272, min: 180, max: 520 });
+  const paletteDock = usePanel("map-palette-bottom", "Палитра", "bottom", { width: 260, min: 140, max: 520 });
+  // где стоит палитра — выбор в шапке конструктора (editor/layout.ts)
+  const dock = useMapDock();
+  const inspectorPanel = usePanel("map-inspector", "Инспектор", "right", { width: 336, min: 240, max: 640 });
   const draft = useEditor((s) => s.draft);
   // выбранная локация, объект и вкладка инспектора — в адресе (`?item=…&obj=…&tab=list`)
   const [locKey, setLocKey] = useUrlParam("item", "");
@@ -309,151 +317,185 @@ export function MapEditor() {
                 : "Выход: кликните по проёму на краю карты";
 
   return (
-    <section className="lm">
-      <Tabs
-        variant="bar"
-        className="lm__tabs"
-        active={String(li)}
-        onChange={(id) => {
-          setLocIndex(Number(id));
-          setSel(null);
-        }}
-        tabs={draft.locations.map((l, i) => ({
-          id: String(i),
-          label: (
-            <>
-              {i === 0 && <span title="Стартовая локация">★ </span>}
-              {l.name}
-            </>
-          ),
-        }))}
-        trailing={
-          <button className="tab tab--add" onClick={() => addLocation(draft, setLocIndex)} title="Новая локация">
-            + локация
-          </button>
-        }
-      />
+    <section className="lm" data-dock={dock} style={dock === "left" ? panelVars(palettePanel, inspectorPanel) : panelVars(undefined, inspectorPanel, paletteDock)}>
+      {(dock === "left" ? palettePanel : paletteDock).collapsed ? (
+        <PanelRail panel={dock === "left" ? palettePanel : paletteDock} />
+      ) : (
+        <MapPalette
+          draft={draft}
+          tool={tool}
+          setTool={setTool}
+          brush={brush}
+          setBrush={setBrush}
+          lastTile={lastTile}
+          pickTile={pickTile}
+          npcCharacter={npcCharacter}
+          setNpcCharacter={setNpcCharacter}
+        />
+      )}
 
-      <MapPalette
-        draft={draft}
-        tool={tool}
-        setTool={setTool}
-        brush={brush}
-        setBrush={setBrush}
-        lastTile={lastTile}
-        pickTile={pickTile}
-        npcCharacter={npcCharacter}
-        setNpcCharacter={setNpcCharacter}
-      />
-
-      {/* ---------- карта ---------- */}
-      <div className="lm__center">
-        <div
-          className="lm__stage"
-          onWheel={(e) => {
-            if (!e.ctrlKey) return;
-            e.preventDefault();
-            const cur = zoom === "fit" ? 2 : zoom;
-            setZoom(Math.max(1, Math.min(6, cur + (e.deltaY < 0 ? 1 : -1))));
+      {/* ---------- карта: вкладки локаций только над ней; палитра и инспектор — равнозначные ей блоки ---------- */}
+      <div className="lm__main">
+        <Tabs
+          variant="bar"
+          className="lm__tabs"
+          active={String(li)}
+          onChange={(id) => {
+            setLocIndex(Number(id));
+            setSel(null);
           }}
-        >
-          <canvas
-            ref={canvas}
-            className={`lm__canvas tool--${tool.kind} ${zoom === "fit" ? "is-fit" : ""}`}
-            style={zoom === "fit" ? { aspectRatio: `${w} / ${h}` } : { width: w * T * zoom, height: h * T * zoom }}
-            onMouseDown={onDown}
-            onMouseMove={onMove}
-            onMouseUp={onUp}
-            onMouseLeave={() => {
-              setHover(null);
-              onUp();
+          tabs={draft.locations.map((l, i) => ({
+            id: String(i),
+            label: (
+              <>
+                {i === 0 && <span title="Стартовая локация">★ </span>}
+                {l.name}
+              </>
+            ),
+          }))}
+          trailing={
+            <button className="tab tab--add" onClick={() => addLocation(draft, setLocIndex)} title="Новая локация">
+              + локация
+            </button>
+          }
+        />
+        <div className="lm__center">
+          <div
+            className="lm__stage"
+            onWheel={(e) => {
+              if (!e.ctrlKey) return;
+              e.preventDefault();
+              const cur = zoom === "fit" ? 2 : zoom;
+              setZoom(Math.max(1, Math.min(6, cur + (e.deltaY < 0 ? 1 : -1))));
             }}
-          />
-        </div>
-        <div className="lm__status">
-          <span className="lm__coords">{hover ? `${hover.x}, ${hover.y}` : `${w}×${h} клеток`}</span>
-          <span className="lm__hint">{hoverInfo || toolHint}</span>
-          <span className="lm__zoom">
-            {(["fit", 2, 3, 4] as const).map((z) => (
-              <button key={z} aria-pressed={zoom === z} onClick={() => setZoom(z)}>
-                {z === "fit" ? "вписать" : `×${z}`}
-              </button>
-            ))}
-          </span>
+          >
+            <canvas
+              ref={canvas}
+              className={`lm__canvas tool--${tool.kind} ${zoom === "fit" ? "is-fit" : ""}`}
+              style={zoom === "fit" ? { aspectRatio: `${w} / ${h}` } : { width: w * T * zoom, height: h * T * zoom }}
+              onMouseDown={onDown}
+              onMouseMove={onMove}
+              onMouseUp={onUp}
+              onMouseLeave={() => {
+                setHover(null);
+                onUp();
+              }}
+            />
+          </div>
+          <div className="lm__status">
+            <span className="lm__coords">{hover ? `${hover.x}, ${hover.y}` : `${w}×${h} клеток`}</span>
+            <span className="lm__hint">{hoverInfo || toolHint}</span>
+            <span className="lm__zoom">
+              {(["fit", 2, 3, 4] as const).map((z) => (
+                <button key={z} aria-pressed={zoom === z} onClick={() => setZoom(z)}>
+                  {z === "fit" ? "вписать" : `×${z}`}
+                </button>
+              ))}
+            </span>
+          </div>
         </div>
       </div>
 
       {/* ---------- инспектор ---------- */}
-      <aside className="lm__inspector">
-        <Tabs
-          className="lm__itabs"
-          active={insp}
-          onChange={setInsp}
-          tabs={[
-            { id: "props", label: "Свойства" },
-            { id: "list", label: `Объекты (${loc.objects.length + loc.npcs.length + loc.exits.length + loc.doors.length})` },
-          ]}
-        />
-        <div className="lm__inspector-body">
-          {insp === "list" ? (
-            <ObjectList
-              loc={loc}
-              draft={draft}
-              sel={sel}
-              onPick={(s) => {
-                setSel(s);
-                setInsp("props");
-              }}
-            />
-          ) : sel ? (
-            <SelectedPanel loc={loc} sel={sel} updateLoc={updateLoc} onDelete={deleteSelected} draft={draft} onClose={() => setSel(null)} />
-          ) : (
-            <>
-              <h3>Локация</h3>
-              <ObjectFields
-                schema={LOCATION_SCHEMA}
-                value={loc}
-                ctx={{ draft }}
-                only={["id", "name"]}
-                onChange={(v) => updateLoc(() => v as LocationT, `loc:${li}`)}
+      {inspectorPanel.collapsed ? (
+        <PanelRail panel={inspectorPanel} />
+      ) : (
+        <aside className="lm__inspector">
+          <Tabs
+            className="lm__itabs"
+            active={insp}
+            onChange={setInsp}
+            tabs={[
+              { id: "props", label: "Свойства" },
+              { id: "list", label: `Объекты (${loc.objects.length + loc.npcs.length + loc.exits.length + loc.doors.length})` },
+            ]}
+          />
+          <div className="lm__inspector-body">
+            {insp === "list" ? (
+              <ObjectList
+                loc={loc}
+                draft={draft}
+                sel={sel}
+                onPick={(s) => {
+                  setSel(s);
+                  setInsp("props");
+                }}
               />
-              <div className="lm__size">
-                <span className="ef__label">Размер карты</span>
-                <div>
-                  <SizeInput label="ширина" value={w} onChange={(v) => updateLoc((l) => resize(l, v, h))} />
-                  <SizeInput label="высота" value={h} onChange={(v) => updateLoc((l) => resize(l, w, v))} />
+            ) : sel ? (
+              <SelectedPanel loc={loc} sel={sel} updateLoc={updateLoc} onDelete={deleteSelected} draft={draft} onClose={() => setSel(null)} />
+            ) : (
+              <>
+                <h3>Локация</h3>
+                <ObjectFields
+                  schema={LOCATION_SCHEMA}
+                  value={loc}
+                  ctx={{ draft }}
+                  only={["id", "name"]}
+                  onChange={(v) => updateLoc(() => v as LocationT, `loc:${li}`)}
+                />
+                <div className="lm__size">
+                  <span className="ef__label">Размер карты</span>
+                  <div>
+                    <SizeInput label="ширина" value={w} onChange={(v) => updateLoc((l) => resize(l, v, h))} />
+                    <SizeInput label="высота" value={h} onChange={(v) => updateLoc((l) => resize(l, w, v))} />
+                  </div>
                 </div>
-              </div>
-              <ObjectFields
-                schema={LOCATION_SCHEMA}
-                value={loc}
-                ctx={{ draft }}
-                only={["areas"]}
-                onChange={(v) => updateLoc(() => v as LocationT, `loc:${li}`)}
-              />
-              <div className="lm__stats">
-                <span>Предметов: {loc.objects.length}</span>
-                <span>Людей: {loc.npcs.length}</span>
-                <span>Выходов: {loc.exits.length}</span>
-                <span>Дверей: {loc.doors.length}</span>
-              </div>
-              {draft.locations.length > 1 && (
-                <button
-                  className="btn btn--sm btn--danger"
-                  onClick={async () => {
-                    if (!(await ask({ title: `Удалить локацию «${loc.name}»?`, text: "Удалятся все предметы, люди, выходы и двери в ней.", confirmLabel: "Удалить", danger: true }))) return;
-                    editor.update((d) => ({ ...d, locations: d.locations.filter((_, i) => i !== li) }));
-                    setLocIndex(0);
-                  }}
-                >
-                  Удалить локацию
-                </button>
-              )}
-              <p className="lm__note">Первая локация — стартовая. Кликните по предмету, человеку или выходу, чтобы изменить его.</p>
-            </>
-          )}
-        </div>
-      </aside>
+                <ObjectFields
+                  schema={LOCATION_SCHEMA}
+                  value={loc}
+                  ctx={{ draft }}
+                  only={["areas"]}
+                  onChange={(v) => updateLoc(() => v as LocationT, `loc:${li}`)}
+                />
+                {draft.locations.length > 1 && (
+                  <div className="row">
+                    <button
+                      className="btn btn--sm"
+                      disabled={li === 0}
+                      onClick={() => editor.update((d) => ({ ...d, locations: moveItem(d.locations, li, -1) ?? d.locations }))}
+                      title="Сдвинуть локацию влево в списке вкладок"
+                    >
+                      ← Влево
+                    </button>
+                    <button
+                      className="btn btn--sm"
+                      disabled={li === draft.locations.length - 1}
+                      onClick={() => editor.update((d) => ({ ...d, locations: moveItem(d.locations, li, 1) ?? d.locations }))}
+                      title="Сдвинуть локацию вправо в списке вкладок"
+                    >
+                      Вправо →
+                    </button>
+                    {li > 0 && (
+                      <button
+                        className="btn btn--sm"
+                        onClick={() => editor.update((d) => ({ ...d, locations: [d.locations[li], ...d.locations.filter((_, i) => i !== li)] }))}
+                        title="Игра начнётся в этой локации: она станет первой"
+                      >
+                        ★ Сделать стартовой
+                      </button>
+                    )}
+                  </div>
+                )}
+                {draft.locations.length > 1 && (
+                  <button
+                    className="btn btn--sm btn--danger"
+                    onClick={async () => {
+                      if (!(await ask({ title: `Удалить локацию «${loc.name}»?`, text: "Удалятся все предметы, люди, выходы и двери в ней.", confirmLabel: "Удалить", danger: true }))) return;
+                      editor.update((d) => ({ ...d, locations: d.locations.filter((_, i) => i !== li) }));
+                      setLocIndex(0);
+                    }}
+                  >
+                    Удалить локацию
+                  </button>
+                )}
+                <p className="lm__note">Первая локация — стартовая: игра начинается в ней (порядок меняют кнопки выше). Кликните по предмету, человеку или выходу, чтобы изменить его.</p>
+              </>
+            )}
+          </div>
+        </aside>
+      )}
+      <PanelGrip panel={dock === "left" ? palettePanel : paletteDock} />
+      <PanelGrip panel={inspectorPanel} />
     </section>
   );
 }

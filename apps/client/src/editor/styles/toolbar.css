@@ -69,3 +69,14 @@ button.ed__home {
 .ed__nav-item[aria-current] {
   font-weight: 700;
 }
+
+/* переключатель раскладки в шапке: квадратные кнопки с крупными значками */
+.ed__bar .seg {
+  min-height: 2.4rem;
+}
+.ed__bar .seg__btn {
+  display: grid;
+  place-items: center;
+  width: 2.4rem;
+  padding: 0;
+}
