@@ -398,7 +398,7 @@ describe("игра в браузере", () => {
     const box = (await canvas.boundingBox())!;
     const dims = await page.evaluate(() => { const l = (window as any).__editor.editorStore.get().draft.locations[0]; return { w: l.tiles[0].length, h: l.tiles.length }; });
     const cell = (x: number, y: number) => ({ x: box.x + (box.width / dims.w) * (x + 0.5), y: box.y + (box.height / dims.h) * (y + 0.5) });
-    const zones = () => page.evaluate(() => (window as any).__editor.editorStore.get().draft.locations[0].zones as { id: string; name: string; cells: { x: number; y: number }[] }[]);
+    const zones = () => page.evaluate(() => (window as any).__editor.editorStore.get().draft.locations[0].zones as { id: string; name: string; color?: string; cells: { x: number; y: number }[] }[]);
     // мазок по трём клеткам создаёт область
     await page.mouse.move(cell(5, 5).x, cell(5, 5).y);
     await page.mouse.down();
@@ -412,6 +412,11 @@ describe("игра в браузере", () => {
     // выбрана — панель со свойствами, название меняется
     await page.locator(".lm__inspector input").first().fill("Проходная");
     expect((await zones())[0].name).toBe("Проходная");
+    // цвет области: образец из ряда задаёт `color`, первый образец возвращает «по ключу»
+    await page.locator(".zone-swatch").nth(3).click();
+    expect((await zones())[0]).toMatchObject({ color: expect.stringMatching(/^#[0-9a-f]{6}$/i) });
+    await page.locator(".zone-swatch--auto").click();
+    expect((await zones())[0].color).toBeUndefined();
     // ключ области меняется вручную
     await page.locator(".lm__inspector .key-field__input").fill("zone_gate");
     await page.keyboard.press("Enter");

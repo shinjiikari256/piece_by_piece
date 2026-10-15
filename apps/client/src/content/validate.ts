@@ -132,6 +132,7 @@ function checkIntegrity(c: CaseFile): string[] {
     }
     for (const z of loc.zones) {
       if (!z.name.trim()) err(`${L}/zone ${z.id}: нет названия`);
+      if (z.color && !/^#[0-9a-f]{6}$/i.test(z.color)) err(`${L}/zone ${z.id}: цвет «${z.color}» — нужен вид #rrggbb`);
       if (!z.cells.length) err(`${L}/zone ${z.id}: область пуста — отметьте клетки на карте`);
       for (const cell of z.cells) if (!inBounds(cell.x, cell.y)) err(`${L}/zone ${z.id}: клетка ${cell.x},${cell.y} вне карты`);
       z.actions.forEach((a, i) => {

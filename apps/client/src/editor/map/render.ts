@@ -52,10 +52,10 @@ export function renderMap(cv: HTMLCanvasElement, s: MapRenderState) {
   // области-триггеры: цветная заливка клеток, подпись у верхней левой клетки
   for (const z of loc.zones) {
     const on = z.id === zoneSel || (tool.kind === "zone" && !zoneSel);
-    ctx.fillStyle = zoneColor(z.id, on ? 0.38 : 0.24);
+    ctx.fillStyle = zoneColor(z.id, on ? 0.38 : 0.24, z.color);
     for (const c of z.cells) ctx.fillRect(c.x * T, c.y * T, T, T);
     if (z.id === zoneSel) {
-      ctx.strokeStyle = zoneColor(z.id, 0.95);
+      ctx.strokeStyle = zoneColor(z.id, 0.95, z.color);
       ctx.lineWidth = 1;
       for (const c of z.cells) ctx.strokeRect(c.x * T + 0.5, c.y * T + 0.5, T - 1, T - 1);
     }

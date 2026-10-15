@@ -238,6 +238,7 @@ export const Zone = z
     name: z.string(),
     cells: z.array(Point),
     actions: z.array(ZoneAction).default([]),
+    color: z.string().optional().describe("Цвет области в конструкторе (#rrggbb); без цвета — подбирается по ключу. В игре область не видна"),
   })
   .describe("Область на карте из клеток");
 

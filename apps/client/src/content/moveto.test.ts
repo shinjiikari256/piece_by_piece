@@ -110,6 +110,14 @@ describe("области и их действия: формат и валида�
     expect(text).toContain("неизвестная ссылка «нет_предмета»");
   });
 
+  it("цвет области — только вида #rrggbb", () => {
+    const c = base();
+    c.locations[0].zones = [zone("zc", { color: "#3f9e5a" })];
+    expect(errorsOf(c)).toEqual("");
+    c.locations[0].zones = [zone("zc", { color: "зелёный" })];
+    expect(errorsOf(c)).toContain("нужен вид #rrggbb");
+  });
+
   it("выход: неизвестная локация, spawn не на полу и в области с автоматическим выходом", () => {
     const c = base();
     const floorCell = c.locations[0].playerStart;

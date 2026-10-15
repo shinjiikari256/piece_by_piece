@@ -9,6 +9,7 @@ import { Icon } from "../../ui/icons";
 import { tell } from "../../ui/dialog";
 import { editor } from "../state";
 import { zoneKey } from "./ZoneCreator";
+import { ZONE_COLORS } from "./helpers";
 import { ZoneActions } from "./ZoneActions";
 import { Field, ObjectFields, type JS } from "../SchemaForm";
 import { ConditionEditor } from "../fields/Conditions";
@@ -129,6 +130,26 @@ export function SelectedPanel({
           onChange={(e) => updateLoc((l) => ({ ...l, zones: l.zones.map((z) => (z.id === zone.id ? { ...z, name: e.target.value } : z)) }), `zone-name:${zone.id}`)}
         />
         <ZoneKeyField zone={zone} draft={draft} onRenamed={(key) => onSelect({ kind: "zone", id: key })} />
+        <div className="zone-colors" role="group" aria-label="Цвет области на карте">
+          <button
+            className="zone-swatch zone-swatch--auto"
+            aria-pressed={!zone.color}
+            title="Цвет по ключу"
+            aria-label="Цвет по ключу"
+            onClick={() => updateLoc((l) => ({ ...l, zones: l.zones.map((z) => (z.id === zone.id ? { ...z, color: undefined } : z)) }))}
+          />
+          {ZONE_COLORS.map((c) => (
+            <button
+              key={c}
+              className="zone-swatch"
+              style={{ background: c }}
+              aria-pressed={zone.color === c}
+              title={c}
+              aria-label={`Цвет ${c}`}
+              onClick={() => updateLoc((l) => ({ ...l, zones: l.zones.map((z) => (z.id === zone.id ? { ...z, color: c } : z)) }))}
+            />
+          ))}
+        </div>
         <ZoneActions
           zone={zone}
           draft={draft}

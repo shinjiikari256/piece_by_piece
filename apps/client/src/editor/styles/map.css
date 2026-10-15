@@ -574,3 +574,26 @@
 .zact__item > .row {
   align-items: center;
 }
+
+/* выбор цвета области: ряд круглых образцов; первый — «по ключу» (косая штриховка) */
+.zone-colors {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+.zone-swatch {
+  width: 1.35rem;
+  height: 1.35rem;
+  padding: 0;
+  border: 2px solid transparent;
+  border-radius: 999px;
+  cursor: pointer;
+  box-shadow: 0 0 0 1px var(--border);
+}
+.zone-swatch[aria-pressed="true"] {
+  border-color: var(--bg-surface);
+  box-shadow: 0 0 0 2px var(--accent);
+}
+.zone-swatch--auto {
+  background: repeating-linear-gradient(45deg, var(--bg-paper-dim) 0 4px, var(--bg-surface) 4px 8px);
+}

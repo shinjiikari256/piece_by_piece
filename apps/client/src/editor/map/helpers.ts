@@ -136,8 +136,15 @@ export function rectCells(r: { x: number; y: number; w: number; h: number }) {
   return Array.from({ length: r.w * r.h }, (_, i) => ({ x: r.x + (i % r.w), y: r.y + Math.floor(i / r.w) }));
 }
 
-/** Цвет области на карте: оттенок по id, чтобы соседние области различались. */
-export function zoneColor(id: string, alpha: number) {
+/** Цвета для выбора в свойствах области. */
+export const ZONE_COLORS = ["#d94f4f", "#e08a2e", "#d4b21f", "#3f9e5a", "#2fa3a3", "#3f7fd9", "#7a5fd1", "#c4529e"];
+
+/** Цвет области на карте: заданный (#rrggbb) или оттенок по ключу, чтобы соседние области различались. */
+export function zoneColor(id: string, alpha: number, color?: string) {
+  if (color && /^#[0-9a-f]{6}$/i.test(color)) {
+    const n = parseInt(color.slice(1), 16);
+    return `rgba(${n >> 16}, ${(n >> 8) & 255}, ${n & 255}, ${alpha})`;
+  }
   let hash = 0;
   for (const ch of id) hash = (hash * 31 + ch.charCodeAt(0)) % 360;
   return `hsla(${hash}, 70%, 50%, ${alpha})`;
