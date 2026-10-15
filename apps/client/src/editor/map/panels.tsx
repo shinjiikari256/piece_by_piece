@@ -32,7 +32,7 @@ export function PaletteGroup({ title, count, open, onToggle, children }: { title
   return (
     <div className="lm__group">
       <button className="lm__group-head" onClick={onToggle} aria-expanded={open}>
-        <span>{open ? "▾" : "▸"}</span> {title} <small>{count}</small>
+        <span>{open ? "▾" : "▸"}</span> <span className="lm__section-title">{title}</span> <small>{count}</small>
       </button>
       {open && <div className="lm__group-body">{children}</div>}
     </div>

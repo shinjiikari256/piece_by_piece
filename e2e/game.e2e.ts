@@ -342,6 +342,46 @@ describe("игра в браузере", () => {
     await page.close();
   });
 
+  it("области-триггеры: автозапуск при входе (один раз), запуск по E, первый подходящий диалог", async () => {
+    const page = await h.page();
+    await page.goto(`${BASE}/play/case-test-moveto`);
+    await page.getByRole("button", { name: /Приступить к расследованию/ }).click();
+    await page.waitForFunction(() => (window as any).__game.store.get().screen === "play" && (window as any).__scene);
+    const overlay = () => page.evaluate(() => (window as any).__game.store.get().overlay);
+    const placeAt = (x: number, y: number) =>
+      page.evaluate(([tx, ty]) => (window as any).__scene.player.setPosition((tx + 0.5) * 32, (ty + 1) * 32 - 2), [x, y]);
+    // вход в область с автозапуском
+    await placeAt(14, 10);
+    await page.waitForFunction(() => (window as any).__game.store.get().overlay?.dialogueId === "dlg_zone_auto");
+    await page.evaluate(() => (window as any).__game.actions.close());
+    // повторный вход — диалог не запускается снова
+    await placeAt(10, 12);
+    await page.waitForTimeout(200);
+    await placeAt(14, 10);
+    await page.waitForTimeout(400);
+    expect(await overlay()).toBeNull();
+    // область без автозапуска: подсказка появляется внутри, E запускает диалог
+    await placeAt(23, 13);
+    await page.waitForFunction(() => (window as any).__scene.focused?.id === "zone:zone_corridor_end");
+    await page.evaluate(() => (window as any).__game.actions.interact("zone:zone_corridor_end"));
+    expect((await overlay()).dialogueId).toBe("dlg_zone_e");
+    await page.evaluate(() => (window as any).__game.actions.close());
+    // два диалога на область: первый подходящий — по условию, иначе по умолчанию
+    await page.evaluate(() => (window as any).__game.actions.interact("zone:zone_lobby_center"));
+    expect((await overlay()).dialogueId).toBe("dlg_zone_lobby");
+    await page.evaluate(() => {
+      const { actions } = (window as any).__game;
+      actions.close();
+      actions.interact("npc_timur");
+      actions.choose("t_menu");
+      actions.choose("t4"); // Вика идёт за вами
+      actions.close();
+      actions.interact("zone:zone_lobby_center");
+    });
+    expect((await overlay()).dialogueId).toBe("dlg_zone_lobby_vika");
+    await page.close();
+  });
+
   it("окна открываются и закрываются", async () => {
     const page = await h.page();
     await startCase(page);

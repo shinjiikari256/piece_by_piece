@@ -13,6 +13,8 @@ export interface Interactable {
   sprite: Phaser.GameObjects.Image | Phaser.GameObjects.Sprite;
   labelText: Phaser.GameObjects.Text;
   check?: Phaser.GameObjects.Text;
+  /** Область-триггер: пользоваться можно, пока игрок стоит внутри (клетки `"x,y"`), а не по расстоянию. */
+  zone?: { id: string; cells: Set<string> };
 }
 
 export interface Npc extends Interactable {

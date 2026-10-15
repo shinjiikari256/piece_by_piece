@@ -22,6 +22,8 @@ import type { Interactable, Npc } from "./scene/types";
 
 const SPEED = 150; // px/с в мировых координатах
 const INTERACT_RANGE = TILE * 1.75;
+/** Условное «расстояние» до области, в которой стоит игрок: ближе — персонаж или предмет рядом, дальше — область. */
+const ZONE_RANGE = TILE * 1.5;
 const INTERACT_KEYS = new Set(["KeyE", "Enter", "NumpadEnter", "Space"]);
 const UI_TARGETS = "button, input, textarea, select, a, [contenteditable]";
 
@@ -95,6 +97,7 @@ export class OfficeScene extends Phaser.Scene {
     this.buildMap();
     this.buildObjects();
     this.buildExits();
+    this.buildZones();
     this.buildDoors();
     this.buildPlayer();
     this.syncNpcs();
@@ -516,6 +519,47 @@ export class OfficeScene extends Phaser.Scene {
     }
   }
 
+  // ---------- области-триггеры ----------
+
+  /** Области локации: взаимодействие (E) работает, пока игрок стоит внутри; вход может запускать диалог сам. */
+  private buildZones() {
+    ensureExitTextures(this.textures);
+    this.zonesIn = new Set();
+    for (const z of this.location.zones ?? []) {
+      if (!z.cells.length) continue;
+      const cells = new Set(z.cells.map((c) => `${c.x},${c.y}`));
+      // подпись — над самой верхней клеткой области, по центру её строки
+      const top = Math.min(...z.cells.map((c) => c.y));
+      const topRow = z.cells.filter((c) => c.y === top);
+      const cx = (topRow.reduce((a, c) => a + c.x, 0) / topRow.length + 0.5) * TILE;
+      const item: Interactable = {
+        id: `zone:${z.id}`,
+        label: z.name,
+        x: cx,
+        y: (top + 0.5) * TILE,
+        footprint: z.cells,
+        sprite: this.add.image(cx, (top + 1) * TILE, "exit_zone").setOrigin(0.5, 1).setScale(SCALE).setDepth(0),
+        labelText: this.makeLabel(z.name).setPosition(cx, top * TILE - 4),
+        zone: { id: z.id, cells },
+      };
+      this.interactables.push(item);
+    }
+  }
+
+  /** В каких областях игрок стоит сейчас (чтобы заметить вход). */
+  private zonesIn = new Set<string>();
+
+  /** Вошёл в область — сообщаем хосту (автозапуск диалога). */
+  private watchZones() {
+    const t = this.tileOf(this.player);
+    const key = `${t.x},${t.y}`;
+    const now = new Set<string>();
+    for (const item of this.interactables) if (item.zone?.cells.has(key)) now.add(item.zone.id);
+    const entered = [...now].filter((id) => !this.zonesIn.has(id));
+    this.zonesIn = now;
+    for (const id of entered) this.host.enterZone(id);
+  }
+
   /**
    * Большой экран — видна вся карта. Маленький (телефон) — камера приближается
    * так, чтобы клетка была не мельче MIN_TILE_PX, и следует за игроком.
@@ -810,6 +854,7 @@ export class OfficeScene extends Phaser.Scene {
 
 
     this.animateDoors();
+    if (!blocked) this.watchZones();
     this.updateFocus(blocked);
 
     this.saveClock += deltaMs;
@@ -870,6 +915,15 @@ export class OfficeScene extends Phaser.Scene {
     if (!blocked) {
       for (const item of this.interactables) {
         if ((item as Npc).mode === "walker") continue; // пока идёт, поговорить нельзя
+        if (item.zone) {
+          // область: подсказка, пока игрок внутри и у области есть подходящий диалог
+          const t = this.tileOf(this.player);
+          if (item.zone.cells.has(`${t.x},${t.y}`) && this.host.hasZoneDialogue(item.zone.id) && ZONE_RANGE <= bestDist) {
+            best = item;
+            bestDist = ZONE_RANGE;
+          }
+          continue;
+        }
         const d = this.distanceTo(item);
         if (d <= bestDist && this.canUse(item)) {
           best = item;

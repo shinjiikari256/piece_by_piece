@@ -483,8 +483,16 @@
   overflow: hidden;
 }
 .lm[data-dock="bottom"] .lm__palette .lm__section:not([data-open]) .lm__section-head {
-  writing-mode: vertical-rl;
+  /* стрелка сверху, как была; название под ней, читается снизу вверх */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
   width: auto;
   height: 100%;
   padding: 0.2rem;
+}
+.lm[data-dock="bottom"] .lm__palette .lm__section:not([data-open]) .lm__section-title {
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
 }
