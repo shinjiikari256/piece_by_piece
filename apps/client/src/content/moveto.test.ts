@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { emptyProgress, applyEffects } from "../../../../shared/conditions";
 import type { CaseFile, Effect } from "../../../../shared/case";
 import case001 from "./cases/case-001.json";
+import testCase from "./test-cases/case-test-moveto.json";
 import { validateCase } from "./validate";
 
 const move = (characterId: string, x: number, y: number, locationId = "admin_building"): Effect => ({ type: "moveTo", characterId, locationId, x, y });
@@ -57,5 +58,16 @@ describe("эффект moveTo: валидатор", () => {
       c.locations[0].tiles = tiles.map((row) => row.join(""));
     });
     expect(errors.join("\n")).toContain("не дойти");
+  });
+});
+
+describe("тестовое дело case-test-moveto", () => {
+  it("проходит валидацию и содержит все сценарии moveTo", () => {
+    const r = validateCase(testCase);
+    expect(r.ok ? [] : r.errors).toEqual([]);
+    const effects = (testCase as unknown as CaseFile).dialogues.flatMap((d) => d.nodes.flatMap((n) => n.effects));
+    expect(effects.filter((e) => e.type === "moveTo").length).toBeGreaterThanOrEqual(5);
+    expect(effects.some((e) => e.type === "moveTo" && e.failText)).toBe(true); // с руганью при неудаче
+    expect(effects.some((e) => e.type === "moveTo" && e.locationId === "dorm_lobby")).toBe(true); // в другую локацию
   });
 });

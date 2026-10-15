@@ -1,0 +1,2959 @@
+{
+  "formatVersion": 1,
+  "id": "case-test-moveto",
+  "number": "T01",
+  "title": "Тест: перемещения персонажей",
+  "tagline": "Копия дела «Комната 412» для проверки эффекта moveTo: в разговоре с Тимуром есть пункт «[ТЕСТ]». Только для разработки.",
+  "introduction": "Тестовая копия дела №002 для проверки перемещений персонажей (эффект moveTo). Видна только в режиме разработки (pnpm dev).\n\nКак проверять: поговорите с Тимуром и выберите «[ТЕСТ] Перемещения персонажей». Сценарии: 1) ход по коридору; 2) переход в другую локацию (Зуев уходит по лестнице); 3) путь закрыт на момент команды (комната 412 заперта) — персонаж ругается и остаётся; 4) следование и moveTo (Вика); 5) возвращение на места; 6) блокировка по ходу — встаньте в проёме кухни, пока Тимур идёт туда: он ругается и возвращается.",
+  "topic": "home_inviolability",
+  "difficulty": "medium",
+  "timeBonus": {
+    "minutes": 15,
+    "points": 10
+  },
+  "published": true,
+  "updatedAt": "2026-10-15T00:00:00Z",
+  "locations": [
+    {
+      "id": "dorm_floor",
+      "name": "Общежитие №3, 4 этаж",
+      "tiles": [
+        "###WW##WW####WW#WW####WW######",
+        "#_________#kkkkkkkk#bbbbbbbbb#",
+        "#_________#kkkkkkkk#bbbbbbbbb#",
+        "#_________#kkkkkkkk#bbbbbbbbb#",
+        "#_________#kkkkkkkk#bbbbbbbbb#",
+        "#_________#kkkkkkkk#bbbbbbbbb#",
+        "#_________#kkkkkkkk#bbbbbbbbb#",
+        "#_________#kkkkkkkk#bbbbbbbbb#",
+        "#_________#kkkkkkkk#bbbbbbbbb#",
+        "#####DD#######DD########DD####",
+        "#............................#",
+        "#............................#",
+        "#...........................SD",
+        "#...........................SD",
+        "#............................#",
+        "#............................#",
+        "######WW############WW########"
+      ],
+      "areas": [
+        {
+          "name": "Комната 412",
+          "x": 5,
+          "y": 7
+        },
+        {
+          "name": "Кухня",
+          "x": 14,
+          "y": 7
+        },
+        {
+          "name": "Комендантская",
+          "x": 24,
+          "y": 7
+        },
+        {
+          "name": "Коридор, 4 этаж",
+          "x": 14,
+          "y": 15
+        }
+      ],
+      "playerStart": {
+        "x": 15,
+        "y": 13
+      },
+      "objects": [
+        {
+          "id": "obj_zuev_desk",
+          "sprite": "desk",
+          "x": 23,
+          "y": 3,
+          "label": "Стол коменданта",
+          "interaction": {
+            "type": "evidence",
+            "title": "Стол коменданта",
+            "description": "Сверху лежит свежий акт с приколотыми распечатками фотографий.",
+            "evidenceId": "inspection_act"
+          }
+        },
+        {
+          "id": "obj_cabinet",
+          "sprite": "cabinet",
+          "x": 28,
+          "y": 1,
+          "label": "Шкаф с журналами",
+          "interaction": {
+            "type": "evidence",
+            "title": "Шкаф с журналами",
+            "description": "На полке — «Журнал аварийных заявок» общежития. Раскрыт на октябре.",
+            "evidenceId": "repair_log"
+          }
+        },
+        {
+          "id": "obj_computer",
+          "sprite": "computer_desk",
+          "x": 20,
+          "y": 2,
+          "label": "Компьютер коменданта",
+          "interaction": {
+            "type": "evidence",
+            "title": "Компьютер коменданта",
+            "description": "Открыта служебная почта. Последнее входящее — от проректора по хозяйственной части.",
+            "evidenceId": "memo"
+          }
+        },
+        {
+          "id": "obj_board",
+          "sprite": "board",
+          "x": 8,
+          "y": 9,
+          "label": "Доска объявлений",
+          "interaction": {
+            "type": "evidence",
+            "title": "Доска объявлений",
+            "description": "Расписание дежурств, объявление о субботнике и выдержка из Правил проживания в общежитии.",
+            "evidenceId": "dorm_rules"
+          }
+        },
+        {
+          "id": "obj_timur_desk",
+          "sprite": "desk",
+          "x": 5,
+          "y": 3,
+          "label": "Стол Тимура",
+          "interaction": {
+            "type": "evidence",
+            "title": "Записка на столе Тимура",
+            "description": "",
+            "evidenceId": "doc_timur_desk"
+          }
+        },
+        {
+          "id": "dec_bed",
+          "sprite": "bed",
+          "x": 1,
+          "y": 1,
+          "label": "",
+          "interaction": null
+        },
+        {
+          "id": "dec_bed2",
+          "sprite": "bed",
+          "x": 3,
+          "y": 1,
+          "label": "",
+          "interaction": null
+        },
+        {
+          "id": "dec_wardrobe",
+          "sprite": "cabinet",
+          "x": 9,
+          "y": 1,
+          "label": "",
+          "interaction": null
+        },
+        {
+          "id": "dec_timur_chair",
+          "sprite": "chair",
+          "x": 6,
+          "y": 2,
+          "label": "",
+          "interaction": null
+        },
+        {
+          "id": "dec_plant_room",
+          "sprite": "plant",
+          "x": 1,
+          "y": 8,
+          "label": "",
+          "interaction": null
+        },
+        {
+          "id": "obj_fridge",
+          "sprite": "fridge",
+          "x": 11,
+          "y": 1,
+          "label": "Холодильник",
+          "interaction": {
+            "type": "evidence",
+            "title": "Общий холодильник",
+            "description": "",
+            "evidenceId": "doc_fridge"
+          }
+        },
+        {
+          "id": "dec_kitchen_table",
+          "sprite": "desk",
+          "x": 14,
+          "y": 3,
+          "label": "",
+          "interaction": null
+        },
+        {
+          "id": "dec_kitchen_chair1",
+          "sprite": "chair",
+          "x": 14,
+          "y": 2,
+          "label": "",
+          "interaction": null
+        },
+        {
+          "id": "dec_kitchen_chair2",
+          "sprite": "chair",
+          "x": 15,
+          "y": 2,
+          "label": "",
+          "interaction": null
+        },
+        {
+          "id": "dec_kitchen_cooler",
+          "sprite": "water_cooler",
+          "x": 18,
+          "y": 1,
+          "label": "",
+          "interaction": null
+        },
+        {
+          "id": "dec_kitchen_bin",
+          "sprite": "trash_bin",
+          "x": 18,
+          "y": 8,
+          "label": "",
+          "interaction": null
+        },
+        {
+          "id": "dec_zuev_chair",
+          "sprite": "chair",
+          "x": 24,
+          "y": 2,
+          "label": "",
+          "interaction": null
+        },
+        {
+          "id": "dec_zuev_shelf",
+          "sprite": "bookshelf",
+          "x": 26,
+          "y": 1,
+          "label": "",
+          "interaction": null
+        },
+        {
+          "id": "dec_zuev_plant",
+          "sprite": "plant",
+          "x": 28,
+          "y": 8,
+          "label": "",
+          "interaction": null
+        },
+        {
+          "id": "dec_bench",
+          "sprite": "bench",
+          "x": 1,
+          "y": 15,
+          "label": "",
+          "interaction": null
+        },
+        {
+          "id": "dec_plant_c1",
+          "sprite": "plant",
+          "x": 1,
+          "y": 10,
+          "label": "",
+          "interaction": null
+        },
+        {
+          "id": "dec_bin_corridor",
+          "sprite": "trash_bin",
+          "x": 12,
+          "y": 10,
+          "label": "",
+          "interaction": null
+        },
+        {
+          "id": "dec_plant_c2",
+          "sprite": "plant",
+          "x": 19,
+          "y": 10,
+          "label": "",
+          "interaction": null
+        },
+        {
+          "id": "obj_poster",
+          "sprite": "poster",
+          "x": 17,
+          "y": 9,
+          "label": "Объявление",
+          "interaction": {
+            "type": "evidence",
+            "title": "Объявление в коридоре",
+            "description": "",
+            "evidenceId": "doc_poster"
+          }
+        },
+        {
+          "id": "dec_stove",
+          "sprite": "stove",
+          "x": 12,
+          "y": 1,
+          "label": "",
+          "interaction": null
+        },
+        {
+          "id": "dec_rug",
+          "sprite": "rug",
+          "x": 4,
+          "y": 6,
+          "label": "",
+          "interaction": null
+        },
+        {
+          "id": "dec_lamp",
+          "sprite": "floor_lamp",
+          "x": 9,
+          "y": 8,
+          "label": "",
+          "interaction": null
+        },
+        {
+          "id": "dec_coat_rack",
+          "sprite": "coat_rack",
+          "x": 21,
+          "y": 8,
+          "label": "",
+          "interaction": null
+        },
+        {
+          "id": "dec_sofa",
+          "sprite": "sofa",
+          "x": 22,
+          "y": 15,
+          "label": "",
+          "interaction": null
+        },
+        {
+          "id": "dec_clock",
+          "sprite": "clock",
+          "x": 21,
+          "y": 0,
+          "label": "",
+          "interaction": null
+        },
+        {
+          "id": "dec_counter",
+          "sprite": "kitchen_counter",
+          "x": 15,
+          "y": 1,
+          "label": "",
+          "interaction": null
+        },
+        {
+          "id": "dec_sink",
+          "sprite": "sink",
+          "x": 17,
+          "y": 1,
+          "label": "",
+          "interaction": null
+        },
+        {
+          "id": "dec_extinguisher",
+          "sprite": "fire_extinguisher",
+          "x": 11,
+          "y": 10,
+          "label": "",
+          "interaction": null
+        },
+        {
+          "id": "dec_safe",
+          "sprite": "safe",
+          "x": 22,
+          "y": 1,
+          "label": "",
+          "interaction": null
+        },
+        {
+          "id": "dec_ac_412",
+          "sprite": "air_conditioner",
+          "x": 5,
+          "y": 0,
+          "label": "",
+          "interaction": null
+        },
+        {
+          "id": "dec_ac_zuev",
+          "sprite": "air_conditioner",
+          "x": 24,
+          "y": 0,
+          "label": "",
+          "interaction": null
+        },
+        {
+          "id": "dec_chair_pc",
+          "sprite": "chair",
+          "x": 20,
+          "y": 1,
+          "label": "",
+          "interaction": null
+        }
+      ],
+      "npcs": [
+        {
+          "id": "npc_timur",
+          "characterId": "timur",
+          "dialogueId": "dlg_timur",
+          "x": 4,
+          "y": 11
+        },
+        {
+          "id": "npc_zuev",
+          "characterId": "zuev",
+          "dialogueId": "dlg_zuev",
+          "x": 25,
+          "y": 5
+        },
+        {
+          "id": "npc_denis",
+          "characterId": "denis",
+          "dialogueId": "dlg_denis",
+          "x": 16,
+          "y": 5
+        },
+        {
+          "id": "npc_vika",
+          "characterId": "vika",
+          "dialogueId": "dlg_vika",
+          "x": 9,
+          "y": 13
+        }
+      ],
+      "exits": [
+        {
+          "id": "stairs_down_a",
+          "x": 29,
+          "y": 12,
+          "to": "dorm_lobby",
+          "spawn": {
+            "x": 2,
+            "y": 12
+          },
+          "label": "Лестница ↓ 1 этаж"
+        },
+        {
+          "id": "stairs_down_b",
+          "x": 29,
+          "y": 13,
+          "to": "dorm_lobby",
+          "spawn": {
+            "x": 2,
+            "y": 13
+          },
+          "label": ""
+        }
+      ],
+      "doors": [
+        {
+          "id": "door_412",
+          "x": 5,
+          "y": 9,
+          "orientation": "h",
+          "requires": {
+            "flags": [
+              "key_412"
+            ]
+          },
+          "lockedText": "Комната 412 закрыта. Ключ — у Тимура."
+        },
+        {
+          "id": "door_kitchen",
+          "x": 14,
+          "y": 9,
+          "orientation": "h"
+        },
+        {
+          "id": "door_zuev",
+          "x": 24,
+          "y": 9,
+          "orientation": "h"
+        }
+      ]
+    },
+    {
+      "id": "dorm_lobby",
+      "name": "Общежитие №3, 1 этаж",
+      "tiles": [
+        "BBBBBWWBBBBBWWBBBWWBBBBBWWBBBB",
+        "BmmmmmmmmmmmmmmmmmmmmmmmmmmmmB",
+        "BmmmmmmmmmmmmmmmmmmmmmmmmmmmmB",
+        "BmmmmmmmmmmmmmmmmmmmmmmmmmmmmB",
+        "BmmmmmmmmmmmmmmmmmmmmmmmmmmmmB",
+        "BmmmmmmmmmmmmmmmmmmmmmmmmmmmmB",
+        "BmmmmmmmmmmmmmmmmmmmmmmmmmmmmB",
+        "BmmmmmmmmmmmmmmmmmmmmmmmmmmmmB",
+        "BmmmmmmmmmmmmmmmmmmmmmmmmmmmmB",
+        "BmmmmmmmmmmmmmmmmmmmmmmmmmmmmB",
+        "BmmmmmmmmmmmmmmmmmmmmmmmmmmmmB",
+        "BmmmmmmmmmmmmmmmmmmmmmmmmmmmmB",
+        "DSmmmmmmmmmmmmmmmmmmmmmmmmmmmB",
+        "DSmmmmmmmmmmmmmmmmmmmmmmmmmmmB",
+        "BmmmmmmmmmmmmmmmmmmmmmmmmmmmmB",
+        "BmmmmmmmmmmmmmmmmmmmmmmmmmmmmB",
+        "BBBBWWBBBBBBBBBBBBBBBBBBWWBBBB"
+      ],
+      "areas": [
+        {
+          "name": "Холл, 1 этаж",
+          "x": 14,
+          "y": 10
+        },
+        {
+          "name": "Вход",
+          "x": 14,
+          "y": 14
+        }
+      ],
+      "playerStart": {
+        "x": 14,
+        "y": 13
+      },
+      "objects": [
+        {
+          "id": "obj_vakhta",
+          "sprite": "guard_post",
+          "x": 14,
+          "y": 6,
+          "label": "Вахта",
+          "interaction": {
+            "type": "evidence",
+            "title": "Вахта",
+            "description": "Журнал вахты: кто входит и выходит, кому выдаются дубликаты ключей.",
+            "evidenceId": "vakhta_log"
+          }
+        },
+        {
+          "id": "obj_mailboxes",
+          "sprite": "cabinet",
+          "x": 1,
+          "y": 2,
+          "label": "Почтовые ящики",
+          "interaction": {
+            "type": "evidence",
+            "title": "Почтовые ящики",
+            "description": "",
+            "evidenceId": "doc_mailboxes"
+          }
+        },
+        {
+          "id": "obj_lobby_poster",
+          "sprite": "poster",
+          "x": 9,
+          "y": 0,
+          "label": "Объявление",
+          "interaction": {
+            "type": "evidence",
+            "title": "Объявление в холле",
+            "description": "",
+            "evidenceId": "doc_lobby_poster"
+          }
+        },
+        {
+          "id": "lobby_mail2",
+          "sprite": "cabinet",
+          "x": 2,
+          "y": 2,
+          "label": "",
+          "interaction": null
+        },
+        {
+          "id": "lobby_mail3",
+          "sprite": "cabinet",
+          "x": 3,
+          "y": 2,
+          "label": "",
+          "interaction": null
+        },
+        {
+          "id": "lobby_sofa",
+          "sprite": "sofa",
+          "x": 22,
+          "y": 3,
+          "label": "",
+          "interaction": null
+        },
+        {
+          "id": "lobby_rug",
+          "sprite": "rug",
+          "x": 22,
+          "y": 5,
+          "label": "",
+          "interaction": null
+        },
+        {
+          "id": "lobby_plant1",
+          "sprite": "plant",
+          "x": 1,
+          "y": 15,
+          "label": "",
+          "interaction": null
+        },
+        {
+          "id": "lobby_plant2",
+          "sprite": "plant",
+          "x": 28,
+          "y": 15,
+          "label": "",
+          "interaction": null
+        },
+        {
+          "id": "lobby_vending",
+          "sprite": "vending",
+          "x": 27,
+          "y": 2,
+          "label": "",
+          "interaction": null
+        },
+        {
+          "id": "lobby_bench",
+          "sprite": "bench",
+          "x": 6,
+          "y": 14,
+          "label": "",
+          "interaction": null
+        },
+        {
+          "id": "lobby_clock",
+          "sprite": "clock",
+          "x": 21,
+          "y": 0,
+          "label": "",
+          "interaction": null
+        },
+        {
+          "id": "lobby_coat",
+          "sprite": "coat_rack",
+          "x": 19,
+          "y": 2,
+          "label": "",
+          "interaction": null
+        },
+        {
+          "id": "lobby_bin",
+          "sprite": "trash_bin",
+          "x": 26,
+          "y": 8,
+          "label": "",
+          "interaction": null
+        },
+        {
+          "id": "obj_entrance",
+          "sprite": "door",
+          "x": 14,
+          "y": 16,
+          "label": "Выход",
+          "interaction": {
+            "type": "evidence",
+            "title": "Входная дверь",
+            "description": "",
+            "evidenceId": "doc_entrance"
+          }
+        },
+        {
+          "id": "lobby_lockers",
+          "sprite": "lockers",
+          "x": 8,
+          "y": 2,
+          "label": "",
+          "interaction": null
+        },
+        {
+          "id": "lobby_extinguisher",
+          "sprite": "fire_extinguisher",
+          "x": 1,
+          "y": 10,
+          "label": "",
+          "interaction": null
+        },
+        {
+          "id": "lobby_armchair1",
+          "sprite": "armchair",
+          "x": 21,
+          "y": 8,
+          "label": "",
+          "interaction": null
+        },
+        {
+          "id": "lobby_armchair2",
+          "sprite": "armchair",
+          "x": 24,
+          "y": 8,
+          "label": "",
+          "interaction": null
+        },
+        {
+          "id": "lobby_table",
+          "sprite": "round_table",
+          "x": 22,
+          "y": 10,
+          "label": "",
+          "interaction": null
+        },
+        {
+          "id": "lobby_coffee",
+          "sprite": "coffee_machine",
+          "x": 28,
+          "y": 4,
+          "label": "",
+          "interaction": null
+        },
+        {
+          "id": "lobby_boxes",
+          "sprite": "boxes",
+          "x": 25,
+          "y": 14,
+          "label": "",
+          "interaction": null
+        }
+      ],
+      "npcs": [
+        {
+          "id": "npc_ryabov",
+          "characterId": "ryabov",
+          "dialogueId": "dlg_ryabov",
+          "x": 16,
+          "y": 5
+        },
+        {
+          "id": "npc_lidia",
+          "characterId": "lidia",
+          "dialogueId": "dlg_lidia",
+          "x": 5,
+          "y": 7
+        }
+      ],
+      "exits": [
+        {
+          "id": "stairs_up_a",
+          "x": 0,
+          "y": 12,
+          "to": "dorm_floor",
+          "spawn": {
+            "x": 27,
+            "y": 12
+          },
+          "label": "Лестница ↑ 4 этаж"
+        },
+        {
+          "id": "stairs_up_b",
+          "x": 0,
+          "y": 13,
+          "to": "dorm_floor",
+          "spawn": {
+            "x": 27,
+            "y": 13
+          },
+          "label": ""
+        }
+      ],
+      "doors": []
+    }
+  ],
+  "characters": [
+    {
+      "id": "timur",
+      "name": "Тимур Хасанов",
+      "look": "student_m",
+      "position": "студент 2 курса, живёт в комнате 412",
+      "description": "Подал заявление в полицию: пока он был на тренировке, в его комнату кто-то вошёл."
+    },
+    {
+      "id": "zuev",
+      "name": "Олег Петрович Зуев",
+      "look": "official_m_senior",
+      "position": "комендант общежития",
+      "description": "Двадцать лет комендантом. Строг, уверен в своей правоте."
+    },
+    {
+      "id": "denis",
+      "name": "Денис Ковалёв",
+      "look": "casual_m",
+      "position": "студент, сосед из комнаты 411",
+      "description": "Живёт за стенкой от Тимура. Днём 3 октября был дома."
+    },
+    {
+      "id": "ryabov",
+      "name": "Анатолий Ильич Рябов",
+      "look": "guard_m",
+      "position": "вахтёр общежития",
+      "description": "Ведёт журнал вахты и выдаёт ключи."
+    },
+    {
+      "id": "vika",
+      "name": "Вика Морозова",
+      "look": "student_f2",
+      "position": "студентка, живёт в комнате 410",
+      "description": "Соседка по этажу. Разговорчивая, немного побаивается коменданта."
+    },
+    {
+      "id": "lidia",
+      "name": "Лидия Павловна",
+      "look": "elder_f",
+      "position": "кастелянша общежития",
+      "description": "Выдаёт постельное бельё. Работает здесь дольше всех."
+    }
+  ],
+  "events": [
+    {
+      "id": "ev_memo",
+      "time": "1 октября",
+      "title": "Коменданту поручено к 5 октября подать список нарушителей Правил проживания"
+    },
+    {
+      "id": "ev_left",
+      "time": "3 октября, 12:40",
+      "title": "Тимур ушёл на тренировку"
+    },
+    {
+      "id": "ev_key",
+      "time": "3 октября, 14:05",
+      "title": "Коменданту выдан дубликат ключа от комнаты 412"
+    },
+    {
+      "id": "ev_entry",
+      "time": "3 октября, 14:10",
+      "title": "Комендант вошёл в комнату 412 и фотографировал вещи"
+    },
+    {
+      "id": "ev_key_back",
+      "time": "3 октября, 14:35",
+      "title": "Дубликат ключа возвращён на вахту"
+    },
+    {
+      "id": "ev_back",
+      "time": "3 октября, 17:15",
+      "title": "Тимур вернулся и обнаружил записку"
+    }
+  ],
+  "evidence": [
+    {
+      "id": "vakhta_log",
+      "title": "Журнал вахты",
+      "description": "Тимур ушёл в 12:40 и вернулся в 17:15. В 14:05–14:35 дубликат ключа от 412 был у коменданта.",
+      "details": "Журнал вахты · 3 октября\n\n12:40  Хасанов Т. (412) — выход\n14:05  дубликат ключа 412 — Зуев О.П. (комендант), цель: «осмотр»\n14:35  дубликат ключа 412 — возвращён\n17:15  Хасанов Т. (412) — вход\n\nЗаявлений от проживающих комнаты 412 за октябрь не зарегистрировано.",
+      "kind": "evidence",
+      "subtype": "Документ",
+      "relatedCharacters": [
+        "timur",
+        "zuev",
+        "ryabov"
+      ],
+      "relatedEvents": [
+        "ev_left",
+        "ev_key",
+        "ev_key_back",
+        "ev_back"
+      ],
+      "reliability": "high"
+    },
+    {
+      "id": "inspection_act",
+      "title": "Акт осмотра комнаты 412",
+      "description": "Осмотр «в отсутствие проживающего», основание — «жалоба на запах гари». Подписи свидетелей нет.",
+      "details": "АКТ осмотра жилой комнаты № 412 от 03.10, 14:10\n\nОснование: жалоба на запах гари.\nОсмотр проведён в отсутствие проживающего.\nОбнаружено: масляный электрообогреватель (запрещён п. 5.4 Правил проживания). Фотографии прилагаются (6 шт.).\n\nКомендант: Зуев О.П. /подпись/\nСвидетели: —\nПроживающий: —\n\nК акту приколоты распечатки фото: открытый шкаф, полка с одеждой, стол с ноутбуком, обогреватель у розетки.",
+      "kind": "evidence",
+      "subtype": "Документ",
+      "relatedCharacters": [
+        "zuev",
+        "timur"
+      ],
+      "relatedEvents": [
+        "ev_entry"
+      ],
+      "reliability": "high"
+    },
+    {
+      "id": "dorm_rules",
+      "title": "Правила проживания",
+      "description": "Входить в комнату можно только при проживающем и с уведомлением за сутки; без него — лишь при аварии, с актом и двумя свидетелями.",
+      "details": "Правила проживания в студенческом общежитии (выдержка)\n\n3.2. Администрация общежития вправе входить в жилую комнату только в присутствии проживающего и по уведомлению не менее чем за 24 часа.\n3.3. В аварийных ситуациях (протечка, пожар, задымление) вход допускается без проживающего; составляется акт с участием двух свидетелей.\n5.4. Проживающим запрещается пользоваться электронагревательными приборами.\n7.1. За нарушение Правил к проживающим применяются меры дисциплинарного взыскания.",
+      "kind": "evidence",
+      "subtype": "Документ",
+      "relatedCharacters": [
+        "zuev",
+        "timur"
+      ],
+      "relatedEvents": [],
+      "reliability": "high"
+    },
+    {
+      "id": "repair_log",
+      "title": "Журнал аварийных заявок",
+      "description": "За октябрь по 4 этажу — ни одной заявки: ни протечек, ни задымления.",
+      "details": "Журнал аварийных заявок · октябрь\n\n01.10  2 этаж, душевая — засор слива\n02.10  1 этаж, вахта — не работает розетка\n06.10  3 этаж, комн. 309 — течёт кран\n\n4 этаж — заявок нет.",
+      "kind": "evidence",
+      "subtype": "Документ",
+      "relatedCharacters": [
+        "zuev"
+      ],
+      "relatedEvents": [],
+      "reliability": "high"
+    },
+    {
+      "id": "memo",
+      "title": "Распоряжение о списке нарушителей",
+      "description": "Проректор требует к 5 октября список нарушителей Правил проживания «с актами».",
+      "details": "От: проректор по АХЧ\nКому: коменданту общежития №3\nДата: 1 октября\n\n«Олег Петрович, к 5 октября жду список нарушителей Правил проживания с актами. Пустой список не принимается — у вас самое проблемное общежитие».",
+      "kind": "evidence",
+      "subtype": "Цифровой след",
+      "relatedCharacters": [
+        "zuev"
+      ],
+      "relatedEvents": [
+        "ev_memo"
+      ],
+      "reliability": "high"
+    },
+    {
+      "id": "timur_testimony",
+      "title": "Показания Тимура",
+      "description": "Был на тренировке с 12:40 до 17:15, ключ никому не давал, о проверке не предупреждали.",
+      "details": "«Третьего я ушёл на тренировку в полпервого, вернулся в пятом часу. Ключ всегда при мне, никому не давал. Ни о какой проверке не предупреждали — ни объявления, ни звонка. Прихожу — шкаф открыт, вещи переставлены».",
+      "kind": "testimony",
+      "relatedCharacters": [
+        "timur"
+      ],
+      "relatedEvents": [
+        "ev_left",
+        "ev_back"
+      ],
+      "reliability": "medium"
+    },
+    {
+      "id": "denis_testimony",
+      "title": "Показания Дениса",
+      "description": "Около 14:10 видел, как комендант открыл 412 ключом и фотографировал. Ни воды, ни гари не было.",
+      "details": "«Часа в два я был дома, писал курсовую. Слышу — в 412-й ключ поворачивается. Выглянул: комендант. Зашёл, минут двадцать там был, фоткал что-то на телефон. Тимура не было. Никакой протечки, сухо всё, и гарью не пахло — у нас стена общая, я бы почувствовал».",
+      "kind": "testimony",
+      "relatedCharacters": [
+        "denis",
+        "zuev"
+      ],
+      "relatedEvents": [
+        "ev_entry"
+      ],
+      "reliability": "high"
+    },
+    {
+      "id": "guard_testimony",
+      "title": "Показания вахтёра",
+      "description": "Выдал коменданту дубликат «для осмотра»; заявлений от Тимура не было.",
+      "details": "«Олег Петрович взял дубликат в начале третьего, сказал — для осмотра. Он комендант, я не спрашиваю. Вернул через полчаса. Хасанов никаких заявлений не писал».",
+      "kind": "testimony",
+      "relatedCharacters": [
+        "ryabov",
+        "zuev"
+      ],
+      "relatedEvents": [
+        "ev_key",
+        "ev_key_back"
+      ],
+      "reliability": "high"
+    },
+    {
+      "id": "zuev_denial",
+      "title": "Объяснение Зуева",
+      "description": "Утверждает, что вошёл из-за аварии: якобы у соседей снизу протекло.",
+      "details": "«Аварийная ситуация. У соседей снизу протекло, я обязан был проверить, не от Хасанова ли. При аварии по правилам можно».",
+      "kind": "testimony",
+      "relatedCharacters": [
+        "zuev"
+      ],
+      "relatedEvents": [
+        "ev_entry"
+      ],
+      "reliability": "low"
+    },
+    {
+      "id": "zuev_admission",
+      "title": "Признание Зуева",
+      "description": "Признал: аварии не было, вошёл без Тимура ради списка нарушителей.",
+      "details": "«Протечки не было. Сверху спустили распоряжение — к пятому список нарушителей с актами. Хасанов у меня давно на заметке. Взял дубликат на вахте и зашёл, пока его нет. Нашёл обогреватель — значит, не зря зашёл».",
+      "kind": "testimony",
+      "relatedCharacters": [
+        "zuev"
+      ],
+      "relatedEvents": [
+        "ev_key",
+        "ev_entry"
+      ],
+      "reliability": "high"
+    },
+    {
+      "id": "doc_timur_desk",
+      "title": "Записка на столе Тимура",
+      "description": "Листок из блокнота, почерк размашистый:",
+      "details": "Листок из блокнота, почерк размашистый:\n\n«Выявлено нарушение п. 5.4 Правил проживания. Явиться к коменданту до 05.10. — Зуев»\n\nРядом — пустое место у розетки, где, судя по следам на полу, что-то стояло.",
+      "kind": "evidence",
+      "subtype": "Документ",
+      "relatedCharacters": [],
+      "relatedEvents": [],
+      "reliability": "high"
+    },
+    {
+      "id": "doc_fridge",
+      "title": "Общий холодильник",
+      "description": "На дверце под магнитом записка: «Чей кефир с 15 сентября?! Выброшу в пятницу. — 409».",
+      "details": "На дверце под магнитом записка: «Чей кефир с 15 сентября?! Выброшу в пятницу. — 409».\n\nВнутри — кастрюля с подписью «Не трогать! Денис» и три одинаковых пакета молока.",
+      "kind": "evidence",
+      "subtype": "Документ",
+      "relatedCharacters": [],
+      "relatedEvents": [],
+      "reliability": "high"
+    },
+    {
+      "id": "doc_poster",
+      "title": "Объявление в коридоре",
+      "description": "Субботник 12 октября! Сбор у вахты в 10:00. Перчатки и мешки выдаёт комендант. Явка обязательна для проживающи…",
+      "details": "«Субботник 12 октября! Сбор у вахты в 10:00. Перчатки и мешки выдаёт комендант. Явка обязательна для проживающих 4 этажа».\n\nНиже от руки: «А душ когда починят?»",
+      "kind": "evidence",
+      "subtype": "Документ",
+      "relatedCharacters": [],
+      "relatedEvents": [],
+      "reliability": "high"
+    },
+    {
+      "id": "doc_mailboxes",
+      "title": "Почтовые ящики",
+      "description": "Ряды ячеек с номерами комнат. В ячейке 412 — рекламная листовка пиццерии и квитанция за интернет.",
+      "details": "Ряды ячеек с номерами комнат. В ячейке 412 — рекламная листовка пиццерии и квитанция за интернет.\n\nНа ящике 309 наклейка: «Посылки забирать на вахте до 22:00».",
+      "kind": "evidence",
+      "subtype": "Документ",
+      "relatedCharacters": [],
+      "relatedEvents": [],
+      "reliability": "high"
+    },
+    {
+      "id": "doc_lobby_poster",
+      "title": "Объявление в холле",
+      "description": "Внимание! Вход в общежитие — строго по пропускам. Гости — с 10:00 до 22:00, регистрация на вахте. Администраци…",
+      "details": "«Внимание! Вход в общежитие — строго по пропускам. Гости — с 10:00 до 22:00, регистрация на вахте. Администрация».",
+      "kind": "evidence",
+      "subtype": "Документ",
+      "relatedCharacters": [],
+      "relatedEvents": [],
+      "reliability": "high"
+    },
+    {
+      "id": "doc_entrance",
+      "title": "Входная дверь",
+      "description": "Дверь на улицу. Сейчас вам туда не нужно — материалы проверки здесь.",
+      "details": "Дверь на улицу. Сейчас вам туда не нужно — материалы проверки здесь.\n\nНа стекле: «Режим работы общежития: 6:00–24:00. После 24:00 вход по согласованию с комендантом».",
+      "kind": "evidence",
+      "subtype": "Документ",
+      "relatedCharacters": [],
+      "relatedEvents": [],
+      "reliability": "high"
+    }
+  ],
+  "dialogues": [
+    {
+      "id": "dlg_timur",
+      "characterId": "timur",
+      "startNodeId": "start",
+      "nodes": [
+        {
+          "id": "start",
+          "text": "Вы по поводу моей комнаты? Кто-то там рылся, пока меня не было! Шкаф открыт, вещи переставлены, на столе записка от коменданта.",
+          "mood": "angry",
+          "effects": [],
+          "choices": [
+            {
+              "id": "when",
+              "text": "Когда вас не было дома?",
+              "next": "when"
+            },
+            {
+              "id": "heater",
+              "text": "В записке сказано про нарушение п. 5.4 — обогреватель. Он ваш?",
+              "next": "heater_lie",
+              "requires": {
+                "notFlags": [
+                  "timur_closed",
+                  "timur_truth"
+                ]
+              }
+            },
+            {
+              "id": "press",
+              "text": "Обогреватель нашли в вашей комнате, он есть на фото. Не надо врать.",
+              "next": "closed",
+              "requires": {
+                "evidence": [
+                  "inspection_act"
+                ],
+                "flags": [
+                  "timur_lied"
+                ],
+                "notFlags": [
+                  "timur_closed",
+                  "timur_truth"
+                ]
+              }
+            },
+            {
+              "id": "gentle",
+              "text": "Даже если обогреватель ваш, это не даёт права входить без вас. Но мне важно знать правду.",
+              "next": "truth",
+              "requires": {
+                "flags": [
+                  "timur_lied"
+                ],
+                "notFlags": [
+                  "timur_closed",
+                  "timur_truth"
+                ]
+              }
+            },
+            {
+              "id": "room",
+              "text": "Можно осмотреть вашу комнату?",
+              "next": "room",
+              "requires": {
+                "notFlags": [
+                  "key_412"
+                ]
+              }
+            },
+            {
+              "id": "bye",
+              "text": "Разберёмся. Я ещё вернусь.",
+              "next": null
+            },
+            {
+              "id": "t_menu",
+              "text": "[ТЕСТ] Перемещения персонажей",
+              "next": "t_menu"
+            }
+          ]
+        },
+        {
+          "id": "when",
+          "text": "Третьего ушёл на тренировку в полпервого, вернулся в пятом часу. Ключ всегда при мне, никому не давал. И ни о какой проверке не предупреждали — ни объявления, ни звонка.",
+          "mood": "neutral",
+          "effects": [
+            {
+              "type": "addEvidence",
+              "evidenceId": "timur_testimony"
+            }
+          ],
+          "choices": [
+            {
+              "id": "back",
+              "text": "Понятно.",
+              "next": "start"
+            }
+          ]
+        },
+        {
+          "id": "heater_lie",
+          "text": "Какой ещё обогреватель? Не было у меня ничего такого.",
+          "mood": "nervous",
+          "effects": [
+            {
+              "type": "setFlag",
+              "flag": "timur_lied"
+            }
+          ],
+          "choices": [
+            {
+              "id": "back",
+              "text": "Хорошо.",
+              "next": "start"
+            }
+          ]
+        },
+        {
+          "id": "closed",
+          "text": "Ах так? Значит, я ещё и виноват? Ко мне вломились, а допрашивают меня! Разбирайтесь сами.",
+          "mood": "angry",
+          "effects": [
+            {
+              "type": "setFlag",
+              "flag": "timur_closed"
+            }
+          ],
+          "choices": [
+            {
+              "id": "back",
+              "text": "Извините.",
+              "next": null
+            }
+          ]
+        },
+        {
+          "id": "truth",
+          "text": "…Мой. В комнате холодно, отопление ещё не дали. Знаю, что по правилам нельзя. Но разве из-за этого можно заходить, пока меня нет?",
+          "mood": "sad",
+          "effects": [
+            {
+              "type": "setFlag",
+              "flag": "timur_truth"
+            },
+            {
+              "type": "addCharacterNote",
+              "characterId": "timur",
+              "text": "Признал, что обогреватель его (нарушение п. 5.4 Правил). Сначала отрицал."
+            }
+          ],
+          "choices": [
+            {
+              "id": "back",
+              "text": "Нельзя. Спасибо за честность.",
+              "next": "start"
+            }
+          ]
+        },
+        {
+          "id": "room",
+          "text": "Конечно, вот ключ. Только ничего не трогайте, ладно? Там и так всё перевёрнуто.",
+          "mood": "neutral",
+          "effects": [
+            {
+              "type": "setFlag",
+              "flag": "key_412"
+            },
+            {
+              "type": "addCharacterNote",
+              "characterId": "timur",
+              "text": "Дал ключ от комнаты 412 для осмотра."
+            }
+          ],
+          "choices": [
+            {
+              "id": "back",
+              "text": "Спасибо.",
+              "next": "start"
+            }
+          ]
+        },
+        {
+          "id": "t_menu",
+          "text": "Что проверяем? Закончите разговор и наблюдайте. «К списку» — вернуться сюда.",
+          "mood": "neutral",
+          "effects": [],
+          "choices": [
+            {
+              "id": "t1",
+              "text": "1. Тимур идёт в правый конец коридора",
+              "next": "t1"
+            },
+            {
+              "id": "t2",
+              "text": "2. Зуев уходит в холл (другая локация)",
+              "next": "t2"
+            },
+            {
+              "id": "t3",
+              "text": "3. Вика → в запертую комнату 412 (путь закрыт сразу)",
+              "next": "t3"
+            },
+            {
+              "id": "t4",
+              "text": "4a. Вика идёт за вами",
+              "next": "t4a"
+            },
+            {
+              "id": "t4b",
+              "text": "4b. Вика перестаёт идти следом и уходит вправо",
+              "next": "t4b"
+            },
+            {
+              "id": "t5",
+              "text": "5. Все возвращаются на свои места",
+              "next": "t5"
+            },
+            {
+              "id": "t6",
+              "text": "6. Тимур идёт на кухню (встаньте в проёме кухни — он не пройдёт)",
+              "next": "t6"
+            },
+            {
+              "id": "back",
+              "text": "Назад к разговору",
+              "next": "start"
+            }
+          ]
+        },
+        {
+          "id": "t1",
+          "text": "Иду в правый конец коридора.",
+          "mood": "neutral",
+          "effects": [
+            {
+              "type": "moveTo",
+              "characterId": "timur",
+              "locationId": "dorm_floor",
+              "x": 22,
+              "y": 14
+            }
+          ],
+          "choices": [
+            {
+              "id": "end",
+              "text": "(закончить разговор и смотреть)",
+              "next": null
+            },
+            {
+              "id": "menu",
+              "text": "К списку проверок",
+              "next": "t_menu"
+            }
+          ]
+        },
+        {
+          "id": "t2",
+          "text": "Спускаюсь в холл по лестнице.",
+          "mood": "neutral",
+          "effects": [
+            {
+              "type": "moveTo",
+              "characterId": "zuev",
+              "locationId": "dorm_lobby",
+              "x": 12,
+              "y": 6
+            }
+          ],
+          "choices": [
+            {
+              "id": "end",
+              "text": "(закончить разговор и смотреть)",
+              "next": null
+            },
+            {
+              "id": "menu",
+              "text": "К списку проверок",
+              "next": "t_menu"
+            }
+          ]
+        },
+        {
+          "id": "t3",
+          "text": "Пойду к себе в 412... если дверь открыта.",
+          "mood": "neutral",
+          "effects": [
+            {
+              "type": "moveTo",
+              "characterId": "vika",
+              "locationId": "dorm_floor",
+              "x": 3,
+              "y": 3,
+              "failText": "Комната 412 закрыта — туда мне не попасть."
+            }
+          ],
+          "choices": [
+            {
+              "id": "end",
+              "text": "(закончить разговор и смотреть)",
+              "next": null
+            },
+            {
+              "id": "menu",
+              "text": "К списку проверок",
+              "next": "t_menu"
+            }
+          ]
+        },
+        {
+          "id": "t4a",
+          "text": "Хорошо, пойду с вами.",
+          "mood": "neutral",
+          "effects": [
+            {
+              "type": "follow",
+              "characterId": "vika"
+            }
+          ],
+          "choices": [
+            {
+              "id": "end",
+              "text": "(закончить разговор и смотреть)",
+              "next": null
+            },
+            {
+              "id": "menu",
+              "text": "К списку проверок",
+              "next": "t_menu"
+            }
+          ]
+        },
+        {
+          "id": "t4b",
+          "text": "Дальше сама. Пойду в правый конец коридора.",
+          "mood": "neutral",
+          "effects": [
+            {
+              "type": "moveTo",
+              "characterId": "vika",
+              "locationId": "dorm_floor",
+              "x": 22,
+              "y": 13
+            }
+          ],
+          "choices": [
+            {
+              "id": "end",
+              "text": "(закончить разговор и смотреть)",
+              "next": null
+            },
+            {
+              "id": "menu",
+              "text": "К списку проверок",
+              "next": "t_menu"
+            }
+          ]
+        },
+        {
+          "id": "t5",
+          "text": "Все по местам.",
+          "mood": "neutral",
+          "effects": [
+            {
+              "type": "returnHome",
+              "characterId": "timur"
+            },
+            {
+              "type": "returnHome",
+              "characterId": "zuev"
+            },
+            {
+              "type": "returnHome",
+              "characterId": "vika"
+            }
+          ],
+          "choices": [
+            {
+              "id": "end",
+              "text": "(закончить разговор и смотреть)",
+              "next": null
+            },
+            {
+              "id": "menu",
+              "text": "К списку проверок",
+              "next": "t_menu"
+            }
+          ]
+        },
+        {
+          "id": "t6",
+          "text": "Иду на кухню.",
+          "mood": "neutral",
+          "effects": [
+            {
+              "type": "moveTo",
+              "characterId": "timur",
+              "locationId": "dorm_floor",
+              "x": 12,
+              "y": 3,
+              "failText": "Мне не пройти — вы стоите в проёме!"
+            }
+          ],
+          "choices": [
+            {
+              "id": "end",
+              "text": "(закончить разговор и смотреть)",
+              "next": null
+            },
+            {
+              "id": "menu",
+              "text": "К списку проверок",
+              "next": "t_menu"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "dlg_zuev",
+      "characterId": "zuev",
+      "startNodeId": "start",
+      "nodes": [
+        {
+          "id": "start",
+          "text": "Комендант Зуев. Слушаю. Если насчёт заселения — приём по вторникам.",
+          "mood": "neutral",
+          "effects": [],
+          "choices": [
+            {
+              "id": "role",
+              "text": "Чем занимается комендант?",
+              "next": "role",
+              "requires": {
+                "notFlags": [
+                  "zuev_hostile"
+                ]
+              }
+            },
+            {
+              "id": "ask",
+              "text": "Зачем вы заходили в комнату 412 третьего октября?",
+              "next": "leak",
+              "requires": {
+                "notFlags": [
+                  "zuev_hostile",
+                  "zuev_admitted"
+                ]
+              }
+            },
+            {
+              "id": "press",
+              "text": "Вы вошли в чужую комнату без хозяина!",
+              "next": "hostile",
+              "requires": {
+                "notFlags": [
+                  "zuev_hostile",
+                  "zuev_admitted"
+                ]
+              }
+            },
+            {
+              "id": "repair",
+              "text": "В журнале аварийных заявок по четвёртому этажу за октябрь — ни одной записи.",
+              "next": "no_record",
+              "requires": {
+                "deductions": [
+                  "d_no_emergency"
+                ],
+                "notFlags": [
+                  "zuev_admitted"
+                ]
+              }
+            },
+            {
+              "id": "act",
+              "text": "В вашем же акте основание другое — «запах гари». И подписей свидетелей нет.",
+              "next": "act",
+              "requires": {
+                "deductions": [
+                  "d_procedure"
+                ],
+                "notFlags": [
+                  "zuev_admitted"
+                ]
+              }
+            },
+            {
+              "id": "subbotnik",
+              "text": "Что за субботник двенадцатого?",
+              "next": "subbotnik",
+              "requires": {
+                "notFlags": [
+                  "zuev_hostile"
+                ]
+              }
+            },
+            {
+              "id": "bye",
+              "text": "До свидания.",
+              "next": null
+            }
+          ]
+        },
+        {
+          "id": "role",
+          "text": "Порядок, заселение, проверки. Общежитие — не гостиница, за всем глаз да глаз. У меня ключи от всех комнат, если что.",
+          "mood": "neutral",
+          "effects": [
+            {
+              "type": "addCharacterNote",
+              "characterId": "zuev",
+              "text": "Может получить на вахте дубликат ключа от любой комнаты."
+            }
+          ],
+          "choices": [
+            {
+              "id": "back",
+              "text": "Понятно.",
+              "next": "start"
+            }
+          ]
+        },
+        {
+          "id": "leak",
+          "text": "Аварийная ситуация. У соседей снизу протекло, я обязан был проверить, не от Хасанова ли. При аварии по правилам можно.",
+          "mood": "nervous",
+          "effects": [
+            {
+              "type": "addEvidence",
+              "evidenceId": "zuev_denial"
+            }
+          ],
+          "choices": [
+            {
+              "id": "back",
+              "text": "Запишу.",
+              "next": "start"
+            }
+          ]
+        },
+        {
+          "id": "hostile",
+          "text": "Я здесь двадцать лет комендантом. Без бумаг и фактов разговаривать не о чем.",
+          "mood": "angry",
+          "effects": [
+            {
+              "type": "setFlag",
+              "flag": "zuev_hostile"
+            },
+            {
+              "type": "addCharacterNote",
+              "characterId": "zuev",
+              "text": "После обвинения без доказательств отказался разговаривать. Теперь — только по фактам."
+            }
+          ],
+          "choices": [
+            {
+              "id": "back",
+              "text": "Вернусь с фактами.",
+              "next": null
+            }
+          ]
+        },
+        {
+          "id": "no_record",
+          "text": "Ну… не успели записать. Дело срочное было, не до бумажек.",
+          "mood": "nervous",
+          "effects": [],
+          "choices": [
+            {
+              "id": "witness",
+              "text": "Денис из 411-й был дома: ни воды, ни запаха гари. Зато видел, как вы фотографировали комнату.",
+              "next": "admit",
+              "requires": {
+                "deductions": [
+                  "d_who"
+                ]
+              }
+            },
+            {
+              "id": "back",
+              "text": "Вернёмся к этому позже.",
+              "next": "start"
+            }
+          ]
+        },
+        {
+          "id": "act",
+          "text": "Какая разница, какое основание! Нарушение-то нашли. Значит, не зря зашёл.",
+          "mood": "angry",
+          "effects": [],
+          "choices": [
+            {
+              "id": "memo",
+              "text": "К пятому октября вам нужно было сдать список нарушителей «с актами». Не поэтому ли?",
+              "next": "admit",
+              "requires": {
+                "deductions": [
+                  "d_motive"
+                ]
+              }
+            },
+            {
+              "id": "back",
+              "text": "Посмотрим.",
+              "next": "start"
+            }
+          ]
+        },
+        {
+          "id": "admit",
+          "text": "…Ладно. Протечки не было. Сверху спустили распоряжение — к пятому список нарушителей с актами, пустой не примут. Хасанов у меня давно на заметке. Взял дубликат на вахте и зашёл, пока его нет. Нашёл обогреватель — значит, не зря.",
+          "mood": "sad",
+          "effects": [
+            {
+              "type": "addEvidence",
+              "evidenceId": "zuev_admission"
+            },
+            {
+              "type": "setFlag",
+              "flag": "zuev_admitted"
+            }
+          ],
+          "choices": [
+            {
+              "id": "rules",
+              "text": "А присутствие проживающего? Уведомление за сутки?",
+              "next": "rules"
+            },
+            {
+              "id": "end",
+              "text": "Этого достаточно.",
+              "next": null
+            }
+          ]
+        },
+        {
+          "id": "rules",
+          "text": "Знаю я правила. Думал, раз нарушитель — можно без церемоний.",
+          "mood": "sad",
+          "effects": [
+            {
+              "type": "addCharacterNote",
+              "characterId": "zuev",
+              "text": "Признал, что знал порядок: присутствие проживающего и уведомление за сутки."
+            }
+          ],
+          "choices": [
+            {
+              "id": "end",
+              "text": "Понятно.",
+              "next": null
+            }
+          ]
+        },
+        {
+          "id": "subbotnik",
+          "text": "Обычный. Территорию убираем. Явка обязательна — так и запишите.",
+          "mood": "neutral",
+          "effects": [],
+          "choices": [
+            {
+              "id": "back",
+              "text": "Понятно.",
+              "next": "start"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "dlg_denis",
+      "characterId": "denis",
+      "startNodeId": "start",
+      "nodes": [
+        {
+          "id": "start",
+          "text": "Здравствуйте. Я Денис, из 411-й. Вы насчёт Тимура?",
+          "mood": "friendly",
+          "effects": [],
+          "choices": [
+            {
+              "id": "saw",
+              "text": "Что вы видели третьего октября днём?",
+              "next": "saw"
+            },
+            {
+              "id": "leak",
+              "text": "Была протечка или запах гари?",
+              "next": "leak"
+            },
+            {
+              "id": "why",
+              "text": "Почему вы не вмешались?",
+              "next": "why"
+            },
+            {
+              "id": "dorm",
+              "text": "Как вам вообще в общежитии?",
+              "next": "dorm"
+            },
+            {
+              "id": "come",
+              "text": "Пройдёмте к коменданту. Повторите при нём, что видели?",
+              "next": "come",
+              "requires": {
+                "evidence": [
+                  "denis_testimony"
+                ],
+                "notFlags": [
+                  "zuev_admitted",
+                  "denis_scared"
+                ],
+                "notFollowing": [
+                  "denis"
+                ]
+              }
+            },
+            {
+              "id": "release",
+              "text": "Спасибо, Денис, можете идти.",
+              "next": "release",
+              "requires": {
+                "following": [
+                  "denis"
+                ]
+              }
+            },
+            {
+              "id": "bye",
+              "text": "Спасибо, Денис.",
+              "next": null
+            }
+          ]
+        },
+        {
+          "id": "saw",
+          "text": "Часа в два я был дома, курсовую писал. Слышу — в 412-й ключ поворачивается. Выглянул: комендант. Зашёл, минут двадцать там был, фоткал что-то на телефон. Тимура не было — он на волейболе.",
+          "mood": "neutral",
+          "effects": [
+            {
+              "type": "addEvidence",
+              "evidenceId": "denis_testimony"
+            }
+          ],
+          "choices": [
+            {
+              "id": "back",
+              "text": "Ясно.",
+              "next": "start"
+            }
+          ]
+        },
+        {
+          "id": "leak",
+          "text": "Какая протечка? Сухо всё. И гарью не пахло — у нас стена общая, я бы почувствовал.",
+          "mood": "neutral",
+          "effects": [
+            {
+              "type": "addCharacterNote",
+              "characterId": "denis",
+              "text": "Ни протечки, ни запаха гари 3 октября не было."
+            }
+          ],
+          "choices": [
+            {
+              "id": "back",
+              "text": "Понятно.",
+              "next": "start"
+            }
+          ]
+        },
+        {
+          "id": "why",
+          "text": "А что я скажу коменданту? Он потом и ко мне с «проверкой» придёт. Его тут все побаиваются.",
+          "mood": "nervous",
+          "effects": [],
+          "choices": [
+            {
+              "id": "back",
+              "text": "Понимаю.",
+              "next": "start"
+            }
+          ]
+        },
+        {
+          "id": "dorm",
+          "text": "Нормально, жить можно. Душ бы только чинили быстрее — третью неделю по очереди моемся на третьем этаже.",
+          "mood": "friendly",
+          "effects": [],
+          "choices": [
+            {
+              "id": "back",
+              "text": "Понятно.",
+              "next": "start"
+            }
+          ]
+        },
+        {
+          "id": "come",
+          "text": "Э-э… Ладно. Только вы рядом будьте, хорошо?",
+          "mood": "nervous",
+          "effects": [
+            {
+              "type": "follow",
+              "characterId": "denis"
+            }
+          ],
+          "choices": [
+            {
+              "id": "go",
+              "text": "Идёмте.",
+              "next": null
+            }
+          ]
+        },
+        {
+          "id": "release",
+          "text": "Ага. Я на кухне, если что.",
+          "mood": "friendly",
+          "effects": [
+            {
+              "type": "returnHome",
+              "characterId": "denis"
+            }
+          ],
+          "choices": [
+            {
+              "id": "bye",
+              "text": "Спасибо.",
+              "next": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "dlg_ryabov",
+      "characterId": "ryabov",
+      "startNodeId": "start",
+      "nodes": [
+        {
+          "id": "start",
+          "text": "Вахта. Пропуск покажите… А, из полиции. Чем помочь?",
+          "mood": "friendly",
+          "effects": [],
+          "choices": [
+            {
+              "id": "key",
+              "text": "Кто брал ключ от 412-й третьего октября?",
+              "next": "key"
+            },
+            {
+              "id": "request",
+              "text": "Хасанов давал согласие на осмотр или писал заявление?",
+              "next": "request"
+            },
+            {
+              "id": "self",
+              "text": "Вы сами поднимались на этаж?",
+              "next": "self"
+            },
+            {
+              "id": "job",
+              "text": "Тяжело на вахте?",
+              "next": "job"
+            },
+            {
+              "id": "bye",
+              "text": "Спасибо.",
+              "next": null
+            }
+          ]
+        },
+        {
+          "id": "key",
+          "text": "Олег Петрович брал дубликат, в начале третьего. Сказал — для осмотра. Он комендант, я не спрашиваю. Вернул где-то через полчаса. Всё в журнале.",
+          "mood": "friendly",
+          "effects": [
+            {
+              "type": "addEvidence",
+              "evidenceId": "guard_testimony"
+            }
+          ],
+          "choices": [
+            {
+              "id": "back",
+              "text": "Ясно.",
+              "next": "start"
+            }
+          ]
+        },
+        {
+          "id": "request",
+          "text": "Нет, никаких заявлений. При мне он в полпервого ушёл с сумкой — на тренировку, видать. Отмечено в журнале.",
+          "mood": "neutral",
+          "effects": [
+            {
+              "type": "addCharacterNote",
+              "characterId": "timur",
+              "text": "По словам вахтёра, согласия на осмотр не давал и заявлений не писал."
+            }
+          ],
+          "choices": [
+            {
+              "id": "back",
+              "text": "Понятно.",
+              "next": "start"
+            }
+          ]
+        },
+        {
+          "id": "self",
+          "text": "Нет, мне пост бросать нельзя. Я тут с восьми утра.",
+          "mood": "neutral",
+          "effects": [
+            {
+              "type": "addCharacterNote",
+              "characterId": "ryabov",
+              "text": "В комнату не поднимался — весь день на посту."
+            }
+          ],
+          "choices": [
+            {
+              "id": "back",
+              "text": "Хорошо.",
+              "next": "start"
+            }
+          ]
+        },
+        {
+          "id": "job",
+          "text": "Привычно. Тридцать лет на посту: сначала на заводе, теперь тут. Студенты хоть весёлые.",
+          "mood": "friendly",
+          "effects": [],
+          "choices": [
+            {
+              "id": "back",
+              "text": "Понятно.",
+              "next": "start"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "dlg_conf_zuev_denis",
+      "characterId": "zuev",
+      "startNodeId": "start",
+      "nodes": [
+        {
+          "id": "start",
+          "speaker": "zuev",
+          "text": "Ковалёв? Ты что здесь делаешь? Ты, кстати, на субботник записался?",
+          "mood": "angry",
+          "effects": [],
+          "choices": [
+            {
+              "id": "tell",
+              "text": "Денис, расскажите, что вы видели третьего октября.",
+              "next": "saw"
+            },
+            {
+              "id": "pressure",
+              "text": "Не давите на свидетеля, Олег Петрович.",
+              "next": "calm"
+            }
+          ]
+        },
+        {
+          "id": "calm",
+          "speaker": "zuev",
+          "text": "Да кто давит… Пусть говорит, раз пришёл.",
+          "mood": "neutral",
+          "effects": [],
+          "choices": [
+            {
+              "id": "tell",
+              "text": "Денис, рассказывайте.",
+              "next": "saw"
+            }
+          ]
+        },
+        {
+          "id": "saw",
+          "speaker": "denis",
+          "text": "Я видел, как вы открыли 412-ю и фотографировали там. И никакой протечки не было — сухо всё.",
+          "mood": "nervous",
+          "effects": [],
+          "choices": [
+            {
+              "id": "leak",
+              "text": "Олег Петрович, так была протечка?",
+              "next": "admit"
+            },
+            {
+              "id": "doubt",
+              "text": "Денис, вы точно уверены? Может, ошиблись?",
+              "next": "scared"
+            }
+          ]
+        },
+        {
+          "id": "admit",
+          "speaker": "zuev",
+          "text": "…Не было протечки. Распоряжение сверху — список нарушителей к пятому. Взял дубликат и зашёл, пока Хасанова нет. Обогреватель нашёл — значит, не зря.",
+          "mood": "sad",
+          "effects": [
+            {
+              "type": "addEvidence",
+              "evidenceId": "zuev_admission"
+            },
+            {
+              "type": "setFlag",
+              "flag": "zuev_admitted"
+            },
+            {
+              "type": "returnHome",
+              "characterId": "denis"
+            }
+          ],
+          "choices": [
+            {
+              "id": "end",
+              "text": "Этого достаточно. Денис, спасибо.",
+              "next": null
+            }
+          ]
+        },
+        {
+          "id": "scared",
+          "speaker": "denis",
+          "text": "Ну… раз вы сами сомневаетесь… может, и ошибся. Я пойду, ладно?",
+          "mood": "nervous",
+          "effects": [
+            {
+              "type": "setFlag",
+              "flag": "denis_scared"
+            },
+            {
+              "type": "returnHome",
+              "characterId": "denis"
+            }
+          ],
+          "choices": [
+            {
+              "id": "end",
+              "text": "…",
+              "next": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "dlg_vika",
+      "characterId": "vika",
+      "startNodeId": "start",
+      "nodes": [
+        {
+          "id": "start",
+          "text": "Ой, здравствуйте. Вы по поводу Тимура? Все уже знают.",
+          "mood": "friendly",
+          "effects": [],
+          "choices": [
+            {
+              "id": "before",
+              "text": "Комендант раньше заходил в комнаты без предупреждения?",
+              "next": "before"
+            },
+            {
+              "id": "timur",
+              "text": "Каким соседом был Тимур?",
+              "next": "timur"
+            },
+            {
+              "id": "shower",
+              "text": "Что с душем на этаже?",
+              "next": "shower"
+            },
+            {
+              "id": "bye",
+              "text": "Спасибо.",
+              "next": null
+            }
+          ]
+        },
+        {
+          "id": "before",
+          "text": "В сентябре заходил к девочкам из 407-й, пока их не было. Тоже «проверка». Они пожаловались старосте, но всё замяли.",
+          "mood": "nervous",
+          "effects": [
+            {
+              "type": "addCharacterNote",
+              "characterId": "zuev",
+              "text": "По словам соседки, в сентябре так же заходил в комнату 407 без жильцов."
+            }
+          ],
+          "choices": [
+            {
+              "id": "back",
+              "text": "Понятно.",
+              "next": "start"
+            }
+          ]
+        },
+        {
+          "id": "timur",
+          "text": "Нормальный. Тихий. Ну, обогреватель у него был — у половины этажа есть, тут холодно.",
+          "mood": "friendly",
+          "effects": [],
+          "choices": [
+            {
+              "id": "back",
+              "text": "Понятно.",
+              "next": "start"
+            }
+          ]
+        },
+        {
+          "id": "shower",
+          "text": "Третью неделю не работает. Ходим на третий этаж, там очередь. Коменданту три заявки писали.",
+          "mood": "sad",
+          "effects": [],
+          "choices": [
+            {
+              "id": "back",
+              "text": "Понятно.",
+              "next": "start"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "dlg_lidia",
+      "characterId": "lidia",
+      "startNodeId": "start",
+      "nodes": [
+        {
+          "id": "start",
+          "text": "Бельё меняем по средам. Вам что?",
+          "mood": "friendly",
+          "effects": [],
+          "choices": [
+            {
+              "id": "keys",
+              "text": "Кто имеет доступ к дубликатам ключей?",
+              "next": "keys"
+            },
+            {
+              "id": "zuev",
+              "text": "Каков Олег Петрович как начальник?",
+              "next": "zuev"
+            },
+            {
+              "id": "linen",
+              "text": "Много работы?",
+              "next": "linen"
+            },
+            {
+              "id": "bye",
+              "text": "Спасибо.",
+              "next": null
+            }
+          ]
+        },
+        {
+          "id": "keys",
+          "text": "Вахта хранит, а брать может только комендант. Раньше — по журналу и с заявлением жильца, а при Олеге Петровиче — как ему удобно.",
+          "mood": "neutral",
+          "effects": [
+            {
+              "type": "addCharacterNote",
+              "characterId": "zuev",
+              "text": "По словам кастелянши, берёт дубликаты ключей «как ему удобно», без заявлений."
+            }
+          ],
+          "choices": [
+            {
+              "id": "back",
+              "text": "Понятно.",
+              "next": "start"
+            }
+          ]
+        },
+        {
+          "id": "zuev",
+          "text": "Строгий. Порядок любит. Только порядок у него — это когда отчёт наверх красивый.",
+          "mood": "neutral",
+          "effects": [],
+          "choices": [
+            {
+              "id": "back",
+              "text": "Понятно.",
+              "next": "start"
+            }
+          ]
+        },
+        {
+          "id": "linen",
+          "text": "Двести комнат, а машинка одна. Вот и думайте.",
+          "mood": "sad",
+          "effects": [],
+          "choices": [
+            {
+              "id": "back",
+              "text": "Понятно.",
+              "next": "start"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "confrontations": [
+    {
+      "id": "conf_zuev_denis",
+      "characters": [
+        "zuev",
+        "denis"
+      ],
+      "dialogueId": "dlg_conf_zuev_denis",
+      "requires": {
+        "notFlags": [
+          "zuev_admitted"
+        ]
+      }
+    }
+  ],
+  "deductions": [
+    {
+      "id": "d_absent",
+      "title": "Тимура не было дома",
+      "evidenceIds": [
+        "vakhta_log",
+        "timur_testimony"
+      ],
+      "question": "Был ли Тимур в комнате, когда туда вошли?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Да, он сам впустил коменданта",
+          "correct": false,
+          "feedback": "По журналу вахты Тимур ушёл в 12:40 и вернулся в 17:15."
+        },
+        {
+          "id": "b",
+          "text": "Нет: осмотр прошёл с 14:05 до 14:35, а Тимур был на тренировке и ключ никому не давал",
+          "correct": true,
+          "feedback": "Журнал и показания сходятся."
+        },
+        {
+          "id": "c",
+          "text": "Неизвестно — журнал вахты не отражает выходы",
+          "correct": false,
+          "feedback": "Отражает: оба прохода Тимура записаны."
+        }
+      ],
+      "conclusion": "Комнату осматривали в отсутствие Тимура и без его согласия.",
+      "effects": [
+        {
+          "type": "setFlag",
+          "flag": "d_absent"
+        }
+      ]
+    },
+    {
+      "id": "d_who",
+      "title": "Кто вошёл",
+      "evidenceIds": [
+        "vakhta_log",
+        "denis_testimony"
+      ],
+      "question": "Кто вошёл в комнату 412?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Вахтёр — у него хранятся ключи",
+          "correct": false,
+          "feedback": "Вахтёр выдал дубликат и остался на посту."
+        },
+        {
+          "id": "b",
+          "text": "Комендант Зуев — с дубликатом ключа, полученным на вахте",
+          "correct": true,
+          "feedback": "Дубликат был у Зуева в 14:05–14:35, Денис видел его у двери около 14:10."
+        },
+        {
+          "id": "c",
+          "text": "Сосед Денис",
+          "correct": false,
+          "feedback": "Ключа от 412 у Дениса не было, а журнал называет другого человека."
+        }
+      ],
+      "conclusion": "В комнату 412 вошёл комендант Зуев с дубликатом ключа с вахты.",
+      "effects": [
+        {
+          "type": "setFlag",
+          "flag": "d_who"
+        }
+      ]
+    },
+    {
+      "id": "d_no_emergency",
+      "title": "Аварии не было",
+      "evidenceIds": [
+        "repair_log",
+        "zuev_denial"
+      ],
+      "question": "Подтверждается ли версия коменданта об аварии?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Да — про аварии часто забывают записать",
+          "correct": false,
+          "feedback": "Возможно, но это предположение. Других следов аварии нет, а в акте указано иное основание."
+        },
+        {
+          "id": "b",
+          "text": "Нет: по 4 этажу за октябрь нет ни одной аварийной заявки",
+          "correct": true,
+          "feedback": "Версия о протечке не подтверждается документами."
+        },
+        {
+          "id": "c",
+          "text": "Да — протекло этажом ниже, это видно из журнала",
+          "correct": false,
+          "feedback": "Ниже — 3 этаж: единственная заявка там от 6 октября, уже после событий."
+        }
+      ],
+      "conclusion": "Аварийной ситуации не было — объяснение коменданта ложно.",
+      "effects": [
+        {
+          "type": "setFlag",
+          "flag": "d_no_emergency"
+        }
+      ]
+    },
+    {
+      "id": "d_procedure",
+      "title": "Порядок нарушен",
+      "evidenceIds": [
+        "inspection_act",
+        "dorm_rules"
+      ],
+      "question": "Соблюдён ли порядок входа в комнату?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Да: комендант составил акт",
+          "correct": false,
+          "feedback": "Акт без свидетелей и в отсутствие проживающего не соответствует п. 3.2–3.3 Правил."
+        },
+        {
+          "id": "b",
+          "text": "Нет: без проживающего, без уведомления за сутки, без двух свидетелей, а основание в акте не аварийное",
+          "correct": true,
+          "feedback": "Нарушены и п. 3.2, и п. 3.3 Правил."
+        },
+        {
+          "id": "c",
+          "text": "Порядок не важен, раз нарушение найдено",
+          "correct": false,
+          "feedback": "Найденное нарушение не делает вход законным задним числом."
+        }
+      ],
+      "conclusion": "Вход в комнату совершён с нарушением всех условий, которые устанавливают Правила проживания.",
+      "effects": [
+        {
+          "type": "setFlag",
+          "flag": "d_procedure"
+        }
+      ]
+    },
+    {
+      "id": "d_motive",
+      "title": "Зачем",
+      "evidenceIds": [
+        "memo",
+        "inspection_act"
+      ],
+      "question": "Зачем коменданту понадобился этот осмотр?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Предотвратить пожар",
+          "correct": false,
+          "feedback": "Гарью никто не пах, и аварийных заявок не было."
+        },
+        {
+          "id": "b",
+          "text": "Получить акт о нарушении для списка, который требовали к 5 октября",
+          "correct": true,
+          "feedback": "Распоряжение от 1 октября и акт от 3 октября связаны напрямую."
+        },
+        {
+          "id": "c",
+          "text": "Проверить жалобу соседей",
+          "correct": false,
+          "feedback": "Сосед Денис ни на что не жаловался, а других жалоб в материалах нет."
+        }
+      ],
+      "conclusion": "Мотив — «план» по нарушителям. Он объясняет поступок, но не делает его законным.",
+      "effects": [
+        {
+          "type": "setFlag",
+          "flag": "d_motive"
+        }
+      ]
+    }
+  ],
+  "hints": [
+    {
+      "level": 1,
+      "text": "На вахте записывают, кто входит в здание и кому выдают дубликаты ключей.",
+      "penalty": 5
+    },
+    {
+      "level": 2,
+      "text": "Комендант ссылается на аварию. Проверьте, была ли она где-то зарегистрирована.",
+      "penalty": 7
+    },
+    {
+      "level": 3,
+      "text": "Комната в общежитии — тоже жилище. Какая статья Конституции его защищает?",
+      "penalty": 10
+    }
+  ],
+  "questions": [
+    {
+      "id": "q_right",
+      "category": "right",
+      "prompt": "Какое право затронуто?",
+      "kind": "single",
+      "source": "inline",
+      "maxPoints": 30,
+      "options": [
+        {
+          "id": "privacy",
+          "label": "Право на личную жизнь",
+          "points": 12,
+          "feedback": "Близко: фотосъёмка личных вещей затрагивает и частную жизнь. Но главное действие — вход в жилище, его защищает отдельное право (ст. 25)."
+        },
+        {
+          "id": "correspondence_secrecy",
+          "label": "Тайна переписки",
+          "points": 0,
+          "feedback": "Переписку никто не читал."
+        },
+        {
+          "id": "free_speech",
+          "label": "Свобода слова",
+          "points": 0,
+          "feedback": "Высказывания Тимура тут ни при чём."
+        },
+        {
+          "id": "equality",
+          "label": "Равенство прав",
+          "points": 0,
+          "feedback": "Признаков дискриминации в деле нет."
+        },
+        {
+          "id": "home_inviolability",
+          "label": "Неприкосновенность жилища",
+          "points": 30,
+          "feedback": "Верно: ст. 25 Конституции РФ. Комната в общежитии — жилище."
+        },
+        {
+          "id": "electoral_rights",
+          "label": "Избирательные права",
+          "points": 0,
+          "feedback": "Выборы в деле не фигурируют."
+        },
+        {
+          "id": "other",
+          "label": "Другое",
+          "points": 0,
+          "feedback": "Затронутое право есть в перечне."
+        }
+      ]
+    },
+    {
+      "id": "q_violation",
+      "category": "violation",
+      "prompt": "Было ли нарушение?",
+      "kind": "single",
+      "source": "inline",
+      "maxPoints": 15,
+      "options": [
+        {
+          "id": "yes",
+          "label": "Да",
+          "points": 15,
+          "feedback": "Верно: ни согласия Тимура, ни аварии, ни судебного решения."
+        },
+        {
+          "id": "no",
+          "label": "Нет",
+          "points": 0,
+          "feedback": "Вход без согласия проживающего и без законного основания — нарушение ст. 25."
+        },
+        {
+          "id": "insufficient",
+          "label": "Недостаточно информации",
+          "points": 5,
+          "feedback": "Материалов достаточно: журналы, акт, показания и признание сходятся."
+        }
+      ]
+    },
+    {
+      "id": "q_qualification",
+      "category": "qualification",
+      "prompt": "Как можно квалифицировать действия виновного?",
+      "kind": "single",
+      "source": "inline",
+      "maxPoints": 15,
+      "options": [
+        {
+          "id": "criminal_3",
+          "label": "Признаки преступления: незаконное проникновение в жилище с использованием служебного положения (ч. 3 ст. 139 УК РФ)",
+          "points": 15,
+          "feedback": "Верно как возможная квалификация: ключ комендант получил именно благодаря должности. Окончательную оценку дают следствие и суд."
+        },
+        {
+          "id": "criminal_1",
+          "label": "Признаки преступления: незаконное проникновение в жилище (ч. 1 ст. 139 УК РФ)",
+          "points": 8,
+          "feedback": "Проникновение есть, но упущен квалифицирующий признак: дубликат ключа комендант получил, используя служебное положение."
+        },
+        {
+          "id": "disciplinary",
+          "label": "Только дисциплинарный проступок — нарушен порядок осмотра по Правилам",
+          "points": 6,
+          "feedback": "Дисциплинарная ответственность возможна, но вход в жилище против воли проживающего — это уже признаки ст. 139 УК РФ."
+        },
+        {
+          "id": "civil",
+          "label": "Только гражданско-правовой спор о компенсации",
+          "points": 3,
+          "feedback": "Тимур вправе требовать компенсации морального вреда, но этим оценка не исчерпывается."
+        },
+        {
+          "id": "none",
+          "label": "Правонарушения нет — была крайняя необходимость",
+          "points": 0,
+          "feedback": "Аварии не было, поэтому крайняя необходимость (ст. 39 УК РФ) исключается."
+        }
+      ]
+    },
+    {
+      "id": "q_responsible",
+      "category": "responsible",
+      "prompt": "Кто несёт ответственность?",
+      "kind": "single",
+      "source": "characters",
+      "maxPoints": 20,
+      "options": [
+        {
+          "id": "zuev",
+          "label": "",
+          "points": 20,
+          "feedback": "Верно: он взял дубликат ключа и вошёл в комнату без Тимура."
+        },
+        {
+          "id": "ryabov",
+          "label": "",
+          "points": 3,
+          "feedback": "Вахтёр выдал дубликат без вопросов — к порядку на вахте есть претензии, но в комнату он не входил."
+        },
+        {
+          "id": "timur",
+          "label": "",
+          "points": 0,
+          "feedback": "Тимур — потерпевший. Обогреватель — отдельный дисциплинарный вопрос, к вторжению он отношения не имеет."
+        },
+        {
+          "id": "denis",
+          "label": "",
+          "points": 0,
+          "feedback": "Денис — свидетель."
+        },
+        {
+          "id": "vika",
+          "label": "",
+          "points": 0,
+          "feedback": "Вика — соседка и свидетель; в комнату 412 не входила."
+        },
+        {
+          "id": "lidia",
+          "label": "",
+          "points": 0,
+          "feedback": "Кастелянша к входу в комнату 412 не причастна."
+        }
+      ]
+    },
+    {
+      "id": "q_evidence",
+      "category": "evidence",
+      "prompt": "Какие доказательства это подтверждают?",
+      "kind": "multi",
+      "source": "evidence",
+      "maxPoints": 20,
+      "options": [
+        {
+          "id": "vakhta_log",
+          "label": "",
+          "points": 4,
+          "feedback": "Ключевое: кто и когда держал дубликат, когда Тимура не было."
+        },
+        {
+          "id": "inspection_act",
+          "label": "",
+          "points": 4,
+          "feedback": "Сам комендант зафиксировал осмотр в отсутствие проживающего."
+        },
+        {
+          "id": "denis_testimony",
+          "label": "",
+          "points": 3,
+          "feedback": "Очевидец входа; опровергает аварию."
+        },
+        {
+          "id": "zuev_admission",
+          "label": "",
+          "points": 3,
+          "feedback": "Признание, согласующееся с остальными доказательствами."
+        },
+        {
+          "id": "repair_log",
+          "label": "",
+          "points": 2,
+          "feedback": "Опровергает версию об аварии."
+        },
+        {
+          "id": "timur_testimony",
+          "label": "",
+          "points": 2,
+          "feedback": "Подтверждает отсутствие согласия."
+        },
+        {
+          "id": "dorm_rules",
+          "label": "",
+          "points": 2,
+          "feedback": "Показывает, каким должен был быть порядок входа."
+        },
+        {
+          "id": "memo",
+          "label": "",
+          "points": 0,
+          "feedback": "Объясняет мотив, но не доказывает само проникновение."
+        },
+        {
+          "id": "guard_testimony",
+          "label": "",
+          "points": 0,
+          "feedback": "Вторично: повторяет журнал вахты."
+        },
+        {
+          "id": "zuev_denial",
+          "label": "",
+          "points": -4,
+          "feedback": "Это ложное объяснение — журнал заявок и Денис его опровергают."
+        },
+        {
+          "id": "doc_timur_desk",
+          "label": "",
+          "points": 0,
+          "feedback": "Это не относится к сути нарушения."
+        },
+        {
+          "id": "doc_fridge",
+          "label": "",
+          "points": 0,
+          "feedback": "Это не относится к сути нарушения."
+        },
+        {
+          "id": "doc_poster",
+          "label": "",
+          "points": 0,
+          "feedback": "Это не относится к сути нарушения."
+        },
+        {
+          "id": "doc_mailboxes",
+          "label": "",
+          "points": 0,
+          "feedback": "Это не относится к сути нарушения."
+        },
+        {
+          "id": "doc_lobby_poster",
+          "label": "",
+          "points": 0,
+          "feedback": "Это не относится к сути нарушения."
+        },
+        {
+          "id": "doc_entrance",
+          "label": "",
+          "points": 0,
+          "feedback": "Это не относится к сути нарушения."
+        }
+      ]
+    }
+  ],
+  "solution": {
+    "right": "home_inviolability",
+    "rightText": "Неприкосновенность жилища (ст. 25 Конституции РФ). Дополнительно затронута неприкосновенность частной жизни (ч. 1 ст. 23): комендант фотографировал личные вещи.",
+    "violation": true,
+    "responsibleCharacter": "zuev",
+    "correctAnswer": "Затронута неприкосновенность жилища. Нарушение было: комендант Зуев взял на вахте дубликат ключа и вошёл в комнату Тимура в его отсутствие, без согласия, без аварии и без судебного решения. Возможная квалификация — ч. 3 ст. 139 УК РФ; кроме того, возможны дисциплинарная ответственность и компенсация морального вреда.",
+    "whatHappened": "1 октября коменданту поручили к 5 октября сдать список нарушителей Правил проживания «с актами». 3 октября в 12:40 Тимур ушёл на тренировку. В 14:05 комендант Зуев взял на вахте дубликат ключа от комнаты 412, около 14:10 вошёл, осмотрел вещи, сфотографировал их, нашёл обогреватель, оставил записку и в 14:35 вернул ключ. Акт он составил без свидетелей, указав основанием «запах гари», а дознавателю рассказал про протечку. Аварийных заявок по этажу не было.",
+    "explanation": "Ст. 25 Конституции РФ: жилище неприкосновенно, проникать в него против воли проживающих можно только в случаях, установленных федеральным законом, или по судебному решению. Комната в общежитии — жилище: по примечанию к ст. 139 УК РФ это любое помещение, пригодное для постоянного или временного проживания, а общежития относятся к специализированному жилищному фонду (ст. 92 ЖК РФ). Реальная авария могла бы оправдать вход как крайняя необходимость, но её не было. Правила проживания требовали присутствия Тимура и уведомления за сутки. Обогреватель — нарушение со стороны Тимура, но вход он не оправдывает: комендант узнал о нём, только когда уже вошёл.",
+    "legalQualification": "Действия Зуева содержат признаки преступления, предусмотренного ч. 3 ст. 139 УК РФ (незаконное проникновение в жилище против воли проживающего лицом с использованием своего служебного положения): дубликат ключа ему выдали как коменданту. Вход без согласия в отсутствие проживающего, как правило, оценивается как совершённый против его воли. Относится ли положение коменданта к «служебному» в смысле ч. 3, определяют следствие и суд; признать человека виновным может только суд. Независимо от этого возможны дисциплинарное взыскание коменданту (ст. 192 ТК РФ) и требование Тимура о компенсации морального вреда (ст. 151 ГК РФ). Тимура же могут привлечь к дисциплинарной ответственности за обогреватель (ч. 4 ст. 43 ФЗ «Об образовании в РФ») — это отдельный вопрос.",
+    "qualificationNotes": [
+      {
+        "kind": "right",
+        "applies": "yes",
+        "text": "Затронута неприкосновенность жилища (ст. 25 Конституции РФ); комната в общежитии — жилище."
+      },
+      {
+        "kind": "violation",
+        "applies": "yes",
+        "text": "Вход без согласия, без аварии и без судебного решения — право нарушено."
+      },
+      {
+        "kind": "criminal",
+        "applies": "possible",
+        "text": "Признаки ч. 3 ст. 139 УК РФ. Крайняя необходимость (ст. 39 УК РФ) исключается: аварии не было."
+      },
+      {
+        "kind": "administrative",
+        "applies": "no",
+        "text": "Подходящего состава в КоАП РФ для этой ситуации не видно; основные варианты — уголовно-правовой, дисциплинарный и гражданско-правовой."
+      },
+      {
+        "kind": "civil",
+        "applies": "possible",
+        "text": "Тимур вправе требовать компенсации морального вреда (ст. 151 ГК РФ)."
+      },
+      {
+        "kind": "disciplinary",
+        "applies": "possible",
+        "text": "Коменданту — за нарушение п. 3.2–3.3 Правил (ст. 192 ТК РФ). Тимуру — за обогреватель (ч. 4 ст. 43 ФЗ «Об образовании в РФ»)."
+      }
+    ],
+    "keyEvidence": [
+      {
+        "evidenceId": "vakhta_log",
+        "why": "Дубликат был у коменданта именно тогда, когда Тимура не было в общежитии."
+      },
+      {
+        "evidenceId": "denis_testimony",
+        "why": "Очевидец: видел, как комендант открыл комнату и фотографировал; подтверждает, что аварии не было."
+      },
+      {
+        "evidenceId": "inspection_act",
+        "why": "Комендант сам зафиксировал осмотр «в отсутствие проживающего», без свидетелей."
+      },
+      {
+        "evidenceId": "repair_log",
+        "why": "Аварийных заявок по 4 этажу нет — версия о протечке ложна."
+      },
+      {
+        "evidenceId": "dorm_rules",
+        "why": "Порядок входа требовал присутствия проживающего и уведомления."
+      },
+      {
+        "evidenceId": "timur_testimony",
+        "why": "Тимур не давал согласия и не знал о проверке."
+      },
+      {
+        "evidenceId": "zuev_admission",
+        "why": "Собственное признание, согласующееся с остальными доказательствами."
+      }
+    ],
+    "sources": [
+      "Конституция Российской Федерации, ст. 23, 25",
+      "Уголовный кодекс РФ, ст. 39, ст. 139 (и примечание к ней)",
+      "Жилищный кодекс РФ, ст. 92",
+      "Гражданский кодекс РФ, ст. 151",
+      "Трудовой кодекс РФ, ст. 192",
+      "Федеральный закон «Об образовании в Российской Федерации», ст. 43",
+      "Правила проживания в общежитии — вымышленный локальный акт учебного сценария"
+    ]
+  },
+  "flags": [
+    {
+      "id": "timur_closed",
+      "name": "Тимур замкнулся"
+    },
+    {
+      "id": "timur_truth",
+      "name": "Тимур рассказал правду"
+    },
+    {
+      "id": "timur_lied",
+      "name": "Тимур солгал"
+    },
+    {
+      "id": "key_412",
+      "name": "Тимур отдал ключ от комнаты 412"
+    },
+    {
+      "id": "zuev_hostile",
+      "name": "Зуев настроен враждебно"
+    },
+    {
+      "id": "zuev_admitted",
+      "name": "Зуев признался"
+    },
+    {
+      "id": "denis_scared",
+      "name": "Денис испугался на очной ставке"
+    },
+    {
+      "id": "d_absent",
+      "name": "Установлено, что Тимура не было дома"
+    },
+    {
+      "id": "d_who",
+      "name": "Установлено, кто вошёл в комнату"
+    },
+    {
+      "id": "d_no_emergency",
+      "name": "Установлено, что аварии не было"
+    },
+    {
+      "id": "d_procedure",
+      "name": "Установлено нарушение порядка входа"
+    },
+    {
+      "id": "d_motive",
+      "name": "Установлен мотив"
+    }
+  ],
+  "lawReference": {
+    "basis": [
+      {
+        "article": "ст. 25 Конституции РФ",
+        "title": "Неприкосновенность жилища",
+        "text": "Никто не вправе проникать в жилище против воли проживающих в нём лиц иначе как в случаях, установленных федеральным законом, или на основании судебного решения.",
+        "url": "http://www.consultant.ru/document/cons_doc_LAW_28399/"
+      },
+      {
+        "article": "ч. 1 ст. 23 Конституции РФ",
+        "title": "Неприкосновенность частной жизни",
+        "text": "Право на неприкосновенность частной жизни, личную и семейную тайну.",
+        "url": "http://www.consultant.ru/document/cons_doc_LAW_28399/"
+      },
+      {
+        "article": "ст. 139 УК РФ",
+        "title": "Нарушение неприкосновенности жилища",
+        "text": "Незаконное проникновение в жилище против воли проживающего в нём лица; ч. 3 — с использованием служебного положения.",
+        "url": "http://www.consultant.ru/document/cons_doc_LAW_10699/"
+      },
+      {
+        "article": "ст. 137 УК РФ",
+        "title": "Нарушение неприкосновенности частной жизни",
+        "url": "http://www.consultant.ru/document/cons_doc_LAW_10699/"
+      },
+      {
+        "article": "ст. 330 УК РФ",
+        "title": "Самоуправство",
+        "text": "Самовольное, вопреки установленному порядку, совершение действий, правомерность которых оспаривается.",
+        "url": "http://www.consultant.ru/document/cons_doc_LAW_10699/"
+      },
+      {
+        "article": "локальный акт",
+        "title": "Правила проживания в общежитии",
+        "text": "В каких случаях администрация может войти в комнату и как это оформляется. Найдите их среди материалов дела."
+      }
+    ],
+    "notes": [
+      {
+        "title": "Затронуто право",
+        "subtitle": "Какое право затронуто?",
+        "text": "То, что ситуация касается права, ещё не означает, что право нарушено, и тем более — что совершено преступление."
+      },
+      {
+        "title": "Нарушение права",
+        "subtitle": "Вмешались ли в него без согласия и без законного основания?",
+        "text": "Законное основание — закон, решение суда, служебные полномочия в установленном порядке."
+      },
+      {
+        "title": "Дисциплинарное нарушение",
+        "subtitle": "Нарушены внутренние правила организации",
+        "text": "Устав, положение, правила проживания. Отвечает работник или обучающийся перед организацией."
+      },
+      {
+        "title": "Гражданско-правовой спор",
+        "subtitle": "Потерпевший может требовать компенсации в суде",
+        "text": "Возмещение вреда и компенсация морального вреда."
+      },
+      {
+        "title": "Административное правонарушение",
+        "subtitle": "Есть состав по КоАП РФ",
+        "text": "Деяние прямо описано в статье Кодекса, наказание назначает уполномоченный орган."
+      },
+      {
+        "title": "Преступление",
+        "subtitle": "Есть все признаки состава по УК РФ — решает суд",
+        "text": "Объект, объективная сторона, субъект, субъективная сторона (умысел). Виновность устанавливает только суд."
+      }
+    ]
+  }
+}
