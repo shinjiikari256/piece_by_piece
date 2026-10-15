@@ -275,6 +275,25 @@ describe("игра в браузере", () => {
     await page.close();
   });
 
+  it("выход рисует карта (лестница), а не стрелка; подпись выхода скрыта, пока не наведёшь или не подойдёшь", async () => {
+    const page = await h.page();
+    await page.goto(`${BASE}/play/case-test-moveto`);
+    await page.getByRole("button", { name: /Приступить к расследованию/ }).click();
+    await page.waitForFunction(() => (window as any).__game.store.get().screen === "play" && (window as any).__scene);
+    const info = await page.evaluate(() => {
+      const scene = (window as any).__scene;
+      const exits = scene.interactables.filter((i: any) => i.id.startsWith("exit:"));
+      const stairs = scene.location.tiles.filter((row: string) => row.includes("Z")).length;
+      return { count: exits.length, zones: exits.every((i: any) => i.sprite.texture.key === "exit_zone"), hidden: exits.every((i: any) => !i.labelText.visible), stairsRows: stairs, arrows: scene.textures.exists("exit_left") };
+    });
+    expect(info.count).toBeGreaterThan(0);
+    expect(info.zones).toBe(true);
+    expect(info.hidden).toBe(true);
+    expect(info.stairsRows).toBe(2); // лестница вбок на двух клетках проёма
+    expect(info.arrows).toBe(false);
+    await page.close();
+  });
+
   it("окна открываются и закрываются", async () => {
     const page = await h.page();
     await startCase(page);

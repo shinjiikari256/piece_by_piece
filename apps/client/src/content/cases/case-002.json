@@ -12,7 +12,7 @@
     "points": 10
   },
   "published": true,
-  "updatedAt": "2026-10-13T22:03:44Z",
+  "updatedAt": "2026-10-15T01:42:47Z",
   "locations": [
     {
       "id": "dorm_floor",
@@ -30,8 +30,8 @@
         "#####DD#######DD########DD####",
         "#............................#",
         "#............................#",
-        "#...........................SD",
-        "#...........................SD",
+        "#............................Z",
+        "#............................Z",
         "#............................#",
         "#............................#",
         "######WW############WW########"
@@ -492,8 +492,8 @@
         "BmmmmmmmmmmmmmmmmmmmmmmmmmmmmB",
         "BmmmmmmmmmmmmmmmmmmmmmmmmmmmmB",
         "BmmmmmmmmmmmmmmmmmmmmmmmmmmmmB",
-        "DSmmmmmmmmmmmmmmmmmmmmmmmmmmmB",
-        "DSmmmmmmmmmmmmmmmmmmmmmmmmmmmB",
+        "ZmmmmmmmmmmmmmmmmmmmmmmmmmmmmB",
+        "ZmmmmmmmmmmmmmmmmmmmmmmmmmmmmB",
         "BmmmmmmmmmmmmmmmmmmmmmmmmmmmmB",
         "BmmmmmmmmmmmmmmmmmmmmmmmmmmmmB",
         "BBBBWWBBBBBBBBBBBBBBBBBBWWBBBB"

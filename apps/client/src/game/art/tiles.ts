@@ -5,7 +5,7 @@ import { BASE_TILE, noise, rect, type Ctx } from "./common";
 /** Непроходимые клетки: стены, окна, перегородки, забор. */
 export const WALL_TILES = new Set(["#", "W", "B", "G", "P", "F"]);
 /** Пол — всё, по чему можно ходить. */
-export const FLOOR_TILES = new Set([".", ",", "_", "D", "g", "a", "p", "m", "b", "k", "r", "w", "S"]);
+export const FLOOR_TILES = new Set([".", ",", "_", "D", "g", "a", "p", "m", "b", "k", "r", "w", "S", "Z"]);
 /** Названия предметов для конструктора. */
 export const SPRITE_NAMES: Record<string, string> = {
   desk: "Стол",
@@ -105,6 +105,7 @@ export const TILE_NAMES: Record<string, string> = {
   m: "Мрамор",
   r: "Ковровая дорожка",
   S: "Лестница",
+  Z: "Лестница вбок",
   D: "Проём",
   g: "Трава",
   a: "Асфальт",
@@ -113,7 +114,7 @@ export const TILE_NAMES: Record<string, string> = {
 
 /** Подгруппы клеток в палитре редактора карты (каждая клетка — ровно в одной; проверяет тест). */
 export const FLOOR_GROUPS: { id: string; label: string; chars: string[] }[] = [
-  { id: "indoor", label: "Помещения", chars: [".", ",", "_", "w", "b", "k", "m", "r", "S", "D"] },
+  { id: "indoor", label: "Помещения", chars: [".", ",", "_", "w", "b", "k", "m", "r", "S", "Z", "D"] },
   { id: "outdoor", label: "Улица", chars: ["g", "a", "p"] },
 ];
 export const WALL_GROUPS: { id: string; label: string; chars: string[] }[] = [
@@ -293,6 +294,17 @@ export function drawTile(ctx: Ctx, ch: string, ox: number, oy: number, n: TileNe
       }
       rect(ctx, ox, oy, 1, T, "#6e695f");
       rect(ctx, ox + T - 1, oy, 1, T, "#6e695f");
+      break;
+    }
+    case "Z": {
+      // лестница вбок — для проёма в боковой стене (2 клетки по вертикали): проступи — вертикальные полосы, поднимается к краю карты или стене
+      const rising = n.right === undefined || isWall(n.right) ? 1 : -1;
+      for (let x = 0; x < T; x += 4) {
+        rect(ctx, ox + x + (rising > 0 ? 0 : 1), oy, 3, T, "#c9c3b6");
+        rect(ctx, ox + x + (rising > 0 ? 3 : 0), oy, 1, T, "#8a8478");
+      }
+      rect(ctx, ox, oy, T, 1, "#6e695f");
+      rect(ctx, ox, oy + T - 1, T, 1, "#6e695f");
       break;
     }
     case "D": {

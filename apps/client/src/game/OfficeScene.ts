@@ -351,46 +351,27 @@ export class OfficeScene extends Phaser.Scene {
 
   // ---------- выходы ----------
 
-  /** Выходы — объекты взаимодействия: переход только по E / клику, а не от случайного шага. */
+  /** Выходы — объекты взаимодействия: переход только по E / клику, а не от случайного шага. Сам выход рисует карта (лестница, проём); подпись — при наведении и вблизи. */
   private buildExits() {
-    // стрелка «туда» — в сторону края карты, у которого стоит выход
-    const w = this.location.tiles[0].length;
-    const h = this.location.tiles.length;
-    const dirOf = (e: { x: number; y: number }) => (e.x === 0 ? "left" : e.x === w - 1 ? "right" : e.y === h - 1 ? "down" : "up");
     ensureExitTextures(this.textures);
     for (const exit of this.location.exits) {
       const target = this.caseFile.locations.find((l) => l.id === exit.to);
       const label = exit.label || `Выход → ${target?.name ?? exit.to}`;
       const cx = (exit.x + 0.5) * TILE;
       const bottom = (exit.y + 1) * TILE;
-      const marker = this.add.image(cx, bottom - 4, `exit_${dirOf(exit)}`).setOrigin(0.5, 1).setScale(SCALE * 0.8).setDepth(bottom).setAlpha(0.9);
+      // невидимая мишень на клетке выхода (клик, наведение)
+      const zone = this.add.image(cx, bottom, "exit_zone").setOrigin(0.5, 1).setScale(SCALE).setDepth(bottom);
       const item: Interactable = {
         id: `exit:${exit.id}`,
         label,
         x: cx,
         y: bottom - TILE / 2,
         footprint: [{ x: exit.x, y: exit.y }],
-        sprite: marker,
+        sprite: zone,
         labelText: this.makeLabel(label).setPosition(cx, bottom - TILE - 4),
       };
       this.makeClickable(item);
       this.interactables.push(item);
-    }
-    for (const exit of this.location.exits) {
-      if (!exit.label) continue;
-      const cx = (exit.x + 0.5) * TILE;
-      const cy = (exit.y + 0.5) * TILE;
-      this.add
-        .text(cx, cy, `${exit.label}`, {
-          fontFamily: "Rubik, system-ui, sans-serif",
-          fontSize: "12px",
-          fontStyle: "bold",
-          color: "#fdf8ec",
-          backgroundColor: "rgba(43,76,126,0.9)",
-          padding: { x: 5, y: 2 },
-        })
-        .setOrigin(exit.x === 0 ? 0 : exit.x >= this.location.tiles[0].length - 1 ? 1 : 0.5, exit.y === 0 ? 0 : 1)
-        .setDepth(8_000);
     }
   }
 
