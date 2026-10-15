@@ -112,7 +112,7 @@ export function MapEditor() {
   };
 
   const hit = (t: { x: number; y: number; px?: number; py?: number }): Selection => {
-    if (loc.playerStart.x === t.x && loc.playerStart.y === t.y) return { kind: "start" };
+    if (loc.playerStart?.x === t.x && loc.playerStart.y === t.y) return { kind: "start" };
     // верхний из нарисованных предметов, людей и дверей под курсором — целиком, а не по клетке под ногами
     const top = t.px === undefined || t.py === undefined ? null : pickTopmost(loc, t.px, t.py, opaqueAt);
     if (top) return top;
@@ -173,7 +173,15 @@ export function MapEditor() {
         break;
       }
       case "start":
-        updateLoc((l) => ({ ...l, playerStart: t }));
+        // старт один на дело: переносим его сюда из другой локации
+        editor.update((d) => ({
+          ...d,
+          locations: d.locations.map((l, i) => {
+            if (i === li) return { ...l, playerStart: t };
+            const { playerStart: _gone, ...rest } = l;
+            return rest;
+          }),
+        }));
         setTool({ kind: "select" });
         break;
       case "door": {
@@ -214,7 +222,7 @@ export function MapEditor() {
 
   const posOf = (s: Selection) => {
     if (!s) return null;
-    if (s.kind === "start") return loc.playerStart;
+    if (s.kind === "start") return loc.playerStart ?? null;
     if (s.kind === "zone") return null;
     const list = loc[LIST_KEY[s.kind]] as { id: string; x: number; y: number }[];
     return list.find((x) => x.id === s.id) ?? null;
@@ -466,7 +474,7 @@ export function MapEditor() {
                   onChange={(v) => updateLoc(() => v as LocationT, `loc:${li}`)}
                 />
                 {draft.locations.length > 1 && (
-                  <div className="row">
+                  <div className="row lm__order">
                     <button
                       className="btn btn--sm"
                       disabled={li === 0}
@@ -483,15 +491,6 @@ export function MapEditor() {
                     >
                       Вправо →
                     </button>
-                    {li > 0 && (
-                      <button
-                        className="btn btn--sm"
-                        onClick={() => editor.update((d) => ({ ...d, locations: [d.locations[li], ...d.locations.filter((_, i) => i !== li)] }))}
-                        title="Игра начнётся в этой локации: она станет первой"
-                      >
-                        ★ Сделать стартовой
-                      </button>
-                    )}
                   </div>
                 )}
                 {draft.locations.length > 1 && (
@@ -506,7 +505,7 @@ export function MapEditor() {
                     Удалить локацию
                   </button>
                 )}
-                <p className="lm__note">Первая локация — стартовая: игра начинается в ней (порядок меняют кнопки выше). Кликните по предмету, человеку или выходу, чтобы изменить его.</p>
+                <p className="lm__note">Игра начинается в локации с клеткой старта ▶ (она одна на дело). Кликните по предмету, человеку или выходу, чтобы изменить его.</p>
               </>
             )}
           </div>

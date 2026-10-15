@@ -32,16 +32,22 @@ export const emptyProgress = (): Progress => ({
   fired: [],
 });
 
-export function meets(cond: Condition | undefined, p: Progress): boolean {
-  if (!cond) return true;
+function meetsAll(cond: Omit<Condition, "anyOf">, p: Progress, locationId?: string): boolean {
   return (
     (cond.evidence ?? []).every((id) => p.collected.includes(id)) &&
     (cond.flags ?? []).every((f) => p.flags.includes(f)) &&
     (cond.notFlags ?? []).every((f) => !p.flags.includes(f)) &&
     (cond.deductions ?? []).every((id) => p.deductions.includes(id)) &&
     (cond.following ?? []).every((id) => p.followers.includes(id)) &&
-    (cond.notFollowing ?? []).every((id) => !p.followers.includes(id))
+    (cond.notFollowing ?? []).every((id) => !p.followers.includes(id)) &&
+    (!cond.inLocation?.length || (locationId !== undefined && cond.inLocation.includes(locationId)))
   );
+}
+
+/** @param locationId — где сейчас игрок (для `inLocation`; не передан — такое условие не выполняется). */
+export function meets(cond: Condition | undefined, p: Progress, locationId?: string): boolean {
+  if (!cond) return true;
+  return meetsAll(cond, p, locationId) && (!cond.anyOf?.length || cond.anyOf.some((alt) => meetsAll(alt, p, locationId)));
 }
 
 export interface EffectOutcome {

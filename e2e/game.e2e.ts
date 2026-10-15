@@ -693,7 +693,7 @@ describe("игра в браузере", () => {
     await page.close();
   });
 
-  it("конструктор: порядок локаций меняется кнопками, «Сделать стартовой» ставит локацию первой", async () => {
+  it("конструктор: порядок локаций меняется кнопками на всю ширину; старт один на дело, у новой локации его нет", async () => {
     const page = await h.page();
     await page.goto(`${BASE}/editor/case-001/locations`);
     await page.waitForFunction(() => (window as any).__editor?.editorStore.get().screen === "case");
@@ -705,8 +705,11 @@ describe("игра в браузере", () => {
     expect((await ids()).slice(0, 2)).toEqual([second, first]);
     await page.getByRole("button", { name: "Вправо →" }).click();
     expect((await ids()).slice(0, 2)).toEqual([first, second]);
-    await page.getByRole("button", { name: /Сделать стартовой/ }).click();
-    expect((await ids())[0]).toBe(second);
+    expect(await page.getByRole("button", { name: /Сделать стартовой/ }).count()).toBe(0);
+    const widths = await page.locator(".lm__order > .btn").evaluateAll((els) => els.map((e) => e.getBoundingClientRect().width));
+    expect(Math.abs(widths[0] - widths[1])).toBeLessThan(2);
+    const starts = await page.evaluate(() => (window as any).__editor.editorStore.get().draft.locations.filter((l: any) => l.playerStart).length);
+    expect(starts).toBe(1);
     await page.close();
   });
 

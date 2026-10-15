@@ -45,6 +45,8 @@ function checkIntegrity(c: CaseFile): string[] {
   const deductions = unique("deductions", c.deductions.map((x) => x.id));
   const locationIds = unique("locations", c.locations.map((l) => l.id));
   if (!c.locations.length) err("locations: нужна хотя бы одна локация");
+  const starts = c.locations.filter((l) => l.playerStart).length;
+  if (starts !== 1) err(`locations: клетка старта игрока должна быть ровно одна (сейчас ${starts})`);
   unique("location objects/npcs", c.locations.flatMap((l) => [...l.objects.map((o) => o.id), ...l.npcs.map((n) => n.id)]));
   unique("npcs (персонаж в двух местах)", c.locations.flatMap((l) => l.npcs.map((n) => n.characterId)));
   unique("questions", c.questions.map((q) => q.id));
@@ -53,11 +55,13 @@ function checkIntegrity(c: CaseFile): string[] {
   const ref = (set: Set<string>, id: string, where: string) => {
     if (!set.has(id)) err(`${where}: неизвестная ссылка «${id}»`);
   };
-  const checkCondition = (cond: Condition | undefined, where: string) => {
+  const checkCondition = (cond: Condition | undefined, where: string): void => {
     cond?.evidence?.forEach((id) => ref(evidence, id, where));
     cond?.deductions?.forEach((id) => ref(deductions, id, where));
     cond?.following?.forEach((id) => ref(characters, id, where));
     cond?.notFollowing?.forEach((id) => ref(characters, id, where));
+    cond?.inLocation?.forEach((id) => ref(locationIds, id, where));
+    cond?.anyOf?.forEach((alt) => checkCondition(alt, where));
   };
   const checkEffects = (effects: Effect[], where: string) => {
     for (const e of effects) {
@@ -123,8 +127,10 @@ function checkIntegrity(c: CaseFile): string[] {
     for (const n of loc.npcs) occupy(n.x, n.y, `npc ${n.id}`);
     occupiedOf.set(loc.id, occupied);
     const { playerStart } = loc;
-    if (!isFloor(playerStart.x, playerStart.y)) err(`${L}.playerStart: не на полу`);
-    if (occupied.has(`${playerStart.x},${playerStart.y}`)) err(`${L}.playerStart: клетка занята`);
+    if (playerStart) {
+      if (!isFloor(playerStart.x, playerStart.y)) err(`${L}.playerStart: не на полу`);
+      if (occupied.has(`${playerStart.x},${playerStart.y}`)) err(`${L}.playerStart: клетка занята`);
+    }
 
     for (const n of loc.npcs) {
       ref(characters, n.characterId, `npc ${n.id}`);
@@ -241,7 +247,10 @@ function checkIntegrity(c: CaseFile): string[] {
   // у каждого флага — русское название
   const named = unique("flags", (c.flags ?? []).map((f) => f.id));
   const usedFlags = new Set<string>();
-  const condFlags = (cond?: Condition) => [...(cond?.flags ?? []), ...(cond?.notFlags ?? [])].forEach((f) => usedFlags.add(f));
+  const condFlags = (cond?: Condition): void => {
+    [...(cond?.flags ?? []), ...(cond?.notFlags ?? [])].forEach((f) => usedFlags.add(f));
+    cond?.anyOf?.forEach(condFlags);
+  };
   for (const dl of c.dialogues)
     for (const n of dl.nodes) {
       n.effects.forEach((e) => (e.type === "setFlag" || e.type === "removeFlag") && usedFlags.add(e.flag));

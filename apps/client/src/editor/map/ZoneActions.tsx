@@ -5,6 +5,13 @@ import { Select } from "../../ui/Select";
 import { moveItem } from "../../util/lists";
 import { ConditionEditor } from "../fields/Conditions";
 import { CellPicker } from "./CellPicker";
+import { firstFloorCell } from "../../content/case-utils";
+
+/** Куда класть игрока в локации по умолчанию: её старт или первая клетка пола. */
+const spawnOf = (d: CaseFile, locationId: string) => {
+  const l = d.locations.find((x) => x.id === locationId);
+  return l ? l.playerStart ?? firstFloorCell(l) : { x: 0, y: 0 };
+};
 
 const KIND_LABEL: Record<ZoneAction["kind"], string> = { dialogue: "Диалог", object: "Предмет", effects: "Эффекты", exit: "Выход" };
 
@@ -20,7 +27,7 @@ export function ZoneActions({ zone, draft, onChange }: { zone: Zone; draft: Case
     if (kind === "object") return { kind, objectId: objects[0]?.value ?? "" };
     if (kind === "effects") return { kind, effects: [] };
     const to = draft.locations.find((l) => !l.zones.includes(zone))?.id ?? draft.locations[0].id;
-    return { kind, to, spawn: draft.locations.find((l) => l.id === to)?.playerStart ?? { x: 0, y: 0 } };
+    return { kind, to, spawn: spawnOf(draft, to) };
   };
 
   return (
@@ -54,7 +61,7 @@ export function ZoneActions({ zone, draft, onChange }: { zone: Zone; draft: Case
                 value={a.to}
                 placeholder="куда"
                 options={locations}
-                onChange={(v) => set(i, { ...a, to: v, spawn: draft.locations.find((l) => l.id === v)?.playerStart ?? a.spawn })}
+                onChange={(v) => set(i, { ...a, to: v, spawn: spawnOf(draft, v) })}
               />
               <div className="row">
                 <button className="btn btn--sm" onClick={() => setPicking(i)}>

@@ -1,9 +1,18 @@
 import type { Location, LocationObject, NpcPlacement } from "../../../../shared/case";
+import { FLOOR_TILES } from "../game/art";
 import type { PublicCase } from "../../../../shared/public-case";
 
 /** Удобные выборки по делу с несколькими локациями. */
 
-export const startLocation = (c: PublicCase): Location => c.locations[0];
+/** Стартовая локация — та, где стоит клетка старта (она одна на дело). */
+export const startLocation = (c: PublicCase): Location => c.locations.find((l) => l.playerStart) ?? c.locations[0];
+
+/** Первая клетка пола — запасная точка там, где старта нет (в локациях, куда входят через выходы). */
+export function firstFloorCell(loc: Location): { x: number; y: number } {
+  for (let y = 0; y < loc.tiles.length; y++)
+    for (let x = 0; x < loc.tiles[y].length; x++) if (FLOOR_TILES.has(loc.tiles[y][x])) return { x, y };
+  return { x: 0, y: 0 };
+}
 
 export const getLocation = (c: PublicCase, id: string): Location =>
   c.locations.find((l) => l.id === id) ?? startLocation(c);

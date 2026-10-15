@@ -72,7 +72,7 @@ export function ObjectList({ loc, draft, sel, onPick }: { loc: LocationT; draft:
         ),
         has("zone"),
       )}
-      {section("start", "Старт", [row({ kind: "start" }, <span className="lm__row-glyph">▶</span>, "Старт игрока", `клетка ${loc.playerStart.x}, ${loc.playerStart.y}`)], has("start"))}
+      {section("start", "Старт", loc.playerStart ? [row({ kind: "start" }, <span className="lm__row-glyph">▶</span>, "Старт игрока", `клетка ${loc.playerStart.x}, ${loc.playerStart.y}`)] : [], has("start"))}
       {loc.objects.length + loc.npcs.length + loc.doors.length + loc.zones.length === 0 && <p className="muted">На локации пока ничего нет — выберите инструмент слева и кликните по карте.</p>}
     </div>
   );

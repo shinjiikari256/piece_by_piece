@@ -23,7 +23,7 @@ export function addLocation(draft: CaseFileT, select: (i: number) => void) {
   const tiles = ["#".repeat(20), ...Array.from({ length: 10 }, () => "#" + ".".repeat(18) + "#"), "#".repeat(20)];
   editor.update((d) => ({
     ...d,
-    locations: [...d.locations, { id, name: "Новая локация", tiles, areas: [], playerStart: { x: 10, y: 6 }, objects: [], npcs: [], exits: [], doors: [], zones: [] }],
+    locations: [...d.locations, { id, name: "Новая локация", tiles, areas: [], objects: [], npcs: [], exits: [], doors: [], zones: [] }],
   }));
   select(draft.locations.length);
 }
@@ -62,7 +62,7 @@ const tileRect = (x: number, y: number): PxRect => ({ x: x * T, y: y * T, w: T, 
  */
 export function selectionBox(loc: LocationT | undefined, s: Selection): PxRect | null {
   if (!s || !loc) return null;
-  if (s.kind === "start") return tileRect(loc.playerStart.x, loc.playerStart.y);
+  if (s.kind === "start") return loc.playerStart ? tileRect(loc.playerStart.x, loc.playerStart.y) : null;
   if (s.kind === "zone") {
     const z = loc.zones.find((x) => x.id === s.id);
     if (!z?.cells.length) return null;

@@ -212,7 +212,7 @@ function zoneAction(zoneId: string, auto = false): ZoneAction | undefined {
   const zone = c?.locations.flatMap((l) => l.zones).find((z) => z.id === zoneId);
   return zone?.actions.find(
     (a) =>
-      meets(a.requires, state.progress) &&
+      meets(a.requires, state.progress, state.locationId) &&
       (a.kind !== "dialogue" || c!.dialogues.some((d) => d.id === a.dialogueId)) &&
       (!auto || (a.auto && !state.progress.fired.includes(actionKey(zoneId, a)))),
   );
@@ -376,7 +376,7 @@ export const actions = {
     const npc = allNpcs(s.caseFile).find((n) => n.id === targetId);
     if (npc) {
       // диалоги по условию — по порядку, первый подходящий; иначе диалог по умолчанию
-      const dialogueId = npc.dialogues.find((d) => meets(d.requires, s.progress))?.dialogueId ?? npc.dialogueId;
+      const dialogueId = npc.dialogues.find((d) => meets(d.requires, s.progress, s.locationId))?.dialogueId ?? npc.dialogueId;
       const dialogue = s.caseFile.dialogues.find((d) => d.id === dialogueId);
       if (!dialogue) return;
       enterNode(npc.id, dialogue.id, dialogue.startNodeId);
@@ -438,7 +438,7 @@ export const actions = {
     if (o?.kind !== "dialogue") return;
     const dialogue = state.caseFile?.dialogues.find((d) => d.id === o.dialogueId);
     const choice = dialogue?.nodes.find((n) => n.id === o.nodeId)?.choices.find((c) => c.id === choiceId);
-    if (!dialogue || !choice || !meets(choice.requires, state.progress)) return;
+    if (!dialogue || !choice || !meets(choice.requires, state.progress, state.locationId)) return;
     // запоминаем выбранное — для отметки ✓; повторный выбор просто снова ведёт к ответу.
     // Разные реакции на повтор автор строит флагами и условиями.
     const key = choiceKey(o.dialogueId, o.nodeId, choice.id);
@@ -448,7 +448,7 @@ export const actions = {
   },
 
   isChoiceVisible(choice: { requires?: Parameters<typeof meets>[0] }) {
-    return meets(choice.requires, state.progress);
+    return meets(choice.requires, state.progress, state.locationId);
   },
 
   isChoiceUsed(dialogueId: string, nodeId: string, choiceId: string) {

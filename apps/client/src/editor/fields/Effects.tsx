@@ -5,6 +5,9 @@ import type { Effect } from "../../../../../shared/case";
 import { ENUM_LABELS } from "../labels";
 import { FormCtx, charOption } from "../SchemaForm";
 import { FlagPicker } from "./Conditions";
+import { firstFloorCell } from "../../content/case-utils";
+
+const cellOf = (l: Parameters<typeof firstFloorCell>[0] | undefined) => (l ? l.playerStart ?? firstFloorCell(l) : { x: 0, y: 0 });
 
 // ---------- эффекты ----------
 
@@ -56,7 +59,7 @@ export function EffectsEditor({ value, onChange, ctx }: { value: Effect[]; onCha
                   placeholder="в какую локацию"
                   options={locations}
                   // в другой локации прежняя клетка ничего не значит — начинаем со старта игрока
-                  onChange={(v) => set(i, { ...e, locationId: v, ...(d.locations.find((l) => l.id === v)?.playerStart ?? { x: 0, y: 0 }) })}
+                  onChange={(v) => set(i, { ...e, locationId: v, ...cellOf(d.locations.find((l) => l.id === v)) })}
                 />
                 <div className="row">
                   <button className="btn btn--sm" onClick={() => setPicking(i)}>

@@ -1,5 +1,5 @@
 {
-  "formatVersion": 3,
+  "formatVersion": 4,
   "id": "case-002",
   "number": "002",
   "title": "Комната 412",
@@ -12,7 +12,7 @@
     "points": 10
   },
   "published": true,
-  "updatedAt": "2026-10-15T08:56:30Z",
+  "updatedAt": "2026-10-15T09:43:57Z",
   "locations": [
     {
       "id": "dorm_floor",
@@ -564,10 +564,6 @@
           "y": 14
         }
       ],
-      "playerStart": {
-        "x": 14,
-        "y": 13
-      },
       "objects": [
         {
           "id": "obj_vakhta",

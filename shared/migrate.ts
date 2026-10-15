@@ -35,7 +35,7 @@ export function runMigrations(
 
 // ——— Дело ———
 
-export const CASE_FORMAT_VERSION = 3;
+export const CASE_FORMAT_VERSION = 4;
 
 const WALL_CHARS = new Set(["#", "W", "B", "G", "P", "F"]);
 
@@ -118,8 +118,21 @@ function caseV2toV3(data: Raw): Raw {
   return { ...rest, locations };
 }
 
+/**
+ * 3 → 4: старт игрока один на дело. Раньше он был у каждой локации, а стартовой считалась первая;
+ * оставляем старт только у первой локации.
+ */
+function caseV3toV4(data: Raw): Raw {
+  const locations = ((data.locations as Raw[] | undefined) ?? []).map((raw, i) => {
+    if (i === 0) return raw;
+    const { playerStart: _gone, ...loc } = raw;
+    return loc;
+  });
+  return { ...data, locations };
+}
+
 /** Звенья цепочки: `caseMigrations[v]` переводит дело версии v в v + 1. */
-export const caseMigrations: Record<number, Migration> = { 1: caseV1toV2, 2: caseV2toV3 };
+export const caseMigrations: Record<number, Migration> = { 1: caseV1toV2, 2: caseV2toV3, 3: caseV3toV4 };
 
 export const migrateCase = (raw: unknown, chain = caseMigrations, current = CASE_FORMAT_VERSION): Migrated =>
   runMigrations(raw, "formatVersion", chain, current, "дело");

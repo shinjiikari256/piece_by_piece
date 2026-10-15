@@ -54,7 +54,7 @@ export function MapPalette({
       <div className="lm__tools">
         <ToolButton on={tool.kind === "select"} onClick={() => setTool({ kind: "select" })} icon="⬚" label="Выбор" keyHint="V" />
         <ToolButton on={tool.kind === "zone"} onClick={() => setTool({ kind: "zone" })} icon="▦" label="Область" />
-        <ToolButton on={tool.kind === "start"} onClick={() => setTool({ kind: "start" })} icon="▶" label="Старт" />
+        <ToolButton on={tool.kind === "start"} onClick={() => setTool({ kind: "start" })} icon="▶" label="Старт" hint="Старт игрока один на дело: клик переносит его сюда, и эта локация становится стартовой" />
         <ToolButton
           on={tool.kind === "door" && tool.orientation === "h"}
           onClick={() => setTool({ kind: "door", orientation: "h" })}

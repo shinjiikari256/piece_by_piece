@@ -3,6 +3,7 @@ import type { CaseFile, Location } from "../../../../../shared/case";
 import { Dialog } from "../../ui/window";
 import { T, useSpriteCanvases } from "./canvases";
 import { cellFree } from "./helpers";
+import { firstFloorCell } from "../../content/case-utils";
 import { renderMap } from "./render";
 
 const ZOOM = 2;
@@ -30,7 +31,7 @@ export function CellPicker({
   const canvas = useRef<HTMLCanvasElement>(null);
   const w = loc.tiles[0]?.length ?? 0;
   const h = loc.tiles.length;
-  const [cursor, setCursor] = useState<{ x: number; y: number }>(value ?? loc.playerStart);
+  const [cursor, setCursor] = useState<{ x: number; y: number }>(value ?? loc.playerStart ?? firstFloorCell(loc));
   const [chosen, setChosen] = useState<{ x: number; y: number } | null>(value && cellFree(loc, value.x, value.y, characterId) ? value : null);
   const free = (x: number, y: number) => cellFree(loc, x, y, characterId);
 

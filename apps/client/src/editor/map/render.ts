@@ -68,12 +68,14 @@ export function renderMap(cv: HTMLCanvasElement, s: MapRenderState) {
   }
 
   // старт и подписи
-  ctx.strokeStyle = "#2e9e5b";
-  ctx.lineWidth = 1;
-  ctx.strokeRect(loc.playerStart.x * T + 2.5, loc.playerStart.y * T + 2.5, T - 5, T - 5);
-  ctx.fillStyle = "#2e9e5b";
-  ctx.font = "bold 9px sans-serif";
-  ctx.fillText("▶", loc.playerStart.x * T + 4, loc.playerStart.y * T + 11);
+  if (loc.playerStart) {
+    ctx.strokeStyle = "#2e9e5b";
+    ctx.lineWidth = 1;
+    ctx.strokeRect(loc.playerStart.x * T + 2.5, loc.playerStart.y * T + 2.5, T - 5, T - 5);
+    ctx.fillStyle = "#2e9e5b";
+    ctx.font = "bold 9px sans-serif";
+    ctx.fillText("▶", loc.playerStart.x * T + 4, loc.playerStart.y * T + 11);
+  }
   ctx.fillStyle = "rgba(43,35,28,0.5)";
   ctx.font = "bold 7px sans-serif";
   for (const a of loc.areas) ctx.fillText(a.name, a.x * T, a.y * T + 10);

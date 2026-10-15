@@ -35,13 +35,21 @@ export const Appearance = z.enum([
   "sport_m",
 ]);
 
-export const Condition = z.object({
+const BaseCondition = z.object({
   evidence: z.array(z.string()).optional().describe("Все эти улики должны быть в журнале"),
   flags: z.array(z.string()).optional().describe("Все эти флаги должны быть установлены"),
   notFlags: z.array(z.string()).optional().describe("Ни один из этих флагов не должен быть установлен"),
   deductions: z.array(z.string()).optional().describe("Все эти сопоставления должны быть решены"),
   following: z.array(z.string()).optional().describe("Эти персонажи идут за игроком"),
   notFollowing: z.array(z.string()).optional().describe("Эти персонажи не идут за игроком"),
+  inLocation: z.array(z.string()).optional().describe("Игрок сейчас в одной из этих локаций"),
+});
+
+export const Condition = BaseCondition.extend({
+  anyOf: z
+    .array(BaseCondition)
+    .optional()
+    .describe("«Или»: должен выполняться хотя бы один из этих вариантов (каждый вариант — «и» своих строк); остальные строки условия тоже должны выполняться"),
 });
 
 export const Effect = z.discriminatedUnion("type", [
@@ -265,7 +273,10 @@ export const Location = z.object({
   areas: z.array(
     z.object({ name: z.string(), x: z.number().int(), y: z.number().int() }),
   ).describe("Подписи на карте: помещения, места, что угодно (не только области)"),
-  playerStart: z.object({ x: z.number().int(), y: z.number().int() }),
+  playerStart: z
+    .object({ x: z.number().int(), y: z.number().int() })
+    .optional()
+    .describe("Старт игрока: задан ровно в одной локации — она и стартовая"),
   objects: z.array(LocationObject),
   npcs: z.array(NpcPlacement),
   doors: z.array(Door),

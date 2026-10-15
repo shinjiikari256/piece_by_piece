@@ -1,5 +1,5 @@
 {
-  "formatVersion": 3,
+  "formatVersion": 4,
   "id": "case-test-moveto",
   "number": "T01",
   "title": "Тест: перемещения персонажей",
@@ -655,10 +655,6 @@
           "y": 14
         }
       ],
-      "playerStart": {
-        "x": 14,
-        "y": 13
-      },
       "objects": [
         {
           "id": "obj_vakhta",

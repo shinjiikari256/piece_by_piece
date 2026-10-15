@@ -170,3 +170,14 @@
   flex: 1 1 12rem;
   min-width: 0;
 }
+
+/* варианты «или»: вложенные условия */
+.cond__alt-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.cond__or {
+  align-self: flex-start;
+}

@@ -605,3 +605,8 @@
 .zone-swatch--auto {
   background: repeating-linear-gradient(45deg, var(--bg-paper-dim) 0 4px, var(--bg-surface) 4px 8px);
 }
+
+/* «Влево» / «Вправо» — две равные кнопки на всю ширину */
+.lm__order > .btn {
+  flex: 1;
+}

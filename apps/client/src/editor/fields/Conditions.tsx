@@ -18,14 +18,18 @@ export type Condition = {
   notFlags?: string[];
   following?: string[];
   notFollowing?: string[];
+  inLocation?: string[];
+  /** «Или»: хотя бы один из вариантов (каждый — набор строк «и»). */
+  anyOf?: Omit<Condition, "anyOf">[];
 };
 
 /** Все флаги, которые встречаются в деле: описанные, поставленные эффектами или проверяемые условиями. */
 export function flagsOf(d: FormCtx["draft"]): string[] {
   const out = new Set<string>(d.flags?.map((f) => f.id) ?? []);
-  const cond = (c?: Condition) => {
+  const cond = (c?: Condition): void => {
     c?.flags?.forEach((f) => out.add(f));
     c?.notFlags?.forEach((f) => out.add(f));
+    c?.anyOf?.forEach(cond);
   };
   for (const dl of d.dialogues)
     for (const n of dl.nodes) {
@@ -53,9 +57,10 @@ export function flagUsage(d: FormCtx["draft"]): Map<string, FlagUse[]> {
   const add = (f: string, use: FlagUse) => out.set(f, [...(out.get(f) ?? []), use]);
   const who = (id: string) => d.characters.find((c) => c.id === id)?.name ?? id;
   const dialogueFocus = (dialogueId: string, sub: string): Focus => ({ section: "dialogues", id: dialogueId, sub });
-  const cond = (c: Condition | undefined, where: string, focus: Focus) => {
+  const cond = (c: Condition | undefined, where: string, focus: Focus): void => {
     c?.flags?.forEach((f) => add(f, { kind: "проверяет", where, focus }));
     c?.notFlags?.forEach((f) => add(f, { kind: "проверяет отсутствие", where, focus }));
+    c?.anyOf?.forEach((alt) => cond(alt, where, focus));
   };
   for (const dl of d.dialogues)
     for (const n of dl.nodes) {
@@ -77,14 +82,23 @@ export function flagUsage(d: FormCtx["draft"]): Map<string, FlagUse[]> {
 
 /** Удалить флаг полностью: эффекты «поставить флаг», проверки в условиях (пустые условия исчезают), запись в списке. */
 export function deleteFlag(d: CaseFile, flag: string): CaseFile {
-  const clean = <T extends { requires?: Condition }>(x: T): T => {
-    if (!x.requires) return x;
-    const r: Condition = { ...x.requires };
+  const cleanCond = (c: Condition): Condition => {
+    const r: Condition = { ...c };
     for (const k of ["flags", "notFlags"] as const) {
       if (!r[k]) continue;
       r[k] = r[k]!.filter((f) => f !== flag);
       if (!r[k]!.length) delete r[k];
     }
+    if (r.anyOf) {
+      const alts = r.anyOf.map(cleanCond).filter((a) => Object.keys(a).length);
+      if (alts.length) r.anyOf = alts;
+      else delete r.anyOf;
+    }
+    return r;
+  };
+  const clean = <T extends { requires?: Condition }>(x: T): T => {
+    if (!x.requires) return x;
+    const r = cleanCond(x.requires);
     const { requires: _old, ...rest } = x;
     return (Object.keys(r).length ? { ...rest, requires: r } : rest) as T;
   };
@@ -200,30 +214,40 @@ export function FlagDialog({ initial, onDone }: { initial?: { id: string; name: 
   );
 }
 
-/** Условие показа: только заполненные строки + «+ условие». Все строки должны выполняться. */
-export function ConditionEditor({ value, onChange, ctx, label }: { value: Condition; onChange: (v: unknown) => void; ctx: FormCtx; label: ReactNode }) {
-  const set = (key: keyof Condition, list: string[]) => {
+type ListKey = Exclude<keyof Condition, "anyOf">;
+
+/** Условие показа: только заполненные строки + «+ условие». Строки — «и»; варианты «или» — отдельные вложенные условия. */
+export function ConditionEditor({ value, onChange, ctx, label, nested }: { value: Condition; onChange: (v: unknown) => void; ctx: FormCtx; label: ReactNode; nested?: boolean }) {
+  const set = (key: ListKey, list: string[]) => {
     const next = { ...value };
     if (list.length) next[key] = list;
     else delete next[key];
     onChange(next);
   };
-  const [added, setAdded] = useState<(keyof Condition)[]>([]);
+  const [added, setAdded] = useState<ListKey[]>([]);
   const d = ctx.draft;
   const chars = d.characters.map(charOption);
-  const rows: { key: keyof Condition; title: string; options: Option[] | "flags" }[] = [
+  const rows: { key: ListKey; title: string; options: Option[] | "flags" }[] = [
     { key: "evidence", title: "Есть улики (все)", options: d.evidence.map((e) => ({ value: e.id, label: e.title })) },
     { key: "deductions", title: "Установлены выводы (все)", options: d.deductions.map((x) => ({ value: x.id, label: x.title })) },
     { key: "flags", title: "Флаги поставлены", options: "flags" },
     { key: "notFlags", title: "Флагов нет", options: "flags" },
     { key: "following", title: "Идут за игроком", options: chars },
     { key: "notFollowing", title: "Не идут за игроком", options: chars },
+    { key: "inLocation", title: "Игрок в локации (любой из)", options: d.locations.map((l) => ({ value: l.id, label: l.name })) },
   ];
   const shown = rows.filter((r) => value[r.key]?.length || added.includes(r.key));
   const free = rows.filter((r) => !shown.includes(r));
-  const removeRow = (key: keyof Condition) => {
+  const removeRow = (key: ListKey) => {
     setAdded((a) => a.filter((k) => k !== key));
     set(key, []);
+  };
+  const alts = value.anyOf ?? [];
+  const setAlts = (list: Omit<Condition, "anyOf">[]) => {
+    const next = { ...value };
+    if (list.length) next.anyOf = list;
+    else delete next.anyOf;
+    onChange(next);
   };
   return (
     <fieldset className="ef ef--object cond">
@@ -252,10 +276,35 @@ export function ConditionEditor({ value, onChange, ctx, label }: { value: Condit
           value=""
           placeholder={shown.length ? "+ ещё условие" : "+ условие"}
           options={free.map((r) => ({ value: r.key, label: r.title }))}
-          onChange={(k) => setAdded((a) => [...a, k as keyof Condition])}
+          onChange={(k) => setAdded((a) => [...a, k as ListKey])}
         />
       )}
-      {shown.length > 1 && <p className="cond__hint">Должны выполняться все строки.</p>}
+      {!nested && (
+        <>
+          {alts.map((alt, i) => (
+            <div key={i} className="cond__alt">
+              <ConditionEditor
+                nested
+                value={alt}
+                ctx={ctx}
+                onChange={(v) => setAlts(alts.map((x, j) => (j === i ? (v as Omit<Condition, "anyOf">) : x)))}
+                label={
+                  <span className="cond__alt-head">
+                    {i === 0 ? "Одно из: вариант 1" : `или вариант ${i + 1}`}
+                    <button className="cond__remove" onClick={() => setAlts(alts.filter((_, j) => j !== i))} title="Убрать вариант">
+                      ✕
+                    </button>
+                  </span>
+                }
+              />
+            </div>
+          ))}
+          <button className="btn btn--sm cond__or" onClick={() => setAlts([...alts, {}])} title="Условие выполнится, если подойдёт хотя бы один вариант">
+            + вариант «или»
+          </button>
+        </>
+      )}
+      {shown.length + alts.length > 1 && <p className="cond__hint">Строки вне вариантов должны выполняться все{alts.length ? "; из вариантов — хотя бы один" : ""}.</p>}
     </fieldset>
   );
 }

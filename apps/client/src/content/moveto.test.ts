@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
-import { emptyProgress, applyEffects } from "../../../../shared/conditions";
+import case002 from "./cases/case-002.json";
+import { migrateCase } from "../../../../shared/migrate";
+import { emptyProgress, applyEffects, meets } from "../../../../shared/conditions";
 import type { CaseFile, Effect } from "../../../../shared/case";
 import case001 from "./cases/case-001.json";
 import testCase from "./test-cases/case-test-moveto.json";
@@ -44,12 +46,12 @@ describe("эффект moveTo: валидатор", () => {
   const loc = (case001 as unknown as CaseFile).locations[0];
 
   it("свободная достижимая клетка пола — без ошибок", () => {
-    expect(withEffect(move("krylov", loc.playerStart.x, loc.playerStart.y))).toEqual([]);
+    expect(withEffect(move("krylov", loc.playerStart!.x, loc.playerStart!.y))).toEqual([]);
   });
 
   it("неизвестная локация и персонаж", () => {
     expect(withEffect(move("krylov", 1, 1, "нет_такой")).join("\n")).toContain("неизвестная локация");
-    expect(withEffect(move("нет_такого", loc.playerStart.x, loc.playerStart.y)).join("\n")).toContain("неизвестная ссылка");
+    expect(withEffect(move("нет_такого", loc.playerStart!.x, loc.playerStart!.y)).join("\n")).toContain("неизвестная ссылка");
   });
 
   it("клетка не пол или занята другим человеком", () => {
@@ -59,7 +61,7 @@ describe("эффект moveTo: валидатор", () => {
   });
 
   it("клетка, до которой не дойти от места персонажа, — ошибка", () => {
-    const { x, y } = loc.playerStart;
+    const { x, y } = loc.playerStart!;
     const wall = loc.tiles[0][0];
     const errors = withEffect(move("krylov", x, y), (c) => {
       const tiles = c.locations[0].tiles.map((row) => row.split(""));
@@ -129,7 +131,7 @@ describe("области и их действия: формат и валида�
 
   it("выход: неизвестная локация, spawn не на полу и в области с автоматическим выходом", () => {
     const c = base();
-    const floorCell = c.locations[0].playerStart;
+    const floorCell = c.locations[0].playerStart!;
     c.locations[0].zones = [
       zone("exit_a", { actions: [{ kind: "exit", to: "нет_такой", spawn: floorCell }] }),
       zone("exit_b", { actions: [{ kind: "exit", to: c.locations[0].id, spawn: { x: 0, y: 0 } }] }), // 0,0 — стена
@@ -144,7 +146,6 @@ describe("области и их действия: формат и валида�
 
 describe("миграция формата 1 → 2", () => {
   it("выходы становятся областями с действием exit, триггер диалога — действием области", async () => {
-    const { migrateCase } = await import("../../../../shared/migrate");
     const old = structuredClone(case001) as Record<string, unknown>;
     old.formatVersion = 1;
     const loc = (old.locations as Record<string, unknown>[])[0];
@@ -196,5 +197,50 @@ describe("предупреждения дела", () => {
     expect(text).toContain("dialogue dlg_lonely: никто не запускает");
     expect(text).toContain("zone z_empty: у области нет действий");
     expect(text).toContain("flag flag_never_set: условия ждут этот флаг");
+  });
+});
+
+describe("условия: «или» и «игрок в локации»", () => {
+  const p = { ...emptyProgress(), flags: ["a"] };
+  it("anyOf: подходит любой вариант, остальные строки обязательны", () => {
+    expect(meets({ anyOf: [{ flags: ["x"] }, { flags: ["a"] }] }, p)).toBe(true);
+    expect(meets({ anyOf: [{ flags: ["x"] }, { flags: ["y"] }] }, p)).toBe(false);
+    expect(meets({ flags: ["x"], anyOf: [{ flags: ["a"] }] }, p)).toBe(false);
+    expect(meets({ anyOf: [] }, p)).toBe(true);
+  });
+  it("inLocation: игрок в одной из локаций; без места — не выполняется", () => {
+    expect(meets({ inLocation: ["l1", "l2"] }, p, "l2")).toBe(true);
+    expect(meets({ inLocation: ["l1"] }, p, "l2")).toBe(false);
+    expect(meets({ inLocation: ["l1"] }, p)).toBe(false);
+    expect(meets({ anyOf: [{ inLocation: ["l1"] }, { flags: ["a"] }] }, p, "l2")).toBe(true);
+  });
+});
+
+it("валидатор: неизвестная локация в inLocation (в том числе внутри anyOf)", () => {
+  const c = structuredClone(case001) as unknown as CaseFile;
+  c.locations[0].doors.push({ id: "d_or", x: 0, y: 0, orientation: "h", requires: { anyOf: [{ inLocation: ["нет_такой"] }] } } as never);
+  const r = validateCase(c);
+  expect(r.ok === false && r.errors.some((e) => e.includes("нет_такой"))).toBe(true);
+});
+
+describe("старт игрока: один на дело", () => {
+  const two = () => {
+    const c = structuredClone(case002) as unknown as CaseFile;
+    return c;
+  };
+  it("валидатор требует ровно одну клетку старта", () => {
+    const none = two();
+    none.locations.forEach((l) => delete l.playerStart);
+    expect(validateCase(none).ok === false && (validateCase(none) as { errors: string[] }).errors.join("\n")).toContain("ровно одна");
+    const many = two();
+    many.locations[1].playerStart = { ...many.locations[0].playerStart! };
+    expect(validateCase(many).ok).toBe(false);
+  });
+  it("миграция 3 → 4 оставляет старт только у первой локации", () => {
+    const old = structuredClone(case002) as unknown as Record<string, unknown>;
+    (old.locations as { playerStart?: unknown }[]).forEach((l) => (l.playerStart = { x: 1, y: 1 }));
+    old.formatVersion = 3;
+    const r = migrateCase(old);
+    expect(r.ok && (r.data.locations as { playerStart?: unknown }[]).map((l) => !!l.playerStart)).toEqual([true, ...Array(case002.locations.length - 1).fill(false)]);
   });
 });

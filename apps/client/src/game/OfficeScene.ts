@@ -2,7 +2,7 @@ import Phaser from "phaser";
 import type { Door, Location } from "../../../../shared/case";
 import type { PublicCase as CaseFile } from "../../../../shared/public-case";
 import { meets } from "../../../../shared/conditions";
-import { getLocation } from "../content/case-utils";
+import { firstFloorCell, getLocation } from "../content/case-utils";
 import {
   BASE_TILE,
   CHAR_H,
@@ -597,10 +597,10 @@ export class OfficeScene extends Phaser.Scene {
 
   /** Заперта ли дверь сейчас — зависит от прогресса (ключ, разрешение, факт). */
   private syncDoors() {
-    const { progress } = this.host.getState();
+    const { progress, locationId } = this.host.getState();
     this.doorTiles.clear();
     for (const d of this.doors) {
-      d.locked = !meets(d.def.requires, progress);
+      d.locked = !meets(d.def.requires, progress, locationId);
       if (d.locked) d.tiles.forEach((t) => this.doorTiles.add(`${t.x},${t.y}`));
       if (d.locked && !d.item) {
         const label = "Дверь · заперто";
@@ -643,7 +643,7 @@ export class OfficeScene extends Phaser.Scene {
     const saved = this.host.savedPlayer(this.caseFile.id);
     const start =
       spawn ??
-      (saved && saved.locationId === this.location.id && this.isFree(saved.x, saved.y) ? saved : this.location.playerStart);
+      (saved && saved.locationId === this.location.id && this.isFree(saved.x, saved.y) ? saved : this.location.playerStart ?? firstFloorCell(this.location));
     if (spawn) this.host.consumeSpawn();
     this.lastSavedTile = `${start.x},${start.y}`;
     this.player = this.add

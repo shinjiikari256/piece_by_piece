@@ -24,9 +24,9 @@ const NPC_SCHEMA: JS = z.toJSONSchema(NpcPlacement);
 const DOOR_SCHEMA: JS = z.toJSONSchema(Door);
 export const LOCATION_SCHEMA: JS = z.toJSONSchema(Location);
 
-export function ToolButton({ on, onClick, icon, label, keyHint }: { on: boolean; onClick: () => void; icon: string; label: string; keyHint?: string }) {
+export function ToolButton({ on, onClick, icon, label, keyHint, hint }: { on: boolean; onClick: () => void; icon: string; label: string; keyHint?: string; hint?: string }) {
   return (
-    <button className="lm__tool" aria-pressed={on} onClick={onClick} title={keyHint ? `${label} (${keyHint})` : label}>
+    <button className="lm__tool" aria-pressed={on} onClick={onClick} title={[keyHint ? `${label} (${keyHint})` : label, hint].filter(Boolean).join(" — ")}>
       <span className="lm__tool-icon">{icon}</span>
       <span className="ellipsis">{label}</span>
     </button>
@@ -97,7 +97,7 @@ export function SelectedPanel({
         {back}
         <h3>Старт игрока</h3>
         <p className="muted">
-          Клетка {loc.playerStart.x}, {loc.playerStart.y}. Перетащите маркер ▶ на карте.
+          Клетка {loc.playerStart?.x}, {loc.playerStart?.y}. Стартовая локация — та, где стоит этот маркер; он один на дело. Перетащите ▶ на карте или выберите инструмент «Старт» в другой локации, чтобы перенести.
         </p>
       </>
     );
