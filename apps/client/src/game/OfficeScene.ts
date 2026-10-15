@@ -15,7 +15,7 @@ import {
 } from "./art";
 import { gameBridge } from "./bridge";
 import type { SceneHost } from "./host";
-import { collides, findPath, nearestFree, slideShift, type IsFree, type Tile } from "./scene/navigation";
+import { collides, findPath, nearestFree, reachWithin, slideShift, type IsFree, type Tile } from "./scene/navigation";
 import { redirect, startWalk, stepWalk, tileOfPoint, turnBack } from "./scene/walker";
 import { ensureCharacterTextures, ensureDoorTextures, ensureExitTextures, ensureObjectTextures } from "./scene/textures";
 import type { Interactable, Npc } from "./scene/types";
@@ -234,6 +234,8 @@ export class OfficeScene extends Phaser.Scene {
         x: cx,
         y: bottom - TILE / 2,
         footprint,
+        // висящий на стене предмет читается только спереди (клетка под ним), а не с обратной стороны стены
+        access: spec.mount !== undefined ? footprint.map((t) => ({ x: t.x, y: t.y + 1 })) : undefined,
         sprite: img,
         labelText: this.makeLabel(o.label).setPosition(cx, top - 4),
         check: this.add
@@ -639,13 +641,13 @@ export class OfficeScene extends Phaser.Scene {
     item.sprite.on("pointerdown", () => {
       if ((item as Npc).mode === "walker") return;
       if (this.host.isBlocked() || this.time.now - this.overlayClosedAt < 250) return;
-      if (this.distanceTo(item) <= INTERACT_RANGE) {
+      if (this.distanceTo(item) <= INTERACT_RANGE && this.canUse(item)) {
         this.path = [];
         this.host.onInteract(item.id);
         return;
       }
-      // Подойти к объекту и взаимодействовать по прибытии
-      const goals = item.footprint.flatMap((t) => [
+      // Подойти к объекту и взаимодействовать по прибытии (к висящему на стене — только спереди)
+      const goals = item.access ?? item.footprint.flatMap((t) => [
         { x: t.x, y: t.y + 1 },
         { x: t.x - 1, y: t.y },
         { x: t.x + 1, y: t.y },
@@ -689,6 +691,31 @@ export class OfficeScene extends Phaser.Scene {
     const ny = this.player.y + dy;
     if (!collides(this.isFreeFn, this.player.x, ny)) this.player.y = ny;
     else if (!dx) this.player.x += slideShift(this.isFreeFn, this.player, "x", dy);
+  }
+
+  private reachKey = "";
+  private reach = new Set<string>();
+  /** Проходимая клетка (стены и закрытые двери — нет); людей и мебель не учитываем: это о том, по какую сторону стены стоит игрок. */
+  private walkable: IsFree = (x, y) => this.solid[y]?.[x] === false && !this.doorTiles.has(`${x},${y}`);
+
+  /** Клетки, достижимые от игрока за два шага: через стену взаимодействовать нельзя. */
+  private reachableTiles() {
+    const t = this.tileOf(this.player);
+    const key = `${t.x},${t.y}`;
+    if (key !== this.reachKey) {
+      this.reachKey = key;
+      this.reach = reachWithin(this.walkable, t, 2);
+    }
+    return this.reach;
+  }
+
+  /** Можно ли пользоваться предметом отсюда: игрок стоит по ту же сторону стены, с которой к нему подходят. */
+  private canUse(item: Interactable) {
+    const reach = this.reachableTiles();
+    const tiles =
+      item.access ??
+      item.footprint.flatMap((f) => [-1, 0, 1].flatMap((dx) => [-1, 0, 1].map((dy) => ({ x: f.x + dx, y: f.y + dy }))));
+    return tiles.some((t) => reach.has(`${t.x},${t.y}`));
   }
 
   private distanceTo(item: Interactable) {
@@ -844,7 +871,7 @@ export class OfficeScene extends Phaser.Scene {
       for (const item of this.interactables) {
         if ((item as Npc).mode === "walker") continue; // пока идёт, поговорить нельзя
         const d = this.distanceTo(item);
-        if (d <= bestDist) {
+        if (d <= bestDist && this.canUse(item)) {
           best = item;
           bestDist = d;
         }

@@ -321,6 +321,27 @@ describe("игра в браузере", () => {
     await page.close();
   });
 
+  it("взаимодействие не проходит сквозь стену: плакат на стене читается только спереди", async () => {
+    const page = await h.page();
+    await page.goto(`${BASE}/play/case-test-moveto`);
+    await page.getByRole("button", { name: /Приступить к расследованию/ }).click();
+    await page.waitForFunction(() => (window as any).__game.store.get().screen === "play" && (window as any).__scene);
+    // плакат висит на стене коридора в клетке 17,9: спереди — коридор (17,10), сзади — кухня (17,8)
+    const focusFrom = (tx: number, ty: number) =>
+      page.evaluate(
+        ([x, y]) => {
+          const scene = (window as any).__scene;
+          scene.player.setPosition((x + 0.5) * 32, (y + 1) * 32 - 2); // TILE = 32 px
+          scene.updateFocus(false);
+          return scene.focused?.id ?? null;
+        },
+        [tx, ty],
+      );
+    expect(await focusFrom(17, 10)).toBe("obj_poster");
+    expect(await focusFrom(17, 8)).not.toBe("obj_poster");
+    await page.close();
+  });
+
   it("окна открываются и закрываются", async () => {
     const page = await h.page();
     await startCase(page);

@@ -92,3 +92,23 @@ export function slideShift(isFree: IsFree, pos: { x: number; y: number }, axis: 
   }
   return 0;
 }
+
+/** Клетки, до которых от `start` можно дойти не больше чем за `maxSteps` шагов по свободным клеткам (включая саму стартовую). */
+export function reachWithin(isFree: IsFree, start: Tile, maxSteps: number): Set<string> {
+  const seen = new Set([`${start.x},${start.y}`]);
+  let frontier: Tile[] = [start];
+  for (let step = 0; step < maxSteps; step++) {
+    const next: Tile[] = [];
+    for (const cur of frontier)
+      for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
+        const t = { x: cur.x + dx, y: cur.y + dy };
+        const key = `${t.x},${t.y}`;
+        if (!seen.has(key) && isFree(t.x, t.y)) {
+          seen.add(key);
+          next.push(t);
+        }
+      }
+    frontier = next;
+  }
+  return seen;
+}

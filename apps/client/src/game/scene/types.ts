@@ -8,6 +8,8 @@ export interface Interactable {
   x: number;
   y: number;
   footprint: { x: number; y: number }[];
+  /** Клетки, с которых предметом можно пользоваться (висящий на стене — только спереди); без поля — любые рядом проходимые. */
+  access?: { x: number; y: number }[];
   sprite: Phaser.GameObjects.Image | Phaser.GameObjects.Sprite;
   labelText: Phaser.GameObjects.Text;
   check?: Phaser.GameObjects.Text;

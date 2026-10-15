@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { TILE } from "../art";
-import { collides, findPath, nearestFree, slideShift } from "./navigation";
+import { collides, findPath, nearestFree, reachWithin, slideShift } from "./navigation";
 
 /** Карта из строк: `#` — стена, `.` — пол. */
 const grid = (rows: string[]) => (x: number, y: number) => rows[y]?.[x] === ".";
@@ -50,5 +50,17 @@ describe("навигация в сцене", () => {
     expect(collides(wall, pos.x, pos.y - 3)).toBe(true);
     expect(slideShift(wall, pos, "x", -3)).toBe(-3); // влево, к проёму, не больше шага
     expect(slideShift(grid(["#####", "#...#", "#####"]), { x: 2.5 * TILE, y: 1.2 * TILE }, "x", -3)).toBe(0); // подтягивать некуда
+  });
+
+  it("reachWithin: через стену недостижимо, вокруг — по числу шагов", () => {
+    // две комнаты, между ними сплошная стена: клетки с той стороны стены рядом по прямой, но не по ходу
+    const wall = grid(["#####", "#.#.#", "#.#.#", "#####"]);
+    const near = reachWithin(wall, { x: 1, y: 1 }, 2);
+    expect(near.has("1,2")).toBe(true);
+    expect(near.has("3,1")).toBe(false); // за стеной
+    // проход в стене — другая сторона достижима, но только в пределах лимита шагов
+    const door = grid(["#####", "#...#", "#####"]);
+    expect(reachWithin(door, { x: 1, y: 1 }, 2).has("3,1")).toBe(true);
+    expect(reachWithin(door, { x: 1, y: 1 }, 1).has("3,1")).toBe(false);
   });
 });
