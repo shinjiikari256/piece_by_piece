@@ -14,7 +14,7 @@ export const caseKey = (number: string) => `case-${toKey(number) || "new"}`;
 const REF_FIELDS = new Set([
   "characterId", "speaker", "responsibleCharacter", "relatedCharacters", "following", "notFollowing", "characters",
   "evidenceId", "evidenceIds", "evidence", "deductions", "relatedEvents", "dialogueId", "to",
-  "flag", "flags", "notFlags",
+  "flag", "flags", "notFlags", "locationId",
 ]);
 
 /** Коллекции верхнего уровня, ключи которых переименовываются вместе со ссылками. */

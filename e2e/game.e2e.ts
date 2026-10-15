@@ -544,6 +544,30 @@ describe("игра в браузере", () => {
     await page.close();
   });
 
+  it("конструктор: эффект «персонаж идёт на клетку» — выбор клетки на карте", async () => {
+    const page = await h.page();
+    await page.goto(`${BASE}/editor/case-001/deductions`);
+    await page.waitForFunction(() => (window as any).__editor?.editorStore.get().screen === "case");
+    await page.locator(".fx .sel--add").first().click(); // «+ эффект» (а не «+ условие»)
+    await page.locator('[role="option"]', { hasText: "идёт на клетку" }).click();
+    await page.getByRole("button", { name: /Выбрать клетку на карте/ }).click();
+    const canvas = page.locator(".cell-picker__canvas");
+    await canvas.waitFor();
+    // стена не выбирается, свободный пол — выбирается: старт игрока всегда свободен
+    const start = await page.evaluate(() => (window as any).__editor.editorStore.get().draft.locations[0].playerStart as { x: number; y: number });
+    const box = (await canvas.boundingBox())!;
+    const tile = box.width / (await page.evaluate(() => (window as any).__editor.editorStore.get().draft.locations[0].tiles[0].length));
+    await page.mouse.click(box.x + tile * 0.5, box.y + tile * 0.5); // клетка 0,0 — стена
+    expect(await page.getByRole("button", { name: "Выбрать", exact: true }).isDisabled()).toBe(true);
+    await page.mouse.click(box.x + tile * (start.x + 0.5), box.y + tile * (start.y + 0.5));
+    await page.getByRole("button", { name: "Выбрать", exact: true }).click();
+    const effect = await page.evaluate(() =>
+      (window as any).__editor.editorStore.get().draft.deductions.flatMap((d: any) => d.effects).find((e: any) => e.type === "moveTo"),
+    );
+    expect(effect).toMatchObject({ type: "moveTo", x: start.x, y: start.y });
+    await page.close();
+  });
+
   it("конструктор: «Запустить» сразу начинает расследование по тестовой копии дела", async () => {
     const page = await h.page();
     // у игрока уже есть сохранённое расследование этого дела — тестовый запуск о нём не спрашивает

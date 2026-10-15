@@ -438,3 +438,27 @@
 .lm[data-dock="bottom"] .lm__things {
   grid-template-columns: repeat(auto-fill, minmax(6.5rem, 1fr));
 }
+
+/* окно выбора клетки (эффект «персонаж идёт на клетку») */
+.dialog.cell-picker {
+  width: min(70rem, calc(100vw - 2rem));
+  max-width: none;
+}
+.cell-picker__stage {
+  overflow: auto;
+  max-height: 65vh;
+  background: var(--text);
+  border-radius: 8px;
+}
+.cell-picker__canvas {
+  display: block;
+  image-rendering: pixelated;
+  cursor: crosshair;
+}
+.cell-picker__canvas:focus-visible {
+  outline: 3px solid var(--ring-focus);
+}
+.cell-picker__status {
+  margin: 0;
+  font-size: 0.9em;
+}

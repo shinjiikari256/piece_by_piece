@@ -1,4 +1,4 @@
-import { CHAR_H, CHAR_W, DOOR_SIZE, SPRITES } from "../../game/art";
+import { CHAR_H, CHAR_W, DOOR_SIZE, FLOOR_TILES, SPRITES } from "../../game/art";
 import { T } from "./canvases";
 import type { CaseFile as CaseFileT, Location as LocationT } from "../../../../../shared/case";
 import { editor } from "../state";
@@ -104,4 +104,15 @@ export function pickTopmost(
     if (inside(rect, px, py) && (!opaque || opaque(sel, px - rect.x, py - rect.y))) return sel;
   }
   return null;
+}
+
+/**
+ * Можно ли поставить персонажа на клетку (для эффекта «идёт на клетку»): пол, без твёрдых предметов и чужих людей.
+ * Клетка, на которой стоит сам персонаж, считается свободной (`characterId`).
+ */
+export function cellFree(loc: LocationT, x: number, y: number, characterId?: string): boolean {
+  if (!FLOOR_TILES.has(loc.tiles[y]?.[x] ?? "")) return false;
+  const solid = loc.objects.some((o) => SPRITES[o.sprite].solid && y === o.y && x >= o.x && x < o.x + SPRITES[o.sprite].footprint);
+  const person = loc.npcs.some((n) => n.x === x && n.y === y && n.characterId !== characterId);
+  return !solid && !person;
 }
