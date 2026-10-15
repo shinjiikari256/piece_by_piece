@@ -508,6 +508,28 @@ describe("игра в браузере", () => {
     await page.close();
   });
 
+  it("конструктор: в списке диалогов видно, кто их запускает; неподключённый помечен", async () => {
+    const page = await h.page();
+    await page.goto(`${BASE}/editor/case-001/dialogues`);
+    await page.waitForFunction(() => (window as any).__editor?.editorStore.get().screen === "case");
+    // готовые диалоги дела подключены к людям на карте
+    expect(await page.locator(".ed__item-note", { hasText: "☺" }).count()).toBeGreaterThan(0);
+    await page.locator(".ed__list-add").click(); // новый диалог никто не запускает
+    await expect.poll(() => page.locator(".ed__item-note", { hasText: "не подключён" }).count()).toBe(1);
+    // привязка к новой области на месте снимает пометку
+    await page.locator(".dg__trigger .sel--add").click();
+    await page.locator('[role="option"]', { hasText: "новая область" }).click();
+    await page.locator('input[placeholder^="Например"]').fill("Проход");
+    const canvas = page.locator(".cell-picker__canvas");
+    const box = (await canvas.boundingBox())!;
+    const dims = await page.evaluate(() => { const l = (window as any).__editor.editorStore.get().draft.locations[0]; return { w: l.tiles[0].length, h: l.tiles.length }; });
+    await page.mouse.click(box.x + (box.width / dims.w) * 10.5, box.y + (box.height / dims.h) * 5.5);
+    await page.getByRole("button", { name: "Создать", exact: true }).click();
+    await expect.poll(() => page.locator(".ed__item-note", { hasText: "не подключён" }).count()).toBe(0);
+    expect(await page.locator(".ed__item-note", { hasText: "▦ Проход" }).count()).toBe(1);
+    await page.close();
+  });
+
   it("окна открываются и закрываются", async () => {
     const page = await h.page();
     await startCase(page);

@@ -218,6 +218,15 @@
   white-space: nowrap;
 }
 
+/* строка под названием пункта списка: куда подключён (диалог — люди и области) */
+.ed__item-note {
+  font-size: 0.74em;
+  color: var(--text-soft);
+}
+.ed__item-note .is-warn {
+  color: var(--warn-strong);
+}
+
 /* подсказки и условия */
 .ef__hint {
   display: block;

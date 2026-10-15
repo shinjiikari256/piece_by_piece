@@ -1,5 +1,5 @@
 import { readJson, writeJson } from "../state/storage";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { z } from "zod";
 import { Dialogue as DialogueSchema, DialogueNode as NodeSchema } from "../../../../shared/case";
 import type { CaseFile, Dialogue, DialogueNode } from "../../../../shared/case";
@@ -10,6 +10,7 @@ import { ArtThumb } from "./Pickers";
 import { EntityList, ItemText } from "./EntityList";
 import { PanelGrip, PanelRail, panelVars, usePanel } from "./panels";
 import { DialogueTrigger } from "./fields/DialogueTrigger";
+import { dialogueLinks } from "./map/actions";
 import { MOOD_TONE } from "../ui/tone";
 import { setSearchParams } from "../ui/router";
 import { useUrlParam, useWriteDefaultParam } from "./url";
@@ -65,6 +66,13 @@ function autoLayout(d: Dialogue, heights: Record<string, number> = {}): Record<s
     colY.set(col, y + (heights[n.id] ?? estimateHeight(n)) + ROW_GAP);
   }
   return out;
+}
+
+/** Строка под диалогом в списке: кто и что его запускает; «не подключён» — предупреждение. */
+function linkNote(draft: CaseFile, dialogueId: string): { note: ReactNode; warn?: boolean } {
+  const { people, zones } = dialogueLinks(draft, dialogueId);
+  if (!people.length && !zones.length) return { note: <span className="is-warn">не подключён: его никто не запустит</span> };
+  return { note: [people.length ? `☺ ${people.join(", ")}` : "", zones.length ? `▦ ${zones.join(", ")}` : ""].filter(Boolean).join(" · ") };
 }
 
 /** Редактор диалога-графа: раздел «Диалоги» со списком разговоров и графом реплик. */
@@ -145,7 +153,7 @@ export function DialogueEditor() {
                       <ArtThumb kind="look" id={ch.look} look={resolveLook(ch)} scale={1.5} />
                     </span>
                   )}
-                  <ItemText title={ch?.name ?? d.characterId} id={d.id} />
+                  <ItemText title={ch?.name ?? d.characterId} id={d.id} {...linkNote(draft, d.id)} />
                 </>
               );
             }}

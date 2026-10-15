@@ -3,11 +3,12 @@ import { Icon } from "../ui/icons";
 import { useArrowNav } from "../ui/hooks";
 
 /** Название и ключ (id) пункта списка в две строки; `warn` — название выделено как проблемное. */
-export function ItemText({ title, id, warn }: { title: ReactNode; id?: string; warn?: boolean }) {
+export function ItemText({ title, id, warn, note }: { title: ReactNode; id?: string; warn?: boolean; note?: ReactNode }) {
   return (
     <span className="ed__item-text">
       <span className={`ed__item-title ellipsis ${warn ? "is-warn" : ""}`}>{title}</span>
       {id && <code className="ed__item-id">{id}</code>}
+      {note && <span className="ed__item-note ellipsis">{note}</span>}
     </span>
   );
 }
