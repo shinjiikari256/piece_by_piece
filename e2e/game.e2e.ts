@@ -302,22 +302,29 @@ describe("игра в браузере", () => {
     await page.close();
   });
 
-  it("выход рисует карта (лестница), а не стрелка; подпись выхода скрыта, пока не наведёшь или не подойдёшь", async () => {
+  it("выход — область с действием exit: внутри неё подсказка, E переводит в другую локацию; стрелок и постоянных подписей нет", async () => {
     const page = await h.page();
     await page.goto(`${BASE}/play/case-test-moveto`);
     await page.getByRole("button", { name: /Приступить к расследованию/ }).click();
     await page.waitForFunction(() => (window as any).__game.store.get().screen === "play" && (window as any).__scene);
     const info = await page.evaluate(() => {
       const scene = (window as any).__scene;
-      const exits = scene.interactables.filter((i: any) => i.id.startsWith("exit:"));
-      const stairs = scene.location.tiles.filter((row: string) => row.includes("Z")).length;
-      return { count: exits.length, zones: exits.every((i: any) => i.sprite.texture.key === "exit_zone"), hidden: exits.every((i: any) => !i.labelText.visible), stairsRows: stairs, arrows: scene.textures.exists("exit_left") };
+      const zones = scene.interactables.filter((i: any) => i.zone);
+      return {
+        exits: scene.location.zones.filter((z: any) => z.actions.some((a: any) => a.kind === "exit")).length,
+        hidden: zones.every((i: any) => !i.labelText.visible),
+        legacy: (scene.location.exits ?? null) === null && scene.textures.exists("exit_left") === false,
+      };
     });
-    expect(info.count).toBeGreaterThan(0);
-    expect(info.zones).toBe(true);
+    expect(info.exits).toBe(2); // лестница вниз — две области
     expect(info.hidden).toBe(true);
-    expect(info.stairsRows).toBe(2); // лестница вбок на двух клетках проёма
-    expect(info.arrows).toBe(false);
+    expect(info.legacy).toBe(true);
+    // встаём в область лестницы — подсказка; E (interact) переводит в холл в точку появления
+    const cell = await page.evaluate(() => (window as any).__scene.location.zones.find((z: any) => z.id === "stairs_down_a").cells[0] as { x: number; y: number });
+    await page.evaluate(([x, y]) => (window as any).__scene.player.setPosition((x + 0.5) * 32, (y + 1) * 32 - 2), [cell.x, cell.y]);
+    await page.waitForFunction(() => (window as any).__scene.focused?.id === "zone:stairs_down_a");
+    await page.evaluate(() => (window as any).__game.actions.interact("zone:stairs_down_a"));
+    expect(await page.evaluate(() => (window as any).__game.store.get().locationId)).toBe("dorm_lobby");
     await page.close();
   });
 
@@ -418,14 +425,14 @@ describe("игра в браузере", () => {
     await page.close();
   });
 
-  it("конструктор: триггер диалога — область, которую можно создать прямо из диалога", async () => {
+  it("конструктор: диалог запускается областью — привязать можно и создав область прямо из диалога", async () => {
     const page = await h.page();
     await page.goto(`${BASE}/editor/case-001/dialogues`);
     await page.waitForFunction(() => (window as any).__editor?.editorStore.get().screen === "case");
     const draft = () => page.evaluate(() => (window as any).__editor.editorStore.get().draft);
     const dialogueId = await page.locator(".ed__list .ed__item[aria-current] code").innerText();
-    await page.locator(".dg__trigger .sel").first().click();
-    await page.locator('[role="option"]', { hasText: "Область на карте" }).click(); // зон ещё нет — сразу открывается создание
+    await page.locator(".dg__trigger .sel--add").click();
+    await page.locator('[role="option"]', { hasText: "новая область" }).click();
     await page.locator('input[placeholder^="Например"]').fill("У окна");
     expect(await page.getByRole("button", { name: "Создать", exact: true }).isDisabled()).toBe(true); // нет клеток
     const canvas = page.locator(".cell-picker__canvas");
@@ -437,14 +444,33 @@ describe("игра в браузере", () => {
     await page.mouse.move(at(12, 5).x, at(12, 5).y, { steps: 4 });
     await page.mouse.up();
     await page.getByRole("button", { name: "Создать", exact: true }).click();
-    const d = await draft();
-    const zone = d.locations[0].zones[0];
+    const zone = (await draft()).locations[0].zones[0];
     expect(zone).toMatchObject({ name: "У окна" });
     expect(zone.cells.length).toBe(3);
-    expect(d.dialogues.find((x: any) => x.id === dialogueId).trigger).toEqual({ kind: "zone", zoneId: zone.id });
-    // автозапуск
-    await page.getByLabel(/Запускать сам/).check();
-    expect((await draft()).dialogues.find((x: any) => x.id === dialogueId).trigger.auto).toBe(true);
+    expect(zone.actions).toEqual([{ kind: "dialogue", dialogueId }]); // действие лежит в самой области
+    // отвязка не удаляет область
+    await page.getByRole("button", { name: "Отвязать область" }).click();
+    const after = (await draft()).locations[0].zones[0];
+    expect(after.actions).toEqual([]);
+    await page.close();
+  });
+
+  it("конструктор: действия области — добавить «Выход», порядок, автозапуск", async () => {
+    const page = await h.page();
+    await page.goto(`${BASE}/editor/case-001/locations`);
+    await page.waitForFunction(() => (window as any).__editor?.editorStore.get().screen === "case");
+    await page.locator(".lm__tool", { hasText: "Область" }).click();
+    const canvas = page.locator(".lm__canvas");
+    const box = (await canvas.boundingBox())!;
+    const dims = await page.evaluate(() => { const l = (window as any).__editor.editorStore.get().draft.locations[0]; return { w: l.tiles[0].length, h: l.tiles.length }; });
+    const at = (x: number, y: number) => ({ x: box.x + (box.width / dims.w) * (x + 0.5), y: box.y + (box.height / dims.h) * (y + 0.5) });
+    await page.mouse.click(at(5, 5).x, at(5, 5).y);
+    await page.locator(".zact .sel--add").click();
+    await page.locator('[role="option"]', { hasText: "Выход" }).click();
+    await page.getByLabel(/Срабатывает само/).check();
+    const zone = await page.evaluate(() => (window as any).__editor.editorStore.get().draft.locations[0].zones[0]);
+    expect(zone.actions).toHaveLength(1);
+    expect(zone.actions[0]).toMatchObject({ kind: "exit", auto: true });
     await page.close();
   });
 

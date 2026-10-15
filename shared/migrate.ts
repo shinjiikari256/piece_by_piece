@@ -35,10 +35,61 @@ export function runMigrations(
 
 // ——— Дело ———
 
-export const CASE_FORMAT_VERSION = 1;
+export const CASE_FORMAT_VERSION = 2;
 
-/** Звенья цепочки: `caseMigrations[v]` переводит дело версии v в v + 1. Пока формат один — цепочка пуста. */
-export const caseMigrations: Record<number, Migration> = {};
+const WALL_CHARS = new Set(["#", "W", "B", "G", "P", "F"]);
+
+type Raw = Record<string, unknown>;
+
+/**
+ * 1 → 2: выходы (`Location.exits`) стали областями с действием `exit`; триггер диалога (`Dialogue.trigger`, `requires`)
+ * стал действием `dialogue` у области. Область выхода — клетка выхода и её проходимые соседи (по ним подходил игрок).
+ */
+function caseV1toV2(data: Raw): Raw {
+  const locations = ((data.locations as Raw[] | undefined) ?? []).map((raw) => {
+    const loc = { ...raw } as Raw;
+    const tiles = (loc.tiles as string[] | undefined) ?? [];
+    const zones: Raw[] = ((loc.zones as Raw[] | undefined) ?? []).map((z) => ({ ...z, actions: (z.actions as unknown[] | undefined) ?? [] }));
+    const taken = new Set(zones.map((z) => z.id as string));
+    const floor = (x: number, y: number) => !!tiles[y]?.[x] && !WALL_CHARS.has(tiles[y][x]);
+    const exitCells = new Set(((loc.exits as Raw[] | undefined) ?? []).map((e) => `${e.x},${e.y}`));
+    for (const exit of ((loc.exits as Raw[] | undefined) ?? [])) {
+      const { x, y } = exit as { x: number; y: number };
+      // клетка выхода и проходимые соседи, кроме клеток соседних выходов: области одной лестницы не пересекаются
+      const cells = [
+        { x, y },
+        ...[[1, 0], [-1, 0], [0, 1], [0, -1]].map(([dx, dy]) => ({ x: x + dx, y: y + dy })).filter((c) => floor(c.x, c.y) && !exitCells.has(`${c.x},${c.y}`)),
+      ];
+      const target = ((data.locations as Raw[] | undefined) ?? []).find((l) => l.id === exit.to);
+      let id = String(exit.id);
+      while (taken.has(id)) id += "_exit";
+      taken.add(id);
+      zones.push({
+        id,
+        name: (exit.label as string) || `Выход → ${(target?.name as string) ?? exit.to}`,
+        cells,
+        actions: [{ kind: "exit", to: exit.to, spawn: exit.spawn }],
+      });
+    }
+    delete loc.exits;
+    loc.zones = zones;
+    return loc;
+  });
+  const dialogues = ((data.dialogues as Raw[] | undefined) ?? []).map((raw) => {
+    const { trigger, requires, ...dialogue } = raw as Raw & { trigger?: { zoneId: string; auto?: boolean }; requires?: unknown };
+    if (trigger) {
+      for (const loc of locations) {
+        const zone = (loc.zones as Raw[]).find((z) => z.id === trigger.zoneId);
+        if (zone) (zone.actions as unknown[]).push({ kind: "dialogue", dialogueId: dialogue.id, ...(requires ? { requires } : {}), ...(trigger.auto ? { auto: true } : {}) });
+      }
+    }
+    return dialogue;
+  });
+  return { ...data, locations, dialogues };
+}
+
+/** Звенья цепочки: `caseMigrations[v]` переводит дело версии v в v + 1. */
+export const caseMigrations: Record<number, Migration> = { 1: caseV1toV2 };
 
 export const migrateCase = (raw: unknown, chain = caseMigrations, current = CASE_FORMAT_VERSION): Migrated =>
   runMigrations(raw, "formatVersion", chain, current, "дело");

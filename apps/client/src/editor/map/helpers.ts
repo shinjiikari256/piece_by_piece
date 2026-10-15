@@ -80,12 +80,8 @@ export function selectionBox(loc: LocationT | undefined, s: Selection): PxRect |
     const n = loc.npcs.find((x) => x.id === s.id);
     return n ? npcRect(n) : null;
   }
-  if (s.kind === "door") {
-    const d = loc.doors.find((x) => x.id === s.id);
-    return d ? doorRect(d) : null;
-  }
-  const e = loc.exits.find((x) => x.id === s.id);
-  return e ? tileRect(e.x, e.y) : null;
+  const d = loc.doors.find((x) => x.id === s.id);
+  return d ? doorRect(d) : null;
 }
 
 const inside = (r: PxRect, px: number, py: number) => px >= r.x && px < r.x + r.w && py >= r.y && py < r.y + r.h;

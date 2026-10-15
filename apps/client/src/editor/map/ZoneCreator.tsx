@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import type { CaseFile, Zone } from "../../../../../shared/case";
+import type { CaseFile, Zone, ZoneAction } from "../../../../../shared/case";
 import { Dialog } from "../../ui/window";
 import { Select } from "../../ui/Select";
 import { toKey } from "../keys";
@@ -24,11 +24,14 @@ export function zoneKey(draft: CaseFile, name: string) {
 export function ZoneCreator({
   draft,
   defaultLocationId,
+  actions = [],
   onCreate,
   onClose,
 }: {
   draft: CaseFile;
   defaultLocationId?: string;
+  /** Действия новой области (например, запуск диалога, из которого область создают). */
+  actions?: ZoneAction[];
   onCreate: (locationId: string, zone: Zone) => void;
   onClose: () => void;
 }) {
@@ -46,7 +49,7 @@ export function ZoneCreator({
   useEffect(() => {
     const cv = canvas.current;
     if (!cv) return;
-    const preview = { id: "__new", name: name || "Новая область", cells };
+    const preview = { id: "__new", name: name || "Новая область", cells, actions: [] };
     renderMap(cv, {
       loc: { ...loc, zones: [...loc.zones, preview] },
       art,
@@ -85,7 +88,7 @@ export function ZoneCreator({
       onClose={onClose}
       actions={
         <>
-          <button className="btn btn--primary" disabled={!ok} onClick={() => onCreate(loc.id, { id: zoneKey(draft, name), name: name.trim(), cells })}>
+          <button className="btn btn--primary" disabled={!ok} onClick={() => onCreate(loc.id, { id: zoneKey(draft, name), name: name.trim(), cells, actions })}>
             Создать
           </button>
           <button className="btn" onClick={onClose}>

@@ -21,6 +21,7 @@ import { LOCATION_SCHEMA, SelectedPanel, SizeInput } from "./map/panels";
 import { Tabs } from "./Tabs";
 import { moveItem } from "../util/lists";
 import { useMapDock } from "./layout";
+import { actionSummary } from "./map/actions";
 import { PanelGrip, PanelRail, panelVars, usePanel } from "./panels";
 import { useUrlParam, useWriteDefaultParam } from "./url";
 
@@ -32,7 +33,7 @@ function parseSelection(loc: LocationT | undefined, key: string): Selection {
   if (key === "start") return { kind: "start" };
   const [kind, ...rest] = key.split(":");
   const id = rest.join(":");
-  const list = { object: loc.objects, npc: loc.npcs, exit: loc.exits, door: loc.doors, zone: loc.zones }[kind as "object" | "npc" | "exit" | "door" | "zone"];
+  const list = { object: loc.objects, npc: loc.npcs, door: loc.doors, zone: loc.zones }[kind as "object" | "npc" | "door" | "zone"];
   return list?.some((x) => x.id === id) ? ({ kind, id } as Selection) : null;
 }
 
@@ -111,8 +112,6 @@ export function MapEditor() {
   };
 
   const hit = (t: { x: number; y: number; px?: number; py?: number }): Selection => {
-    const exit = loc.exits.find((x) => x.x === t.x && x.y === t.y);
-    if (exit) return { kind: "exit", id: exit.id };
     if (loc.playerStart.x === t.x && loc.playerStart.y === t.y) return { kind: "start" };
     // верхний из нарисованных предметов, людей и дверей под курсором — целиком, а не по клетке под ногами
     const top = t.px === undefined || t.py === undefined ? null : pickTopmost(loc, t.px, t.py, opaqueAt);
@@ -177,14 +176,6 @@ export function MapEditor() {
         updateLoc((l) => ({ ...l, playerStart: t }));
         setTool({ kind: "select" });
         break;
-      case "exit": {
-        const xid = uniqueId("exit_", loc.exits.map((x) => x.id));
-        const target = draft.locations.find((l) => l.id !== loc.id) ?? loc;
-        updateLoc((l) => ({ ...l, exits: [...l.exits, { id: xid, x: t.x, y: t.y, to: target.id, spawn: target.playerStart, label: `→ ${target.name}` }] }));
-        setSel({ kind: "exit", id: xid });
-        setTool({ kind: "select" });
-        break;
-      }
       case "door": {
         const did = uniqueId("door_", draft.locations.flatMap((l) => l.doors.map((d) => d.id)));
         updateLoc((l) => ({ ...l, doors: [...l.doors, { id: did, x: t.x, y: t.y, orientation: tool.orientation }] }));
@@ -201,7 +192,7 @@ export function MapEditor() {
           // область не выбрана — первый мазок создаёт новую
           const taken = draft.locations.flatMap((l) => l.zones.map((z) => z.id));
           zid = uniqueId("zone_", taken);
-          const zone = { id: zid, name: `Область ${taken.length + 1}`, cells: e.shiftKey ? [] : [{ x: t.x, y: t.y }] };
+          const zone = { id: zid, name: `Область ${taken.length + 1}`, cells: e.shiftKey ? [] : [{ x: t.x, y: t.y }], actions: [] };
           updateLoc((l) => ({ ...l, zones: [...l.zones, zone] }), `zone:${id}`);
           setSel({ kind: "zone", id: zid });
         } else if (!e.shiftKey) paintZone(zid, [t], add, id);
@@ -276,13 +267,9 @@ export function MapEditor() {
   const deleteSelected = async () => {
     if (!sel || sel.kind === "start") return;
     if (sel.kind === "zone") {
-      const used = draft.dialogues.filter((d) => d.trigger?.zoneId === sel.id);
-      if (used.length && !(await ask({ title: "Удалить область?", text: `Её запускают диалоги (${used.map((d) => d.id).join(", ")}): у них пропадёт триггер.`, confirmLabel: "Удалить", danger: true }))) return;
-      editor.update((d) => ({
-        ...d,
-        locations: d.locations.map((l, i) => (i === li ? { ...l, zones: l.zones.filter((z) => z.id !== sel.id) } : l)),
-        dialogues: d.dialogues.map((dlg) => (dlg.trigger?.zoneId === sel.id ? { ...dlg, trigger: undefined } : dlg)),
-      }));
+      const actions = loc.zones.find((z) => z.id === sel.id)?.actions.length ?? 0;
+      if (actions && !(await ask({ title: "Удалить область?", text: `Область запускает действия (${actions}): они пропадут вместе с ней.`, confirmLabel: "Удалить", danger: true }))) return;
+      updateLoc((l) => ({ ...l, zones: l.zones.filter((z) => z.id !== sel.id) }));
       setSel(null);
       return;
     }
@@ -313,7 +300,7 @@ export function MapEditor() {
     if (h.kind === "start") return "Старт игрока";
     if (h.kind === "zone") {
       const z = loc.zones.find((x) => x.id === h.id)!;
-      return `Область «${z.name}» · клеток: ${z.cells.length}`;
+      return `Область «${z.name}» · ${z.actions.length ? z.actions.map((a) => actionSummary(a, draft)).join("; ") : "без действий"}`;
     }
     if (h.kind === "npc") {
       const n = loc.npcs.find((x) => x.id === h.id)!;
@@ -323,10 +310,6 @@ export function MapEditor() {
     if (h.kind === "door") {
       const d = loc.doors.find((x) => x.id === h.id)!;
       return d.requires ? `Дверь · заперта, пока не выполнено условие` : "Дверь · открывается, когда игрок подходит";
-    }
-    if (h.kind === "exit") {
-      const e = loc.exits.find((x) => x.id === h.id)!;
-      return `Выход → ${draft.locations.find((l) => l.id === e.to)?.name ?? e.to}`;
     }
     const o = loc.objects.find((x) => x.id === h.id)!;
     const name = o.label || SPRITE_NAMES[o.sprite] || o.sprite;
@@ -442,7 +425,7 @@ export function MapEditor() {
             onChange={setInsp}
             tabs={[
               { id: "props", label: "Свойства" },
-              { id: "list", label: `Объекты (${loc.objects.length + loc.npcs.length + loc.exits.length + loc.doors.length})` },
+              { id: "list", label: `Объекты (${loc.objects.length + loc.npcs.length + loc.zones.length + loc.doors.length})` },
             ]}
           />
           <div className="lm__inspector-body">

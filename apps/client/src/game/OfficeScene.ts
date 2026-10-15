@@ -96,7 +96,6 @@ export class OfficeScene extends Phaser.Scene {
     this.buildTextures();
     this.buildMap();
     this.buildObjects();
-    this.buildExits();
     this.buildZones();
     this.buildDoors();
     this.buildPlayer();
@@ -343,7 +342,7 @@ export class OfficeScene extends Phaser.Scene {
     this.npcTiles.delete(`${npc.tile.x},${npc.tile.y}`);
     this.npcTiles.add(`${from.x},${from.y}`);
     npc.tile = from;
-    const walk = startWalk(this.walkFree, from, { x: exit.x, y: exit.y }, { leaving: true, failText: place?.failText });
+    const walk = startWalk(this.walkFree, from, exit.cells, { leaving: true, failText: place?.failText });
     if (!walk) {
       this.say(npc, place?.failText);
       this.settle(npc, from);
@@ -353,16 +352,18 @@ export class OfficeScene extends Phaser.Scene {
     npc.mode = "walker";
   }
 
-  /** Первый выход из этой локации на кратчайшем пути в локацию `target` (по выходам); null — пути нет. */
+  /** Первая область-выход этой локации на кратчайшем пути в локацию `target` (по действиям `exit`); null — пути нет. */
   private exitToward(target: string) {
+    const exitsOf = (loc: Location) => loc.zones.flatMap((zone) => zone.actions.flatMap((a) => (a.kind === "exit" ? [{ zone, to: a.to }] : [])));
     const seen = new Set([this.location.id]);
-    const queue = this.location.exits.map((first) => ({ at: first.to, first }));
+    const queue = exitsOf(this.location).map((first) => ({ at: first.to, first: first.zone }));
     while (queue.length) {
       const { at, first } = queue.shift()!;
       if (seen.has(at)) continue;
       seen.add(at);
       if (at === target) return first;
-      for (const e of this.caseFile.locations.find((l) => l.id === at)?.exits ?? []) queue.push({ at: e.to, first });
+      const loc = this.caseFile.locations.find((l) => l.id === at);
+      if (loc) for (const e of exitsOf(loc)) queue.push({ at: e.to, first });
     }
     return null;
   }
@@ -494,30 +495,6 @@ export class OfficeScene extends Phaser.Scene {
   }
 
   // ---------- выходы ----------
-
-  /** Выходы — объекты взаимодействия: переход только по E / клику, а не от случайного шага. Сам выход рисует карта (лестница, проём); подпись — при наведении и вблизи. */
-  private buildExits() {
-    ensureExitTextures(this.textures);
-    for (const exit of this.location.exits) {
-      const target = this.caseFile.locations.find((l) => l.id === exit.to);
-      const label = exit.label || `Выход → ${target?.name ?? exit.to}`;
-      const cx = (exit.x + 0.5) * TILE;
-      const bottom = (exit.y + 1) * TILE;
-      // невидимая мишень на клетке выхода (клик, наведение)
-      const zone = this.add.image(cx, bottom, "exit_zone").setOrigin(0.5, 1).setScale(SCALE).setDepth(bottom);
-      const item: Interactable = {
-        id: `exit:${exit.id}`,
-        label,
-        x: cx,
-        y: bottom - TILE / 2,
-        footprint: [{ x: exit.x, y: exit.y }],
-        sprite: zone,
-        labelText: this.makeLabel(label).setPosition(cx, bottom - TILE - 4),
-      };
-      this.makeClickable(item);
-      this.interactables.push(item);
-    }
-  }
 
   // ---------- области-триггеры ----------
 
@@ -918,7 +895,7 @@ export class OfficeScene extends Phaser.Scene {
         if (item.zone) {
           // область: подсказка, пока игрок внутри и у области есть подходящий диалог
           const t = this.tileOf(this.player);
-          if (item.zone.cells.has(`${t.x},${t.y}`) && this.host.hasZoneDialogue(item.zone.id) && ZONE_RANGE <= bestDist) {
+          if (item.zone.cells.has(`${t.x},${t.y}`) && this.host.hasZoneAction(item.zone.id) && ZONE_RANGE < bestDist) {
             best = item;
             bestDist = ZONE_RANGE;
           }

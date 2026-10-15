@@ -1,5 +1,5 @@
 {
-  "formatVersion": 1,
+  "formatVersion": 2,
   "id": "case-001",
   "number": "001",
   "title": "Чужие письма",
@@ -12,7 +12,7 @@
     "points": 10
   },
   "published": true,
-  "updatedAt": "2026-10-13T22:03:44Z",
+  "updatedAt": "2026-10-15T02:59:06Z",
   "locations": [
     {
       "id": "admin_building",
@@ -428,7 +428,6 @@
           "y": 10
         }
       ],
-      "exits": [],
       "doors": [
         {
           "id": "door_214",
@@ -442,7 +441,8 @@
           "y": 9,
           "orientation": "h"
         }
-      ]
+      ],
+      "zones": []
     }
   ],
   "characters": [

@@ -1,5 +1,5 @@
 {
-  "formatVersion": 1,
+  "formatVersion": 2,
   "id": "case-test-moveto",
   "number": "T01",
   "title": "Тест: перемещения персонажей",
@@ -425,30 +425,6 @@
           "y": 13
         }
       ],
-      "exits": [
-        {
-          "id": "stairs_down_a",
-          "x": 29,
-          "y": 12,
-          "to": "dorm_lobby",
-          "spawn": {
-            "x": 2,
-            "y": 12
-          },
-          "label": "Лестница ↓ 1 этаж"
-        },
-        {
-          "id": "stairs_down_b",
-          "x": 29,
-          "y": 13,
-          "to": "dorm_lobby",
-          "spawn": {
-            "x": 2,
-            "y": 13
-          },
-          "label": ""
-        }
-      ],
       "doors": [
         {
           "id": "door_412",
@@ -496,6 +472,13 @@
               "x": 15,
               "y": 11
             }
+          ],
+          "actions": [
+            {
+              "kind": "dialogue",
+              "dialogueId": "dlg_zone_auto",
+              "auto": true
+            }
           ]
         },
         {
@@ -525,6 +508,60 @@
             {
               "x": 24,
               "y": 14
+            }
+          ],
+          "actions": [
+            {
+              "kind": "dialogue",
+              "dialogueId": "dlg_zone_e"
+            }
+          ]
+        },
+        {
+          "id": "stairs_down_a",
+          "name": "Лестница ↓ 1 этаж",
+          "cells": [
+            {
+              "x": 29,
+              "y": 12
+            },
+            {
+              "x": 28,
+              "y": 12
+            }
+          ],
+          "actions": [
+            {
+              "kind": "exit",
+              "to": "dorm_lobby",
+              "spawn": {
+                "x": 2,
+                "y": 12
+              }
+            }
+          ]
+        },
+        {
+          "id": "stairs_down_b",
+          "name": "Выход → Общежитие №3, 1 этаж",
+          "cells": [
+            {
+              "x": 29,
+              "y": 13
+            },
+            {
+              "x": 28,
+              "y": 13
+            }
+          ],
+          "actions": [
+            {
+              "kind": "exit",
+              "to": "dorm_lobby",
+              "spawn": {
+                "x": 2,
+                "y": 13
+              }
             }
           ]
         }
@@ -782,30 +819,6 @@
           "y": 7
         }
       ],
-      "exits": [
-        {
-          "id": "stairs_up_a",
-          "x": 0,
-          "y": 12,
-          "to": "dorm_floor",
-          "spawn": {
-            "x": 27,
-            "y": 12
-          },
-          "label": "Лестница ↑ 4 этаж"
-        },
-        {
-          "id": "stairs_up_b",
-          "x": 0,
-          "y": 13,
-          "to": "dorm_floor",
-          "spawn": {
-            "x": 27,
-            "y": 13
-          },
-          "label": ""
-        }
-      ],
       "doors": [],
       "zones": [
         {
@@ -859,6 +872,69 @@
             {
               "x": 16,
               "y": 10
+            }
+          ],
+          "actions": [
+            {
+              "kind": "dialogue",
+              "dialogueId": "dlg_zone_lobby_vika",
+              "requires": {
+                "following": [
+                  "vika"
+                ]
+              }
+            },
+            {
+              "kind": "dialogue",
+              "dialogueId": "dlg_zone_lobby"
+            }
+          ]
+        },
+        {
+          "id": "stairs_up_a",
+          "name": "Лестница ↑ 4 этаж",
+          "cells": [
+            {
+              "x": 0,
+              "y": 12
+            },
+            {
+              "x": 1,
+              "y": 12
+            }
+          ],
+          "actions": [
+            {
+              "kind": "exit",
+              "to": "dorm_floor",
+              "spawn": {
+                "x": 27,
+                "y": 12
+              }
+            }
+          ]
+        },
+        {
+          "id": "stairs_up_b",
+          "name": "Выход → Общежитие №3, 4 этаж",
+          "cells": [
+            {
+              "x": 0,
+              "y": 13
+            },
+            {
+              "x": 1,
+              "y": 13
+            }
+          ],
+          "actions": [
+            {
+              "kind": "exit",
+              "to": "dorm_floor",
+              "spawn": {
+                "x": 27,
+                "y": 13
+              }
             }
           ]
         }
@@ -2394,12 +2470,7 @@
             }
           ]
         }
-      ],
-      "trigger": {
-        "kind": "zone",
-        "zoneId": "zone_kitchen_door",
-        "auto": true
-      }
+      ]
     },
     {
       "id": "dlg_zone_e",
@@ -2419,11 +2490,7 @@
             }
           ]
         }
-      ],
-      "trigger": {
-        "kind": "zone",
-        "zoneId": "zone_corridor_end"
-      }
+      ]
     },
     {
       "id": "dlg_zone_lobby_vika",
@@ -2443,16 +2510,7 @@
             }
           ]
         }
-      ],
-      "trigger": {
-        "kind": "zone",
-        "zoneId": "zone_lobby_center"
-      },
-      "requires": {
-        "following": [
-          "vika"
-        ]
-      }
+      ]
     },
     {
       "id": "dlg_zone_lobby",
@@ -2472,11 +2530,7 @@
             }
           ]
         }
-      ],
-      "trigger": {
-        "kind": "zone",
-        "zoneId": "zone_lobby_center"
-      }
+      ]
     }
   ],
   "confrontations": [

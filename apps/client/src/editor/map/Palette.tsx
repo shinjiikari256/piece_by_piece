@@ -55,7 +55,6 @@ export function MapPalette({
         <ToolButton on={tool.kind === "select"} onClick={() => setTool({ kind: "select" })} icon="⬚" label="Выбор" keyHint="V" />
         <ToolButton on={tool.kind === "zone"} onClick={() => setTool({ kind: "zone" })} icon="▦" label="Область" />
         <ToolButton on={tool.kind === "start"} onClick={() => setTool({ kind: "start" })} icon="▶" label="Старт" />
-        <ToolButton on={tool.kind === "exit"} onClick={() => setTool({ kind: "exit" })} icon="⇄" label="Выход" />
         <ToolButton
           on={tool.kind === "door" && tool.orientation === "h"}
           onClick={() => setTool({ kind: "door", orientation: "h" })}

@@ -13,10 +13,10 @@ describe("версия формата дела", () => {
     expect(validateCase(current).ok).toBe(true);
   });
 
-  it("дело без formatVersion считается версией 1", () => {
+  it("дело без formatVersion считается версией 1 и мигрирует до текущей", () => {
     const { formatVersion: _f, ...old } = structuredClone(current);
     const result = validateCase(old);
-    expect(result.ok && result.caseFile.formatVersion).toBe(1);
+    expect(result.ok && result.caseFile.formatVersion).toBe(CASE_FORMAT_VERSION);
   });
 
   it("цепочка применяется по порядку; вход не изменяется", () => {

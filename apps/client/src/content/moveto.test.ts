@@ -72,36 +72,80 @@ describe("тестовое дело case-test-moveto", () => {
   });
 });
 
-describe("зоны и триггеры диалогов: формат и валидатор", () => {
+describe("области и их действия: формат и валидатор", () => {
   const base = () => structuredClone(case001) as unknown as CaseFile;
   const errorsOf = (c: CaseFile) => {
     const r = validateCase(c);
-    return r.ok ? [] : r.errors.join("\n");
+    return r.ok ? "" : r.errors.join("\n");
   };
+  const zone = (id: string, over: Partial<CaseFile["locations"][0]["zones"][0]> = {}) => ({ id, name: "Холл", cells: [{ x: 15, y: 13 }, { x: 16, y: 13 }], actions: [], ...over });
 
-  it("дело без зон и триггеров проходит как раньше (зоны по умолчанию пустые)", () => {
-    expect(errorsOf(base())).toEqual([]);
-    expect(base().locations.every((l) => (l.zones ?? []).length === 0)).toBe(true);
+  it("дело без областей проходит (области по умолчанию пустые)", () => {
+    expect(errorsOf(base())).toEqual("");
+    expect(base().locations.every((l) => l.zones.length === 0)).toBe(true);
   });
 
-  it("зона с клетками и диалог, который ею запускается, — без ошибок", () => {
+  it("область с действиями «диалог» и «предмет» — без ошибок", () => {
     const c = base();
-    c.locations[0].zones = [{ id: "zone_hall", name: "Холл", cells: [{ x: 15, y: 13 }, { x: 16, y: 13 }] }];
-    c.dialogues[0].trigger = { kind: "zone", zoneId: "zone_hall", auto: true };
-    expect(errorsOf(c)).toEqual([]);
-  });
-
-  it("ошибки: пустая зона, клетка вне карты, повтор id, триггер на несуществующую зону", () => {
-    const c = base();
+    const obj = c.locations[0].objects.find((o) => o.interaction)!;
     c.locations[0].zones = [
-      { id: "z", name: "Пустая", cells: [] },
-      { id: "z", name: "Вне карты", cells: [{ x: 999, y: 0 }] },
+      zone("zone_hall", { actions: [{ kind: "dialogue", dialogueId: c.dialogues[0].id, auto: true }, { kind: "object", objectId: obj.id, requires: { flags: [] } }] }),
     ];
-    c.dialogues[0].trigger = { kind: "zone", zoneId: "нет_такой" };
-    const text = errorsOf(c) as string;
+    expect(errorsOf(c)).toEqual("");
+  });
+
+  it("ошибки: пустая область, клетка вне карты, повтор id, неизвестный диалог и предмет, предмет-декорация", () => {
+    const c = base();
+    const decoration = c.locations[0].objects.find((o) => !o.interaction)!;
+    c.locations[0].zones = [
+      zone("z", { cells: [] }),
+      zone("z", { cells: [{ x: 999, y: 0 }], actions: [{ kind: "dialogue", dialogueId: "нет_такого" }, { kind: "object", objectId: decoration.id }, { kind: "object", objectId: "нет_предмета" }] }),
+    ];
+    const text = errorsOf(c);
     expect(text).toContain("область пуста");
     expect(text).toContain("вне карты");
     expect(text).toContain("повторяющийся id «z»");
+    expect(text).toContain("неизвестная ссылка «нет_такого»");
+    expect(text).toContain("это декорация");
+    expect(text).toContain("неизвестная ссылка «нет_предмета»");
+  });
+
+  it("выход: неизвестная локация, spawn не на полу и в области с автоматическим выходом", () => {
+    const c = base();
+    const floorCell = c.locations[0].playerStart;
+    c.locations[0].zones = [
+      zone("exit_a", { actions: [{ kind: "exit", to: "нет_такой", spawn: floorCell }] }),
+      zone("exit_b", { actions: [{ kind: "exit", to: c.locations[0].id, spawn: { x: 0, y: 0 } }] }), // 0,0 — стена
+      zone("exit_c", { cells: [floorCell], actions: [{ kind: "exit", to: c.locations[0].id, spawn: floorCell, auto: true }] }), // spawn сразу в области с автовыходом
+    ];
+    const text = errorsOf(c);
     expect(text).toContain("неизвестная ссылка «нет_такой»");
+    expect(text).toContain("spawn не на полу");
+    expect(text).toContain("сразу выкинет обратно");
+  });
+});
+
+describe("миграция формата 1 → 2", () => {
+  it("выходы становятся областями с действием exit, триггер диалога — действием области", async () => {
+    const { migrateCase } = await import("../../../../shared/migrate");
+    const old = structuredClone(case001) as Record<string, unknown>;
+    old.formatVersion = 1;
+    const loc = (old.locations as Record<string, unknown>[])[0];
+    loc.exits = [{ id: "stairs", x: 15, y: 13, to: loc.id, spawn: { x: 15, y: 13 }, label: "Лестница" }];
+    loc.zones = [{ id: "z1", name: "Зона", cells: [{ x: 1, y: 1 }] }];
+    (old.dialogues as Record<string, unknown>[])[0].trigger = { kind: "zone", zoneId: "z1", auto: true };
+    (old.dialogues as Record<string, unknown>[])[0].requires = { flags: ["a"] };
+    const m = migrateCase(old);
+    expect(m.ok).toBe(true);
+    const data = (m as { data: Record<string, unknown> }).data;
+    const migrated = (data.locations as { exits?: unknown; zones: { id: string; name: string; cells: unknown[]; actions: unknown[] }[] }[])[0];
+    expect(migrated.exits).toBeUndefined();
+    const exit = migrated.zones.find((z) => z.id === "stairs")!;
+    expect(exit.name).toBe("Лестница");
+    expect(exit.actions).toEqual([{ kind: "exit", to: loc.id, spawn: { x: 15, y: 13 } }]);
+    expect(exit.cells.length).toBeGreaterThan(1); // клетка выхода и проходимые соседи
+    expect(migrated.zones.find((z) => z.id === "z1")!.actions).toEqual([{ kind: "dialogue", dialogueId: (old.dialogues as { id: string }[])[0].id, requires: { flags: ["a"] }, auto: true }]);
+    expect((data.dialogues as Record<string, unknown>[])[0].trigger).toBeUndefined();
+    expect(data.formatVersion).toBe(2);
   });
 });

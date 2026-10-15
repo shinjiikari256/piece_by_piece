@@ -48,7 +48,7 @@ function checkIntegrity(c: CaseFile): string[] {
   unique("location objects/npcs", c.locations.flatMap((l) => [...l.objects.map((o) => o.id), ...l.npcs.map((n) => n.id)]));
   unique("npcs (персонаж в двух местах)", c.locations.flatMap((l) => l.npcs.map((n) => n.characterId)));
   unique("questions", c.questions.map((q) => q.id));
-  const zoneIds = unique("zones", c.locations.flatMap((l) => l.zones.map((z) => z.id)));
+  unique("zones", c.locations.flatMap((l) => l.zones.map((z) => z.id)));
 
   const ref = (set: Set<string>, id: string, where: string) => {
     if (!set.has(id)) err(`${where}: неизвестная ссылка «${id}»`);
@@ -134,6 +134,17 @@ function checkIntegrity(c: CaseFile): string[] {
       if (!z.name.trim()) err(`${L}/zone ${z.id}: нет названия`);
       if (!z.cells.length) err(`${L}/zone ${z.id}: область пуста — отметьте клетки на карте`);
       for (const cell of z.cells) if (!inBounds(cell.x, cell.y)) err(`${L}/zone ${z.id}: клетка ${cell.x},${cell.y} вне карты`);
+      z.actions.forEach((a, i) => {
+        const where = `${L}/zone ${z.id}: действие №${i + 1}`;
+        checkCondition(a.requires, `${where}.requires`);
+        if (a.kind === "dialogue") ref(dialogues, a.dialogueId, `${where} (диалог)`);
+        if (a.kind === "exit") ref(locationIds, a.to, `${where} (выход)`);
+        if (a.kind === "object") {
+          const o = c.locations.flatMap((l) => l.objects).find((x) => x.id === a.objectId);
+          if (!o) err(`${where} (предмет): неизвестная ссылка «${a.objectId}»`);
+          else if (!o.interaction) err(`${where} (предмет): у «${a.objectId}» нет взаимодействия — это декорация`);
+        }
+      });
     }
     unique(`${L}.doors`, loc.doors.map((d) => d.id));
     for (const d of loc.doors) {
@@ -146,21 +157,19 @@ function checkIntegrity(c: CaseFile): string[] {
       if (d.requires && Object.values(d.requires).every((v) => !v?.length))
         err(`${L}/door ${d.id}: дверь закрыта, но условий, при которых она откроется, нет`);
     }
-    unique(`${L}.exits`, loc.exits.map((e) => e.id));
-    for (const e of loc.exits) {
-      if (!isFloor(e.x, e.y)) err(`${L}/exit ${e.id}: выход не на проёме`);
-      if (occupied.has(`${e.x},${e.y}`)) err(`${L}/exit ${e.id}: проём занят`);
-      ref(locationIds, e.to, `${L}/exit ${e.id}.to`);
-    }
   }
-  // точки появления проверяем, когда известны все карты
+  // выходы (действия `exit` областей): точка появления — пол целевой карты, но не прямо в области с автоматическим выходом (иначе сразу выкинет обратно)
   for (const loc of c.locations) {
-    for (const e of loc.exits) {
-      const target = c.locations.find((l) => l.id === e.to);
-      if (!target) continue;
-      if (!floorOf.get(target.id)?.(e.spawn.x, e.spawn.y)) err(`location ${loc.id}/exit ${e.id}: spawn не на полу в «${e.to}»`);
-      if (target.exits.some((x) => x.x === e.spawn.x && x.y === e.spawn.y))
-        err(`location ${loc.id}/exit ${e.id}: spawn стоит прямо на выходе — игрока сразу выкинет обратно`);
+    for (const z of loc.zones) {
+      z.actions.forEach((a, i) => {
+        if (a.kind !== "exit") return;
+        const target = c.locations.find((l) => l.id === a.to);
+        if (!target) return;
+        const where = `location ${loc.id}/zone ${z.id}: действие №${i + 1}`;
+        if (!floorOf.get(target.id)?.(a.spawn.x, a.spawn.y)) err(`${where} (выход): spawn не на полу в «${a.to}»`);
+        const bounce = target.zones.some((tz) => tz.cells.some((cell) => cell.x === a.spawn.x && cell.y === a.spawn.y) && tz.actions.some((ta) => ta.kind === "exit" && ta.auto));
+        if (bounce) err(`${where} (выход): spawn стоит в области с автоматическим выходом — игрока сразу выкинет обратно`);
+      });
     }
   }
 
@@ -187,8 +196,6 @@ function checkIntegrity(c: CaseFile): string[] {
   // Диалоги
   for (const d of c.dialogues) {
     ref(characters, d.characterId, `dialogue ${d.id}`);
-    if (d.trigger) ref(zoneIds, d.trigger.zoneId, `dialogue ${d.id}.trigger`);
-    checkCondition(d.requires, `dialogue ${d.id}.requires`);
     const nodes = unique(`dialogue ${d.id} nodes`, d.nodes.map((n) => n.id));
     ref(nodes, d.startNodeId, `dialogue ${d.id}.startNodeId`);
     for (const n of d.nodes) {

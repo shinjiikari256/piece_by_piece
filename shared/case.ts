@@ -201,15 +201,6 @@ export const NpcPlacement = z.object({
   y: z.number().int(),
 });
 
-export const Exit = z.object({
-  id: z.string(),
-  x: z.number().int().describe("Клетка-проём на краю карты (D)"),
-  y: z.number().int(),
-  to: z.string().describe("id локации, куда ведёт выход"),
-  spawn: z.object({ x: z.number().int(), y: z.number().int() }).describe("Где игрок появится в целевой локации"),
-  label: z.string().describe("Подпись у выхода, например «Лестница → 1 этаж»"),
-});
-
 /** Дверь на 2 клетки в проёме. Открывается при подходе; с условием — заперта, пока оно не выполнено. */
 export const Door = z.object({
   id: z.string(),
@@ -220,12 +211,33 @@ export const Door = z.object({
   lockedText: z.string().optional().describe("Что сказать, если заперто, например «Нужен ключ от комнаты»"),
 });
 
-/** Именованная область карты. К ней привязывают запуск диалога; позже — выход и старт игрока. */
+const Point = z.object({ x: z.number().int(), y: z.number().int() });
+
+/** Что делает область, когда игрок в ней. Из подходящих (`requires`) срабатывает первое по порядку списка. */
+const actionBase = {
+  requires: Condition.optional().describe("Когда действие доступно"),
+  auto: z.boolean().optional().describe("Запускать само, когда игрок входит в область (один раз); иначе — по клавише взаимодействия, пока игрок внутри"),
+};
+export const ZoneAction = z.discriminatedUnion("kind", [
+  z.object({ kind: z.literal("dialogue"), dialogueId: z.string(), ...actionBase }).describe("Запустить диалог"),
+  z.object({ kind: z.literal("object"), objectId: z.string(), ...actionBase }).describe("Взаимодействие с предметом (осмотр, улика)"),
+  z
+    .object({
+      kind: z.literal("exit"),
+      to: z.string().describe("id локации, куда ведёт выход"),
+      spawn: Point.describe("Где игрок появится в целевой локации"),
+      ...actionBase,
+    })
+    .describe("Выход в другую локацию"),
+]);
+
+/** Именованная область карты с действиями: запуск диалога, взаимодействие с предметом, выход. */
 export const Zone = z
   .object({
     id: z.string(),
     name: z.string(),
-    cells: z.array(z.object({ x: z.number().int(), y: z.number().int() })),
+    cells: z.array(Point),
+    actions: z.array(ZoneAction).default([]),
   })
   .describe("Область на карте из клеток");
 
@@ -243,9 +255,8 @@ export const Location = z.object({
   playerStart: z.object({ x: z.number().int(), y: z.number().int() }),
   objects: z.array(LocationObject),
   npcs: z.array(NpcPlacement),
-  exits: z.array(Exit),
   doors: z.array(Door),
-  zones: z.array(Zone).default([]).describe("Именованные области: запуск диалога по входу или по клавише взаимодействия"),
+  zones: z.array(Zone).default([]).describe("Именованные области с действиями: диалог, предмет, выход в другую локацию"),
 });
 
 export const DialogueChoice = z.object({
@@ -264,20 +275,11 @@ export const DialogueNode = z.object({
   choices: z.array(DialogueChoice),
 });
 
-/** Что запускает диалог: персонаж на карте (по умолчанию) или область. */
-export const DialogueTrigger = z.object({
-  kind: z.literal("zone"),
-  zoneId: z.string(),
-  auto: z.boolean().optional().describe("Запускать автоматически, когда игрок входит в область (один раз); иначе — по клавише взаимодействия"),
-});
-
 export const Dialogue = z.object({
   id: z.string(),
   characterId: z.string(),
   startNodeId: z.string(),
   nodes: z.array(DialogueNode),
-  trigger: DialogueTrigger.optional().describe("Без триггера диалог запускает персонаж на карте (его `dialogueId`)"),
-  requires: Condition.optional().describe("Когда диалог доступен; из подходящих запускается первый по порядку списка"),
 });
 
 /** Очная ставка: игрок приводит участников к одному из них — открывается общий разговор. */
@@ -465,10 +467,9 @@ export type QuestionCategory = z.infer<typeof QuestionCategory>;
 export type LocationObject = z.infer<typeof LocationObject>;
 export type NpcPlacement = z.infer<typeof NpcPlacement>;
 export type Location = z.infer<typeof Location>;
-export type Exit = z.infer<typeof Exit>;
 export type Door = z.infer<typeof Door>;
 export type Zone = z.infer<typeof Zone>;
-export type DialogueTrigger = z.infer<typeof DialogueTrigger>;
+export type ZoneAction = z.infer<typeof ZoneAction>;
 export type Confrontation = z.infer<typeof Confrontation>;
 export type SpriteKey = z.infer<typeof SpriteKey>;
 export type Appearance = z.infer<typeof Appearance>;

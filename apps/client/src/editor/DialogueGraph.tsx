@@ -206,16 +206,7 @@ export function DialogueEditor({ fixedId }: { fixedId?: string } = {}) {
         <PanelRail panel={sidePanel} />
       ) : (
         <aside className="dg__side">
-          {!isConfrontation && (
-            <DialogueTrigger
-              draft={draft}
-              dialogue={dialogue}
-              onChange={(fn) => updateDialogue(fn)}
-              onCreateZone={(locationId, zone) =>
-                editor.update((c) => ({ ...c, locations: c.locations.map((l) => (l.id === locationId ? { ...l, zones: [...l.zones, zone] } : l)) }))
-              }
-            />
-          )}
+          {!isConfrontation && <DialogueTrigger draft={draft} dialogue={dialogue} />}
           {node ? (
             <>
               <div className="dg__side-head row">

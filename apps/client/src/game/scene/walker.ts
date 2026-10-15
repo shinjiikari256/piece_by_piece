@@ -36,11 +36,14 @@ export type WalkEvent = "arrived" | "failed" | "gaveUp";
 
 export const tileOfPoint = (p: Point): Tile => ({ x: Math.floor(p.x / TILE), y: Math.floor((p.y - 2) / TILE) });
 
-/** Начать ход; null — до цели сейчас не дойти. */
-export function startWalk(isFree: IsFree, from: Tile, goal: Tile, opts: { leaving?: boolean; failText?: string } = {}): Walk | null {
-  const path = findPath(isFree, from, [goal]);
+/** Начать ход к клетке (или к ближайшей из нескольких); null — до цели сейчас не дойти. */
+export function startWalk(isFree: IsFree, from: Tile, goal: Tile | Tile[], opts: { leaving?: boolean; failText?: string } = {}): Walk | null {
+  const goals = Array.isArray(goal) ? goal : [goal];
+  const path = findPath(isFree, from, goals);
   if (!path) return null;
-  return { phase: "out", origin: from, goal, leaving: !!opts.leaving, failText: opts.failText, path: path.slice(1), blockedMs: 0, replanMs: 0 };
+  // из нескольких целей (клетки области-выхода) выбрана ближайшая достижимая: конец пути
+  const end = tileOfPoint(path[path.length - 1]);
+  return { phase: "out", origin: from, goal: end, leaving: !!opts.leaving, failText: opts.failText, path: path.slice(1), blockedMs: 0, replanMs: 0 };
 }
 
 /** Повернуть ход назад, на исходную клетку; false — обратный путь закрыт. */

@@ -100,7 +100,7 @@ export const LABELS: Record<string, string> = {
   playerStart: "Старт игрока",
   objects: "Предметы",
   npcs: "Люди",
-  exits: "Выходы",
+  zones: "Области",
   tiles: "Карта",
   nodes: "Узлы",
   locations: "Локации",

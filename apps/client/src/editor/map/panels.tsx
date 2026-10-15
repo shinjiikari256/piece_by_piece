@@ -3,12 +3,13 @@ import { z } from "zod";
 import {
   drawTile,
 } from "../../game/art";
-import { Door, Exit, Location, LocationObject, NpcPlacement } from "../../../../../shared/case";
+import { Door, Location, LocationObject, NpcPlacement } from "../../../../../shared/case";
 import type { CaseFile as CaseFileT, Location as LocationT, Zone } from "../../../../../shared/case";
 import { Icon } from "../../ui/icons";
-import { ask, tell } from "../../ui/dialog";
+import { tell } from "../../ui/dialog";
 import { editor } from "../state";
 import { zoneKey } from "./ZoneCreator";
+import { ZoneActions } from "./ZoneActions";
 import { Field, ObjectFields, type JS } from "../SchemaForm";
 import { ConditionEditor } from "../fields/Conditions";
 import type { Condition } from "../../../../../shared/case";
@@ -18,7 +19,6 @@ import { LIST_KEY, type Selection, type Tool } from "./types";
 
 const OBJECT_SCHEMA: JS = z.toJSONSchema(LocationObject);
 const NPC_SCHEMA: JS = z.toJSONSchema(NpcPlacement);
-const EXIT_SCHEMA: JS = z.toJSONSchema(Exit);
 const DOOR_SCHEMA: JS = z.toJSONSchema(Door);
 export const LOCATION_SCHEMA: JS = z.toJSONSchema(Location);
 
@@ -104,12 +104,11 @@ export function SelectedPanel({
     const zone = loc.zones.find((z) => z.id === sel.id);
     if (!zone) return null;
     const drawing = tool.kind === "zone";
-    const users = draft.dialogues.filter((d) => d.trigger?.zoneId === zone.id);
-    return (
+        return (
       <>
         {back}
         <h3>Область</h3>
-        <p className="muted">Именованная область карты. Её выбирают как триггер диалога: он запускается по клавише взаимодействия или сам, когда игрок входит.</p>
+        <p className="muted">Именованная область карты. Когда игрок внутри, она делает своё действие: запускает диалог, взаимодействие с предметом или выход в другую локацию.</p>
         <label className="ef">
           <span className="ef__label">Название</span>
           <input value={zone.name} onChange={(e) => updateLoc((l) => ({ ...l, zones: l.zones.map((z) => (z.id === zone.id ? { ...z, name: e.target.value } : z)) }), `zone-name:${zone.id}`)} />
@@ -125,9 +124,11 @@ export function SelectedPanel({
           </button>
         </div>
         <p className="muted">На карте: ведите мышью по клеткам, Shift — прямоугольником, Alt — стереть.</p>
-        <div className="lm__stats">
-          {users.length ? users.map((d) => <span key={d.id}>диалог «{d.id}»</span>) : <span>на область пока нет диалогов</span>}
-        </div>
+        <ZoneActions
+          zone={zone}
+          draft={draft}
+          onChange={(actions) => updateLoc((l) => ({ ...l, zones: l.zones.map((z) => (z.id === zone.id ? { ...z, actions } : z)) }), `zone-actions:${zone.id}`)}
+        />
         <button className="btn btn--sm btn--danger" onClick={onDelete}>
           Удалить (Delete)
         </button>
@@ -135,10 +136,10 @@ export function SelectedPanel({
     );
   }
   const key = LIST_KEY[sel.kind];
-  const schema = { object: OBJECT_SCHEMA, npc: NPC_SCHEMA, exit: EXIT_SCHEMA, door: DOOR_SCHEMA }[sel.kind];
+  const schema = { object: OBJECT_SCHEMA, npc: NPC_SCHEMA, door: DOOR_SCHEMA }[sel.kind];
   const item = (loc[key] as { id: string }[]).find((x) => x.id === sel.id);
   if (!item) return null;
-  const title = { object: "Предмет", npc: "Человек", exit: "Выход", door: "Дверь" }[sel.kind];
+  const title = { object: "Предмет", npc: "Человек", door: "Дверь" }[sel.kind];
   return (
     <>
       {back}
@@ -160,7 +161,7 @@ export function SelectedPanel({
   );
 }
 
-/** Ключ области: меняется только вручную (Enter или уход с поля); ссылки в триггерах диалогов заменяются вместе с ним. */
+/** Ключ области: меняется только вручную (Enter или уход с поля). На ключ области никто не ссылается — действия лежат в самой области. */
 function ZoneKeyField({ zone, draft, onRenamed }: { zone: Zone; draft: CaseFileT; onRenamed: (key: string) => void }) {
   const [text, setText] = useState(zone.id);
   useEffect(() => setText(zone.id), [zone.id]);
@@ -172,12 +173,9 @@ function ZoneKeyField({ zone, draft, onRenamed }: { zone: Zone; draft: CaseFileT
       setText(zone.id);
       return tell({ title: "Ключ уже занят", text: `«${key}» уже есть у другой области — выберите другой.` });
     }
-    const used = draft.dialogues.filter((d) => d.trigger?.zoneId === zone.id).length;
-    if (used > 0 && !(await ask({ title: "Переименовать ключ?", text: `Ключ «${zone.id}» используется в ${used} диалог(ах). Он заменится на «${key}» во всех триггерах.`, confirmLabel: "Переименовать" }))) return setText(zone.id);
     editor.update((c) => ({
       ...c,
       locations: c.locations.map((l) => ({ ...l, zones: l.zones.map((z) => (z.id === zone.id ? { ...z, id: key } : z)) })),
-      dialogues: c.dialogues.map((d) => (d.trigger?.zoneId === zone.id ? { ...d, trigger: { ...d.trigger, zoneId: key } } : d)),
     }));
     onRenamed(key); // выбор области в адресе идёт по ключу
   };

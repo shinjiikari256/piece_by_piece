@@ -1,5 +1,5 @@
 import { useSyncExternalStore } from "react";
-import type { Exit, Solution } from "../../../../shared/case";
+import type { Solution, ZoneAction } from "../../../../shared/case";
 import type { PublicCase, PublicDeduction } from "../../../../shared/public-case";
 import { RESULT_FORMAT_VERSION, type CaseAuthority, type DeductionVerdict, type FinishInput, type RevealedHint } from "../../../../shared/judge";
 import { APP_NAME, FROM_EDITOR, GAME_VERSION } from "../env";
@@ -202,12 +202,28 @@ async function ask<T>(call: (a: CaseAuthority) => Promise<T>): Promise<T | null>
   }
 }
 
-/** Диалог области: первый подходящий по порядку списка дела (условия `requires` выполнены). */
-function zoneDialogue(zoneId: string, auto = false) {
-  const s = state;
-  return s.caseFile?.dialogues.find(
-    (d) => d.trigger?.zoneId === zoneId && meets(d.requires, s.progress) && (!auto || (d.trigger.auto && !s.progress.fired.includes(d.id))),
+/** Устойчивый ключ действия области (не зависит от порядка в списке) — для «сработало один раз». */
+const actionKey = (zoneId: string, a: ZoneAction) => `${zoneId}:${a.kind}:${a.kind === "dialogue" ? a.dialogueId : a.kind === "object" ? a.objectId : a.to}`;
+
+/** Первое подходящее действие области: условие выполнено, цель существует; `auto` — только с автозапуском и ещё не сработавшие. */
+function zoneAction(zoneId: string, auto = false): ZoneAction | undefined {
+  const c = state.caseFile;
+  const zone = c?.locations.flatMap((l) => l.zones).find((z) => z.id === zoneId);
+  return zone?.actions.find(
+    (a) =>
+      meets(a.requires, state.progress) &&
+      (a.kind !== "dialogue" || c!.dialogues.some((d) => d.id === a.dialogueId)) &&
+      (!auto || (a.auto && !state.progress.fired.includes(actionKey(zoneId, a)))),
   );
+}
+
+/** Выполнить действие области: диалог, взаимодействие с предметом или выход. */
+function runZoneAction(zoneId: string, a: ZoneAction) {
+  if (a.kind === "dialogue") {
+    const dialogue = state.caseFile?.dialogues.find((d) => d.id === a.dialogueId);
+    if (dialogue) enterNode(`zone:${zoneId}`, dialogue.id, dialogue.startNodeId);
+  } else if (a.kind === "object") actions.interact(a.objectId);
+  else actions.travel({ to: a.to, spawn: a.spawn });
 }
 
 const choiceKey = (dialogueId: string, nodeId: string, choiceId: string) =>
@@ -288,18 +304,18 @@ export const actions = {
     });
   },
 
-  /** Есть ли сейчас подходящий диалог у области (подсказка «Взаимодействие» показывается только тогда). */
-  hasZoneDialogue(zoneId: string) {
-    return !!zoneDialogue(zoneId);
+  /** Есть ли сейчас подходящее действие у области (подсказка «Взаимодействие» показывается только тогда). */
+  hasZoneAction(zoneId: string) {
+    return !!zoneAction(zoneId);
   },
 
-  /** Игрок вошёл в область: запускается первый подходящий диалог с автозапуском (один раз за прохождение). */
+  /** Игрок вошёл в область: срабатывает первое подходящее действие с автозапуском (один раз за прохождение). */
   enterZone(zoneId: string) {
     if (isWorldBlocked(state)) return;
-    const dialogue = zoneDialogue(zoneId, true);
-    if (!dialogue) return;
-    set((s) => ({ progress: { ...s.progress, fired: [...s.progress.fired, dialogue.id] } }));
-    enterNode(`zone:${zoneId}`, dialogue.id, dialogue.startNodeId);
+    const action = zoneAction(zoneId, true);
+    if (!action) return;
+    set((s) => ({ progress: { ...s.progress, fired: [...s.progress.fired, actionKey(zoneId, action)] } }));
+    runZoneAction(zoneId, action);
   },
 
   /**
@@ -319,7 +335,7 @@ export const actions = {
   },
 
   /** Переход через дверь в другую локацию; сцену перестраивает OfficeScene. */
-  travel(exit: Exit) {
+  travel(exit: { to: string; spawn: { x: number; y: number } }) {
     if (isWorldBlocked(state)) return;
     set({ locationId: exit.to, spawn: exit.spawn });
   },
@@ -363,14 +379,9 @@ export const actions = {
       if (door) toast(door.lockedText ? `Заперто. ${door.lockedText}` : "Заперто.");
       return;
     }
-    if (targetId.startsWith("exit:")) {
-      const exit = s.caseFile.locations.find((l) => l.id === s.locationId)?.exits.find((e) => `exit:${e.id}` === targetId);
-      if (exit) actions.travel(exit);
-      return;
-    }
     if (targetId.startsWith("zone:")) {
-      const dialogue = zoneDialogue(targetId.slice(5));
-      if (dialogue) enterNode(targetId, dialogue.id, dialogue.startNodeId);
+      const action = zoneAction(targetId.slice(5));
+      if (action) runZoneAction(targetId.slice(5), action);
       return;
     }
     const npc = allNpcs(s.caseFile).find((n) => n.id === targetId);

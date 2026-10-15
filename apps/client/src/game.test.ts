@@ -545,10 +545,10 @@ describe("очные ставки и локации", () => {
   it("переход по лестнице меняет локацию", async () => {
     const c = start("case-002.json");
     expect(store.get().locationId).toBe("dorm_floor");
-    const exit = c.locations[0].exits[0];
-    actions.travel(exit);
+    const zone = c.locations[0].zones.find((z) => z.actions.some((a) => a.kind === "exit"))!;
+    actions.interact(`zone:${zone.id}`); // выход — область с действием «exit»
     expect(store.get().locationId).toBe("dorm_lobby");
-    expect(store.get().spawn).toEqual(exit.spawn);
+    expect(store.get().spawn).toEqual({ x: 2, y: 12 });
   });
 });
 

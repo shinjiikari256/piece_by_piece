@@ -46,7 +46,6 @@ export function blankCase(): CaseFile {
           },
         ],
         npcs: [{ id: "npc_witness", characterId: "witness", dialogueId: "dlg_witness", x: 12, y: 8 }],
-        exits: [],
         doors: [],
         zones: [],
       },

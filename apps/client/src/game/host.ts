@@ -13,9 +13,9 @@ export interface SceneHost {
   onInteract(targetId: string): void;
   /** Очная ставка, доступная с этим персонажем. */
   confrontationWith(characterId: string): ReturnType<typeof actions.confrontationWith>;
-  /** Есть ли сейчас подходящий диалог у области: подсказка взаимодействия показывается только тогда. */
-  hasZoneDialogue(zoneId: string): boolean;
-  /** Игрок вошёл в область (запуск диалога с автозапуском). */
+  /** Есть ли сейчас подходящее действие у области: подсказка взаимодействия показывается только тогда. */
+  hasZoneAction(zoneId: string): boolean;
+  /** Игрок вошёл в область (срабатывает действие с автозапуском). */
   enterZone(zoneId: string): void;
   /** Где персонаж оказался после хода (`null` — на исходном месте). */
   setNpcPlace(characterId: string, place: { locationId: string; x: number; y: number } | null): void;

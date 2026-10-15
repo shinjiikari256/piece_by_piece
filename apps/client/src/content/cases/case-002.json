@@ -1,5 +1,5 @@
 {
-  "formatVersion": 1,
+  "formatVersion": 2,
   "id": "case-002",
   "number": "002",
   "title": "Комната 412",
@@ -12,7 +12,7 @@
     "points": 10
   },
   "published": true,
-  "updatedAt": "2026-10-15T01:42:47Z",
+  "updatedAt": "2026-10-15T02:59:06Z",
   "locations": [
     {
       "id": "dorm_floor",
@@ -425,30 +425,6 @@
           "y": 13
         }
       ],
-      "exits": [
-        {
-          "id": "stairs_down_a",
-          "x": 29,
-          "y": 12,
-          "to": "dorm_lobby",
-          "spawn": {
-            "x": 2,
-            "y": 12
-          },
-          "label": "Лестница ↓ 1 этаж"
-        },
-        {
-          "id": "stairs_down_b",
-          "x": 29,
-          "y": 13,
-          "to": "dorm_lobby",
-          "spawn": {
-            "x": 2,
-            "y": 13
-          },
-          "label": ""
-        }
-      ],
       "doors": [
         {
           "id": "door_412",
@@ -473,6 +449,56 @@
           "x": 24,
           "y": 9,
           "orientation": "h"
+        }
+      ],
+      "zones": [
+        {
+          "id": "stairs_down_a",
+          "name": "Лестница ↓ 1 этаж",
+          "cells": [
+            {
+              "x": 29,
+              "y": 12
+            },
+            {
+              "x": 28,
+              "y": 12
+            }
+          ],
+          "actions": [
+            {
+              "kind": "exit",
+              "to": "dorm_lobby",
+              "spawn": {
+                "x": 2,
+                "y": 12
+              }
+            }
+          ]
+        },
+        {
+          "id": "stairs_down_b",
+          "name": "Выход → Общежитие №3, 1 этаж",
+          "cells": [
+            {
+              "x": 29,
+              "y": 13
+            },
+            {
+              "x": 28,
+              "y": 13
+            }
+          ],
+          "actions": [
+            {
+              "kind": "exit",
+              "to": "dorm_lobby",
+              "spawn": {
+                "x": 2,
+                "y": 13
+              }
+            }
+          ]
         }
       ]
     },
@@ -728,31 +754,57 @@
           "y": 7
         }
       ],
-      "exits": [
+      "doors": [],
+      "zones": [
         {
           "id": "stairs_up_a",
-          "x": 0,
-          "y": 12,
-          "to": "dorm_floor",
-          "spawn": {
-            "x": 27,
-            "y": 12
-          },
-          "label": "Лестница ↑ 4 этаж"
+          "name": "Лестница ↑ 4 этаж",
+          "cells": [
+            {
+              "x": 0,
+              "y": 12
+            },
+            {
+              "x": 1,
+              "y": 12
+            }
+          ],
+          "actions": [
+            {
+              "kind": "exit",
+              "to": "dorm_floor",
+              "spawn": {
+                "x": 27,
+                "y": 12
+              }
+            }
+          ]
         },
         {
           "id": "stairs_up_b",
-          "x": 0,
-          "y": 13,
-          "to": "dorm_floor",
-          "spawn": {
-            "x": 27,
-            "y": 13
-          },
-          "label": ""
+          "name": "Выход → Общежитие №3, 4 этаж",
+          "cells": [
+            {
+              "x": 0,
+              "y": 13
+            },
+            {
+              "x": 1,
+              "y": 13
+            }
+          ],
+          "actions": [
+            {
+              "kind": "exit",
+              "to": "dorm_floor",
+              "spawn": {
+                "x": 27,
+                "y": 13
+              }
+            }
+          ]
         }
-      ],
-      "doors": []
+      ]
     }
   ],
   "characters": [
