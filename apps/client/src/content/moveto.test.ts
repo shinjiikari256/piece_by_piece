@@ -71,3 +71,37 @@ describe("тестовое дело case-test-moveto", () => {
     expect(effects.some((e) => e.type === "moveTo" && e.locationId === "dorm_lobby")).toBe(true); // в другую локацию
   });
 });
+
+describe("зоны и триггеры диалогов: формат и валидатор", () => {
+  const base = () => structuredClone(case001) as unknown as CaseFile;
+  const errorsOf = (c: CaseFile) => {
+    const r = validateCase(c);
+    return r.ok ? [] : r.errors.join("\n");
+  };
+
+  it("дело без зон и триггеров проходит как раньше (зоны по умолчанию пустые)", () => {
+    expect(errorsOf(base())).toEqual([]);
+    expect(base().locations.every((l) => (l.zones ?? []).length === 0)).toBe(true);
+  });
+
+  it("зона с клетками и диалог, который ею запускается, — без ошибок", () => {
+    const c = base();
+    c.locations[0].zones = [{ id: "zone_hall", name: "Холл", cells: [{ x: 15, y: 13 }, { x: 16, y: 13 }] }];
+    c.dialogues[0].trigger = { kind: "zone", zoneId: "zone_hall", auto: true };
+    expect(errorsOf(c)).toEqual([]);
+  });
+
+  it("ошибки: пустая зона, клетка вне карты, повтор id, триггер на несуществующую зону", () => {
+    const c = base();
+    c.locations[0].zones = [
+      { id: "z", name: "Пустая", cells: [] },
+      { id: "z", name: "Вне карты", cells: [{ x: 999, y: 0 }] },
+    ];
+    c.dialogues[0].trigger = { kind: "zone", zoneId: "нет_такой" };
+    const text = errorsOf(c) as string;
+    expect(text).toContain("область пуста");
+    expect(text).toContain("вне карты");
+    expect(text).toContain("повторяющийся id «z»");
+    expect(text).toContain("неизвестная ссылка «нет_такой»");
+  });
+});

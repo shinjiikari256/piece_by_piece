@@ -13,6 +13,7 @@ const loc = (objects: Location["objects"]): Location => ({
   npcs: [],
   exits: [],
   doors: [],
+  zones: [],
 });
 const obj = (id: string, sprite: Location["objects"][number]["sprite"], x: number, y: number) => ({ id, sprite, x, y, label: "", interaction: null });
 

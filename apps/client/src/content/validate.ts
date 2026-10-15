@@ -48,6 +48,7 @@ function checkIntegrity(c: CaseFile): string[] {
   unique("location objects/npcs", c.locations.flatMap((l) => [...l.objects.map((o) => o.id), ...l.npcs.map((n) => n.id)]));
   unique("npcs (персонаж в двух местах)", c.locations.flatMap((l) => l.npcs.map((n) => n.characterId)));
   unique("questions", c.questions.map((q) => q.id));
+  const zoneIds = unique("zones", c.locations.flatMap((l) => l.zones.map((z) => z.id)));
 
   const ref = (set: Set<string>, id: string, where: string) => {
     if (!set.has(id)) err(`${where}: неизвестная ссылка «${id}»`);
@@ -129,6 +130,11 @@ function checkIntegrity(c: CaseFile): string[] {
       ref(characters, n.characterId, `npc ${n.id}`);
       ref(dialogues, n.dialogueId, `npc ${n.id}`);
     }
+    for (const z of loc.zones) {
+      if (!z.name.trim()) err(`${L}/zone ${z.id}: нет названия`);
+      if (!z.cells.length) err(`${L}/zone ${z.id}: область пуста — отметьте клетки на карте`);
+      for (const cell of z.cells) if (!inBounds(cell.x, cell.y)) err(`${L}/zone ${z.id}: клетка ${cell.x},${cell.y} вне карты`);
+    }
     unique(`${L}.doors`, loc.doors.map((d) => d.id));
     for (const d of loc.doors) {
       const tiles = d.orientation === "h" ? [[d.x, d.y], [d.x + 1, d.y]] : [[d.x, d.y], [d.x, d.y + 1]];
@@ -181,6 +187,8 @@ function checkIntegrity(c: CaseFile): string[] {
   // Диалоги
   for (const d of c.dialogues) {
     ref(characters, d.characterId, `dialogue ${d.id}`);
+    if (d.trigger) ref(zoneIds, d.trigger.zoneId, `dialogue ${d.id}.trigger`);
+    checkCondition(d.requires, `dialogue ${d.id}.requires`);
     const nodes = unique(`dialogue ${d.id} nodes`, d.nodes.map((n) => n.id));
     ref(nodes, d.startNodeId, `dialogue ${d.id}.startNodeId`);
     for (const n of d.nodes) {

@@ -18,6 +18,8 @@ export interface Progress {
   followers: string[];
   /** Персонажи, оставшиеся не на своём исходном месте. */
   npcPlaces: Record<string, Place>;
+  /** Диалоги с автозапуском по входу в область, которые уже сработали (один раз за прохождение). */
+  fired: string[];
 }
 
 export const emptyProgress = (): Progress => ({
@@ -27,6 +29,7 @@ export const emptyProgress = (): Progress => ({
   characterNotes: {},
   followers: [],
   npcPlaces: {},
+  fired: [],
 });
 
 export function meets(cond: Condition | undefined, p: Progress): boolean {
@@ -62,6 +65,7 @@ export function applyEffects(
     characterNotes: { ...p.characterNotes },
     followers: [...p.followers],
     npcPlaces: { ...p.npcPlaces },
+    fired: [...(p.fired ?? [])],
   };
   const newEvidence: string[] = [];
   for (const e of effects) {

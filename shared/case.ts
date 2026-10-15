@@ -220,6 +220,15 @@ export const Door = z.object({
   lockedText: z.string().optional().describe("Что сказать, если заперто, например «Нужен ключ от комнаты»"),
 });
 
+/** Именованная область карты. К ней привязывают запуск диалога; позже — выход и старт игрока. */
+export const Zone = z
+  .object({
+    id: z.string(),
+    name: z.string(),
+    cells: z.array(z.object({ x: z.number().int(), y: z.number().int() })),
+  })
+  .describe("Область на карте из клеток");
+
 export const Location = z.object({
   id: z.string(),
   name: z.string(),
@@ -236,6 +245,7 @@ export const Location = z.object({
   npcs: z.array(NpcPlacement),
   exits: z.array(Exit),
   doors: z.array(Door),
+  zones: z.array(Zone).default([]).describe("Именованные области: запуск диалога по входу или по клавише взаимодействия"),
 });
 
 export const DialogueChoice = z.object({
@@ -254,11 +264,20 @@ export const DialogueNode = z.object({
   choices: z.array(DialogueChoice),
 });
 
+/** Что запускает диалог: персонаж на карте (по умолчанию) или область. */
+export const DialogueTrigger = z.object({
+  kind: z.literal("zone"),
+  zoneId: z.string(),
+  auto: z.boolean().optional().describe("Запускать автоматически, когда игрок входит в область (один раз); иначе — по клавише взаимодействия"),
+});
+
 export const Dialogue = z.object({
   id: z.string(),
   characterId: z.string(),
   startNodeId: z.string(),
   nodes: z.array(DialogueNode),
+  trigger: DialogueTrigger.optional().describe("Без триггера диалог запускает персонаж на карте (его `dialogueId`)"),
+  requires: Condition.optional().describe("Когда диалог доступен; из подходящих запускается первый по порядку списка"),
 });
 
 /** Очная ставка: игрок приводит участников к одному из них — открывается общий разговор. */
@@ -448,6 +467,8 @@ export type NpcPlacement = z.infer<typeof NpcPlacement>;
 export type Location = z.infer<typeof Location>;
 export type Exit = z.infer<typeof Exit>;
 export type Door = z.infer<typeof Door>;
+export type Zone = z.infer<typeof Zone>;
+export type DialogueTrigger = z.infer<typeof DialogueTrigger>;
 export type Confrontation = z.infer<typeof Confrontation>;
 export type SpriteKey = z.infer<typeof SpriteKey>;
 export type Appearance = z.infer<typeof Appearance>;
