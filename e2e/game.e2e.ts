@@ -516,6 +516,9 @@ describe("игра в браузере", () => {
     expect(await page.locator(".ed__item-note", { hasText: "☺" }).count()).toBeGreaterThan(0);
     await page.locator(".ed__list-add").click(); // новый диалог никто не запускает
     await expect.poll(() => page.locator(".ed__item-note", { hasText: "не подключён" }).count()).toBe(1);
+    // и в проверке дела появилось предупреждение (не ошибка)
+    await expect.poll(() => page.locator(".ed__nav-item--warnings").count()).toBe(1);
+    expect(await page.locator(".ed__nav-item--errors").count()).toBe(0);
     // привязка к новой области на месте снимает пометку
     await page.locator(".dg__trigger .sel--add").click();
     await page.locator('[role="option"]', { hasText: "новая область" }).click();
@@ -527,6 +530,7 @@ describe("игра в браузере", () => {
     await page.getByRole("button", { name: "Создать", exact: true }).click();
     await expect.poll(() => page.locator(".ed__item-note", { hasText: "не подключён" }).count()).toBe(0);
     expect(await page.locator(".ed__item-note", { hasText: "▦ Проход" }).count()).toBe(1);
+    await expect.poll(() => page.locator(".ed__nav-item--warnings").count()).toBe(0); // предупреждение ушло
     await page.close();
   });
 

@@ -96,6 +96,7 @@ export function EditorApp() {
   const section = useEditor((s) => s.section);
   const draft = useEditor((s) => s.draft);
   const errors = useEditor((s) => s.errors);
+  const warnings = useEditor((s) => s.warnings);
   useEditorUrl(SECTIONS.map((s) => s.id).concat("errors"));
 
   // на странице конкретного дела шапка сайта не нужна — остаётся только шапка дела
@@ -160,17 +161,22 @@ export function EditorApp() {
       <ContextMenu build={editorMenu} />
       <nav className="ed__nav" ref={nav}>
         {SECTIONS.map((s) => (
-          <button key={s.id} className="ed__nav-item" tabIndex={section === s.id || (section === "errors" && !errors.length && s.id === "general") ? 0 : -1} aria-current={section === s.id || undefined} onClick={() => editor.goto(s.id)} title={s.hint}>
+          <button key={s.id} className="ed__nav-item" tabIndex={section === s.id || (section === "errors" && !errors.length && !warnings.length && s.id === "general") ? 0 : -1} aria-current={section === s.id || undefined} onClick={() => editor.goto(s.id)} title={s.hint}>
             {s.label}
             <span className="ed__nav-count">{countFor(draft, s.id)}</span>
           </button>
         ))}
-        {errors.length > 0 && (
-          <button className="ed__nav-item ed__nav-item--errors" tabIndex={section === "errors" ? 0 : -1} aria-current={section === "errors" || undefined} onClick={() => editor.goto("errors")}>
+        {(errors.length > 0 || warnings.length > 0) && (
+          <button
+            className={`ed__nav-item ${errors.length ? "ed__nav-item--errors" : "ed__nav-item--warnings"}`}
+            tabIndex={section === "errors" ? 0 : -1}
+            aria-current={section === "errors" || undefined}
+            onClick={() => editor.goto("errors")}
+          >
             <span>
-              <Icon name="alert" size={15} /> Ошибки
+              <Icon name="alert" size={15} /> {errors.length ? "Ошибки" : "Предупреждения"}
             </span>
-            <span className="ed__nav-count">{errors.length}</span>
+            <span className="ed__nav-count">{errors.length || warnings.length}</span>
           </button>
         )}
       </nav>

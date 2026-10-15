@@ -51,6 +51,7 @@ export function locateError(message: string, c: CaseFile): LocatedError {
   });
   let m: RegExpMatchArray | null;
 
+  if ((m = message.match(/^flag (\S+?):/))) return make("flags", { id: m[1] });
   if ((m = message.match(/^location (\S+?)\/(object|npc|exit|door|zone) (\S+?):/)))
     return make("locations", { sub: m[1], kind: m[2] as Focus["kind"], id: m[3] });
   if ((m = message.match(/^location (\S+?)[/.:]/))) return make("locations", { sub: m[1] });

@@ -174,7 +174,17 @@
   color: var(--bad);
   border: 1px solid var(--bad-soft);
 }
-.ed__nav-item--errors > span:first-child {
+.ed__nav-item--warnings {
+  margin-top: 0.5rem;
+  color: var(--warn-strong);
+  border: 1px solid var(--warn-line);
+}
+.ed__nav-item--warnings[aria-current] {
+  background: var(--warn);
+  color: var(--warn-ink);
+}
+.ed__nav-item--errors > span:first-child,
+.ed__nav-item--warnings > span:first-child {
   display: inline-flex;
   align-items: center;
   gap: 0.35em;

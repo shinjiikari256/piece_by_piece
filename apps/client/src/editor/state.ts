@@ -3,6 +3,7 @@ import { useSyncExternalStore } from "react";
 import type { CaseFile } from "../../../../shared/case";
 import { parseCase } from "../../../../shared/migrate";
 import { validateCase } from "../content/validate";
+import { caseWarnings } from "../content/warnings";
 import { saveDraft, savePlaytest } from "../content/drafts";
 import { blankCase } from "./template";
 
@@ -48,6 +49,8 @@ export interface EditorState {
   section: SectionId;
   focus: Focus | null;
   errors: string[];
+  /** Не блокируют сохранение: диалог без запуска, флаг без источника и т. п. */
+  warnings: string[];
   /** Есть ли изменения после последнего «Сохранить». */
   dirty: boolean;
   /** Браузер не смог записать черновик (хранилище переполнено или недоступно) — правки живут только до перезагрузки. */
@@ -72,6 +75,15 @@ const errorsOf = (draft: CaseFile) => {
   return r.ok ? [] : r.errors;
 };
 
+/** Предупреждения считаем только для корректного дела (с ошибками смотреть на них рано). */
+const warningsOf = (draft: CaseFile) => {
+  try {
+    return validateCase(draft).ok ? caseWarnings(draft) : [];
+  } catch {
+    return [];
+  }
+};
+
 const initialDraft = loadCurrent();
 let savedJson = readRaw(SAVED_KEY) ?? JSON.stringify(initialDraft);
 let state: EditorState = {
@@ -84,6 +96,7 @@ let state: EditorState = {
   dirty: JSON.stringify(initialDraft) !== savedJson,
   storageFailed: false,
   errors: errorsOf(initialDraft),
+  warnings: warningsOf(initialDraft),
   lastMergeKey: null,
   lastEditAt: 0,
 };
@@ -102,7 +115,7 @@ function set(patch: Partial<EditorState>) {
     }
     clearTimeout(validateTimer);
     validateTimer = setTimeout(() => {
-      state = { ...state, errors: errorsOf(state.draft) };
+      state = { ...state, errors: errorsOf(state.draft), warnings: warningsOf(state.draft) };
       listeners.forEach((l) => l());
     }, 250);
   }
