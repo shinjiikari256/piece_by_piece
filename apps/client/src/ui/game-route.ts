@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { FROM_EDITOR, OFFLINE } from "../env";
 import { actions, store, useGame } from "../state/store";
-import { readPlaytest } from "../content/drafts";
+import { editorPathOfPlaytest, readPlaytest } from "../content/drafts";
 import { validateCase } from "../content/validate";
 import { LocalAuthority } from "../content/local-authority";
 import { caseRepository } from "../content/repository";
@@ -29,7 +29,7 @@ async function loadFromUrl(route: Route) {
       await actions.resume(await caseRepository.open(route.caseId));
     }
   } catch (e) {
-    navigate(FROM_EDITOR ? "/editor" : "/cases", { replace: true });
+    navigate(FROM_EDITOR ? editorPathOfPlaytest() : "/cases", { replace: true });
     void tell({ title: "Не удалось открыть дело", text: e instanceof Error && FROM_EDITOR ? e.message : "Такого дела нет. Выберите дело из списка." });
   } finally {
     loading = false;

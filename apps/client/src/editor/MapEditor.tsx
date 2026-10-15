@@ -409,8 +409,10 @@ export function MapEditor() {
             />
           </div>
           <div className="lm__status">
-            <span className="lm__coords">{hover ? `${hover.x}, ${hover.y}` : `${w}×${h} клеток`}</span>
-            <span className="lm__hint">{hoverInfo || toolHint}</span>
+            <span className="lm__hint">
+              <span className="lm__coords">{hover ? `${hover.x}, ${hover.y}` : `${w}×${h} клеток`}</span>
+              {hoverInfo || toolHint}
+            </span>
             <span className="lm__zoom">
               {(["fit", 2, 3, 4] as const).map((z) => (
                 <button key={z} aria-pressed={zoom === z} onClick={() => setZoom(z)}>

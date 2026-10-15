@@ -213,13 +213,17 @@
   color: var(--text-on-dark);
   font-size: var(--fs-sm);
 }
-.lm__coords {
-  font-family: var(--font-mono);
-  min-width: 10rem;
-}
 .lm__hint {
-  flex: 1;
+  flex: 1; /* координаты и подсказка — один блок на всё место, не занятое масштабом */
+  min-width: 0;
+  display: flex;
+  gap: 1.2rem;
   color: var(--warn);
+}
+.lm__coords {
+  flex: none;
+  font-family: var(--font-mono);
+  color: var(--text-on-dark);
 }
 
 .lm__inspector {

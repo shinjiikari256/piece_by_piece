@@ -1,3 +1,4 @@
+import { editorPathOfPlaytest } from "../content/drafts";
 import { useSyncExternalStore } from "react";
 import type { Solution, ZoneAction } from "../../../../shared/case";
 import type { PublicCase, PublicDeduction } from "../../../../shared/public-case";
@@ -252,7 +253,7 @@ export const actions = {
     set(initialState());
     // адрес расследования больше не нужен: сайт — на списке дел (или в конструкторе, если это тестовый запуск)
     const page = currentRoute().page;
-    if (page === "play" || page === "playtest") navigate(FROM_EDITOR ? "/editor" : "/cases", { replace: true });
+    if (page === "play" || page === "playtest") navigate(FROM_EDITOR ? editorPathOfPlaytest() : "/cases", { replace: true });
   },
 
   /** К списку дел. */
@@ -389,7 +390,7 @@ export const actions = {
     if (keepProgress && state.caseFile) void platform().saves.markPaused(state.caseFile.id);
     authority = null;
     set({ ...initialState(), runId: state.runId });
-    navigate(FROM_EDITOR ? "/editor" : "/cases");
+    navigate(FROM_EDITOR ? editorPathOfPlaytest() : "/cases");
   },
 
   /** Вызывается из Phaser по E/клику: объект или NPC. */

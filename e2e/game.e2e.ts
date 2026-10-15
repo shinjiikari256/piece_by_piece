@@ -807,8 +807,11 @@ describe("игра в браузере", () => {
     expect(new URL(page.url()).pathname).toBe("/playtest");
     // в шапке вместо «в главное меню» — стрелка назад в конструктор; сначала спрашивает про выход
     await page.locator("a.topbar__home").click();
-    await page.getByRole("button", { name: "Сохранить и выйти" }).click();
-    await expect.poll(() => page.evaluate(() => location.pathname)).toBe("/editor");
+    await page.getByRole("button", { name: "Сохранить и вернуться" }).click();
+    await expect.poll(() => page.evaluate(() => location.pathname)).toBe("/editor/case-001/general");
+    // открыт конструктор дела, а не список дел; плашки тестового запуска там нет
+    await page.waitForFunction(() => (window as any).__editor?.editorStore.get().screen === "case");
+    expect(await page.evaluate(() => !!document.querySelector(".playtest-banner"))).toBe(false);
     await page.close();
   });
 

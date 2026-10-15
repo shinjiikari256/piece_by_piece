@@ -1,7 +1,7 @@
 import { useEffect, useRef, type ReactNode } from "react";
 import { useFocusTrap, useWindowKey } from "./ui/hooks";
 import { actions, store, useGame } from "./state/store";
-import { readPlaytest } from "./content/drafts";
+import { editorPathOfPlaytest, readPlaytest } from "./content/drafts";
 import { validateCase } from "./content/validate";
 import { LocalAuthority } from "./content/local-authority";
 import { Icon } from "./ui/icons";
@@ -124,8 +124,8 @@ export function App() {
 
   return (
     <>
-      {FROM_EDITOR && (
-        <Link className="playtest-banner" to="/editor">
+      {FROM_EDITOR && route.page !== "editor" && (
+        <Link className="playtest-banner" to={editorPathOfPlaytest()}>
           <Icon name="back" size={15} /> Тестовый запуск · вернуться в конструктор
         </Link>
       )}

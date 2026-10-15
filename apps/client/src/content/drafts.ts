@@ -21,3 +21,9 @@ export const listDraftIds = (): string[] => listKeys(PREFIX).map((k) => k.slice(
 export const savePlaytest = (raw: unknown) => writeJson(PLAYTEST_KEY, raw);
 
 export const readPlaytest = (): unknown | null => readJson<unknown | null>(PLAYTEST_KEY, null);
+
+/** Куда вернуться из тестового запуска: в конструктор того дела, которое запускали (а не на список дел). */
+export function editorPathOfPlaytest(): string {
+  const id = (readPlaytest() as { id?: unknown } | null)?.id;
+  return typeof id === "string" && id ? `/editor/${encodeURIComponent(id)}` : "/editor";
+}

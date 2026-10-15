@@ -1,3 +1,4 @@
+import { editorPathOfPlaytest } from "../content/drafts";
 import { useEffect, useRef, useState } from "react";
 import { useWindowKey } from "./hooks";
 import { percentOf } from "../util/format";
@@ -55,7 +56,7 @@ function TopBar() {
       <div className="topbar__case">
         {FROM_EDITOR ? (
           // тестовый запуск: стрелка ведёт обратно в конструктор
-          <Link className="icon-btn topbar__home" to="/editor" title="Вернуться в конструктор" aria-label="Вернуться в конструктор">
+          <Link className="icon-btn topbar__home" to={editorPathOfPlaytest()} title="Вернуться в конструктор" aria-label="Вернуться в конструктор">
             <Icon name="back" size={20} />
           </Link>
         ) : (
@@ -248,14 +249,18 @@ function TouchControls() {
 function ExitDialog() {
   return (
     <TabbedModal tabs={[{ id: "exit", label: "Выход", icon: "home" }]} size="narrow">
-      <h2 className="modal__title">Выйти в главное меню?</h2>
-      <p>Расследование сохраняется автоматически — к нему можно вернуться через «Выбрать дело».</p>
+      <h2 className="modal__title">{FROM_EDITOR ? "Вернуться в конструктор?" : "Выйти в главное меню?"}</h2>
+      <p>
+        {FROM_EDITOR
+          ? "Тестовое прохождение сохраняется автоматически; черновик дела в конструкторе не меняется."
+          : "Расследование сохраняется автоматически — к нему можно вернуться через «Выбрать дело»."}
+      </p>
       <div className="modal__actions">
         <button className="btn btn--primary" onClick={() => actions.exitToMenu(true)}>
-          Сохранить и выйти
+          {FROM_EDITOR ? "Сохранить и вернуться" : "Сохранить и выйти"}
         </button>
         <button className="btn btn--danger" onClick={() => actions.exitToMenu(false)}>
-          Выйти без сохранения
+          {FROM_EDITOR ? "Вернуться без сохранения" : "Выйти без сохранения"}
         </button>
         <button className="btn" onClick={actions.close}>
           Остаться
