@@ -1,0 +1,206 @@
+import { useState } from "react";
+import { setMapDock, useMapDock } from "./layout";
+import { editor, useEditor, type SectionId } from "./state";
+import { Alert } from "../ui/alert";
+import { Icon } from "../ui/icons";
+import { startPlaytest } from "./actions";
+
+/** Короткие инструкции к разделам конструктора. */
+const HELP: Record<SectionId, { title: string; points: string[] }> = {
+  general: {
+    title: "Основное",
+    points: [
+      "Номер, название и подзаголовок видны в списке дел; вводная — первое, что прочтёт игрок.",
+      "«Показывать в списке дел» — пока выключено, дело доступно только через «Запустить».",
+      "Бонус за время: уложиться в N минут и набрать не меньше порога успеха (если порог пустой — при любом результате выше нуля) — к баллам за вопросы добавится бонус.",
+    ],
+  },
+  characters: {
+    title: "Персонажи",
+    points: [
+      "Все, с кем можно поговорить или кто упоминается в материалах.",
+      "Внешность: выберите образец и при желании поменяйте лицо, волосы, одежду. Двух одинаковых людей быть не должно.",
+      "Чтобы персонаж появился на карте, поставьте его в разделе «Локации» (инструмент «Люди»).",
+    ],
+  },
+  locations: {
+    title: "Локации",
+    points: [
+      "Вкладки сверху — помещения. Слева инструменты: стены и пол, предметы, люди, выходы.",
+      "Предмет с материалом при осмотре сразу кладёт улику в дело; без материала — просто декорация.",
+      "Выход ведёт в другую локацию; переход происходит, когда игрок подходит и нажимает «Взаимодействие».",
+      "Выбор (V): клик — выделить, перетаскивание — переместить, Delete — удалить, Esc — снять выделение.",
+      "Кисть (B) и прямоугольник (R) рисуют пол и стены; с Shift кисть тоже рисует прямоугольником. Ctrl + колесо — масштаб.",
+      "Дверь ставится в проём на 2 клетки; с условием она заперта, пока условие не выполнено.",
+    ],
+  },
+  evidence: {
+    title: "Улики",
+    points: [
+      "Улика — документ, вещь, цифровой след; показания — слова персонажа. Вид улики (документ, вещь…) пишите в его подписи.",
+      "Достоверность подсказывает игроку, насколько материалу можно верить.",
+      "На вкладке «Связи» видно, где игрок получает улику. Если нигде — её нужно выдать предметом или репликой.",
+    ],
+  },
+  events: { title: "События", points: ["Хронология дела. События привязываются к уликам и показываются в карточке как время."] },
+  dialogues: {
+    title: "Диалоги",
+    points: [
+      "Карточка — реплика персонажа, строки под ней — варианты ответа игрока.",
+      "Тяните от кружка у варианта к другой карточке — это «что ответит персонаж». Отпустили на пустом месте — конец разговора.",
+      "«Условие» — вариант виден, только когда выполнены условия (улики, выводы, флаги). Разные реакции на повторный вопрос стройте флагами.",
+      "Эффекты реплики: выдать улику, поставить флаг, увести персонажа за игроком и т. д.",
+    ],
+  },
+  confrontations: {
+    title: "Очные ставки",
+    points: [
+      "Разговор нескольких персонажей: игрок приводит всех участников, кроме одного, к нему (они идут следом) и заговаривает.",
+      "Во вкладке «Разговор» у каждой реплики выберите, кто её говорит.",
+      "Чтобы персонаж пошёл за игроком, в обычном диалоге нужен эффект «персонаж идёт следом».",
+    ],
+  },
+  deductions: {
+    title: "Сопоставления",
+    points: [
+      "2–3 улики, которые вместе что-то доказывают. Игрок выбирает их в материалах и отвечает на вопрос.",
+      "Верный ответ даёт вывод — он появляется в материалах как отдельная карточка.",
+    ],
+  },
+  hints: { title: "Подсказки", points: ["Три уровня: от лёгкого намёка до почти ответа. Каждая взятая подсказка снижает итог."] },
+  questions: { title: "Вопросы и баллы", points: ["Финальные вопросы игроку. Сумма баллов — любая: у сложного дела можно сделать больше, у простого меньше. Результаты сравниваются в процентах."] },
+  flags: {
+    title: "Флаги",
+    points: [
+      "Флаг — пометка «это уже произошло»: ключ отдан, свидетель солгал, вывод установлен.",
+      "Его ставят эффекты реплик и сопоставлений, а проверяют условия вариантов, дверей и очных ставок.",
+      "У каждого флага — русское название; ключ латиницей собирается из названия автоматически.",
+    ],
+  },
+  law: {
+    title: "Закон",
+    points: [
+      "Вкладка «Закон» в окне «Материалы» — правовая подсказка игроку. Всё заполняется здесь, готовых наборов нет.",
+      "«Правовая база» — нормы: статьи нормативных актов, другие документы, со ссылками.",
+      "«Пояснения» — комментарии автора. Они нумеруются: в подсказке можно написать «см. пояснение №2».",
+    ],
+  },
+  authorship: {
+    title: "Авторство",
+    points: [
+      "Автор, лицензия и почта показываются игрокам в списке дел и в окне «Дело». Почта нужна для обратной связи: оставьте её пустой, если письма не нужны.",
+      "Лицензия — на содержание дела; по умолчанию CC BY 4.0.",
+    ],
+  },
+  solution: { title: "Решение", points: ["Правильный ответ и разбор, который игрок увидит после вердикта. Разбит на вкладки."] },
+  json: { title: "JSON", points: ["Всё дело текстом. Правьте осторожно: «Применить» проверит формат."] },
+  errors: { title: "Ошибки", points: ["Пока есть ошибки, дело нельзя сохранить и запустить. Клик по карточке ведёт к месту ошибки."] },
+};
+
+function HelpPopover({ section, onClose }: { section: SectionId; onClose: () => void }) {
+  const help = HELP[section];
+  return (
+    <div className="ed__help" onMouseLeave={onClose}>
+      <b>{help.title}</b>
+      <ul>
+        {help.points.map((p) => (
+          <li key={p}>{p}</li>
+        ))}
+      </ul>
+      <p className="muted">
+        Изменения сохраняются кнопкой «Сохранить» (Ctrl+S). «Запустить» запускает дело без сохранения. Правая кнопка мыши —
+        быстрые команды.
+      </p>
+    </div>
+  );
+}
+
+/** Браузер не принял черновик: без этой плашки правки молча пропали бы при перезагрузке. */
+export function StorageWarning() {
+  const failed = useEditor((s) => s.storageFailed);
+  if (!failed) return null;
+  return (
+    <Alert
+      icon
+      className="ed__warn"
+      action={
+        <button className="btn btn--sm" onClick={() => editor.goto("json")}>
+          К экспорту
+        </button>
+      }
+    >
+      Браузер не смог сохранить черновик (хранилище переполнено или недоступно) — правки пропадут при перезагрузке. Скачайте файл дела.
+    </Alert>
+  );
+}
+
+export function Toolbar() {
+  const draft = useEditor((s) => s.draft);
+  const errors = useEditor((s) => s.errors);
+  const dirty = useEditor((s) => s.dirty);
+  const canUndo = useEditor((s) => s.past.length > 0);
+  const canRedo = useEditor((s) => s.future.length > 0);
+  const [openHelp, setOpenHelp] = useState(false);
+  const section = useEditor((s) => s.section);
+  const dock = useMapDock();
+
+  return (
+    <header className="ed__bar">
+      <button className="ed__home" onClick={editor.openHome} title="Все дела конструктора">
+        <Icon name="folders" size={20} />
+      </button>
+      <div className="ed__title">
+        <b>
+          №{draft.number} «{draft.title}»
+        </b>
+      </div>
+      <button
+        className="ed__publish" aria-pressed={draft.published}
+        onClick={() => editor.update((d) => ({ ...d, published: !d.published }))}
+        title={draft.published ? "Игроки видят дело в списке. Нажмите, чтобы скрыть" : "Дело скрыто от игроков. Нажмите, чтобы показать в списке"}
+      >
+        <Icon name={draft.published ? "eye" : "dim"} size={16} /> {draft.published ? "Видно игрокам" : "Скрыто"}
+      </button>
+      <div className="ed__actions">
+        {section === "locations" && (
+          <span className="seg" role="group" aria-label="Расположение палитры">
+            <button className="seg__btn" aria-pressed={dock === "left"} onClick={() => setMapDock("left")} title="Палитра слева от карты" aria-label="Палитра слева">
+              <Icon name="dock-left" size={24} />
+            </button>
+            <button className="seg__btn" aria-pressed={dock === "bottom"} onClick={() => setMapDock("bottom")} title="Палитра под картой" aria-label="Палитра снизу">
+              <Icon name="dock-bottom" size={24} />
+            </button>
+          </span>
+        )}
+        <button className="icon-btn ed__icon-btn" disabled={!canUndo} onClick={editor.undo} title="Отменить (Ctrl+Z)">
+          <Icon name="undo" />
+        </button>
+        <button className="icon-btn ed__icon-btn" disabled={!canRedo} onClick={editor.redo} title="Повторить (Ctrl+Shift+Z)">
+          <Icon name="redo" />
+        </button>
+        {errors.length > 0 && (
+          <button className="ed__status is-bad" onClick={() => editor.goto("errors")} title="Открыть список ошибок">
+            <Icon name="alert" size={15} /> {errors.length}
+          </button>
+        )}
+        <button className="btn ed__play" onClick={startPlaytest} title={errors.length ? "Сначала исправьте ошибки" : "Открыть дело в игре"}>
+          <Icon name="play" size={15} /> Запустить
+        </button>
+        <button
+          className="btn btn--primary ed__save"
+          disabled={!dirty || errors.length > 0}
+          onClick={() => editor.save()}
+          title={errors.length ? "Нельзя сохранить: есть ошибки" : dirty ? "Сохранить (Ctrl+S) — дело появится в игре" : "Изменений нет"}
+        >
+          <Icon name="save" size={15} /> {dirty ? "Сохранить" : "Сохранено"}
+        </button>
+        <div className="ed__menu">
+          <button className="btn ed__help-btn" aria-expanded={openHelp} onClick={() => setOpenHelp((v) => !v)} title="Как заполнять этот раздел">
+            <Icon name="help" size={15} /> Справка
+          </button>
+          {openHelp && <HelpPopover section={section} onClose={() => setOpenHelp(false)} />}
+        </div>
+      </div>
+    </header>
+  );
+}

@@ -13,7 +13,7 @@ import { moveItem } from "../../util/lists";
 import { ArtThumb } from "../Pickers";
 import { resolveLook } from "../../game/art";
 import { ask } from "../../ui/dialog";
-import { SCHEMA, itemHeading, listActions } from "../EditorApp";
+import { SCHEMA, itemHeading, listActions } from "../shared";
 
 export function ListSection({ field }: { field: keyof CaseFile }) {
   const draft = useEditor((s) => s.draft);

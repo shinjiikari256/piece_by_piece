@@ -1,7 +1,7 @@
 import type { CaseFile } from "../../../../../shared/case";
 import { editor, useEditor } from "../state";
 import { ObjectFields } from "../SchemaForm";
-import { SCHEMA } from "../EditorApp";
+import { SCHEMA } from "../shared";
 
 export function AuthorshipSection() {
   const draft = useEditor((s) => s.draft);

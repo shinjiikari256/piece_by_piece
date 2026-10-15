@@ -3,7 +3,7 @@ import { useUrlParam } from "../url";
 import { CaseFile } from "../../../../../shared/case";
 import { editor, useEditor } from "../state";
 import { ObjectFields } from "../SchemaForm";
-import { SCHEMA } from "../EditorApp";
+import { SCHEMA } from "../shared";
 
 const SOLUTION_TABS = [
   { id: "verdict", label: "Вердикт", hint: "Правильный ответ: какое право, нарушено ли, кто виноват.", keys: ["right", "rightText", "violation", "responsibleCharacter", "correctAnswer"] },
