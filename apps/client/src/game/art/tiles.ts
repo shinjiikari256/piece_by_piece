@@ -112,15 +112,12 @@ export const TILE_NAMES: Record<string, string> = {
   p: "Тротуар",
 };
 
-/** Подгруппы клеток в палитре редактора карты (каждая клетка — ровно в одной; проверяет тест). */
+/** Деление клеток в палитре редактора карты — по роли: пол и стены (каждая клетка — ровно в одной группе; проверяет тест). */
 export const FLOOR_GROUPS: { id: string; label: string; chars: string[] }[] = [
-  { id: "indoor", label: "Помещения", chars: [".", ",", "_", "w", "b", "k", "m", "r", "S", "Z", "D"] },
-  { id: "outdoor", label: "Улица", chars: ["g", "a", "p"] },
+  { id: "floor", label: "Пол", chars: [".", ",", "_", "w", "b", "k", "m", "r", "S", "Z", "D", "g", "a", "p"] },
 ];
 export const WALL_GROUPS: { id: string; label: string; chars: string[] }[] = [
-  { id: "walls", label: "Стены", chars: ["#", "B", "P"] },
-  { id: "glass", label: "Окна и стекло", chars: ["W", "G"] },
-  { id: "fence", label: "Ограждения", chars: ["F"] },
+  { id: "walls", label: "Стены", chars: ["#", "B", "P", "W", "G", "F"] },
 ];
 
 const isWall = (ch: string | undefined) => !!ch && WALL_TILES.has(ch);

@@ -27,7 +27,7 @@ export function MapPalette({
   const [open, setOpen] = useState<Record<string, boolean>>({ tiles: true, objects: true, people: true });
   const toggle = (k: string) => setOpen((o) => ({ ...o, [k]: !o[k] }));
   // подгруппы: по умолчанию раскрыты самые частые; при поиске раскрываются все, где есть совпадения
-  const [groups, setGroups] = useState<Record<string, boolean>>({ indoor: true, walls: true, furniture: true });
+  const [groups, setGroups] = useState<Record<string, boolean>>({ floor: true, walls: true, furniture: true });
   const q = query.trim().toLowerCase();
   const groupOpen = (id: string) => !!q || !!groups[id];
   const toggleGroup = (id: string) => setGroups((o) => ({ ...o, [id]: !o[id] }));
