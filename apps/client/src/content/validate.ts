@@ -1,6 +1,7 @@
 import { type CaseFile, type Condition, type Effect } from "../../../../shared/case";
 import { parseCase } from "../../../../shared/migrate";
 import { FLOOR_TILES, SPRITES, WALL_TILES, resolveLook } from "../game/art";
+import { zoneTargetCell } from "./case-utils";
 import { findPath } from "../game/scene/navigation";
 
 export type ValidationResult =
@@ -75,6 +76,15 @@ function checkIntegrity(c: CaseFile): string[] {
   const checkMoveTo = (e: Extract<Effect, { type: "moveTo" }>, where: string) => {
     if (!locationIds.has(e.locationId)) return err(`${where}: moveTo — неизвестная локация «${e.locationId}»`);
     const isFloor = floorOf.get(e.locationId)!;
+    if (e.zoneId) {
+      // цель — область: проверяем клетку, которую игра выберет (первая свободная); запасная x, y не важна
+      const loc = c.locations.find((l) => l.id === e.locationId)!;
+      const zone = loc.zones.find((z) => z.id === e.zoneId);
+      if (!zone) return err(`${where}: moveTo — в «${e.locationId}» нет области «${e.zoneId}»`);
+      const picked = zoneTargetCell(loc, zone, e.characterId);
+      if (!picked) return err(`${where}: moveTo — в области «${zone.name}» нет свободной клетки`);
+      return checkMoveTo({ ...e, zoneId: undefined, x: picked.x, y: picked.y }, where);
+    }
     const cell = `${e.x},${e.y}`;
     if (!isFloor(e.x, e.y)) return err(`${where}: moveTo — клетка ${cell} в «${e.locationId}» не пол`);
     const base = c.locations.flatMap((l) => l.npcs.map((n) => ({ locationId: l.id, ...n }))).find((n) => n.characterId === e.characterId);

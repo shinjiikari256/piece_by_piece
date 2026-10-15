@@ -59,14 +59,27 @@ export function EffectsEditor({ value, onChange, ctx }: { value: Effect[]; onCha
                   placeholder="в какую локацию"
                   options={locations}
                   // в другой локации прежняя клетка ничего не значит — начинаем со старта игрока
-                  onChange={(v) => set(i, { ...e, locationId: v, ...cellOf(d.locations.find((l) => l.id === v)) })}
+                  onChange={(v) => set(i, { ...e, locationId: v, zoneId: undefined, ...cellOf(d.locations.find((l) => l.id === v)) })}
                 />
-                <div className="row">
-                  <button className="btn btn--sm" onClick={() => setPicking(i)}>
-                    Выбрать клетку на карте…
-                  </button>
-                  <span className="muted">клетка {e.x}, {e.y}</span>
-                </div>
+                <Select
+                  value={e.zoneId ?? ""}
+                  placeholder="Куда: клетка или область"
+                  options={[
+                    { value: "", label: "Клетка на карте" },
+                    ...(d.locations.find((l) => l.id === e.locationId)?.zones ?? []).map((z) => ({ value: z.id, label: `Область «${z.name}»` })),
+                  ]}
+                  onChange={(v) => set(i, { ...e, zoneId: v || undefined })}
+                />
+                {e.zoneId ? (
+                  <span className="muted">Встанет на свободную клетку области.</span>
+                ) : (
+                  <div className="row">
+                    <button className="btn btn--sm" onClick={() => setPicking(i)}>
+                      Выбрать клетку на карте…
+                    </button>
+                    <span className="muted">клетка {e.x}, {e.y}</span>
+                  </div>
+                )}
                 <input
                   className="input"
                   value={e.failText ?? ""}

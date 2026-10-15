@@ -70,6 +70,20 @@ describe("эффект moveTo: валидатор", () => {
     });
     expect(errors.join("\n")).toContain("не дойти");
   });
+
+  describe("цель — область", () => {
+    const zoned = (zoneId: string, cells: { x: number; y: number }[]) =>
+      withEffect({ type: "moveTo", characterId: "krylov", locationId: "admin_building", x: 0, y: 0, zoneId }, (c) => {
+        c.locations[0].zones.push({ id: "z_target", name: "Цель", cells, actions: [] } as never);
+      });
+    it("область со свободной клеткой — без ошибок (запасная x, y не проверяется)", () => {
+      expect(zoned("z_target", [loc.playerStart!])).toEqual([]);
+    });
+    it("нет такой области / вся область занята или стена", () => {
+      expect(zoned("нет_такой", [loc.playerStart!]).join("\n")).toContain("нет области");
+      expect(zoned("z_target", [{ x: 0, y: 0 }]).join("\n")).toContain("нет свободной клетки");
+    });
+  });
 });
 
 describe("тестовое дело case-test-moveto", () => {

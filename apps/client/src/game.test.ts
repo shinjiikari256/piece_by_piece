@@ -652,3 +652,26 @@ describe("спутники: отвязка", () => {
     expect(store.get().progress.followers).toEqual(["lebedeva"]);
   });
 });
+
+describe("moveTo с областью", () => {
+  it("персонаж встаёт на свободную клетку области; занятую пропускает", () => {
+    const raw = load("case-001.json") as unknown as CaseFile;
+    const loc = raw.locations[0];
+    const start = loc.playerStart!;
+    const other = loc.npcs.find((n) => n.characterId !== "krylov")!;
+    loc.zones.push({
+      id: "z_goal",
+      name: "Цель",
+      // первая клетка занята другим человеком — берётся вторая
+      cells: [{ x: other.x, y: other.y }, { x: start.x, y: start.y }],
+      actions: [{ kind: "effects", auto: true, effects: [{ type: "moveTo", characterId: "krylov", locationId: loc.id, x: 0, y: 0, zoneId: "z_goal" }] }],
+    } as never);
+    const c = validateCase(raw);
+    if (!c.ok) throw new Error(c.errors.join("; "));
+    setPlatform(createMemoryPlatform());
+    actions.openCase(new LocalAuthority(c.caseFile));
+    actions.beginInvestigation();
+    actions.enterZone("z_goal");
+    expect(store.get().progress.npcPlaces.krylov).toMatchObject({ locationId: loc.id, x: start.x, y: start.y });
+  });
+});

@@ -1,13 +1,13 @@
 import { editorPathOfPlaytest } from "../content/drafts";
 import { useSyncExternalStore } from "react";
-import type { Solution, ZoneAction } from "../../../../shared/case";
+import type { Effect, Solution, ZoneAction } from "../../../../shared/case";
 import type { PublicCase, PublicDeduction } from "../../../../shared/public-case";
 import { RESULT_FORMAT_VERSION, type CaseAuthority, type DeductionVerdict, type FinishInput, type RevealedHint } from "../../../../shared/judge";
 import { APP_NAME, FROM_EDITOR, GAME_VERSION } from "../env";
 import { currentRoute, navigate } from "../ui/router";
 import { createAutosave, pauseOnPageHide } from "./autosave";
 import { applyEffects, emptyProgress, meets, type Progress } from "../../../../shared/conditions";
-import { allNpcs, findObject, startLocation } from "../content/case-utils";
+import { allNpcs, findObject, startLocation, zoneTargetCell } from "../content/case-utils";
 import { gameBridge } from "../game/bridge";
 import type { ResultRecord } from "./result-record";
 import type { Answers, Score } from "../../../../shared/scoring";
@@ -177,11 +177,32 @@ function announceEvidence(ids: string[]) {
 
 const whereIs = (characterId: string) => gameBridge.whereIs?.(characterId);
 
+/**
+ * `moveTo` с областью: персонаж встаёт на свободную клетку внутри неё — подставляем её в `x, y`
+ * (чужие итоговые места и клетки, занятые раньше в этом же наборе эффектов, пропускаем).
+ */
+function withZoneTargets(effects: Effect[]): Effect[] {
+  const c = state.caseFile;
+  if (!c || !effects.some((e) => e.type === "moveTo" && e.zoneId)) return effects;
+  const taken = new Map<string, Set<string>>();
+  const mark = (locationId: string, x: number, y: number) => taken.set(locationId, (taken.get(locationId) ?? new Set()).add(`${x},${y}`));
+  for (const [id, p] of Object.entries(state.progress.npcPlaces)) if (!effects.some((e) => e.type === "moveTo" && e.characterId === id)) mark(p.locationId, p.x, p.y);
+  return effects.map((e) => {
+    if (e.type !== "moveTo" || !e.zoneId) return e;
+    const loc = c.locations.find((l) => l.id === e.locationId);
+    const zone = loc?.zones.find((z) => z.id === e.zoneId);
+    const cell = loc && zone ? zoneTargetCell(loc, zone, e.characterId, taken.get(loc.id)) : null;
+    if (!cell) return e; // области нет или она вся занята: идёт на запасную клетку
+    mark(e.locationId, cell.x, cell.y);
+    return { ...e, x: cell.x, y: cell.y };
+  });
+}
+
 function enterNode(npcId: string, dialogueId: string, nodeId: string) {
   const dialogue = state.caseFile?.dialogues.find((d) => d.id === dialogueId);
   const node = dialogue?.nodes.find((n) => n.id === nodeId);
   if (!node) return;
-  const { progress, newEvidence } = applyEffects(node.effects, state.progress, whereIs);
+  const { progress, newEvidence } = applyEffects(withZoneTargets(node.effects), state.progress, whereIs);
   set({ progress, overlay: { kind: "dialogue", npcId, dialogueId, nodeId } });
   announceEvidence(newEvidence);
 }
@@ -230,7 +251,7 @@ function runZoneAction(zoneId: string, a: ZoneAction) {
     if (dialogue) enterNode(`zone:${zoneId}`, dialogue.id, dialogue.startNodeId);
   } else if (a.kind === "object") actions.interact(a.objectId);
   else if (a.kind === "effects") {
-    const { progress, newEvidence } = applyEffects(a.effects, state.progress, whereIs);
+    const { progress, newEvidence } = applyEffects(withZoneTargets(a.effects), state.progress, whereIs);
     set({ progress });
     announceEvidence(newEvidence);
   } else actions.travel({ to: a.to, spawn: a.spawn });

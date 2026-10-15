@@ -255,7 +255,8 @@
   gap: 0.3rem;
 }
 .lm__size > div {
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr 1fr; /* ширина и высота — поровну на всю ширину */
   gap: 0.6rem;
 }
 .size-input {
@@ -265,7 +266,7 @@
   color: var(--text-muted);
 }
 .size-input input {
-  width: 5em;
+  width: 100%;
   font-size: var(--fs-lg);
   padding: 0.3em 0.4em;
   color: var(--text);

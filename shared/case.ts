@@ -67,6 +67,7 @@ export const Effect = z.discriminatedUnion("type", [
       locationId: z.string(),
       x: z.number().int(),
       y: z.number().int(),
+      zoneId: z.string().optional().describe("Область цели: персонаж встанет на свободную клетку внутри неё (клетка x, y — запасная)"),
       failText: z.string().optional().describe("Что скажет персонаж, если не сможет дойти"),
     })
     .describe("Персонаж идёт на клетку карты и остаётся там; за игроком не следует"),

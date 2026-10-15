@@ -197,7 +197,20 @@ export function SelectedPanel({
   );
 }
 
-/** Ключ области: меняется только вручную (Enter или уход с поля). На ключ области никто не ссылается — действия лежат в самой области. */
+/** Заменить ключ области в эффектах `moveTo` (цель-область) по всему делу. */
+function renameZoneRefs(node: unknown, from: string, to: string): unknown {
+  if (Array.isArray(node)) return node.map((x) => renameZoneRefs(x, from, to));
+  if (node && typeof node === "object") {
+    const o = node as Record<string, unknown>;
+    const out: Record<string, unknown> = {};
+    for (const [k, v] of Object.entries(o)) out[k] = renameZoneRefs(v, from, to);
+    if (o.type === "moveTo" && o.zoneId === from) out.zoneId = to;
+    return out;
+  }
+  return node;
+}
+
+/** Ключ области: меняется только вручную (Enter или уход с поля). Ссылаются на него только эффекты `moveTo` — они обновляются вместе с ключом. */
 function ZoneKeyField({ zone, draft, onRenamed }: { zone: Zone; draft: CaseFileT; onRenamed: (key: string) => void }) {
   const [text, setText] = useState(zone.id);
   useEffect(() => setText(zone.id), [zone.id]);
@@ -209,10 +222,13 @@ function ZoneKeyField({ zone, draft, onRenamed }: { zone: Zone; draft: CaseFileT
       setText(zone.id);
       return tell({ title: "Ключ уже занят", text: `«${key}» уже есть у другой области — выберите другой.` });
     }
-    editor.update((c) => ({
-      ...c,
-      locations: c.locations.map((l) => ({ ...l, zones: l.zones.map((z) => (z.id === zone.id ? { ...z, id: key } : z)) })),
-    }));
+    editor.update((c) => {
+      const renamed = {
+        ...c,
+        locations: c.locations.map((l) => ({ ...l, zones: l.zones.map((z) => (z.id === zone.id ? { ...z, id: key } : z)) })),
+      };
+      return renameZoneRefs(renamed, zone.id, key) as CaseFileT;
+    });
     onRenamed(key); // выбор области в адресе идёт по ключу
   };
   return (
