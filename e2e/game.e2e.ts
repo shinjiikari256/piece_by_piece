@@ -530,6 +530,14 @@ describe("игра в браузере", () => {
     const [palette, main] = [await rect(".lm__palette"), await rect(".lm__main")];
     expect(palette.y).toBeGreaterThanOrEqual(main.y + main.h - 1); // ниже карты
     expect(palette.w).toBeGreaterThan(400);
+    // инструменты — вертикальным списком; свёрнутая секция сужается до полосы, а не занимает прежнюю ширину
+    expect(await page.evaluate(() => getComputedStyle(document.querySelector(".lm__tools")!).gridTemplateColumns.split(" ").length)).toBe(1);
+    const sectionWidth = () => page.evaluate(() => document.querySelector<HTMLElement>(".lm__palette .lm__section")!.getBoundingClientRect().width);
+    const full = await sectionWidth();
+    await page.locator(".lm__section-head").first().click();
+    expect(await sectionWidth()).toBeLessThan(full / 3);
+    await page.locator(".lm__section-head").first().click();
+    expect(await sectionWidth()).toBeGreaterThan(full / 2);
     // высота: стрелка вверх у границы делает панель выше
     const grip = page.locator('.lm > .panel-grip[data-side="bottom"]');
     await grip.focus();

@@ -41,7 +41,7 @@ export function PaletteGroup({ title, count, open, onToggle, children }: { title
 
 export function PaletteSection({ title, open, onToggle, children }: { title: string; open: boolean; onToggle: () => void; children: React.ReactNode }) {
   return (
-    <section className="lm__section">
+    <section className="lm__section" data-open={open || undefined}>
       <button className="lm__section-head" onClick={onToggle}>
         <span>{open ? "▾" : "▸"}</span> {title}
       </button>

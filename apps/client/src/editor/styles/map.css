@@ -462,3 +462,29 @@
   margin: 0;
   font-size: 0.9em;
 }
+
+/* палитра снизу: инструменты — вертикальным списком, свёрнутая секция — узкая полоса с названием вдоль */
+.lm[data-dock="bottom"] .lm__palette .lm__tools {
+  grid-template-columns: 1fr;
+  flex-basis: 10rem;
+}
+.lm[data-dock="bottom"] .lm__tool {
+  grid-auto-flow: column;
+  justify-content: start;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.3rem 0.6rem;
+  text-align: left;
+}
+.lm[data-dock="bottom"] .lm__palette .lm__section:not([data-open]) {
+  flex: 0 0 2.4rem;
+  min-width: 2.4rem;
+  padding: 0.4rem 0.2rem;
+  overflow: hidden;
+}
+.lm[data-dock="bottom"] .lm__palette .lm__section:not([data-open]) .lm__section-head {
+  writing-mode: vertical-rl;
+  width: auto;
+  height: 100%;
+  padding: 0.2rem;
+}
