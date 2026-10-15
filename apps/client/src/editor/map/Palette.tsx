@@ -32,11 +32,15 @@ export function MapPalette({
   const groupOpen = (id: string) => !!q || !!groups[id];
   const toggleGroup = (id: string) => setGroups((o) => ({ ...o, [id]: !o[id] }));
   const matches = (k: SpriteKeyT) => !q || (SPRITE_NAMES[k] ?? k).toLowerCase().includes(q) || k.includes(q);
+  // поиск клеток по названию («кафель», «паркет»); отдельно от поиска предметов
+  const [tileQuery, setTileQuery] = useState("");
+  const tq = tileQuery.trim().toLowerCase();
   const tileGroups = (list: { id: string; label: string; chars: string[] }[]) =>
     list.map((g) => {
-      const tiles = TILE_TOOLS.filter((t) => g.chars.includes(t.ch));
+      const tiles = TILE_TOOLS.filter((t) => g.chars.includes(t.ch) && (!tq || t.label.toLowerCase().includes(tq)));
+      if (!tiles.length) return null;
       return (
-        <PaletteGroup key={g.id} title={g.label} count={tiles.length} open={groupOpen(g.id)} onToggle={() => toggleGroup(g.id)}>
+        <PaletteGroup key={g.id} title={g.label} count={tiles.length} open={!!tq || !!groups[g.id]} onToggle={() => toggleGroup(g.id)}>
           <div className="lm__swatches">
             {tiles.map((t) => (
               <SwatchButton key={t.ch} ch={t.ch} label={t.label} on={tool.kind === "tile" && tool.ch === t.ch} onClick={() => pickTile(t.ch)} />
@@ -68,7 +72,9 @@ export function MapPalette({
 
       {/* пол и стены — одна группа «Клетки»: выбор клетки сразу включает кисть, Shift — прямоугольник */}
       <PaletteSection title="Клетки" open={open.tiles} onToggle={() => toggle("tiles")}>
+        <input className="lm__search" placeholder="Поиск клетки…" value={tileQuery} onChange={(e) => setTileQuery(e.target.value)} />
         {tileGroups([...FLOOR_GROUPS, ...WALL_GROUPS])}
+        {tq && TILE_TOOLS.every((t) => !t.label.toLowerCase().includes(tq)) && <p className="lm__note">Ничего не найдено.</p>}
       </PaletteSection>
 
       <PaletteSection title={`Предметы (${SpriteKey.options.length})`} open={open.objects} onToggle={() => toggle("objects")}>

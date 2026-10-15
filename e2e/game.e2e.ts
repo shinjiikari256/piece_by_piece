@@ -629,6 +629,12 @@ describe("игра в браузере", () => {
     // инструментов «Кисть» и «Прямоугольник» нет: выбор клетки сразу включает кисть, Shift — прямоугольник; пол и стены — одна секция «Клетки»
     expect(await page.locator(".lm__tool").allTextContents()).toEqual(expect.not.arrayContaining([expect.stringMatching(/Кисть|Прямоуг/)]));
     expect(await page.locator(".lm__section-head").allTextContents()).toEqual([expect.stringContaining("Клетки"), expect.stringContaining("Предметы"), expect.stringContaining("Люди")]);
+    // поиск по клеткам: «кафель» оставляет одну клетку, ничего не найдено — подсказка
+    await page.locator('input[placeholder="Поиск клетки…"]').fill("кафель");
+    expect(await page.locator(".lm__swatch").count()).toBe(1);
+    await page.locator('input[placeholder="Поиск клетки…"]').fill("zzz");
+    expect(await page.locator(".lm__swatch").count()).toBe(0);
+    await page.locator('input[placeholder="Поиск клетки…"]').fill("");
     // слева по умолчанию: палитра левее карты
     expect((await rect(".lm__palette")).x).toBeLessThan((await rect(".lm__main")).x);
     await page.getByRole("button", { name: "Палитра снизу" }).click();
