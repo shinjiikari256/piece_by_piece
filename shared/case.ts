@@ -251,7 +251,7 @@ export const Location = z.object({
     ),
   areas: z.array(
     z.object({ name: z.string(), x: z.number().int(), y: z.number().int() }),
-  ).describe("Подписи помещений на карте"),
+  ).describe("Подписи на карте: помещения, места, что угодно (не только области)"),
   playerStart: z.object({ x: z.number().int(), y: z.number().int() }),
   objects: z.array(LocationObject),
   npcs: z.array(NpcPlacement),

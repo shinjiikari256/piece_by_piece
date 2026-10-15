@@ -23,8 +23,8 @@ export function ZoneActions({ zone, draft, onChange }: { zone: Zone; draft: Case
 
   return (
     <section className="zact stack">
-      <h4>Что делает область</h4>
-      {zone.actions.length === 0 && <p className="muted">Пока ничего: добавьте действие — диалог, предмет или выход. Срабатывает первое подходящее по порядку.</p>}
+      <h4 title="Срабатывает первое подходящее по порядку">Действия</h4>
+      {zone.actions.length === 0 && <p className="muted">Действий нет</p>}
       {zone.actions.map((a, i) => (
         <div key={i} className="zact__item stack">
           <div className="row">
@@ -63,7 +63,7 @@ export function ZoneActions({ zone, draft, onChange }: { zone: Zone; draft: Case
               </div>
             </>
           )}
-          <label className="ef__toggle">
+          <label className="ef__toggle" title="Срабатывает при входе в область, один раз; иначе — по клавише взаимодействия, пока игрок внутри">
             <input
               type="checkbox"
               checked={!!a.auto}
@@ -72,12 +72,12 @@ export function ZoneActions({ zone, draft, onChange }: { zone: Zone; draft: Case
                 set(i, (e.target.checked ? { ...rest, auto: true } : rest) as ZoneAction);
               }}
             />
-            Срабатывает само, когда игрок входит (один раз); иначе — по клавише взаимодействия
+            Само при входе
           </label>
           <ConditionEditor
             value={(a.requires ?? {}) as Condition}
             ctx={{ draft }}
-            label={<span className="ef__label">Когда действие доступно</span>}
+            label={<span className="ef__label">Условие</span>}
             onChange={(v) => {
               const { requires: _r, ...rest } = a;
               set(i, (Object.keys(v as object).length ? { ...rest, requires: v as Condition } : rest) as ZoneAction);

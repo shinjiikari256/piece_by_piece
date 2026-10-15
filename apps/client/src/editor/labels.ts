@@ -83,7 +83,7 @@ export const LABELS: Record<string, string> = {
   content: "Содержимое",
   src: "Адрес файла или ссылки",
   caption: "Подпись",
-  areas: "Подписи зон",
+  areas: "Подписи",
   mark: "Подпись",
   authorName: "Автор",
   authorEmail: "Почта автора",

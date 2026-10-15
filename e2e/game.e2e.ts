@@ -467,10 +467,26 @@ describe("игра в браузере", () => {
     await page.mouse.click(at(5, 5).x, at(5, 5).y);
     await page.locator(".zact .sel--add").click();
     await page.locator('[role="option"]', { hasText: "Выход" }).click();
-    await page.getByLabel(/Срабатывает само/).check();
+    await page.getByLabel(/Само при входе/).check();
     const zone = await page.evaluate(() => (window as any).__editor.editorStore.get().draft.locations[0].zones[0]);
     expect(zone.actions).toHaveLength(1);
     expect(zone.actions[0]).toMatchObject({ kind: "exit", auto: true });
+    await page.close();
+  });
+
+  it("инспектор карты: координаты x и y — в одной строке", async () => {
+    const page = await h.page();
+    await page.goto(`${BASE}/editor/case-001/locations`);
+    await page.waitForFunction(() => (window as any).__editor?.editorStore.get().screen === "case");
+    await page.locator(".lm__itabs .tab", { hasText: "Объекты" }).click();
+    await page.locator(".lm__row").first().click();
+    const boxes = await page.locator(".lm__inspector .pair--xy input").evaluateAll((els) => els.map((e) => Math.round(e.getBoundingClientRect().y)));
+    expect(boxes).toHaveLength(2);
+    expect(boxes[0]).toBe(boxes[1]);
+    // и растягиваются поровну
+    const widths = await page.locator(".lm__inspector .pair--xy input").evaluateAll((els) => els.map((e) => Math.round(e.getBoundingClientRect().width)));
+    expect(Math.abs(widths[0] - widths[1])).toBeLessThanOrEqual(1);
+    expect(widths[0]).toBeGreaterThan(80);
     await page.close();
   });
 

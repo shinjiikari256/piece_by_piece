@@ -104,26 +104,31 @@ export function SelectedPanel({
     const zone = loc.zones.find((z) => z.id === sel.id);
     if (!zone) return null;
     const drawing = tool.kind === "zone";
-        return (
+        const erase = drawing && !!(tool as { erase?: boolean }).erase;
+    return (
       <>
         {back}
-        <h3>Область</h3>
-        <p className="muted">Именованная область карты. Когда игрок внутри, она делает своё действие: запускает диалог, взаимодействие с предметом или выход в другую локацию.</p>
-        <label className="ef">
-          <span className="ef__label">Название</span>
-          <input value={zone.name} onChange={(e) => updateLoc((l) => ({ ...l, zones: l.zones.map((z) => (z.id === zone.id ? { ...z, name: e.target.value } : z)) }), `zone-name:${zone.id}`)} />
-        </label>
-        <ZoneKeyField zone={zone} draft={draft} onRenamed={(key) => onSelect({ kind: "zone", id: key })} />
-        <p className="muted">Клеток: {zone.cells.length}</p>
-        <div className="seg" role="group" aria-label="Рисование области">
-          <button className="seg__btn" aria-pressed={drawing && !(tool as { erase?: boolean }).erase} onClick={() => setTool({ kind: "zone" })}>
-            Дорисовать
-          </button>
-          <button className="seg__btn" aria-pressed={drawing && !!(tool as { erase?: boolean }).erase} onClick={() => setTool({ kind: "zone", erase: true })}>
-            Стереть
-          </button>
+        <div className="zone-head">
+          <h3>Область</h3>
+          <small className="muted">{zone.cells.length} кл.</small>
+          <span className="seg seg--icons" role="group" aria-label="Рисование области">
+            <button className="seg__btn" aria-pressed={drawing && !erase} onClick={() => setTool({ kind: "zone" })} title="Рисовать: ведите по клеткам, Shift — прямоугольником" aria-label="Рисовать">
+              <Icon name="brush" size={20} />
+            </button>
+            <button className="seg__btn" aria-pressed={erase} onClick={() => setTool({ kind: "zone", erase: true })} title="Стирать клетки (или Alt при рисовании)" aria-label="Стирать">
+              <Icon name="eraser" size={20} />
+            </button>
+          </span>
         </div>
-        <p className="muted">На карте: ведите мышью по клеткам, Shift — прямоугольником, Alt — стереть.</p>
+        <p className="muted">Именованная область карты, к которой можно привязать действия.</p>
+        <input
+          className="input"
+          value={zone.name}
+          placeholder="Название области"
+          aria-label="Название области"
+          onChange={(e) => updateLoc((l) => ({ ...l, zones: l.zones.map((z) => (z.id === zone.id ? { ...z, name: e.target.value } : z)) }), `zone-name:${zone.id}`)}
+        />
+        <ZoneKeyField zone={zone} draft={draft} onRenamed={(key) => onSelect({ kind: "zone", id: key })} />
         <ZoneActions
           zone={zone}
           draft={draft}

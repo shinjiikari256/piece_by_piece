@@ -394,9 +394,23 @@ export function ObjectFields({
   const obj = (value ?? {}) as Record<string, unknown>;
   const required: string[] = schema.required ?? [];
   const keys = Object.keys(schema.properties ?? {}).filter((k) => !skip.includes(k) && (!only || only.includes(k)));
+  // координаты x и y — одной строкой
+  const isCell = (k: string) => (k === "x" || k === "y") && schema.properties[k]?.type === "integer";
+  const paired = keys.includes("x") && keys.includes("y") && isCell("x") && isCell("y");
+  const field = (key: string) => (
+    <Field key={key} name={key} schema={schema.properties[key]} value={obj[key]} ctx={ctx} onChange={(v) => onChange({ ...obj, [key]: v })} />
+  );
   return (
     <div className="ef__fields">
       {keys.map((key) => {
+        if (paired && key === "y") return null;
+        if (paired && key === "x")
+          return (
+            <div key="xy" className="pair pair--xy">
+              {field("x")}
+              {field("y")}
+            </div>
+          );
         const sub = schema.properties[key];
         // необязательный список показываем сразу: у него есть своя кнопка «добавить», отдельная «+ Поле» не нужна
         const optional = !required.includes(key) && sub.type !== "array";

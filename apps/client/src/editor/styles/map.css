@@ -497,3 +497,80 @@
   writing-mode: vertical-rl;
   transform: rotate(180deg);
 }
+
+/* свойства области: заголовок со счётчиком клеток и значками рисования */
+.zone-head {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.zone-head h3 {
+  margin: 0;
+}
+.zone-head .seg {
+  margin-left: auto;
+}
+.seg--icons .seg__btn {
+  display: grid;
+  place-items: center;
+  width: 2.2rem;
+  padding: 0;
+}
+
+/* инспектор: компактные подписи и ровные отступы */
+.lm__inspector-body {
+  gap: 0.6rem;
+}
+.lm__inspector h3 {
+  font-size: 1rem;
+}
+.lm__inspector .ef {
+  gap: 0.15rem;
+}
+.lm__inspector .ef__fields {
+  gap: 0.6rem;
+}
+.lm__inspector .ef__label {
+  font-size: 0.74em;
+  letter-spacing: 0.02em;
+}
+.lm__inspector .muted {
+  font-size: 0.78em;
+}
+.lm__inspector .pair--xy {
+  gap: 0.5rem;
+}
+.pair--xy {
+  grid-template-columns: repeat(2, minmax(0, 1fr)); /* обе колонки поровну, независимо от содержимого */
+}
+.pair--xy .ef,
+.pair--xy .ef--num input {
+  width: 100%;
+  max-width: none;
+  min-width: 0;
+  box-sizing: border-box;
+}
+.lm__inspector .zact {
+  gap: 0.6rem;
+}
+.lm__inspector .zact h4 {
+  margin: 0.2rem 0 0;
+  font-size: 0.85em;
+}
+.lm__inspector .zact__item {
+  gap: 0.5rem;
+  padding: 0.6rem;
+}
+.lm__inspector .zact__item {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg-surface);
+}
+.zact__tools {
+  margin-left: auto;
+  display: inline-flex;
+  gap: 0.25rem;
+}
+.zact__item > .row {
+  align-items: center;
+}

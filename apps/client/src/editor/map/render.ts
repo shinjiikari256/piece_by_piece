@@ -67,7 +67,7 @@ export function renderMap(cv: HTMLCanvasElement, s: MapRenderState) {
     }
   }
 
-  // старт и подписи помещений
+  // старт и подписи
   ctx.strokeStyle = "#2e9e5b";
   ctx.lineWidth = 1;
   ctx.strokeRect(loc.playerStart.x * T + 2.5, loc.playerStart.y * T + 2.5, T - 5, T - 5);
