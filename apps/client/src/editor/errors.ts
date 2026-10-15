@@ -19,7 +19,6 @@ const SECTION_LABEL: Record<SectionId, string> = {
   evidence: "Улики",
   events: "События",
   dialogues: "Диалоги",
-  confrontations: "Очные ставки",
   deductions: "Сопоставления",
   hints: "Подсказки",
   questions: "Вопросы и баллы",
@@ -38,7 +37,6 @@ const PATH_SECTION: Record<string, SectionId> = {
   evidence: "evidence",
   events: "events",
   dialogues: "dialogues",
-  confrontations: "confrontations",
   deductions: "deductions",
   hints: "hints",
   questions: "questions",
@@ -51,7 +49,6 @@ export function locateError(message: string, c: CaseFile): LocatedError {
     focus: { section, ...rest },
     where: SECTION_LABEL[section],
   });
-  const confDialogues = new Set(c.confrontations.map((x) => x.dialogueId));
   let m: RegExpMatchArray | null;
 
   if ((m = message.match(/^location (\S+?)\/(object|npc|exit|door|zone) (\S+?):/)))
@@ -63,14 +60,11 @@ export function locateError(message: string, c: CaseFile): LocatedError {
     return make("locations", { sub: loc?.id, kind, id: m[2] });
   }
   if ((m = message.match(/^dialogue (\S+?)(?:\/(\S+?))?[/.: ]/))) {
-    const section: SectionId = confDialogues.has(m[1]) ? "confrontations" : "dialogues";
-    const conf = c.confrontations.find((x) => x.dialogueId === m![1]);
-    return section === "confrontations" ? make(section, { id: conf?.id, sub: m[2] }) : make(section, { id: m[1], sub: m[2] });
+    return make("dialogues", { id: m[1], sub: m[2] });
   }
   if ((m = message.match(/^evidence (\S+?)[:.]/))) return make("evidence", { id: m[1] });
   if ((m = message.match(/^deduction (\S+?)[:.]/))) return make("deductions", { id: m[1] });
   if ((m = message.match(/^question (\S+?)[:.]/))) return make("questions", { id: m[1] });
-  if ((m = message.match(/^confrontation (\S+?)[:.]/))) return make("confrontations", { id: m[1] });
   if ((m = message.match(/^characters[^«]*«([^»]+)»/))) return make("characters", { id: m[1] });
   if ((m = message.match(/^(\w+)[.:]/)) && PATH_SECTION[m[1]]) return make(PATH_SECTION[m[1]]);
   if (/^hints/.test(message)) return make("hints");

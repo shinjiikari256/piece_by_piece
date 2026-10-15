@@ -193,10 +193,20 @@ export const LocationObject = z.object({
   interaction: ObjectInteraction.nullable().describe("null — декорация"),
 });
 
+/** Диалог персонажа, доступный при условии (например, очная ставка: другой персонаж идёт за игроком). */
+export const NpcDialogue = z.object({
+  dialogueId: z.string(),
+  requires: Condition.optional().meta({ always: true }).describe("Когда этот диалог доступен"),
+});
+
 export const NpcPlacement = z.object({
   id: z.string(),
   characterId: z.string(),
-  dialogueId: z.string(),
+  dialogueId: z.string().describe("Диалог по умолчанию — запускается, если ни один из `dialogues` не подошёл"),
+  dialogues: z
+    .array(NpcDialogue)
+    .default([])
+    .describe("Диалоги по условию, по порядку: запускается первый подходящий; очная ставка — диалог с условием «другой персонаж идёт за игроком»"),
   x: z.number().int(),
   y: z.number().int(),
 });
@@ -281,17 +291,6 @@ export const Dialogue = z.object({
   characterId: z.string(),
   startNodeId: z.string(),
   nodes: z.array(DialogueNode),
-});
-
-/** Очная ставка: игрок приводит участников к одному из них — открывается общий разговор. */
-export const Confrontation = z.object({
-  id: z.string(),
-  title: z.string().optional().meta({ always: true }).describe("Название для конструктора, например «Крылов и Лебедева о распечатке»"),
-  characters: z
-    .array(z.string())
-    .describe("Участники: игрок приводит всех, кроме одного, к нему и заговаривает — начинается очная ставка"),
-  dialogueId: z.string(),
-  requires: Condition.optional().meta({ always: true }),
 });
 
 export const Deduction = z.object({
@@ -447,7 +446,6 @@ export const CaseFile = z.object({
   events: z.array(CaseEvent),
   evidence: z.array(Evidence),
   dialogues: z.array(Dialogue),
-  confrontations: z.array(Confrontation),
   deductions: z.array(Deduction),
   hints: z.array(Hint),
   questions: z.array(Question),
@@ -471,7 +469,7 @@ export type Location = z.infer<typeof Location>;
 export type Door = z.infer<typeof Door>;
 export type Zone = z.infer<typeof Zone>;
 export type ZoneAction = z.infer<typeof ZoneAction>;
-export type Confrontation = z.infer<typeof Confrontation>;
+export type NpcDialogue = z.infer<typeof NpcDialogue>;
 export type SpriteKey = z.infer<typeof SpriteKey>;
 export type Appearance = z.infer<typeof Appearance>;
 export type CustomLook = z.infer<typeof CustomLook>;

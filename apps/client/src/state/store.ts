@@ -318,22 +318,6 @@ export const actions = {
     runZoneAction(zoneId, action);
   },
 
-  /**
-   * Очная ставка с персонажем: рядом тот, кого игрок привёл с собой.
-   * Завершённой она считается по своему исходу (флаги в requires), так что
-   * прерванную через Esc можно начать заново.
-   */
-  confrontationWith(characterId: string) {
-    const s = state;
-    return s.caseFile?.confrontations.find(
-      (c) =>
-        c.characters.includes(characterId) &&
-        // все остальные участники должны прийти с игроком
-        c.characters.filter((id) => id !== characterId).every((id) => s.progress.followers.includes(id)) &&
-        meets(c.requires, s.progress),
-    );
-  },
-
   /** Переход через дверь в другую локацию; сцену перестраивает OfficeScene. */
   travel(exit: { to: string; spawn: { x: number; y: number } }) {
     if (isWorldBlocked(state)) return;
@@ -386,8 +370,8 @@ export const actions = {
     }
     const npc = allNpcs(s.caseFile).find((n) => n.id === targetId);
     if (npc) {
-      const confrontation = actions.confrontationWith(npc.characterId);
-      const dialogueId = confrontation?.dialogueId ?? npc.dialogueId;
+      // диалоги по условию — по порядку, первый подходящий; иначе диалог по умолчанию
+      const dialogueId = npc.dialogues.find((d) => meets(d.requires, s.progress))?.dialogueId ?? npc.dialogueId;
       const dialogue = s.caseFile.dialogues.find((d) => d.id === dialogueId);
       if (!dialogue) return;
       enterNode(npc.id, dialogue.id, dialogue.startNodeId);

@@ -3,7 +3,7 @@ import type { Page } from "playwright-core";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { BASE, start, type Harness } from "./harness";
 
-const SECTIONS = ["general", "characters", "locations", "evidence", "events", "dialogues", "confrontations", "deductions", "hints", "questions", "solution", "law", "flags", "json", "errors"];
+const SECTIONS = ["general", "characters", "locations", "evidence", "events", "dialogues", "deductions", "hints", "questions", "solution", "law", "flags", "json", "errors"];
 let h: Harness;
 beforeAll(async () => {
   h = await start();
@@ -492,6 +492,19 @@ describe("игра в браузере", () => {
     const widths = await page.locator(".lm__inspector .pair--xy input").evaluateAll((els) => els.map((e) => Math.round(e.getBoundingClientRect().width)));
     expect(Math.abs(widths[0] - widths[1])).toBeLessThanOrEqual(1);
     expect(widths[0]).toBeGreaterThan(80);
+    await page.close();
+  });
+
+  it("конструктор: у человека на карте — диалоги по условию (очная ставка как обычный диалог)", async () => {
+    const page = await h.page();
+    await page.goto(`${BASE}/editor/case-001/locations`);
+    await page.waitForFunction(() => (window as any).__editor?.editorStore.get().screen === "case");
+    await page.locator(".lm__itabs .tab", { hasText: "Объекты" }).click();
+    await page.locator(".lm__row", { hasText: "npc_" }).first().click();
+    await page.locator(".zact .sel--add").click();
+    await page.locator('[role="option"]').first().click();
+    const npcs = await page.evaluate(() => (window as any).__editor.editorStore.get().draft.locations[0].npcs as { dialogues: unknown[] }[]);
+    expect(npcs.some((n) => n.dialogues.length === 1)).toBe(true);
     await page.close();
   });
 

@@ -3,9 +3,8 @@ import { CaseFile } from "../../../../../shared/case";
 import { editor, editorStore, useEditor } from "../state";
 import { useUrlParam, useWriteDefaultParam } from "../url";
 import { Field, ObjectFields, defaultFor, itemTitle, type JS } from "../SchemaForm";
-import { DialogueEditor } from "../DialogueGraph";
 import { LookEditor } from "../LookEditor";
-import type { Character, Confrontation, Evidence } from "../../../../../shared/case";
+import type { Character, Evidence } from "../../../../../shared/case";
 import { Icon } from "../../ui/icons";
 import { Tabs } from "../Tabs";
 import { EntityList, ItemText } from "../EntityList";
@@ -22,7 +21,6 @@ export function ListSection({ field }: { field: keyof CaseFile }) {
   // выбранный элемент и вкладка карточки — в адресе (`?item=…&tab=…`); вкладка не сбрасывается при переключении между элементами
   const [itemKey, setItemKey] = useUrlParam("item", "");
   const [evidenceTab, setEvidenceTab] = useUrlParam<EvidenceTab>("tab", "main", EVIDENCE_TABS.map((t) => t.id));
-  const [confTab, setConfTab] = useUrlParam<"settings" | "dialogue">("tab", "settings", ["settings", "dialogue"]);
   const keyOf = (item: unknown, i: number) => String((item as { id?: string }).id ?? i);
   const found = list.findIndex((x, k) => keyOf(x, k) === itemKey);
   const index = found >= 0 ? found : Math.min(0, list.length - 1);
@@ -42,12 +40,9 @@ export function ListSection({ field }: { field: keyof CaseFile }) {
   const update = (next: unknown[]) => editor.update((d) => ({ ...d, [field]: next }) as CaseFile, `${String(field)}:${index}`);
 
   const add = () => {
-    if (field === "confrontations") editor.update((d) => addConfrontation(d));
-    else {
-      const fresh = defaultFor(itemSchema) as Record<string, unknown>;
-      if ("id" in fresh) fresh.id = `${String(field).slice(0, 3)}_${list.length + 1}`;
-      editor.update((d) => ({ ...d, [field]: [...list, fresh] }) as CaseFile);
-    }
+    const fresh = defaultFor(itemSchema) as Record<string, unknown>;
+    if ("id" in fresh) fresh.id = `${String(field).slice(0, 3)}_${list.length + 1}`;
+    editor.update((d) => ({ ...d, [field]: [...list, fresh] }) as CaseFile);
     setSelected(list.length);
   };
   const copy = (i: number) => {
@@ -64,26 +59,11 @@ export function ListSection({ field }: { field: keyof CaseFile }) {
   };
   const remove = async (i: number) => {
     if (!(await ask({ title: `Удалить «${itemTitle(list[i], i)}»?`, confirmLabel: "Удалить", danger: true }))) return;
-    // у очной ставки свой разговор — удаляем вместе с ней
-    const dropDialogue = field === "confrontations" ? (list[i] as Confrontation).dialogueId : null;
-    editor.update(
-      (d) =>
-        ({
-          ...d,
-          [field]: list.filter((_, k) => k !== i),
-          dialogues: dropDialogue ? d.dialogues.filter((x) => x.id !== dropDialogue) : d.dialogues,
-        }) as CaseFile,
-    );
+    editor.update((d) => ({ ...d, [field]: list.filter((_, k) => k !== i) }) as CaseFile);
     setSelected(Math.max(0, Math.min(index, list.length - 2)));
   };
   listActions.current = { count: list.length, copy, move, remove };
   useEffect(() => () => void (listActions.current = null), []);
-
-  const heading = (item: unknown, i: number) => {
-    if (field !== "confrontations") return itemHeading(item, i);
-    const conf = item as Confrontation;
-    return conf.title || conf.characters.map((id) => draft.characters.find((c) => c.id === id)?.name.split(" ")[0] ?? id).join(", ");
-  };
 
   return (
     <section className="ed__split">
@@ -103,15 +83,7 @@ export function ListSection({ field }: { field: keyof CaseFile }) {
                   <ArtThumb kind="look" id={String(it.look)} look={resolveLook(item as Character)} scale={1.5} />
                 </span>
               )}
-              {field === "confrontations" && (
-                <span className="ed__item-pair">
-                  {(item as Confrontation).characters.slice(0, 3).map((id) => {
-                    const ch = draft.characters.find((c) => c.id === id);
-                    return ch ? <ArtThumb key={id} kind="look" id={ch.look} look={resolveLook(ch)} scale={1.2} /> : null;
-                  })}
-                </span>
-              )}
-              <ItemText title={heading(item, i)} id={it.id} />
+              <ItemText title={itemHeading(item, i)} id={it.id} />
             </>
           );
         }}
@@ -126,16 +98,6 @@ export function ListSection({ field }: { field: keyof CaseFile }) {
           </>
         )}
       />
-      {field === "confrontations" && list.length > 0 ? (
-        <ConfrontationPanel
-          key={index}
-          tab={confTab}
-          onTab={setConfTab}
-          conf={list[index] as Confrontation}
-          schema={itemSchema}
-          onChange={(v) => update(list.map((x, i) => (i === index ? v : x)))}
-        />
-      ) : (
       <div className="ed__panel">
         {list.length === 0 ? (
           <p className="muted">Пусто. Нажмите «+ добавить».</p>
@@ -175,7 +137,6 @@ export function ListSection({ field }: { field: keyof CaseFile }) {
           />
         )}
       </div>
-      )}
     </section>
   );
 }
@@ -273,77 +234,5 @@ function EvidencePanel({
         <ObjectFields schema={schema} value={evidence} ctx={{ draft }} only={[...EVIDENCE_TABS.find((t) => t.id === tab)!.keys]} onChange={onChange} />
       )}
     </>
-  );
-}
-
-/** Новая очная ставка сразу со своим разговором. */
-function addConfrontation(d: CaseFile): CaseFile {
-  const free = (prefix: string, taken: string[]) => {
-    for (let i = 1; ; i++) if (!taken.includes(`${prefix}${i}`)) return `${prefix}${i}`;
-  };
-  const id = free("conf_", d.confrontations.map((c) => c.id));
-  const dialogueId = free("dlg_conf_", d.dialogues.map((x) => x.id));
-  const [a, b] = d.characters;
-  return {
-    ...d,
-    dialogues: [
-      ...d.dialogues,
-      {
-        id: dialogueId,
-        characterId: a?.id ?? "",
-        startNodeId: "start",
-        nodes: [
-          { id: "start", text: "Зачем вы нас свели?", mood: "nervous", effects: [], choices: [{ id: "bye", text: "Пока всё.", next: null }] },
-        ],
-      },
-    ],
-    confrontations: [...d.confrontations, { id, characters: [a?.id, b?.id].filter(Boolean) as string[], dialogueId }],
-  };
-}
-
-/** Очная ставка: настройки и её разговор — на соседних вкладках. */
-function ConfrontationPanel({
-  conf,
-  schema,
-  tab,
-  onTab: setTab,
-  onChange,
-}: {
-  conf: Confrontation;
-  schema: JS;
-  tab: "settings" | "dialogue";
-  onTab: (t: "settings" | "dialogue") => void;
-  onChange: (v: unknown) => void;
-}) {
-  const draft = useEditor((s) => s.draft);
-  const focus = useEditor((s) => s.focus);
-  useEffect(() => {
-    if (focus?.section === "confrontations" && focus.id === conf.id) setTab(focus.sub ? "dialogue" : "settings");
-  }, [focus, conf.id, setTab]);
-  return (
-    <div className="conf-panel">
-      <Tabs
-        variant="bar"
-        active={tab}
-        onChange={setTab}
-        tabs={[
-          { id: "settings", label: "Настройки" },
-          { id: "dialogue", label: "Разговор" },
-        ]}
-      />
-      {tab === "settings" ? (
-        <div className="ed__panel ed__panel--narrow">
-          <p className="muted">
-            Очная ставка начинается, когда игрок приводит всех участников, кроме одного, к нему (они идут следом) и заговаривает
-            с ним. Реплики участников — на вкладке «Разговор».
-          </p>
-          <ObjectFields schema={schema} value={conf} ctx={{ draft }} only={["id", "title"]} onChange={onChange} />
-          <ObjectFields schema={schema} value={conf} ctx={{ draft }} only={["characters"]} onChange={onChange} />
-          <ObjectFields schema={schema} value={conf} ctx={{ draft }} only={["requires"]} onChange={onChange} />
-        </div>
-      ) : (
-        <DialogueEditor fixedId={conf.dialogueId} />
-      )}
-    </div>
   );
 }

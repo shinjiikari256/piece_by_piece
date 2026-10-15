@@ -64,9 +64,6 @@ export class OfficeScene extends Phaser.Scene {
   private overlayClosedAt = -Infinity;
   private prompt!: Phaser.GameObjects.Text;
   private focused: Interactable | null = null;
-  private focusLabel: string | null = null;
-  /** Второй участник очной ставки, когда фокус на первом. */
-  private confPartners: Npc[] = [];
   private animClock = 0;
   private lastSavedTile = "";
   private saveClock = 0;
@@ -908,23 +905,13 @@ export class OfficeScene extends Phaser.Scene {
         }
       }
     }
-    // для персонажа, с которым сейчас возможна очная ставка, — особая подпись и подсветка обоих
-    const npc = best && [...this.npcs.values()].find((n) => n === best);
-    const conf = npc ? this.host.confrontationWith(npc.characterId) : undefined;
-    const partners = conf ? conf.characters.filter((id) => id !== npc!.characterId).flatMap((id) => this.npcs.get(id) ?? []) : [];
-    const label = conf && npc ? `Очная ставка: ${[npc, ...partners].map((n) => n.label).join(", ")}` : best?.label ?? null;
-    if (best !== this.focused || label !== this.focusLabel) {
+    const label = best?.label ?? null;
+    if (best !== this.focused) {
       this.focused?.labelText.setVisible(false);
       this.focused?.sprite.clearTint();
-      this.confPartners.forEach((p) => p.sprite.clearTint());
-      if (this.focused && this.focusLabel !== this.focused.label) this.focused.labelText.setText(this.focused.label).setStyle(labelStyle);
       this.focused = best;
-      this.focusLabel = label;
-      this.confPartners = partners;
-      if (best && conf) best.labelText.setText(label!).setStyle({ ...labelStyle, backgroundColor: "rgba(184,50,42,0.92)" });
       gameBridge.focusListeners.forEach((l) => l(label));
     }
-    this.confPartners.forEach((p) => p.sprite.setTint(0xffd0c8));
     if (best) {
       best.labelText.setVisible(true);
       best.sprite.setTint(0xfff3c4);

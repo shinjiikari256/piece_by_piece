@@ -1,5 +1,5 @@
 {
-  "formatVersion": 2,
+  "formatVersion": 3,
   "id": "case-001",
   "number": "001",
   "title": "Чужие письма",
@@ -12,7 +12,7 @@
     "points": 10
   },
   "published": true,
-  "updatedAt": "2026-10-15T02:59:06Z",
+  "updatedAt": "2026-10-15T08:56:30Z",
   "locations": [
     {
       "id": "admin_building",
@@ -390,42 +390,72 @@
           "characterId": "alina",
           "dialogueId": "dlg_alina",
           "x": 4,
-          "y": 14
+          "y": 14,
+          "dialogues": []
         },
         {
           "id": "npc_krylov",
           "characterId": "krylov",
           "dialogueId": "dlg_krylov",
           "x": 10,
-          "y": 5
+          "y": 5,
+          "dialogues": [
+            {
+              "dialogueId": "dlg_conf_krylov_lebedeva",
+              "requires": {
+                "notFlags": [
+                  "krylov_admitted"
+                ],
+                "following": [
+                  "lebedeva"
+                ]
+              }
+            }
+          ]
         },
         {
           "id": "npc_lebedeva",
           "characterId": "lebedeva",
           "dialogueId": "dlg_lebedeva",
           "x": 23,
-          "y": 5
+          "y": 5,
+          "dialogues": [
+            {
+              "dialogueId": "dlg_conf_krylov_lebedeva",
+              "requires": {
+                "notFlags": [
+                  "krylov_admitted"
+                ],
+                "following": [
+                  "krylov"
+                ]
+              }
+            }
+          ]
         },
         {
           "id": "npc_gusev",
           "characterId": "gusev",
           "dialogueId": "dlg_gusev",
           "x": 27,
-          "y": 12
+          "y": 12,
+          "dialogues": []
         },
         {
           "id": "npc_kotova",
           "characterId": "kotova",
           "dialogueId": "dlg_kotova",
           "x": 20,
-          "y": 14
+          "y": 14,
+          "dialogues": []
         },
         {
           "id": "npc_rybin",
           "characterId": "rybin",
           "dialogueId": "dlg_rybin",
           "x": 24,
-          "y": 10
+          "y": 10,
+          "dialogues": []
         }
       ],
       "doors": [
@@ -1753,21 +1783,6 @@
           ]
         }
       ]
-    }
-  ],
-  "confrontations": [
-    {
-      "id": "conf_krylov_lebedeva",
-      "characters": [
-        "krylov",
-        "lebedeva"
-      ],
-      "dialogueId": "dlg_conf_krylov_lebedeva",
-      "requires": {
-        "notFlags": [
-          "krylov_admitted"
-        ]
-      }
     }
   ],
   "deductions": [

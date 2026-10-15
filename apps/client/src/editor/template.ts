@@ -45,7 +45,7 @@ export function blankCase(): CaseFile {
             interaction: { type: "evidence", title: "Доска объявлений", description: "Приколот документ.", evidenceId: "ev_rule" },
           },
         ],
-        npcs: [{ id: "npc_witness", characterId: "witness", dialogueId: "dlg_witness", x: 12, y: 8 }],
+        npcs: [{ id: "npc_witness", characterId: "witness", dialogueId: "dlg_witness", dialogues: [], x: 12, y: 8 }],
         doors: [],
         zones: [],
       },
@@ -104,7 +104,6 @@ export function blankCase(): CaseFile {
         ],
       },
     ],
-    confrontations: [],
     deductions: [
       {
         id: "d_main",

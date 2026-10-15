@@ -19,7 +19,6 @@ export type SectionId =
   | "evidence"
   | "events"
   | "dialogues"
-  | "confrontations"
   | "deductions"
   | "hints"
   | "questions"
@@ -37,7 +36,7 @@ export interface Focus {
   /** Уточнение: узел диалога, локация предмета и т.п. */
   sub?: string;
   /** Для локаций: что выделить на карте. */
-  kind?: "object" | "npc" | "exit" | "door" | "zone";
+  kind?: "object" | "npc" | "door" | "zone";
 }
 
 export interface EditorState {

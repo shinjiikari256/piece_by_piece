@@ -18,7 +18,7 @@ const REF_FIELDS = new Set([
 ]);
 
 /** Коллекции верхнего уровня, ключи которых переименовываются вместе со ссылками. */
-const ENTITY_COLLECTIONS = ["characters", "evidence", "deductions", "events", "locations", "dialogues", "confrontations", "flags"] as const;
+const ENTITY_COLLECTIONS = ["characters", "evidence", "deductions", "events", "locations", "dialogues", "flags"] as const;
 
 /** Это ключ элемента верхнего уровня (а не узла диалога или предмета на карте)? */
 export function isEntityKey(d: Record<string, unknown>, key: string): boolean {

@@ -1,4 +1,4 @@
-import type { actions, GameState } from "../state/store";
+import type { GameState } from "../state/store";
 
 /**
  * Всё, что сцена Phaser берёт из приложения. Сцена не импортирует стор и сохранения:
@@ -11,8 +11,6 @@ export interface SceneHost {
   isBlocked(): boolean;
   /** Игрок взаимодействует с объектом, персонажем или выходом. */
   onInteract(targetId: string): void;
-  /** Очная ставка, доступная с этим персонажем. */
-  confrontationWith(characterId: string): ReturnType<typeof actions.confrontationWith>;
   /** Есть ли сейчас подходящее действие у области: подсказка взаимодействия показывается только тогда. */
   hasZoneAction(zoneId: string): boolean;
   /** Игрок вошёл в область (срабатывает действие с автозапуском). */

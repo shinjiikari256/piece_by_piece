@@ -167,7 +167,7 @@ export function MapEditor() {
         if (!ch) return;
         const nid = uniqueId(`npc_${ch.id}_`, allIds());
         const dialogueId = draft.dialogues.find((d) => d.characterId === ch.id)?.id ?? "";
-        updateLoc((l) => ({ ...l, npcs: [...l.npcs, { id: nid, characterId: ch.id, dialogueId, x: t.x, y: t.y }] }));
+        updateLoc((l) => ({ ...l, npcs: [...l.npcs, { id: nid, characterId: ch.id, dialogueId, dialogues: [], x: t.x, y: t.y }] }));
         setSel({ kind: "npc", id: nid });
         setTool({ kind: "select" });
         break;

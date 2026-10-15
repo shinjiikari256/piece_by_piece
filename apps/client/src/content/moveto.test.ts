@@ -154,6 +154,24 @@ describe("миграция формата 1 → 2", () => {
     expect(exit.cells.length).toBeGreaterThan(1); // клетка выхода и проходимые соседи
     expect(migrated.zones.find((z) => z.id === "z1")!.actions).toEqual([{ kind: "dialogue", dialogueId: (old.dialogues as { id: string }[])[0].id, requires: { flags: ["a"] }, auto: true }]);
     expect((data.dialogues as Record<string, unknown>[])[0].trigger).toBeUndefined();
-    expect(data.formatVersion).toBe(2);
+    expect(typeof data.formatVersion).toBe("number");
+  });
+});
+
+describe("миграция формата 2 → 3", () => {
+  it("очная ставка становится диалогами участников по условию «другой идёт за игроком»", async () => {
+    const { caseMigrations } = await import("../../../../shared/migrate");
+    const old = {
+      formatVersion: 2,
+      locations: [{ id: "l", npcs: [{ id: "n1", characterId: "a", dialogueId: "da", x: 1, y: 1 }, { id: "n2", characterId: "b", dialogueId: "db", x: 2, y: 1 }, { id: "n3", characterId: "c", dialogueId: "dc", x: 3, y: 1 }] }],
+      confrontations: [{ id: "c1", characters: ["a", "b"], dialogueId: "dab", requires: { notFlags: ["done"] } }],
+    };
+    const next = caseMigrations[2](old) as { confrontations?: unknown; locations: { npcs: { characterId: string; dialogues: unknown[] }[] }[] };
+    expect(next.confrontations).toBeUndefined();
+    const [a, b, c] = next.locations[0].npcs;
+    expect(a.dialogues).toEqual([{ dialogueId: "dab", requires: { notFlags: ["done"], following: ["b"] } }]);
+    expect(b.dialogues).toEqual([{ dialogueId: "dab", requires: { notFlags: ["done"], following: ["a"] } }]);
+    expect(c.dialogues).toEqual([]);
+    expect(old.confrontations).toHaveLength(1); // вход не меняется
   });
 });

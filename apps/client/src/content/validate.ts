@@ -129,6 +129,10 @@ function checkIntegrity(c: CaseFile): string[] {
     for (const n of loc.npcs) {
       ref(characters, n.characterId, `npc ${n.id}`);
       ref(dialogues, n.dialogueId, `npc ${n.id}`);
+      n.dialogues.forEach((nd, i) => {
+        ref(dialogues, nd.dialogueId, `npc ${n.id}: диалог по условию №${i + 1}`);
+        checkCondition(nd.requires, `npc ${n.id}: диалог по условию №${i + 1}.requires`);
+      });
     }
     for (const z of loc.zones) {
       if (!z.name.trim()) err(`${L}/zone ${z.id}: нет названия`);
@@ -172,16 +176,6 @@ function checkIntegrity(c: CaseFile): string[] {
         if (bounce) err(`${where} (выход): spawn стоит в области с автоматическим выходом — игрока сразу выкинет обратно`);
       });
     }
-  }
-
-  // Очные ставки
-  unique("confrontations", c.confrontations.map((x) => x.id));
-  for (const cf of c.confrontations) {
-    const where = `confrontation ${cf.id}`;
-    if (cf.characters.length < 2) err(`${where}: нужно хотя бы два участника`);
-    cf.characters.forEach((id) => ref(characters, id, where));
-    ref(dialogues, cf.dialogueId, where);
-    checkCondition(cf.requires, `${where}.requires`);
   }
 
   // Улики
@@ -253,7 +247,8 @@ function checkIntegrity(c: CaseFile): string[] {
       n.choices.forEach((ch) => condFlags(ch.requires));
     }
   c.deductions.forEach((x) => x.effects.forEach((e) => e.type === "setFlag" && usedFlags.add(e.flag)));
-  c.confrontations.forEach((x) => condFlags(x.requires));
+  c.locations.forEach((l) => l.npcs.forEach((n) => n.dialogues.forEach((nd) => condFlags(nd.requires))));
+  c.locations.forEach((l) => l.zones.forEach((z) => z.actions.forEach((a) => condFlags(a.requires))));
   c.locations.forEach((l) => l.doors.forEach((d) => condFlags(d.requires)));
   for (const f of usedFlags) if (!named.has(f)) err(`flags: у флага «${f}» нет названия — добавьте его в разделе «Флаги»`);
   c.lawReference?.basis.forEach((x, i) => x.title.trim() || err(`lawReference: у нормы №${i + 1} нет названия`));

@@ -1,5 +1,5 @@
 {
-  "formatVersion": 2,
+  "formatVersion": 3,
   "id": "case-test-moveto",
   "number": "T01",
   "title": "Тест: перемещения персонажей",
@@ -401,28 +401,56 @@
           "characterId": "timur",
           "dialogueId": "dlg_timur",
           "x": 4,
-          "y": 11
+          "y": 11,
+          "dialogues": []
         },
         {
           "id": "npc_zuev",
           "characterId": "zuev",
           "dialogueId": "dlg_zuev",
           "x": 25,
-          "y": 5
+          "y": 5,
+          "dialogues": [
+            {
+              "dialogueId": "dlg_conf_zuev_denis",
+              "requires": {
+                "notFlags": [
+                  "zuev_admitted"
+                ],
+                "following": [
+                  "denis"
+                ]
+              }
+            }
+          ]
         },
         {
           "id": "npc_denis",
           "characterId": "denis",
           "dialogueId": "dlg_denis",
           "x": 16,
-          "y": 5
+          "y": 5,
+          "dialogues": [
+            {
+              "dialogueId": "dlg_conf_zuev_denis",
+              "requires": {
+                "notFlags": [
+                  "zuev_admitted"
+                ],
+                "following": [
+                  "zuev"
+                ]
+              }
+            }
+          ]
         },
         {
           "id": "npc_vika",
           "characterId": "vika",
           "dialogueId": "dlg_vika",
           "x": 9,
-          "y": 13
+          "y": 13,
+          "dialogues": []
         }
       ],
       "doors": [
@@ -809,14 +837,16 @@
           "characterId": "ryabov",
           "dialogueId": "dlg_ryabov",
           "x": 16,
-          "y": 5
+          "y": 5,
+          "dialogues": []
         },
         {
           "id": "npc_lidia",
           "characterId": "lidia",
           "dialogueId": "dlg_lidia",
           "x": 5,
-          "y": 7
+          "y": 7,
+          "dialogues": []
         }
       ],
       "doors": [],
@@ -2531,21 +2561,6 @@
           ]
         }
       ]
-    }
-  ],
-  "confrontations": [
-    {
-      "id": "conf_zuev_denis",
-      "characters": [
-        "zuev",
-        "denis"
-      ],
-      "dialogueId": "dlg_conf_zuev_denis",
-      "requires": {
-        "notFlags": [
-          "zuev_admitted"
-        ]
-      }
     }
   ],
   "deductions": [

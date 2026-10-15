@@ -33,8 +33,11 @@ export function flagsOf(d: FormCtx["draft"]): string[] {
       n.choices.forEach((ch) => cond(ch.requires));
     }
   d.deductions.forEach((x) => x.effects.forEach((e) => e.type === "setFlag" && out.add(e.flag)));
-  d.confrontations.forEach((c) => cond(c.requires));
-  d.locations.forEach((l) => l.doors.forEach((door) => cond(door.requires)));
+  d.locations.forEach((l) => {
+    l.doors.forEach((door) => cond(door.requires));
+    l.npcs.forEach((n) => n.dialogues.forEach((nd) => cond(nd.requires)));
+    l.zones.forEach((z) => z.actions.forEach((a) => cond(a.requires)));
+  });
   return [...out].sort();
 }
 
@@ -49,10 +52,7 @@ export function flagUsage(d: FormCtx["draft"]): Map<string, FlagUse[]> {
   const out = new Map<string, FlagUse[]>();
   const add = (f: string, use: FlagUse) => out.set(f, [...(out.get(f) ?? []), use]);
   const who = (id: string) => d.characters.find((c) => c.id === id)?.name ?? id;
-  const dialogueFocus = (dialogueId: string, sub: string): Focus => {
-    const conf = d.confrontations.find((c) => c.dialogueId === dialogueId);
-    return conf ? { section: "confrontations", id: conf.id, sub } : { section: "dialogues", id: dialogueId, sub };
-  };
+  const dialogueFocus = (dialogueId: string, sub: string): Focus => ({ section: "dialogues", id: dialogueId, sub });
   const cond = (c: Condition | undefined, where: string, focus: Focus) => {
     c?.flags?.forEach((f) => add(f, { kind: "проверяет", where, focus }));
     c?.notFlags?.forEach((f) => add(f, { kind: "проверяет отсутствие", where, focus }));
@@ -67,10 +67,11 @@ export function flagUsage(d: FormCtx["draft"]): Map<string, FlagUse[]> {
   d.deductions.forEach((x) =>
     x.effects.forEach((e) => e.type === "setFlag" && add(e.flag, { kind: "ставит", where: `Сопоставление «${x.title}»`, focus: { section: "deductions", id: x.id } })),
   );
-  d.confrontations.forEach((x) => cond(x.requires, `Очная ставка «${x.title ?? x.characters.map(who).join(", ")}»`, { section: "confrontations", id: x.id }));
-  d.locations.forEach((l) =>
-    l.doors.forEach((door) => cond(door.requires, `Дверь ${door.id} — ${l.name}`, { section: "locations", sub: l.id, kind: "door", id: door.id })),
-  );
+  d.locations.forEach((l) => {
+    l.doors.forEach((door) => cond(door.requires, `Дверь ${door.id} — ${l.name}`, { section: "locations", sub: l.id, kind: "door", id: door.id }));
+    l.npcs.forEach((n) => n.dialogues.forEach((nd) => cond(nd.requires, `Диалог по условию: ${who(n.characterId)} — ${l.name}`, { section: "locations", sub: l.id, kind: "npc", id: n.id })));
+    l.zones.forEach((z) => z.actions.forEach((a) => cond(a.requires, `Область «${z.name}» — ${l.name}`, { section: "locations", sub: l.id, kind: "zone", id: z.id })));
+  });
   return out;
 }
 
@@ -96,8 +97,12 @@ export function deleteFlag(d: CaseFile, flag: string): CaseFile {
       nodes: dl.nodes.map((n) => ({ ...n, effects: noSet(n.effects), choices: n.choices.map(clean) })),
     })),
     deductions: d.deductions.map((x) => ({ ...x, effects: noSet(x.effects) })),
-    confrontations: d.confrontations.map(clean),
-    locations: d.locations.map((l) => ({ ...l, doors: l.doors.map(clean) })),
+    locations: d.locations.map((l) => ({
+      ...l,
+      doors: l.doors.map(clean),
+      npcs: l.npcs.map((n) => ({ ...n, dialogues: n.dialogues.map(clean) })),
+      zones: l.zones.map((z) => ({ ...z, actions: z.actions.map(clean) })),
+    })),
   };
 }
 

@@ -53,9 +53,6 @@
   stroke: var(--stamp);
   stroke-dasharray: 4 3;
 }
-.dg--embedded {
-  grid-template-columns: 1fr var(--col-right, 24rem);
-}
 .ed__list-note {
   font-size: 0.8em;
   margin: 0.3rem 0 0;

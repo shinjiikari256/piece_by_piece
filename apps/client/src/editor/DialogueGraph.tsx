@@ -67,39 +67,31 @@ function autoLayout(d: Dialogue, heights: Record<string, number> = {}): Record<s
   return out;
 }
 
-/**
- * Редактор диалога-графа. Без fixedId — раздел «Диалоги» со списком обычных разговоров;
- * с fixedId — встроенный редактор разговора очной ставки.
- */
-export function DialogueEditor({ fixedId }: { fixedId?: string } = {}) {
+/** Редактор диалога-графа: раздел «Диалоги» со списком разговоров и графом реплик. */
+export function DialogueEditor() {
   const listPanel = usePanel("dialogue-list", "Диалоги", "left", { width: 240, min: 160, max: 420 });
   const sidePanel = usePanel("dialogue-node", "Реплика", "right", { width: 384, min: 280, max: 640 });
   const draft = useEditor((s) => s.draft);
-  const confIds = new Set(draft.confrontations.map((c) => c.dialogueId));
-  const ownDialogues = draft.dialogues.filter((d) => !confIds.has(d.id));
-  // раздел «Диалоги»: выбранный разговор и узел — в адресе (`?item=…&node=…`); встроенный разговор очной ставки адрес не трогает
+  const ownDialogues = draft.dialogues;
+  // выбранный разговор и узел — в адресе (`?item=…&node=…`)
   const [urlDialogue] = useUrlParam("item", "");
   const [urlNode] = useUrlParam("node", "");
   const pickedId = ownDialogues.some((d) => d.id === urlDialogue) ? urlDialogue : (ownDialogues[0]?.id ?? "");
   const setDialogueId = (id: string) => setSearchParams({ item: id === ownDialogues[0]?.id ? null : id, node: null });
-  useWriteDefaultParam("item", !!fixedId || pickedId === urlDialogue, ownDialogues[0]?.id);
-  const dialogueId = fixedId ?? pickedId;
-  const dlgIndex = draft.dialogues.findIndex((d) => d.id === dialogueId);
-  const dialogue = dlgIndex >= 0 ? draft.dialogues[dlgIndex] : fixedId ? undefined : ownDialogues[0];
-  const isConfrontation = dialogue ? confIds.has(dialogue.id) : false;
-  const [localNode, setLocalNode] = useState<string | null>(null);
-  const selected = fixedId ? localNode : urlNode || null;
-  const setSelected = (id: string | null) => (fixedId ? setLocalNode(id) : setSearchParams({ node: id }));
+  useWriteDefaultParam("item", pickedId === urlDialogue, ownDialogues[0]?.id);
+  const dlgIndex = draft.dialogues.findIndex((d) => d.id === pickedId);
+  const dialogue = dlgIndex >= 0 ? draft.dialogues[dlgIndex] : ownDialogues[0];
+  const selected = urlNode || null;
+  const setSelected = (id: string | null) => setSearchParams({ node: id });
   // переход к узлу с ошибкой
   const focus = useEditor((s) => s.focus);
   useEffect(() => {
     if (!focus?.id) return;
-    if (!fixedId && focus.section === "dialogues") {
+    if (focus.section === "dialogues") {
       setDialogueId(focus.id);
       setSelected(focus.sub ?? null);
     }
-    if (fixedId && focus.section === "confrontations" && focus.sub) setSelected(focus.sub);
-  }, [focus, fixedId]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [focus]); // eslint-disable-line react-hooks/exhaustive-deps
   const [layout, setLayout] = useState<Layout>(() => loadLayout(draft.id));
   useEffect(() => setLayout(loadLayout(draft.id)), [draft.id]);
 
@@ -123,23 +115,18 @@ export function DialogueEditor({ fixedId }: { fixedId?: string } = {}) {
   if (!dialogue) {
     return (
       <section className="ed__panel">
-        <p>{fixedId ? `Диалог «${fixedId}» не найден.` : "Диалогов нет."}</p>
-        {!fixedId && (
-          <button className="btn btn--sm" onClick={() => addDialogue(draft, setDialogueId)}>
-            + диалог
-          </button>
-        )}
+        <p>Диалогов нет.</p>
+        <button className="btn btn--sm" onClick={() => addDialogue(draft, setDialogueId)}>
+          + диалог
+        </button>
       </section>
     );
   }
 
   const node = dialogue.nodes.find((n) => n.id === selected);
-  // «Говорит» нужно только в разговоре очной ставки
-  const nodeSkip = isConfrontation ? [] : ["speaker"];
-
   return (
-    <section className={`dg ${fixedId ? "dg--embedded" : ""}`} style={panelVars(fixedId ? undefined : listPanel, sidePanel)}>
-      {!fixedId && (listPanel.collapsed ? <PanelRail panel={listPanel} /> : (
+    <section className="dg" style={panelVars(listPanel, sidePanel)}>
+      {listPanel.collapsed ? <PanelRail panel={listPanel} /> : (
           <EntityList
             items={ownDialogues}
             getKey={(d) => d.id}
@@ -149,7 +136,6 @@ export function DialogueEditor({ fixedId }: { fixedId?: string } = {}) {
               setSelected(null);
             }}
             onAdd={() => addDialogue(draft, setDialogueId)}
-            note="Разговоры очных ставок — в разделе «Очные ставки», вкладка «Диалог»."
             renderItem={(d) => {
               const ch = draft.characters.find((c) => c.id === d.characterId);
               return (
@@ -164,7 +150,7 @@ export function DialogueEditor({ fixedId }: { fixedId?: string } = {}) {
               );
             }}
           />
-      ))}
+      )}
 
       <Graph
         dialogue={dialogue}
@@ -206,7 +192,7 @@ export function DialogueEditor({ fixedId }: { fixedId?: string } = {}) {
         <PanelRail panel={sidePanel} />
       ) : (
         <aside className="dg__side">
-          {!isConfrontation && <DialogueTrigger draft={draft} dialogue={dialogue} />}
+          <DialogueTrigger draft={draft} dialogue={dialogue} />
           {node ? (
             <>
               <div className="dg__side-head row">
@@ -245,7 +231,6 @@ export function DialogueEditor({ fixedId }: { fixedId?: string } = {}) {
                 schema={NODE_SCHEMA}
                 value={node}
                 ctx={{ draft, dialogue }}
-                skip={nodeSkip}
                 onChange={(v) => {
                   const next = v as DialogueNode;
                   updateDialogue(
@@ -267,12 +252,12 @@ export function DialogueEditor({ fixedId }: { fixedId?: string } = {}) {
             </>
           ) : (
             <>
-              <h3>{isConfrontation ? "Разговор очной ставки" : "Диалог"}</h3>
+              <h3>Диалог</h3>
               <ObjectFields
                 schema={DIALOGUE_SCHEMA}
                 value={dialogue}
                 ctx={{ draft, dialogue }}
-                skip={isConfrontation ? ["nodes", "id"] : ["nodes"]}
+                skip={["nodes"]}
                 onChange={(v) => {
                   const next = v as Dialogue;
                   if (next.id !== dialogue.id) setDialogueId(next.id);
@@ -291,23 +276,21 @@ export function DialogueEditor({ fixedId }: { fixedId?: string } = {}) {
                   <li>Двойной клик по пустому месту — новая реплика.</li>
                 </ul>
               </div>
-              {!isConfrontation && (
-                <button
-                  className="btn btn--sm btn--danger"
-                  onClick={async () => {
-                    if (!(await ask({ title: `Удалить диалог «${dialogue.id}»?`, confirmLabel: "Удалить", danger: true }))) return;
-                    editor.update((c) => ({ ...c, dialogues: c.dialogues.filter((d) => d.id !== dialogue.id) }));
-                    setDialogueId(ownDialogues.find((d) => d.id !== dialogue.id)?.id ?? "");
-                  }}
-                >
-                  удалить диалог
-                </button>
-              )}
+              <button
+                className="btn btn--sm btn--danger"
+                onClick={async () => {
+                  if (!(await ask({ title: `Удалить диалог «${dialogue.id}»?`, confirmLabel: "Удалить", danger: true }))) return;
+                  editor.update((c) => ({ ...c, dialogues: c.dialogues.filter((d) => d.id !== dialogue.id) }));
+                  setDialogueId(ownDialogues.find((d) => d.id !== dialogue.id)?.id ?? "");
+                }}
+              >
+                удалить диалог
+              </button>
             </>
           )}
         </aside>
       )}
-      {!fixedId && <PanelGrip panel={listPanel} />}
+      <PanelGrip panel={listPanel} />
       <PanelGrip panel={sidePanel} />
     </section>
   );

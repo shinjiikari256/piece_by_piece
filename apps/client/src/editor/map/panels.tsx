@@ -4,13 +4,14 @@ import {
   drawTile,
 } from "../../game/art";
 import { Door, Location, LocationObject, NpcPlacement } from "../../../../../shared/case";
-import type { CaseFile as CaseFileT, Location as LocationT, Zone } from "../../../../../shared/case";
+import type { CaseFile as CaseFileT, Location as LocationT, NpcDialogue, Zone } from "../../../../../shared/case";
 import { Icon } from "../../ui/icons";
 import { tell } from "../../ui/dialog";
 import { editor } from "../state";
 import { zoneKey } from "./ZoneCreator";
 import { ZONE_COLORS } from "./helpers";
 import { ZoneActions } from "./ZoneActions";
+import { NpcDialogues } from "./NpcDialogues";
 import { Field, ObjectFields, type JS } from "../SchemaForm";
 import { ConditionEditor } from "../fields/Conditions";
 import type { Condition } from "../../../../../shared/case";
@@ -176,6 +177,15 @@ export function SelectedPanel({
           updateLoc((l) => ({ ...l, [key]: (l[key] as { id: string }[]).map((x) => (x.id === sel.id ? v : x)) }), `${key}:${sel.id}`);
         return sel.kind === "door" ? (
           <DoorFields schema={schema} door={item as DoorValue} draft={draft} onChange={onChange} />
+        ) : sel.kind === "npc" ? (
+          <>
+            <ObjectFields schema={schema} value={item} ctx={{ draft }} skip={["dialogues"]} onChange={onChange} />
+            <NpcDialogues
+              dialogues={(item as unknown as { dialogues: NpcDialogue[] }).dialogues ?? []}
+              draft={draft}
+              onChange={(dialogues) => onChange({ ...(item as object), dialogues })}
+            />
+          </>
         ) : (
           <Field name={key} schema={schema} value={item} ctx={{ draft }} bare onChange={onChange} />
         );

@@ -35,7 +35,7 @@ export function runMigrations(
 
 // ——— Дело ———
 
-export const CASE_FORMAT_VERSION = 2;
+export const CASE_FORMAT_VERSION = 3;
 
 const WALL_CHARS = new Set(["#", "W", "B", "G", "P", "F"]);
 
@@ -88,8 +88,38 @@ function caseV1toV2(data: Raw): Raw {
   return { ...data, locations, dialogues };
 }
 
+/** Условие «и»: объединяет списки одноимённых полей двух условий. */
+function mergeConditions(a: Raw | undefined, b: Raw): Raw {
+  const out: Raw = { ...(a ?? {}) };
+  for (const [key, list] of Object.entries(b)) out[key] = [...new Set([...((out[key] as unknown[] | undefined) ?? []), ...(list as unknown[])])];
+  return out;
+}
+
+/**
+ * 2 → 3: очные ставки (`confrontations`) стали диалогами персонажей по условию (`NpcPlacement.dialogues`): участнику ставки
+ * достаётся диалог с условием «остальные участники идут за игроком» (плюс прежнее условие ставки); диалог по умолчанию — последним.
+ */
+function caseV2toV3(data: Raw): Raw {
+  const confrontations = (data.confrontations as Raw[] | undefined) ?? [];
+  const locations = ((data.locations as Raw[] | undefined) ?? []).map((raw) => {
+    const loc = { ...raw } as Raw;
+    loc.npcs = ((loc.npcs as Raw[] | undefined) ?? []).map((npc) => {
+      const own = confrontations
+        .filter((cf) => ((cf.characters as string[]) ?? []).includes(npc.characterId as string))
+        .map((cf) => {
+          const others = ((cf.characters as string[]) ?? []).filter((id) => id !== npc.characterId);
+          return { dialogueId: cf.dialogueId, requires: mergeConditions(cf.requires as Raw | undefined, { following: others }) };
+        });
+      return { ...npc, dialogues: [...own, ...((npc.dialogues as unknown[] | undefined) ?? [])] };
+    });
+    return loc;
+  });
+  const { confrontations: _gone, ...rest } = data;
+  return { ...rest, locations };
+}
+
 /** Звенья цепочки: `caseMigrations[v]` переводит дело версии v в v + 1. */
-export const caseMigrations: Record<number, Migration> = { 1: caseV1toV2 };
+export const caseMigrations: Record<number, Migration> = { 1: caseV1toV2, 2: caseV2toV3 };
 
 export const migrateCase = (raw: unknown, chain = caseMigrations, current = CASE_FORMAT_VERSION): Migrated =>
   runMigrations(raw, "formatVersion", chain, current, "дело");
