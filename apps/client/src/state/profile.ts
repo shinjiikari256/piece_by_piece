@@ -1,6 +1,6 @@
 /**
  * Профиль игрока и история результатов — пока локально, в браузере.
- * В онлайн-версии (см. working/plans/PLAN.md) это переедет на сервер.
+ * В онлайн-версии (см. working/plans/BACKEND.md) это переедет на сервер.
  */
 
 import type { ResultRecord } from "./result-record";
