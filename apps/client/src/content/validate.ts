@@ -1,5 +1,6 @@
 import { type CaseFile, type Condition, type Effect } from "../../../../shared/case";
 import { flagOfEffect, isFlagAction } from "../../../../shared/conditions";
+import { effectSites } from "../../../../shared/effect-sites";
 import { parseCase } from "../../../../shared/migrate";
 import { FLOOR_TILES, SPRITES, WALL_TILES, resolveLook } from "../game/art";
 import { zoneTargetCell } from "./case-utils";
@@ -180,7 +181,6 @@ function checkIntegrity(c: CaseFile): string[] {
         checkCondition(a.requires, `${where}.requires`);
         if (a.kind === "dialogue") ref(dialogues, a.dialogueId, `${where} (диалог)`);
         if (a.kind === "exit") ref(locationIds, a.to, `${where} (выход)`);
-        if (a.kind === "effects") checkEffects(a.effects, where);
         if (a.kind === "object") {
           const o = c.locations.flatMap((l) => l.objects).find((x) => x.id === a.objectId);
           if (!o) err(`${where} (предмет): неизвестная ссылка «${a.objectId}»`);
@@ -233,8 +233,6 @@ function checkIntegrity(c: CaseFile): string[] {
     for (const n of d.nodes) {
       const where = `dialogue ${d.id}/${n.id}`;
       if (n.speaker) ref(characters, n.speaker, `${where}.speaker`);
-      checkEffects(n.effects, where);
-      n.effects.forEach((e) => e.type === "addEvidence" && obtainable.add(e.evidenceId));
       if (!n.choices.length) err(`${where}: нет вариантов ответа`);
       unique(`${where} choices`, n.choices.map((ch) => ch.id));
       for (const ch of n.choices) {
@@ -242,6 +240,12 @@ function checkIntegrity(c: CaseFile): string[] {
         checkCondition(ch.requires, `${where}/${ch.id}.requires`);
       }
     }
+  }
+
+  // эффекты: ссылки внутри них и источники улик (реплики, варианты, сопоставления, осмотр, области)
+  for (const site of effectSites(c)) {
+    checkEffects(site.effects, site.where);
+    site.effects.forEach((e) => e.type === "addEvidence" && obtainable.add(e.evidenceId));
   }
 
   for (const id of evidence) {
@@ -258,9 +262,7 @@ function checkIntegrity(c: CaseFile): string[] {
     if (d.evidenceIds.length !== 2) err(`deduction ${d.id}: сопоставляются ровно два материала`);
     if (d.evidenceIds.includes(d.id)) err(`deduction ${d.id}: вывод не может опираться сам на себя`);
     if (d.options.filter((o) => o.correct).length !== 1) err(`deduction ${d.id}: должен быть ровно один верный вариант`);
-    checkEffects(d.effects, `deduction ${d.id}`);
   }
-  for (const l of c.locations) for (const o of l.objects) if (o.interaction) checkEffects(o.interaction.effects, `location ${l.id}/object ${o.id}: эффекты осмотра`);
   // цепочки без циклов: факт не может зависеть от себя через другие
   const deps = new Map(c.deductions.map((d) => [d.id, d.evidenceIds.filter((id) => deductions.has(id))]));
   const visiting = new Set<string>();
@@ -288,12 +290,9 @@ function checkIntegrity(c: CaseFile): string[] {
   };
   for (const dl of c.dialogues)
     for (const n of dl.nodes) {
-      n.effects.forEach(addFlagOf);
       n.choices.forEach((ch) => condFlags(ch.requires));
     }
-  c.deductions.forEach((x) => x.effects.forEach(addFlagOf));
-  c.locations.forEach((l) => l.objects.forEach((o) => o.interaction?.effects.forEach(addFlagOf)));
-  c.locations.forEach((l) => l.zones.forEach((z) => z.actions.forEach((a) => a.kind === "effects" ? a.effects.forEach(addFlagOf) : undefined)));
+  effectSites(c).forEach((site) => site.effects.forEach(addFlagOf));
   c.locations.forEach((l) => l.npcs.forEach((n) => n.dialogues.forEach((nd) => condFlags(nd.requires))));
   c.locations.forEach((l) => l.zones.forEach((z) => z.actions.forEach((a) => condFlags(a.requires))));
   c.locations.forEach((l) => l.doors.forEach((d) => condFlags(d.requires)));

@@ -213,7 +213,7 @@ describe("предупреждения дела", () => {
     const { caseWarnings } = await import("./warnings");
     expect(caseWarnings(structuredClone(case001) as unknown as CaseFile).filter((w) => w.startsWith("dialogue") || w.includes("/zone"))).toEqual([]);
     const c = structuredClone(case001) as unknown as CaseFile;
-    c.dialogues.push({ id: "dlg_lonely", characterId: c.characters[0].id, startNodeId: "s", nodes: [{ id: "s", text: "…", mood: "neutral", effects: [], choices: [{ id: "end", text: "ок", next: null, requires: { flags: ["flag_never_set"] } }] }] });
+    c.dialogues.push({ id: "dlg_lonely", characterId: c.characters[0].id, startNodeId: "s", nodes: [{ id: "s", text: "…", mood: "neutral", effects: [], choices: [{ id: "end", text: "ок", next: null, effects: [], requires: { flags: ["flag_never_set"] } }] }] });
     c.locations[0].zones = [{ id: "z_empty", name: "Пустая", cells: [{ x: 1, y: 1 }], actions: [] }];
     const text = caseWarnings(c).join("\n");
     expect(text).toContain("dialogue dlg_lonely: никто не запускает");

@@ -90,8 +90,8 @@ export function blankCase(): CaseFile {
             mood: "neutral",
             effects: [],
             choices: [
-              { id: "ask", text: "Что вы видели?", next: "answer" },
-              { id: "bye", text: "До свидания.", next: null },
+              { id: "ask", text: "Что вы видели?", next: "answer", effects: [] },
+              { id: "bye", text: "До свидания.", next: null, effects: [] },
             ],
           },
           {
@@ -99,7 +99,7 @@ export function blankCase(): CaseFile {
             text: "Ответ свидетеля.",
             mood: "neutral",
             effects: [],
-            choices: [{ id: "back", text: "Понятно.", next: "start" }],
+            choices: [{ id: "back", text: "Понятно.", next: "start", effects: [] }],
           },
         ],
       },

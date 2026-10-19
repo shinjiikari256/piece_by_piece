@@ -5,6 +5,7 @@ import { Dialog } from "../../ui/window";
 import { Select } from "../../ui/Select";
 import type { CaseFile, Effect } from "../../../../../shared/case";
 import { flagOfEffect } from "../../../../../shared/conditions";
+import { effectSites, mapEffectSites, type EffectOwner } from "../../../../../shared/effect-sites";
 import { ask } from "../../ui/dialog";
 import { Icon } from "../../ui/icons";
 import { FormCtx, Option, charOption } from "../SchemaForm";
@@ -28,16 +29,20 @@ export type Condition = {
 
 const FLAG_VERB = { on: "ставит", off: "снимает", toggle: "переключает" } as const;
 
-/** Все списки эффектов дела (без адресов). */
-function effectLists(d: FormCtx["draft"]): Effect[][] {
-  return [
-    ...d.dialogues.flatMap((dl) => dl.nodes.map((n) => n.effects)),
-    ...d.deductions.map((x) => x.effects),
-    ...d.locations.flatMap((l) => [
-      ...l.objects.flatMap((o) => (o.interaction ? [o.interaction.effects ?? []] : [])),
-      ...l.zones.flatMap((z) => z.actions.flatMap((a) => (a.kind === "effects" ? [a.effects] : []))),
-    ]),
-  ];
+/** Подпись и адрес перехода для места с эффектами (реплика, вариант, сопоставление, осмотр, область). */
+function siteInfo(o: EffectOwner, who: (id: string) => string): { where: string; focus: Focus } {
+  switch (o.kind) {
+    case "node":
+      return { where: `Разговор: ${who(o.characterId)} — реплика «${o.text.slice(0, 50)}»`, focus: { section: "dialogues", id: o.dialogueId, sub: o.nodeId } };
+    case "choice":
+      return { where: `Разговор: ${who(o.characterId)} — вариант «${o.text.slice(0, 50)}» (эффекты выбора)`, focus: { section: "dialogues", id: o.dialogueId, sub: o.nodeId } };
+    case "deduction":
+      return { where: `Сопоставление «${o.title}»`, focus: { section: "deductions", id: o.deductionId } };
+    case "object":
+      return { where: `Осмотр «${o.label}» — ${o.locationName}`, focus: { section: "locations", sub: o.locationId, kind: "object", id: o.objectId } };
+    case "zone":
+      return { where: `Область «${o.zoneName}» — ${o.locationName}`, focus: { section: "locations", sub: o.locationId, kind: "zone", id: o.zoneId } };
+  }
 }
 
 /** Все флаги, которые встречаются в деле: описанные, поставленные эффектами или проверяемые условиями. */
@@ -52,7 +57,7 @@ export function flagsOf(d: FormCtx["draft"]): string[] {
     for (const n of dl.nodes) {
       n.choices.forEach((ch) => cond(ch.requires));
     }
-  effectLists(d).forEach((list) => list.forEach((e) => flagOfEffect(e) && out.add(flagOfEffect(e)!.flag)));
+  effectSites(d).forEach((site) => site.effects.forEach((e) => flagOfEffect(e) && out.add(flagOfEffect(e)!.flag)));
   d.locations.forEach((l) => {
     l.doors.forEach((door) => cond(door.requires));
     l.npcs.forEach((n) => n.dialogues.forEach((nd) => cond(nd.requires)));
@@ -84,18 +89,12 @@ export function flagUsage(d: FormCtx["draft"]): Map<string, FlagUse[]> {
   };
   for (const dl of d.dialogues)
     for (const n of dl.nodes) {
-      n.effects.forEach((e) => useOf(e, `Разговор: ${who(dl.characterId)} — реплика «${n.text.slice(0, 50)}»`, dialogueFocus(dl.id, n.id)));
       n.choices.forEach((ch) => cond(ch.requires, `Разговор: ${who(dl.characterId)} — вариант «${ch.text.slice(0, 50)}»`, dialogueFocus(dl.id, n.id)));
     }
-  d.locations.forEach((l) => {
-    l.objects.forEach((o) =>
-      o.interaction?.effects?.forEach((e) => useOf(e, `Осмотр «${o.label || o.id}» — ${l.name}`, { section: "locations", sub: l.id, kind: "object", id: o.id })),
-    );
-    l.zones.forEach((z) =>
-      z.actions.forEach((a) => a.kind === "effects" && a.effects.forEach((e) => useOf(e, `Область «${z.name}» — ${l.name}`, { section: "locations", sub: l.id, kind: "zone", id: z.id }))),
-    );
+  effectSites(d).forEach((site) => {
+    const { where, focus } = siteInfo(site.owner, who);
+    site.effects.forEach((e) => useOf(e, where, focus));
   });
-  d.deductions.forEach((x) => x.effects.forEach((e) => useOf(e, `Сопоставление «${x.title}»`, { section: "deductions", id: x.id })));
   d.locations.forEach((l) => {
     l.doors.forEach((door) => cond(door.requires, `Дверь ${door.id} — ${l.name}`, { section: "locations", sub: l.id, kind: "door", id: door.id }));
     l.npcs.forEach((n) => n.dialogues.forEach((nd) => cond(nd.requires, `Диалог по условию: ${who(n.characterId)} — ${l.name}`, { section: "locations", sub: l.id, kind: "npc", id: n.id })));
@@ -127,22 +126,18 @@ export function deleteFlag(d: CaseFile, flag: string): CaseFile {
     return (Object.keys(r).length ? { ...rest, requires: r } : rest) as T;
   };
   const noSet = (effects: Effect[]) => effects.filter((e) => flagOfEffect(e)?.flag !== flag);
-  return {
+  const cleaned: CaseFile = {
     ...d,
     flags: (d.flags ?? []).filter((f) => f.id !== flag),
-    dialogues: d.dialogues.map((dl) => ({
-      ...dl,
-      nodes: dl.nodes.map((n) => ({ ...n, effects: noSet(n.effects), choices: n.choices.map(clean) })),
-    })),
-    deductions: d.deductions.map((x) => ({ ...x, effects: noSet(x.effects) })),
+    dialogues: d.dialogues.map((dl) => ({ ...dl, nodes: dl.nodes.map((n) => ({ ...n, choices: n.choices.map(clean) })) })),
     locations: d.locations.map((l) => ({
       ...l,
-      objects: l.objects.map((o) => (o.interaction ? { ...o, interaction: { ...o.interaction, effects: noSet(o.interaction.effects ?? []) } } : o)),
       doors: l.doors.map(clean),
       npcs: l.npcs.map((n) => ({ ...n, dialogues: n.dialogues.map(clean) })),
-      zones: l.zones.map((z) => ({ ...z, actions: z.actions.map((a) => clean(a.kind === "effects" ? { ...a, effects: noSet(a.effects) } : a)) })),
+      zones: l.zones.map((z) => ({ ...z, actions: z.actions.map(clean) })),
     })),
   };
+  return mapEffectSites(cleaned, noSet);
 }
 
 const flagName = (d: FormCtx["draft"], id: string) => d.flags?.find((f) => f.id === id)?.name ?? "";

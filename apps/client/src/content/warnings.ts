@@ -1,5 +1,6 @@
 import type { CaseFile, Condition, Effect } from "../../../../shared/case";
 import { flagOfEffect } from "../../../../shared/conditions";
+import { effectSites } from "../../../../shared/effect-sites";
 
 /**
  * Предупреждения: дело корректно и запустится, но что-то, скорее всего, недоделано. Не блокируют сохранение и запуск.
@@ -33,16 +34,9 @@ export function caseWarnings(c: CaseFile): string[] {
     cnd?.flags?.forEach((f) => needsSetting.add(f));
     cnd?.anyOf?.forEach(positive);
   };
-  for (const d of c.dialogues)
-    for (const n of d.nodes) {
-      effects(n.effects);
-      n.choices.forEach((ch) => {
-        positive(ch.requires);
-      });
-    }
-  c.deductions.forEach((x) => effects(x.effects));
+  effectSites(c).forEach((site) => effects(site.effects));
+  for (const d of c.dialogues) for (const n of d.nodes) n.choices.forEach((ch) => positive(ch.requires));
   for (const l of c.locations) {
-    l.objects.forEach((o) => o.interaction && effects(o.interaction.effects ?? []));
     l.doors.forEach((d) => {
       positive(d.requires);
     });
@@ -53,7 +47,6 @@ export function caseWarnings(c: CaseFile): string[] {
     );
     l.zones.forEach((z) =>
       z.actions.forEach((a) => {
-        if (a.kind === "effects") effects(a.effects);
         positive(a.requires);
       }),
     );

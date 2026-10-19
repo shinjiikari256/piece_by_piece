@@ -305,6 +305,7 @@ export const DialogueChoice = z.object({
   text: z.string(),
   next: z.string().nullable().describe("id следующего узла или null — закончить разговор"),
   requires: Condition.optional(),
+  effects: z.array(Effect).default([]).meta({ always: true }).describe("Что произойдёт, когда игрок выберет этот вариант (до ответа персонажа)"),
 });
 
 export const DialogueNode = z.object({

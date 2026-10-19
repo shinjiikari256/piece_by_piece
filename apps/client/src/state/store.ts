@@ -510,6 +510,12 @@ export const actions = {
     // Разные реакции на повтор автор строит флагами и условиями.
     const key = choiceKey(o.dialogueId, o.nodeId, choice.id);
     if (!state.usedChoices.includes(key)) set((s) => ({ usedChoices: [...s.usedChoices, key] }));
+    // эффекты варианта — при каждом выборе, до ответа персонажа
+    if (choice.effects?.length) {
+      const { progress, newEvidence } = applyEffects(withZoneTargets(choice.effects), state.progress, whereIs, counterDefs());
+      set({ progress });
+      announceEvidence(newEvidence);
+    }
     if (choice.next === null) set({ overlay: null });
     else enterNode(o.npcId, o.dialogueId, choice.next);
   },

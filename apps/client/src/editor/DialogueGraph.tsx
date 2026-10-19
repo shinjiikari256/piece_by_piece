@@ -180,7 +180,7 @@ export function DialogueEditor() {
           const id = freeId("node_", dialogue.nodes.map((n) => n.id));
           updateDialogue((d) => ({
             ...d,
-            nodes: [...d.nodes, { id, text: "Новая реплика", mood: "neutral", effects: [], choices: [{ id: "back", text: "Понятно.", next: d.startNodeId }] }],
+            nodes: [...d.nodes, { id, text: "Новая реплика", mood: "neutral", effects: [], choices: [{ id: "back", text: "Понятно.", next: d.startNodeId, effects: [] }] }],
           }));
           setPositions({ ...positions, [id]: p });
           setSelected(id);
@@ -189,7 +189,7 @@ export function DialogueEditor() {
           updateDialogue((d) => ({
             ...d,
             nodes: d.nodes.map((n) =>
-              n.id === nodeId ? { ...n, choices: [...n.choices, { id: freeId("c", n.choices.map((c) => c.id)), text: "Новый вариант", next: null }] } : n,
+              n.id === nodeId ? { ...n, choices: [...n.choices, { id: freeId("c", n.choices.map((c) => c.id)), text: "Новый вариант", next: null, effects: [] }] } : n,
             ),
           }))
         }
@@ -479,11 +479,16 @@ function Graph({
                   {n.choices.map((c, i) => (
                     <li key={c.id} className="dg-choice">
                       <span className="dg-choice__text">{c.text}</span>
-                      {(c.requires || c.next === null) && (
+                      {(c.requires || c.next === null || c.effects?.length > 0) && (
                         <span className="dg-choice__tags">
                           {c.requires && (
                             <span className="dg-tag dg-tag--cond" title="Вариант виден только при выполнении условия">
                               условие
+                            </span>
+                          )}
+                          {c.effects?.length > 0 && (
+                            <span className="dg-tag" title={`При выборе: ${c.effects.map(effectLabel).join("; ")}`}>
+                              ⚡
                             </span>
                           )}
                           {c.next === null && (
@@ -552,7 +557,7 @@ function addDialogue(draft: CaseFile, select: (id: string) => void) {
         characterId,
         startNodeId: "start",
         nodes: [
-          { id: "start", text: "Здравствуйте.", mood: "neutral", effects: [], choices: [{ id: "bye", text: "До свидания.", next: null }] },
+          { id: "start", text: "Здравствуйте.", mood: "neutral", effects: [], choices: [{ id: "bye", text: "До свидания.", next: null, effects: [] }] },
         ],
       },
     ],

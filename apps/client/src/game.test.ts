@@ -714,3 +714,29 @@ describe("эффекты осмотра предмета", () => {
     expect(store.get().progress.counters.looks).toBe(1);
   });
 });
+
+describe("эффекты варианта ответа", () => {
+  it("применяются при каждом выборе, до ответа персонажа", () => {
+    const raw = load("case-001.json") as unknown as CaseFile;
+    raw.flags = [...(raw.flags ?? []), { id: "asked", name: "Спросили" }];
+    raw.counters = [{ id: "asks", name: "Вопросы" }];
+    const dlg = raw.dialogues.find((d) => d.id === "dlg_alina")!;
+    const choice = dlg.nodes.find((n) => n.id === "start")!.choices.find((c) => c.id === "pass")!;
+    choice.effects = [
+      { type: "changeVariable", variableId: "asked", action: "on" },
+      { type: "changeVariable", variableId: "asks", action: "add", value: 1 },
+    ];
+    const c = validateCase(raw);
+    if (!c.ok) throw new Error(c.errors.join("; "));
+    setPlatform(createMemoryPlatform());
+    actions.openCase(new LocalAuthority(c.caseFile));
+    actions.beginInvestigation();
+    actions.interact("npc_alina");
+    expect(store.get().progress.flags).not.toContain("asked");
+    actions.choose("pass");
+    actions.choose("back");
+    actions.choose("pass");
+    expect(store.get().progress.flags).toContain("asked");
+    expect(store.get().progress.counters.asks).toBe(2);
+  });
+});
