@@ -12,6 +12,9 @@ import type { CaseFile, Dialogue, Effect } from "../../../../shared/case";
 import { ask, tell } from "../ui/dialog";
 import { RefMulti, StringList } from "./fields/RefChips";
 import { Condition, ConditionEditor, FlagPicker } from "./fields/Conditions";
+
+/** Поля-списки эффектов: рисуются редактором эффектов. */
+const EFFECT_FIELDS = new Set(["effects", "onCollect", "failEffects", "onEnter"]);
 import { EffectsEditor } from "./fields/Effects";
 import { AttachmentSource } from "./fields/Attachment";
 export { FlagDialog, deleteFlag, flagUsage, type FlagUse } from "./fields/Conditions";
@@ -181,7 +184,7 @@ export function Field({ name, schema, value, onChange, ctx, bare }: FieldProps):
       </div>
     );
   }
-  if (name === "effects" && schema.type === "array") {
+  if (EFFECT_FIELDS.has(name) && schema.type === "array") {
     return (
       <div className="ef">
         {label}

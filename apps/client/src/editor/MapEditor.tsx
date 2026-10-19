@@ -475,6 +475,13 @@ export function MapEditor() {
                   only={["areas"]}
                   onChange={(v) => updateLoc(() => v as LocationT, `loc:${li}`)}
                 />
+                <ObjectFields
+                  schema={LOCATION_SCHEMA}
+                  value={loc}
+                  ctx={{ draft }}
+                  only={["onEnter", "onEnterRepeat"]}
+                  onChange={(v) => updateLoc(() => v as LocationT, `loc:${li}`)}
+                />
                 {draft.locations.length > 1 && (
                   <div className="row lm__order">
                     <button

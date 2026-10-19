@@ -98,6 +98,8 @@ export interface EffectContext {
   whereIs?: (characterId: string) => Place | undefined;
   counters?: readonly CounterDef[];
   locationId?: string;
+  /** Эффекты улики в момент попадания в дело (`Evidence.onCollect`); срабатывают сразу после выдавшего эффекта. */
+  onCollect?: (evidenceId: string) => Effect[];
 }
 
 /**
@@ -119,13 +121,18 @@ export function applyEffects(effects: Effect[], p: Progress, ctx: EffectContext 
   };
   const newEvidence: string[] = [];
   const messages: string[] = [];
-  for (const e of effects) {
+  // очередь: эффекты улики встают сразу за выдавшим её эффектом; предел страхует от зацикливания
+  const queue = [...effects];
+  for (let i = 0; i < queue.length && i < 1000; i++) {
+    const e = queue[i];
     if (e.requires && !meets(e.requires, next, ctx.locationId)) continue;
     switch (e.type) {
       case "addEvidence":
         if (!next.collected.includes(e.evidenceId)) {
           next.collected.push(e.evidenceId);
           newEvidence.push(e.evidenceId);
+          const extra = ctx.onCollect?.(e.evidenceId) ?? [];
+          if (extra.length) queue.splice(i + 1, 0, ...extra);
         }
         break;
       case "changeVariable": {

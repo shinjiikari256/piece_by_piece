@@ -179,7 +179,26 @@ function announce(newEvidence: string[], messages: string[]) {
 
 const whereIs = (characterId: string) => gameBridge.whereIs?.(characterId);
 /** Окружение эффектов: где стоят персонажи, границы счётчиков, где игрок (для условий эффектов). */
-const fxCtx = () => ({ whereIs, counters: state.caseFile?.counters ?? [], locationId: state.locationId });
+const fxCtx = () => ({
+  whereIs,
+  counters: state.caseFile?.counters ?? [],
+  locationId: state.locationId,
+  // эффекты улики срабатывают сразу после её выдачи
+  onCollect: (id: string) => withZoneTargets(state.caseFile?.evidence.find((e) => e.id === id)?.onCollect ?? []),
+});
+
+/** Игрок вошёл в локацию: эффекты входа — один раз за прохождение или каждый раз (`onEnterRepeat`). */
+function enterLocation(locationId: string) {
+  const loc = state.caseFile?.locations.find((l) => l.id === locationId);
+  if (!loc?.onEnter?.length) return;
+  const key = `enter:${loc.id}`;
+  const seen = state.progress.fired.includes(key);
+  if (seen && !loc.onEnterRepeat) return;
+  const base = seen ? state.progress : { ...state.progress, fired: [...state.progress.fired, key] };
+  const { progress, newEvidence, messages } = applyEffects(withZoneTargets(loc.onEnter), base, fxCtx());
+  set({ progress });
+  announce(newEvidence, messages);
+}
 
 /**
  * `moveTo` с областью: персонаж встаёт на свободную клетку внутри неё — подставляем её в `x, y`
@@ -307,6 +326,8 @@ export const actions = {
     }));
     // стираем старое сохранение после смены состояния: автосохранение только что записало новое начало, а оно не нужно, пока игрок ничего не сделал
     if (caseId) void platform().saves.clear(caseId);
+    // старт тоже вход в локацию
+    enterLocation(state.locationId);
   },
 
   /** Продолжить по сохранению; без аргумента — уже открытое дело (экран вступления). */
@@ -389,6 +410,7 @@ export const actions = {
   travel(exit: { to: string; spawn: { x: number; y: number } }) {
     if (isWorldBlocked(state)) return;
     set({ locationId: exit.to, spawn: exit.spawn });
+    enterLocation(exit.to);
   },
 
   /** Сцена запомнила позицию игрока (без перерисовки: меняется каждую секунду движения). */
@@ -547,6 +569,11 @@ export const actions = {
     if (!verdict) return null;
     if (!verdict.correct) {
       set((s) => ({ wrongDeductions: s.wrongDeductions + 1 }));
+      if (d.failEffects?.length) {
+        const { progress, newEvidence, messages } = applyEffects(withZoneTargets(d.failEffects), state.progress, fxCtx());
+        set({ progress });
+        announce(newEvidence, messages);
+      }
       return verdict;
     }
     if (!state.progress.deductions.includes(d.id)) {

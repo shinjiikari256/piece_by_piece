@@ -5,6 +5,9 @@ export type EffectOwner =
   | { kind: "node"; dialogueId: string; characterId: string; nodeId: string; text: string }
   | { kind: "choice"; dialogueId: string; characterId: string; nodeId: string; choiceId: string; text: string }
   | { kind: "deduction"; deductionId: string; title: string }
+  | { kind: "deductionFail"; deductionId: string; title: string }
+  | { kind: "evidence"; evidenceId: string; title: string }
+  | { kind: "enter"; locationId: string; locationName: string }
   | { kind: "object"; locationId: string; locationName: string; objectId: string; label: string }
   | { kind: "zone"; locationId: string; locationName: string; zoneId: string; zoneName: string; actionIndex: number };
 
@@ -15,7 +18,7 @@ export interface EffectSite {
   effects: Effect[];
 }
 
-type EffectCase = Pick<CaseFile, "dialogues" | "deductions" | "locations">;
+type EffectCase = Pick<CaseFile, "dialogues" | "deductions" | "locations" | "evidence">;
 
 /**
  * Все места дела, где есть список эффектов: реплики и варианты ответа, сопоставления, осмотр предметов, действия областей.
@@ -52,9 +55,15 @@ function walkEffects<C extends EffectCase>(c: C, visit: (effects: Effect[], owne
         };
       }),
     })),
-    deductions: c.deductions.map((x) => ({ ...x, effects: visit(x.effects, { kind: "deduction", deductionId: x.id, title: x.title }, `deduction ${x.id}`) })),
+    evidence: c.evidence.map((e) => ({ ...e, onCollect: visit(e.onCollect ?? [], { kind: "evidence", evidenceId: e.id, title: e.title }, `evidence ${e.id}: эффекты получения`) })),
+    deductions: c.deductions.map((x) => ({
+      ...x,
+      effects: visit(x.effects, { kind: "deduction", deductionId: x.id, title: x.title }, `deduction ${x.id}`),
+      failEffects: visit(x.failEffects ?? [], { kind: "deductionFail", deductionId: x.id, title: x.title }, `deduction ${x.id}: эффекты ошибки`),
+    })),
     locations: c.locations.map((l) => ({
       ...l,
+      onEnter: visit(l.onEnter ?? [], { kind: "enter", locationId: l.id, locationName: l.name }, `location ${l.id}: эффекты входа`),
       objects: l.objects.map((o) =>
         o.interaction
           ? {

@@ -151,6 +151,7 @@ export const Evidence = z.object({
   relatedEvents: z.array(z.string()),
   reliability: Reliability,
   attachments: z.array(Attachment).optional(),
+  onCollect: z.array(Effect).default([]).describe("Эффекты в момент, когда улика попала в дело (один раз)"),
 });
 
 /** Осматриваемый предмет: при осмотре его материал сразу попадает в дело. */
@@ -306,6 +307,8 @@ export const Location = z.object({
   npcs: z.array(NpcPlacement),
   doors: z.array(Door),
   zones: z.array(Zone).default([]).describe("Именованные области с действиями: диалог, предмет, выход в другую локацию"),
+  onEnter: z.array(Effect).default([]).describe("Эффекты при входе игрока в локацию (по умолчанию — только при первом входе)"),
+  onEnterRepeat: z.boolean().optional().describe("Применять эффекты входа при каждом входе в локацию, а не только при первом"),
 });
 
 export const DialogueChoice = z.object({
@@ -343,7 +346,8 @@ export const Deduction = z.object({
     z.object({ id: z.string(), text: z.string(), correct: z.boolean(), feedback: z.string() }),
   ),
   conclusion: z.string().describe("Установленный факт, попадает в журнал"),
-  effects: z.array(Effect),
+  effects: z.array(Effect).describe("Эффекты верного ответа"),
+  failEffects: z.array(Effect).default([]).describe("Эффекты неверного ответа (при каждой ошибке): штраф, флаг, сообщение…"),
 });
 
 export const Hint = z.object({

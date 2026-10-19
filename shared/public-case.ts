@@ -27,6 +27,7 @@ export function toPublicCase(c: CaseFile): PublicCase {
       question: d.question,
       options: d.options.map((o) => ({ id: o.id, text: o.text })),
       effects: d.effects,
+      failEffects: d.failEffects,
     })),
     questions: questions.map((q) => ({
       id: q.id,

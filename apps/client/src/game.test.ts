@@ -5,7 +5,7 @@ import { validateCase } from "./content/validate";
 import { scoreCase } from "../../../shared/scoring";
 import { actions, store } from "./state/store";
 import { isSaveOutdated, listSaves, readSave } from "./state/persistence";
-import type { CaseFile } from "../../../shared/case";
+import type { CaseFile, Effect } from "../../../shared/case";
 import { LocalAuthority } from "./content/local-authority";
 import { toPublicCase } from "../../../shared/public-case";
 import { RESULT_FORMAT_VERSION, finish as judgeFinish } from "../../../shared/judge";
@@ -751,5 +751,57 @@ describe("эффекты варианта ответа", () => {
     actions.interact("npc_alina");
     actions.choose("pass");
     expect(store.get().toasts.map((t) => t.text)).toContain("Вы что-то заметили");
+  });
+});
+
+describe("события: вход в локацию, получение улики, ошибка сопоставления", () => {
+  const start = (mutate: (c: CaseFile) => void) => {
+    const raw = load("case-001.json") as unknown as CaseFile;
+    raw.flags = [...(raw.flags ?? []), { id: "entered", name: "Вошли" }];
+    raw.counters = [{ id: "n", name: "Счёт" }];
+    mutate(raw);
+    const c = validateCase(raw);
+    if (!c.ok) throw new Error(c.errors.join("; "));
+    setPlatform(createMemoryPlatform());
+    actions.openCase(new LocalAuthority(c.caseFile));
+    actions.beginInvestigation();
+  };
+  const inc: Effect = { type: "changeVariable", variableId: "n", action: "add", value: 1 };
+
+  it("onEnter: по умолчанию только первый вход, с onEnterRepeat — каждый", () => {
+    start((c) => (c.locations[0].onEnter = [inc]));
+    expect(store.get().progress.counters.n).toBe(1); // старт — тоже вход
+    actions.travel({ to: "admin_building", spawn: { x: 1, y: 1 } });
+    expect(store.get().progress.counters.n).toBe(1);
+
+    start((c) => {
+      c.locations[0].onEnter = [inc];
+      c.locations[0].onEnterRepeat = true;
+    });
+    actions.travel({ to: "admin_building", spawn: { x: 1, y: 1 } });
+    expect(store.get().progress.counters.n).toBe(2);
+  });
+
+  it("onCollect: эффекты улики срабатывают сразу после её выдачи, один раз", () => {
+    const obj = (load("case-001.json") as unknown as CaseFile).locations.flatMap((l) => l.objects).find((o) => o.id === "obj_computer")!;
+    const ev = obj.interaction!.evidenceId;
+    start((c) => (c.evidence.find((e) => e.id === ev)!.onCollect = [{ type: "changeVariable", variableId: "entered", action: "on" }, inc]));
+    expect(store.get().progress.flags).not.toContain("entered");
+    actions.interact("obj_computer");
+    actions.close();
+    expect(store.get().progress.flags).toContain("entered");
+    expect(store.get().progress.counters.n).toBe(1);
+    actions.interact("obj_computer");
+    actions.close();
+    expect(store.get().progress.counters.n).toBe(1);
+  });
+
+  it("failEffects: срабатывают при каждом неверном ответе", async () => {
+    start((c) => (c.deductions.find((d) => d.id === "d_access")!.failEffects = [inc]));
+    await actions.answerDeduction("d_access", "a");
+    await actions.answerDeduction("d_access", "c");
+    expect(store.get().progress.counters.n).toBe(2);
+    await actions.answerDeduction("d_access", "b");
+    expect(store.get().progress.counters.n).toBe(2);
   });
 });

@@ -59,7 +59,7 @@ export function sanitizeSave(save: SaveData, c: PublicCase): SaveData {
       ),
       counters: Object.fromEntries(Object.entries(save.progress.counters ?? {}).filter(([id]) => (c.counters ?? []).some((x) => x.id === id))),
       followers: (save.progress.followers ?? []).filter((id) => characters.has(id)),
-      fired: (save.progress.fired ?? []).filter((key) => c.locations.some((l) => l.zones.some((z) => key.startsWith(`${z.id}:`)))),
+      fired: (save.progress.fired ?? []).filter((key) => c.locations.some((l) => key === `enter:${l.id}` || l.zones.some((z) => key.startsWith(`${z.id}:`)))),
       npcPlaces: Object.fromEntries(
         Object.entries(save.progress.npcPlaces ?? {}).filter(([id, p]) => characters.has(id) && locations.has(p.locationId)),
       ),

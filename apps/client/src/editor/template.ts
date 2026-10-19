@@ -48,6 +48,7 @@ export function blankCase(): CaseFile {
         npcs: [{ id: "npc_witness", characterId: "witness", dialogueId: "dlg_witness", dialogues: [], x: 12, y: 8 }],
         doors: [],
         zones: [],
+        onEnter: [],
       },
     ],
     characters: [
@@ -65,6 +66,7 @@ export function blankCase(): CaseFile {
         relatedCharacters: ["witness"],
         relatedEvents: ["ev_main"],
         reliability: "high",
+        onCollect: [],
       },
       {
         id: "ev_rule",
@@ -76,6 +78,7 @@ export function blankCase(): CaseFile {
         relatedCharacters: [],
         relatedEvents: [],
         reliability: "high",
+        onCollect: [],
       },
     ],
     dialogues: [
@@ -116,6 +119,7 @@ export function blankCase(): CaseFile {
         ],
         conclusion: "Установленный вывод.",
         effects: [],
+        failEffects: [],
       },
     ],
     hints: [

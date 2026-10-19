@@ -40,6 +40,12 @@ function siteInfo(o: EffectOwner, who: (id: string) => string): { where: string;
       return { where: `Разговор: ${who(o.characterId)} — вариант «${o.text.slice(0, 50)}» (эффекты выбора)`, focus: { section: "dialogues", id: o.dialogueId, sub: o.nodeId } };
     case "deduction":
       return { where: `Сопоставление «${o.title}»`, focus: { section: "deductions", id: o.deductionId } };
+    case "deductionFail":
+      return { where: `Сопоставление «${o.title}» (ошибка)`, focus: { section: "deductions", id: o.deductionId } };
+    case "evidence":
+      return { where: `Улика «${o.title}» (при получении)`, focus: { section: "evidence", id: o.evidenceId } };
+    case "enter":
+      return { where: `Вход в локацию «${o.locationName}»`, focus: { section: "locations", sub: o.locationId } };
     case "object":
       return { where: `Осмотр «${o.label}» — ${o.locationName}`, focus: { section: "locations", sub: o.locationId, kind: "object", id: o.objectId } };
     case "zone":

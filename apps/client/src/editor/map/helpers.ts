@@ -23,7 +23,7 @@ export function addLocation(draft: CaseFileT, select: (i: number) => void) {
   const tiles = ["#".repeat(20), ...Array.from({ length: 10 }, () => "#" + ".".repeat(18) + "#"), "#".repeat(20)];
   editor.update((d) => ({
     ...d,
-    locations: [...d.locations, { id, name: "Новая локация", tiles, areas: [], objects: [], npcs: [], exits: [], doors: [], zones: [] }],
+    locations: [...d.locations, { id, name: "Новая локация", tiles, areas: [], objects: [], npcs: [], doors: [], zones: [], onEnter: [] }],
   }));
   select(draft.locations.length);
 }
