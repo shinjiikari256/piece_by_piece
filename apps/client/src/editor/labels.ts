@@ -198,6 +198,7 @@ export const ENUM_LABELS: Record<string, string> = {
   on: "поставить",
   off: "снять",
   toggle: "переключить",
+  assign: "выбрать значение",
   add: "прибавить",
   subtract: "отнять",
   set: "задать",

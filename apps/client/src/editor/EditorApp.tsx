@@ -75,7 +75,7 @@ const SECTIONS: { id: SectionId; label: string; hint: string }[] = [
   { id: "hints", label: "Подсказки", hint: "Три уровня" },
   { id: "questions", label: "Вопросы и баллы", hint: "Финальная квалификация" },
   { id: "solution", label: "Решение", hint: "Разбор и источники" },
-  { id: "flags", label: "Переменные", hint: "Флаги («произошло или нет») и счётчики (числа)" },
+  { id: "flags", label: "Переменные", hint: "Флаги («произошло или нет») счётчики (числа) и перечисления (одно значение из списка)" },
   { id: "law", label: "Закон", hint: "Что игрок видит во вкладке «Закон»" },
   { id: "authorship", label: "Авторство", hint: "Автор, почта, лицензия" },
   { id: "json", label: "JSON", hint: "Исходник целиком" },

@@ -5,7 +5,7 @@ import { countRefs, renameKey, toKey } from "../keys";
 import { Icon } from "../../ui/icons";
 import { ask, tell } from "../../ui/dialog";
 import { Dialog } from "../../ui/window";
-import { flagsOf } from "../fields/Conditions";
+import { isVariableKeyTaken } from "../fields/Conditions";
 
 type Counter = NonNullable<CaseFile["counters"]>[number];
 
@@ -42,7 +42,7 @@ export function CounterDialog({ onDone }: { onDone: (id: string | null) => void 
   const [name, setName] = useState("");
   const [id, setId] = useState("");
   const [manualKey, setManualKey] = useState(false);
-  const taken = !!id && (draft.counters?.some((c) => c.id === id) || flagsOf(draft).includes(id));
+  const taken = !!id && isVariableKeyTaken(draft, id);
   const ready = !!id.trim() && !!name.trim() && !taken;
   const save = () => {
     if (!ready) return;
@@ -110,7 +110,7 @@ export function CounterEditor({ counter, onRenamed }: { counter: Counter; onRena
   const commitKey = async () => {
     const next = key.trim();
     if (!next || next === id) return setKey(id);
-    if (draft.counters?.some((c) => c.id === next)) {
+    if (isVariableKeyTaken(draft, next)) {
       setKey(id);
       return tell({ title: "Такой счётчик уже есть", text: `Ключ «${next}» занят — выберите другой.` });
     }

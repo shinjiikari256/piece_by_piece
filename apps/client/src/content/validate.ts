@@ -49,6 +49,17 @@ function checkIntegrity(c: CaseFile): string[] {
     if (x.min !== undefined && x.max !== undefined && x.min > x.max) err(`counters: у счётчика «${x.id}» наименьшее значение больше наибольшего`);
     if (x.initial !== undefined && ((x.min !== undefined && x.initial < x.min) || (x.max !== undefined && x.initial > x.max))) err(`counters: начальное значение счётчика «${x.id}» вне его границ`);
   });
+  const enumIds = unique("enums", (c.enums ?? []).map((x) => x.id));
+  (c.flags ?? []).forEach((f) => enumIds.has(f.id) && err(`enums: ключ «${f.id}» занят и флагом, и перечислением — ключи должны отличаться`));
+  (c.counters ?? []).forEach((x) => enumIds.has(x.id) && err(`enums: ключ «${x.id}» занят и счётчиком, и перечислением — ключи должны отличаться`));
+  const enumValues = new Map<string, Set<string>>();
+  for (const e of c.enums ?? []) {
+    if (!e.name.trim()) err(`enums: у перечисления «${e.id}» нет названия`);
+    if (!e.values.length) err(`enums: у перечисления «${e.id}» нет значений`);
+    enumValues.set(e.id, unique(`enums ${e.id} values`, e.values.map((x) => x.id)));
+    e.values.forEach((x) => x.name.trim() || err(`enums: у значения «${x.id}» перечисления «${e.id}» нет названия`));
+    if (e.initial !== undefined && !e.values.some((x) => x.id === e.initial)) err(`enums: начальное значение «${e.initial}» перечисления «${e.id}» не из списка значений`);
+  }
   const evidence = unique("evidence", c.evidence.map((x) => x.id));
   const events = unique("events", c.events.map((x) => x.id));
   const dialogues = unique("dialogues", c.dialogues.map((x) => x.id));
@@ -77,6 +88,12 @@ function checkIntegrity(c: CaseFile): string[] {
       ref(counterIds, r.counterId, where);
       if (r.min !== undefined && r.max !== undefined && r.min > r.max) err(`${where}: счётчик «${r.counterId}» — «от» больше «до»`);
     });
+    cond?.enums?.forEach((r) => {
+      ref(enumIds, r.enumId, where);
+      [...(r.in ?? []), ...(r.notIn ?? [])].forEach((id) => {
+        if (enumValues.has(r.enumId) && !enumValues.get(r.enumId)!.has(id)) err(`${where}: у перечисления «${r.enumId}» нет значения «${id}»`);
+      });
+    });
     cond?.anyOf?.forEach((alt) => checkCondition(alt, where));
   };
   const checkEffects = (effects: Effect[], where: string) => {
@@ -85,9 +102,15 @@ function checkIntegrity(c: CaseFile): string[] {
       if (e.type === "message" && !e.text.trim()) err(`${where}: у сообщения нет текста`);
       if (e.type === "addEvidence") ref(evidence, e.evidenceId, where);
       if (e.type === "changeVariable") {
-        if (isFlagAction(e.action)) {
+        if (e.action === "assign") {
+          ref(enumIds, e.variableId, where);
+          if (!e.valueId) err(`${where}: у перечисления «${e.variableId}» не выбрано значение`);
+          else if (enumValues.has(e.variableId) && !enumValues.get(e.variableId)!.has(e.valueId)) err(`${where}: у перечисления «${e.variableId}» нет значения «${e.valueId}»`);
+        } else if (isFlagAction(e.action)) {
           if (counterIds.has(e.variableId)) err(`${where}: «${e.variableId}» — счётчик, а действие над флагом`);
+          if (enumIds.has(e.variableId)) err(`${where}: «${e.variableId}» — перечисление, а действие над флагом`);
         } else {
+          if (enumIds.has(e.variableId)) err(`${where}: «${e.variableId}» — перечисление, а действие над счётчиком`);
           ref(counterIds, e.variableId, where);
           if (e.value === undefined) err(`${where}: у счётчика «${e.variableId}» не указано число`);
         }

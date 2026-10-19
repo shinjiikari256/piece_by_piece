@@ -20,6 +20,8 @@ export interface Progress {
   npcPlaces: Record<string, Place>;
   /** Значения счётчиков дела (нет записи — 0 или начальное значение, см. `startProgress`). */
   counters: Record<string, number>;
+  /** Текущие значения перечислений дела (id значения); заполняются при старте — `startProgress`. */
+  enums: Record<string, string>;
   /** Диалоги с автозапуском по входу в область, которые уже сработали (один раз за прохождение). */
   fired: string[];
 }
@@ -31,6 +33,7 @@ export const emptyProgress = (): Progress => ({
   characterNotes: {},
   followers: [],
   counters: {},
+  enums: {},
   npcPlaces: {},
   fired: [],
 });
@@ -49,18 +52,36 @@ function meetsAll(cond: Omit<Condition, "anyOf">, p: Progress, locationId?: stri
       const v = p.counters?.[r.counterId] ?? 0;
       return (r.min === undefined || v >= r.min) && (r.max === undefined || v <= r.max);
     }) &&
+    (cond.enums ?? []).every((r) => {
+      const v = p.enums?.[r.enumId];
+      return (!r.in?.length || (v !== undefined && r.in.includes(v))) && (!r.notIn?.length || v === undefined || !r.notIn.includes(v));
+    }) &&
     (!cond.inLocation?.length || (locationId !== undefined && cond.inLocation.includes(locationId)))
   );
 }
 
 /** @param locationId — где сейчас игрок (для `inLocation`; не передан — такое условие не выполняется). */
 /** Начало расследования: флаги и счётчики с начальными значениями из дела. */
-export function startProgress(c: { flags?: { id: string; initial?: boolean }[]; counters?: CounterDef[] } | null | undefined): Progress {
+export function startProgress(c: { flags?: { id: string; initial?: boolean }[]; counters?: CounterDef[]; enums?: EnumDef[] } | null | undefined): Progress {
   return {
     ...emptyProgress(),
     flags: (c?.flags ?? []).filter((f) => f.initial).map((f) => f.id),
     counters: Object.fromEntries((c?.counters ?? []).filter((x) => x.initial).map((x) => [x.id, clampCounter(x.initial!, x)])),
+    enums: initialEnums(c?.enums),
   };
+}
+
+/** Перечисление с значениями (нужны `id` и `values`). */
+export type EnumDef = { id: string; values: { id: string }[]; initial?: string };
+
+/** Начальные значения перечислений: заданное `initial`, иначе первое значение. */
+export function initialEnums(defs: readonly EnumDef[] | undefined): Record<string, string> {
+  const out: Record<string, string> = {};
+  for (const d of defs ?? []) {
+    const v = d.initial && d.values.some((x) => x.id === d.initial) ? d.initial : d.values[0]?.id;
+    if (v !== undefined) out[d.id] = v;
+  }
+  return out;
 }
 
 /** Действия над флагом (остальные — над счётчиком). */
@@ -116,6 +137,7 @@ export function applyEffects(effects: Effect[], p: Progress, ctx: EffectContext 
     characterNotes: { ...p.characterNotes },
     followers: [...p.followers],
     counters: { ...(p.counters ?? {}) },
+    enums: { ...(p.enums ?? {}) },
     npcPlaces: { ...p.npcPlaces },
     fired: [...(p.fired ?? [])],
   };
@@ -137,7 +159,9 @@ export function applyEffects(effects: Effect[], p: Progress, ctx: EffectContext 
         break;
       case "changeVariable": {
         const id = e.variableId;
-        if (e.action === "on" || e.action === "off" || e.action === "toggle") {
+        if (e.action === "assign") {
+          if (e.valueId !== undefined) next.enums[id] = e.valueId;
+        } else if (e.action === "on" || e.action === "off" || e.action === "toggle") {
           const has = next.flags.includes(id);
           const want = e.action === "toggle" ? !has : e.action === "on";
           if (want && !has) next.flags.push(id);

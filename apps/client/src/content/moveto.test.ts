@@ -3,6 +3,9 @@ import { emptyProgress, applyEffects, meets, startProgress } from "../../../../s
 import case002 from "./cases/case-002.json";
 import { deleteCounter } from "../editor/sections/Counters";
 import { deleteFlag } from "../editor/fields/Conditions";
+import { deleteEnum, deleteEnumValue, renameEnumValue } from "../editor/sections/Enums";
+import { caseWarnings } from "./warnings";
+import { countRefs, renameKey } from "../editor/keys";
 import { migrateCase } from "../../../../shared/migrate";
 import type { CaseFile, Condition, Effect } from "../../../../shared/case";
 import case001 from "./cases/case-001.json";
@@ -412,5 +415,76 @@ describe("условия-отрицания: notEvidence, notDeductions", () => 
     const text = r.ok ? "" : r.errors.join("\n");
     expect(text).toContain("нет_такой");
     expect(text).toContain("нет_вывода");
+  });
+});
+
+describe("перечисления", () => {
+  const withEnum = () => {
+    const c = structuredClone(case001) as unknown as CaseFile;
+    c.enums = [{ id: "safe", name: "Сейф", values: [{ id: "closed", name: "Закрыт" }, { id: "open", name: "Открыт" }, { id: "broken", name: "Сломан" }] }];
+    return c;
+  };
+  it("startProgress: начальное значение — заданное или первое", () => {
+    const c = withEnum();
+    expect(startProgress(c).enums).toEqual({ safe: "closed" });
+    c.enums![0].initial = "open";
+    expect(startProgress(c).enums).toEqual({ safe: "open" });
+  });
+  it("assign выбирает значение; in / notIn в условиях", () => {
+    const p = startProgress(withEnum());
+    const open = applyEffects([{ type: "changeVariable", variableId: "safe", action: "assign", valueId: "open" }], p).progress;
+    expect(open.enums.safe).toBe("open");
+    expect(p.enums.safe).toBe("closed"); // исходное не меняется
+    expect(meets({ enums: [{ enumId: "safe", in: ["open", "broken"] }] }, open)).toBe(true);
+    expect(meets({ enums: [{ enumId: "safe", in: ["closed"] }] }, open)).toBe(false);
+    expect(meets({ enums: [{ enumId: "safe", notIn: ["closed"] }] }, open)).toBe(true);
+    expect(meets({ enums: [{ enumId: "safe", notIn: ["open"] }] }, open)).toBe(false);
+  });
+  it("валидатор: ключ занят флагом, значения, ссылки в эффекте и условии", () => {
+    const c = withEnum();
+    c.flags = [{ id: "safe", name: "Флаг" }];
+    c.enums![0].initial = "нет";
+    c.dialogues[0].nodes[0].effects.push({ type: "changeVariable", variableId: "safe", action: "assign", valueId: "нет_значения" });
+    c.dialogues[0].nodes[0].effects.push({ type: "changeVariable", variableId: "safe", action: "on" });
+    c.dialogues[0].nodes[0].choices[0].requires = { enums: [{ enumId: "safe", in: ["нет_значения"] }] };
+    const r = validateCase(c);
+    const text = r.ok ? "" : r.errors.join("\n");
+    expect(text).toContain("занят и флагом, и перечислением");
+    expect(text).toContain("начальное значение");
+    expect(text).toContain("нет значения «нет_значения»");
+    expect(text).toContain("перечисление, а действие над флагом");
+  });
+  it("deleteEnumValue, renameEnumValue и deleteEnum чистят эффекты и условия", () => {
+    const c = withEnum();
+    c.dialogues[0].nodes[0].effects.push({ type: "changeVariable", variableId: "safe", action: "assign", valueId: "open" });
+    c.dialogues[0].nodes[0].choices[0].requires = { enums: [{ enumId: "safe", in: ["open"] }] };
+    const renamed = renameEnumValue(c, "safe", "open", "opened");
+    expect(JSON.stringify(renamed)).not.toContain('"open"');
+    expect(renamed.dialogues[0].nodes[0].choices[0].requires).toEqual({ enums: [{ enumId: "safe", in: ["opened"] }] });
+    const noValue = deleteEnumValue(c, "safe", "open");
+    expect(noValue.enums![0].values.map((v) => v.id)).toEqual(["closed", "broken"]);
+    expect(noValue.dialogues[0].nodes[0].choices[0].requires).toBeUndefined();
+    expect(noValue.dialogues[0].nodes[0].effects.some((e) => e.type === "changeVariable")).toBe(false);
+    const gone = deleteEnum(c, "safe");
+    expect(gone.enums).toBeUndefined();
+    expect(JSON.stringify(gone)).not.toContain("safe");
+  });
+  it("предупреждение: условие ждёт значение, которое никто не выбирает", () => {
+    const c = withEnum();
+    c.dialogues[0].nodes[0].choices[0].requires = { enums: [{ enumId: "safe", in: ["broken"] }] };
+    expect(caseWarnings(c).join("\n")).toContain("«broken»");
+    c.dialogues[0].nodes[0].effects.push({ type: "changeVariable", variableId: "safe", action: "assign", valueId: "broken" });
+    expect(caseWarnings(c).join("\n")).not.toContain("«broken»");
+  });
+});
+
+describe("переименование ключа переменной", () => {
+  it("renameKey обновляет variableId в эффектах и enumId в условиях", () => {
+    const c = structuredClone(case001) as unknown as CaseFile;
+    c.counters = [{ id: "hp", name: "Здоровье" }];
+    c.dialogues[0].nodes[0].effects.push({ type: "changeVariable", variableId: "hp", action: "add", value: 1 });
+    const out = renameKey(c as unknown as Record<string, unknown>, "hp", "health") as unknown as CaseFile;
+    expect(out.dialogues[0].nodes[0].effects.at(-1)).toMatchObject({ variableId: "health" });
+    expect(countRefs(c as unknown as Record<string, unknown>, "hp")).toBeGreaterThan(0);
   });
 });

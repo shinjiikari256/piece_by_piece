@@ -25,6 +25,8 @@ export type Condition = {
   inLocation?: string[];
   /** Значения счётчиков в границах (пустая граница — без ограничения). */
   counters?: { counterId: string; min?: number; max?: number }[];
+  /** Значения перечислений: одно из / не одно из. */
+  enums?: { enumId: string; in?: string[]; notIn?: string[] }[];
   /** «Или»: хотя бы один из вариантов (каждый — набор строк «и»). */
   anyOf?: Omit<Condition, "anyOf">[];
 };
@@ -172,13 +174,18 @@ function flagOptions(d: FormCtx["draft"], exclude: string[] = []): Option[] {
 }
 const NEW_FLAG = "__new_flag__";
 
+/** Ключ уже занят флагом, счётчиком или перечислением (их ключи общие). */
+export function isVariableKeyTaken(d: FormCtx["draft"], id: string): boolean {
+  return flagsOf(d).includes(id) || !!d.counters?.some((x) => x.id === id) || !!d.enums?.some((x) => x.id === id);
+}
+
 /** Окно создания или правки флага: русское название и ключ (собирается из названия). */
 export function FlagDialog({ initial, onDone }: { initial?: { id: string; name: string }; onDone: (flag: string | null) => void }) {
   const draft = useEditor((s) => s.draft);
   const [name, setName] = useState(initial?.name ?? "");
   const [id, setId] = useState(initial?.id ?? "");
   const [manualKey, setManualKey] = useState(!!initial);
-  const taken = id !== initial?.id && flagsOf(draft).includes(id);
+  const taken = id !== initial?.id && isVariableKeyTaken(draft, id);
   const save = async () => {
     const flag = id.trim();
     if (!flag || !name.trim() || taken) return;
@@ -251,7 +258,7 @@ export function FlagDialog({ initial, onDone }: { initial?: { id: string; name: 
   );
 }
 
-type ListKey = Exclude<keyof Condition, "anyOf" | "counters">;
+type ListKey = Exclude<keyof Condition, "anyOf" | "counters" | "enums">;
 
 /** Условие показа: только заполненные строки + «+ условие». Строки — «и»; варианты «или» — отдельные вложенные условия. */
 export function ConditionEditor({ value, onChange, ctx, label, nested }: { value: Condition; onChange: (v: unknown) => void; ctx: FormCtx; label: ReactNode; nested?: boolean }) {
@@ -277,6 +284,7 @@ export function ConditionEditor({ value, onChange, ctx, label, nested }: { value
   ];
   const shown = rows.filter((r) => value[r.key]?.length || added.includes(r.key));
   const addCounters = "__counters__";
+  const addEnums = "__enums__";
   const free = rows.filter((r) => !shown.includes(r));
   const removeRow = (key: ListKey) => {
     setAdded((a) => a.filter((k) => k !== key));
@@ -289,6 +297,15 @@ export function ConditionEditor({ value, onChange, ctx, label, nested }: { value
     const next = { ...value };
     if (list.length) next.counters = list;
     else delete next.counters;
+    onChange(next);
+  };
+  const enumRows = value.enums ?? [];
+  const [enumsOpen, setEnumsOpen] = useState(false);
+  const showEnums = enumRows.length > 0 || enumsOpen;
+  const setEnums = (list: NonNullable<Condition["enums"]>) => {
+    const next = { ...value };
+    if (list.length) next.enums = list;
+    else delete next.enums;
     onChange(next);
   };
   const bound = (v: string) => (v === "" ? undefined : Math.trunc(Number(v)));
@@ -343,13 +360,66 @@ export function ConditionEditor({ value, onChange, ctx, label, nested }: { value
           </button>
         </div>
       )}
-      {(free.length > 0 || !showCounters) && (
+      {showEnums && (
+        <div className="cond__row">
+          <span className="cond__title">Значения перечислений</span>
+          {enumRows.map((r, i) => {
+            const mode = r.notIn !== undefined ? "notIn" : "in";
+            const list = (mode === "in" ? r.in : r.notIn) ?? [];
+            const values = (d.enums ?? []).find((x) => x.id === r.enumId)?.values ?? [];
+            const patchRow = (p: Partial<typeof r>) => setEnums(enumRows.map((x, k) => (k === i ? { ...x, ...p } : x)));
+            return (
+              <div key={i} className="stack">
+                <div className="cond__counter">
+                  <Select
+                    value={r.enumId}
+                    placeholder="какое перечисление"
+                    options={(d.enums ?? []).map((x) => ({ value: x.id, label: x.name || x.id }))}
+                    onChange={(v) => setEnums(enumRows.map((x, k) => (k === i ? { enumId: v } : x)))}
+                  />
+                  <Select
+                    value={mode}
+                    options={[
+                      { value: "in", label: "одно из" },
+                      { value: "notIn", label: "не одно из" },
+                    ]}
+                    onChange={(m) => setEnums(enumRows.map((x, k) => (k === i ? { enumId: x.enumId, [m]: list } : x)))}
+                  />
+                  <button className="cond__remove" onClick={() => setEnums(enumRows.filter((_, k) => k !== i))} title="Убрать строку">
+                    ✕
+                  </button>
+                </div>
+                <RefMulti
+                  label=""
+                  options={values.map((v) => ({ value: v.id, label: v.name || v.id }))}
+                  value={list}
+                  onChange={(v) => patchRow({ [mode]: v as string[] })}
+                />
+              </div>
+            );
+          })}
+          <button className="btn btn--sm cond__or" onClick={() => setEnums([...enumRows, { enumId: d.enums?.[0]?.id ?? "", in: [] }])}>
+            + перечисление
+          </button>
+        </div>
+      )}
+      {(free.length > 0 || !showCounters || (!showEnums && !!d.enums?.length)) && (
         <Select
           className="sel--add"
           value=""
           placeholder={shown.length || showCounters ? "+ ещё условие" : "+ условие"}
-          options={[...free.map((r) => ({ value: r.key as string, label: r.title })), ...(showCounters ? [] : [{ value: addCounters, label: "Значение счётчика" }])]}
-          onChange={(k) => (k === addCounters ? (setCountersOpen(true), setCounters([...counterRows, { counterId: d.counters?.[0]?.id ?? "" }])) : setAdded((a) => [...a, k as ListKey]))}
+          options={[
+            ...free.map((r) => ({ value: r.key as string, label: r.title })),
+            ...(showCounters ? [] : [{ value: addCounters, label: "Значение счётчика" }]),
+            ...(showEnums || !d.enums?.length ? [] : [{ value: addEnums, label: "Значение перечисления" }]),
+          ]}
+          onChange={(k) =>
+            k === addCounters
+              ? (setCountersOpen(true), setCounters([...counterRows, { counterId: d.counters?.[0]?.id ?? "" }]))
+              : k === addEnums
+                ? (setEnumsOpen(true), setEnums([...enumRows, { enumId: d.enums?.[0]?.id ?? "", in: [] }]))
+                : setAdded((a) => [...a, k as ListKey])
+          }
         />
       )}
       {!nested && (

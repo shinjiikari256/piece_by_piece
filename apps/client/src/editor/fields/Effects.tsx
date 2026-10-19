@@ -36,18 +36,23 @@ const NEW_VARIABLE = "__new_variable__";
 const FLAG_ACTIONS = ["on", "off", "toggle"] as const;
 const COUNTER_ACTIONS = ["add", "subtract", "set"] as const;
 
-/** «Изменить переменную»: что меняем (флаг или счётчик), как и — для счётчика — на сколько. */
+/** «Изменить переменную»: что меняем (флаг, счётчик или перечисление), как и — для счётчика — на сколько, для перечисления — на какое значение. */
 function VariableEffect({ effect, ctx, onChange }: { effect: Extract<Effect, { type: "changeVariable" }>; ctx: FormCtx; onChange: (e: Effect) => void }) {
   const d = ctx.draft;
   const [creating, setCreating] = useState(false);
   const counters = d.counters ?? [];
-  const isCounter = counters.some((c) => c.id === effect.variableId);
-  const actions = isCounter ? COUNTER_ACTIONS : FLAG_ACTIONS;
+  const enums = d.enums ?? [];
+  const kindOf = (id: string) => (counters.some((c) => c.id === id) ? "counter" : enums.some((x) => x.id === id) ? "enum" : "flag");
+  const kind = kindOf(effect.variableId);
+  const actions = kind === "counter" ? COUNTER_ACTIONS : FLAG_ACTIONS;
   const pick = (id: string) => {
-    const counter = counters.some((c) => c.id === id);
-    if (counter === isCounter && effect.variableId) return onChange({ ...effect, variableId: id });
-    onChange(counter ? { type: "changeVariable", variableId: id, action: "add", value: 1 } : { type: "changeVariable", variableId: id, action: "on" });
+    const next = kindOf(id);
+    if (next === kind && effect.variableId) return onChange({ ...effect, variableId: id });
+    if (next === "counter") return onChange({ type: "changeVariable", variableId: id, action: "add", value: 1 });
+    if (next === "enum") return onChange({ type: "changeVariable", variableId: id, action: "assign", valueId: enums.find((x) => x.id === id)?.values[0]?.id });
+    onChange({ type: "changeVariable", variableId: id, action: "on" });
   };
+  const values = enums.find((x) => x.id === effect.variableId)?.values ?? [];
   return (
     <>
       <Select
@@ -55,15 +60,20 @@ function VariableEffect({ effect, ctx, onChange }: { effect: Extract<Effect, { t
         placeholder="какая переменная"
         options={[
           { value: NEW_VARIABLE, label: "+ Добавить переменную…" },
-          ...flagsOf(d).filter((f) => !counters.some((c) => c.id === f)).map((f) => ({ value: f, label: `Флаг · ${flagLabel(d, f)}` })),
+          ...flagsOf(d).filter((f) => kindOf(f) === "flag").map((f) => ({ value: f, label: `Флаг · ${flagLabel(d, f)}` })),
           ...counters.map((c) => ({ value: c.id, label: `Счётчик · ${c.name || c.id}` })),
+          ...enums.map((x) => ({ value: x.id, label: `Перечисление · ${x.name || x.id}` })),
         ]}
         onChange={(v) => (v === NEW_VARIABLE ? setCreating(true) : pick(v))}
       />
-      <div className="pair">
-        <Select value={effect.action} options={actions.map((a) => ({ value: a, label: ENUM_LABELS[a] }))} onChange={(v) => onChange({ ...effect, action: v as typeof effect.action })} />
-        {isCounter && <input type="number" value={effect.value ?? 0} onChange={(ev) => onChange({ ...effect, value: Math.trunc(Number(ev.target.value)) || 0 })} />}
-      </div>
+      {kind === "enum" ? (
+        <Select value={effect.valueId ?? ""} placeholder="какое значение" options={values.map((v) => ({ value: v.id, label: v.name || v.id }))} onChange={(v) => onChange({ ...effect, valueId: v })} />
+      ) : (
+        <div className="pair">
+          <Select value={effect.action} options={actions.map((a) => ({ value: a, label: ENUM_LABELS[a] }))} onChange={(v) => onChange({ ...effect, action: v as typeof effect.action })} />
+          {kind === "counter" && <input type="number" value={effect.value ?? 0} onChange={(ev) => onChange({ ...effect, value: Math.trunc(Number(ev.target.value)) || 0 })} />}
+        </div>
+      )}
       {creating && (
         <NewVariableDialog
           onDone={(id) => {

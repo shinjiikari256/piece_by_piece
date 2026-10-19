@@ -1,5 +1,5 @@
 import type { CaseFile, Condition, Effect } from "../../../../shared/case";
-import { flagOfEffect } from "../../../../shared/conditions";
+import { flagOfEffect, initialEnums } from "../../../../shared/conditions";
 import { effectSites } from "../../../../shared/effect-sites";
 
 /**
@@ -28,10 +28,15 @@ export function caseWarnings(c: CaseFile): string[] {
   const effects = (list: Effect[]) => list.forEach((e) => {
     const f = flagOfEffect(e);
     if (f && f.action !== "off") set.add(f.flag);
+    if (e.type === "changeVariable" && e.action === "assign" && e.valueId) assigned.add(`${e.variableId}:${e.valueId}`);
   });
+  // значения перечислений: условие ждёт значение, которое ни один эффект не выбирает и которое не начальное
+  const assigned = new Set<string>(initialEnumPairs(c));
+  const needsValue = new Set<string>();
   const needsSetting = new Set<string>(); // проверяемые «флаг стоит» — их обязательно кто-то ставит
   const positive = (cnd: Condition | undefined): void => {
     cnd?.flags?.forEach((f) => needsSetting.add(f));
+    cnd?.enums?.forEach((r) => r.in?.forEach((v) => needsValue.add(`${r.enumId}:${v}`)));
     cnd?.anyOf?.forEach(positive);
   };
   effectSites(c).forEach((site) => {
@@ -55,5 +60,11 @@ export function caseWarnings(c: CaseFile): string[] {
     );
   }
   for (const f of needsSetting) if (!set.has(f)) out.push(`flag ${f}: условия ждут этот флаг, но ни один эффект его не ставит — то, что за ним, недостижимо`);
+  for (const key of needsValue) if (!assigned.has(key)) out.push(`enum ${key.split(":")[0]}: условия ждут значение «${key.split(":")[1]}», но ни один эффект его не выбирает — то, что за ним, недостижимо`);
   return out;
+}
+
+/** Пары «перечисление:значение», которые действуют с самого начала. */
+function initialEnumPairs(c: CaseFile): string[] {
+  return Object.entries(initialEnums(c.enums)).map(([id, v]) => `${id}:${v}`);
 }

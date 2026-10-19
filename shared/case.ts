@@ -55,6 +55,16 @@ const BaseCondition = z.object({
     )
     .optional()
     .describe("Значения счётчиков в заданных границах"),
+  enums: z
+    .array(
+      z.object({
+        enumId: z.string(),
+        in: z.array(z.string()).optional().describe("Значение — одно из этих"),
+        notIn: z.array(z.string()).optional().describe("Значение — не одно из этих"),
+      }),
+    )
+    .optional()
+    .describe("Значения перечислений: одно из / не одно из"),
 });
 
 export const Condition = BaseCondition.extend({
@@ -73,11 +83,12 @@ export const Effect = z.discriminatedUnion("type", [
     .object({
       type: z.literal("changeVariable"),
       variableId: z.string(),
-      action: z.enum(["on", "off", "toggle", "add", "subtract", "set"]),
-      value: z.number().int().optional().describe("Число для счётчика (прибавить, отнять, задать); для флага не нужно"),
+      action: z.enum(["on", "off", "toggle", "add", "subtract", "set", "assign"]),
+      value: z.number().int().optional().describe("Число для счётчика (прибавить, отнять, задать); для флага и перечисления не нужно"),
+      valueId: z.string().optional().describe("Для перечисления (действие «выбрать значение»): id значения"),
       ...effectWhen,
     })
-    .describe("Изменить переменную: флаг — поставить, снять или переключить; счётчик — прибавить, отнять или задать значение (в границах счётчика)"),
+    .describe("Изменить переменную: флаг — поставить, снять или переключить; счётчик — прибавить, отнять или задать значение (в границах счётчика); перечисление — выбрать значение"),
   z.object({ type: z.literal("message"), text: z.string(), ...effectWhen }).describe("Показать игроку короткое сообщение (без диалога)"),
   z.object({ type: z.literal("addCharacterNote"), characterId: z.string(), text: z.string(), ...effectWhen }),
   z.object({ type: z.literal("follow"), characterId: z.string(), ...effectWhen }).describe("Персонаж идёт за игроком"),
@@ -474,6 +485,17 @@ export const CaseFile = z.object({
     )
     .optional()
     .describe("Счётчики дела: числа, которые меняют эффекты и проверяют условия"),
+  enums: z
+    .array(
+      z.object({
+        id: z.string(),
+        name: z.string().describe("Что описывает перечисление, по-русски (например, «Сейф»)"),
+        values: z.array(z.object({ id: z.string(), name: z.string().describe("Название значения, по-русски (например, «Закрыт»)") })).describe("Возможные значения; в каждый момент действует ровно одно"),
+        initial: z.string().optional().describe("Значение в начале расследования (по умолчанию — первое)"),
+      }),
+    )
+    .optional()
+    .describe("Перечисления дела: переменная, у которой в каждый момент одно из заданных значений (закрыт / открыт / сломан)"),
   lawReference: z
     .object({
       basis: z.array(LawBasis).describe("Правовая база: статьи нормативных актов, другие документы"),

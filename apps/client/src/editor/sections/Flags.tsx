@@ -9,8 +9,9 @@ import { Icon } from "../../ui/icons";
 import { EntityList, ItemText } from "../EntityList";
 import { ask, tell } from "../../ui/dialog";
 import { CounterEditor } from "./Counters";
+import { EnumEditor } from "./Enums";
 
-type Entry = { kind: "flag" | "counter"; id: string };
+type Entry = { kind: "flag" | "counter" | "enum"; id: string };
 
 /** Переменные дела одним списком: значок — тип (флаг, счётчик; позже — другие); слева список, справа правка. */
 export function FlagsSection() {
@@ -23,7 +24,12 @@ export function FlagsSection() {
     (nameOf(a) || "я").localeCompare(nameOf(b) || "я", "ru"),
   );
   const counters = [...(draft.counters ?? [])].sort((a, b) => (a.name || "я").localeCompare(b.name || "я", "ru"));
-  const entries: Entry[] = [...flagIds.map((id) => ({ kind: "flag" as const, id })), ...counters.map((c) => ({ kind: "counter" as const, id: c.id }))];
+  const enums = [...(draft.enums ?? [])].sort((a, b) => (a.name || "я").localeCompare(b.name || "я", "ru"));
+  const entries: Entry[] = [
+    ...flagIds.map((id) => ({ kind: "flag" as const, id })),
+    ...counters.map((c) => ({ kind: "counter" as const, id: c.id })),
+    ...enums.map((e) => ({ kind: "enum" as const, id: e.id })),
+  ];
   const [selected, setSelected] = useUrlParam("item", ""); // выбранный флаг или счётчик — в адресе
   useEffect(() => {
     if (focus?.section === "flags" && focus.id) setSelected(focus.id);
@@ -47,6 +53,11 @@ export function FlagsSection() {
               <span className="ed__item-kind" title="Флаг"><Icon name="flag" size={16} /></span>
               <ItemText title={nameOf(e.id) || "без названия"} id={e.id} warn={!nameOf(e.id)} />
             </>
+          ) : e.kind === "enum" ? (
+            <>
+              <span className="ed__item-kind" title="Перечисление"><Icon name="list" size={16} /></span>
+              <ItemText title={enums.find((x) => x.id === e.id)?.name || "без названия"} id={e.id} warn={!enums.find((x) => x.id === e.id)?.name} />
+            </>
           ) : (
             <>
               <span className="ed__item-kind" title="Счётчик"><Icon name="counter" size={16} /></span>
@@ -58,11 +69,13 @@ export function FlagsSection() {
       <div className="ed__panel ed__panel--narrow">
         {current?.kind === "flag" ? (
           <FlagEditor key={current.id} id={current.id} name={nameOf(current.id)} uses={usage.get(current.id) ?? []} onRenamed={setSelected} />
+        ) : current?.kind === "enum" ? (
+          <EnumEditor key={current.id} def={enums.find((x) => x.id === current.id)!} onRenamed={setSelected} />
         ) : current ? (
           <CounterEditor key={current.id} counter={counters.find((c) => c.id === current.id)!} onRenamed={setSelected} />
         ) : (
           <p className="muted">
-            Флаг — пометка «это уже произошло»: его ставят эффекты, а проверяют условия. Счётчик — число (очки доверия, попытки): эффекты прибавляют или задают его, условия проверяют границы.
+            Флаг — пометка «это уже произошло»: его ставят эффекты, а проверяют условия. Счётчик — число (очки доверия, попытки): эффекты прибавляют или задают его, условия проверяют границы. Перечисление — одно значение из списка (сейф: закрыт / открыт / сломан): эффекты выбирают значение, условия проверяют его.
           </p>
         )}
       </div>
@@ -86,7 +99,7 @@ function FlagEditor({ id, name, uses, onRenamed }: { id: string; name: string; u
   const commitKey = async () => {
     const next = key.trim();
     if (!next || next === id) return setKey(id);
-    if (flagUsage(draft).has(next) || draft.flags?.some((f) => f.id === next)) {
+    if (flagUsage(draft).has(next) || draft.flags?.some((f) => f.id === next) || draft.counters?.some((c) => c.id === next) || draft.enums?.some((e) => e.id === next)) {
       setKey(id);
       return tell({ title: "Такой флаг уже есть", text: `Ключ «${next}» занят — выберите другой.` });
     }

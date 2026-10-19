@@ -76,5 +76,8 @@ export function locateError(message: string, c: CaseFile): LocatedError {
   if (/^flags/.test(message)) return make("flags");
   if ((m = message.match(/^counters: у счётчика «([^»]+)»/))) return make("flags", { id: m[1] });
   if (/^counters/.test(message)) return make("flags");
+  if ((m = message.match(/^enum (\S+?):/))) return make("flags", { id: m[1] });
+  if ((m = message.match(/^enums: у (?:перечисления|значения «[^»]+» перечисления) «([^»]+)»/))) return make("flags", { id: m[1] });
+  if (/^enums/.test(message)) return make("flags");
   return make("general");
 }

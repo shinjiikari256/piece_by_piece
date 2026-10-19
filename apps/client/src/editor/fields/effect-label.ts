@@ -8,7 +8,7 @@ export function effectLabel(e: Effect): string {
       case "addEvidence":
         return `улика ${e.evidenceId}`;
       case "changeVariable":
-        return `${e.variableId}: ${ENUM_LABELS[e.action]}${e.value === undefined ? "" : ` ${e.value}`}`;
+        return e.action === "assign" ? `${e.variableId} = ${e.valueId ?? "?"}` : `${e.variableId}: ${ENUM_LABELS[e.action]}${e.value === undefined ? "" : ` ${e.value}`}`;
       case "message":
         return `сообщение «${e.text.slice(0, 30)}${e.text.length > 30 ? "…" : ""}»`;
       case "addCharacterNote":

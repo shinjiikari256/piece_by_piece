@@ -1,7 +1,7 @@
 import { formatDate as formatDateStyle } from "../util/format";
 import { SAVE_FORMAT_VERSION } from "../../../../shared/migrate";
 import type { PublicCase } from "../../../../shared/public-case";
-import type { Progress } from "../../../../shared/conditions";
+import { initialEnums, type Progress } from "../../../../shared/conditions";
 import type { Answers } from "../../../../shared/scoring";
 
 /** Сохранение расследования: что лежит в хранилище платформы (формат — `SAVE_FORMAT_VERSION`) и чистые функции над ним. */
@@ -58,6 +58,13 @@ export function sanitizeSave(save: SaveData, c: PublicCase): SaveData {
         Object.entries(save.progress.characterNotes).filter(([id]) => characters.has(id)),
       ),
       counters: Object.fromEntries(Object.entries(save.progress.counters ?? {}).filter(([id]) => (c.counters ?? []).some((x) => x.id === id))),
+      // значения перечислений: сохранённые, если значение ещё есть в деле; иначе начальное
+      enums: Object.fromEntries(
+        Object.entries(initialEnums(c.enums)).map(([id, start]): [string, string] => {
+          const saved = save.progress.enums?.[id];
+          return [id, saved !== undefined && (c.enums ?? []).find((e) => e.id === id)?.values.some((v) => v.id === saved) ? saved : start];
+        }),
+      ),
       followers: (save.progress.followers ?? []).filter((id) => characters.has(id)),
       fired: (save.progress.fired ?? []).filter((key) => c.locations.some((l) => key === `enter:${l.id}` || l.zones.some((z) => key.startsWith(`${z.id}:`)))),
       npcPlaces: Object.fromEntries(
