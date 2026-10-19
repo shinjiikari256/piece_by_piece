@@ -2,8 +2,9 @@ import { describe, expect, it } from "vitest";
 import { emptyProgress, applyEffects, meets, startProgress } from "../../../../shared/conditions";
 import case002 from "./cases/case-002.json";
 import { deleteCounter } from "../editor/sections/Counters";
+import { deleteFlag } from "../editor/fields/Conditions";
 import { migrateCase } from "../../../../shared/migrate";
-import type { CaseFile, Effect } from "../../../../shared/case";
+import type { CaseFile, Condition, Effect } from "../../../../shared/case";
 import case001 from "./cases/case-001.json";
 import testCase from "./test-cases/case-test-moveto.json";
 import { validateCase } from "./validate";
@@ -322,7 +323,7 @@ describe("счётчики и начальные флаги", () => {
   it("границы счётчика: эффекты и начальное значение не выходят за min/max", () => {
     const defs = [{ id: "hp", min: 0, max: 10 }];
     const fx = (action: "add" | "subtract" | "set", value: number, p = emptyProgress()) =>
-      applyEffects([{ type: "changeVariable", variableId: "hp", action, value }], p, undefined, defs).progress;
+      applyEffects([{ type: "changeVariable", variableId: "hp", action, value }], p, { counters: defs }).progress;
     const full = fx("add", 99);
     expect(full.counters.hp).toBe(10);
     expect(fx("subtract", 99, full).counters.hp).toBe(0);
@@ -348,5 +349,32 @@ describe("счётчики и начальные флаги", () => {
     expect(out.counters).toEqual([]);
     expect(JSON.stringify(out)).not.toContain("trust");
     expect(out.dialogues[0].nodes[0].choices[0].requires).toBeUndefined();
+  });
+});
+
+describe("условие у эффекта (requires)", () => {
+  const eff = (requires?: Condition): Effect => ({ type: "changeVariable", variableId: "hp", action: "add", value: 1, ...(requires ? { requires } : {}) });
+  it("применяется только при выполненном условии, по состоянию после предыдущих эффектов", () => {
+    const p = emptyProgress();
+    expect(applyEffects([eff({ flags: ["go"] })], p).progress.counters.hp).toBeUndefined();
+    const set: Effect = { type: "changeVariable", variableId: "go", action: "on" };
+    // флаг ставится первым эффектом списка — второй уже видит его
+    expect(applyEffects([set, eff({ flags: ["go"] })], p).progress.counters.hp).toBe(1);
+    expect(applyEffects([eff({ flags: ["go"] }), set], p).progress.counters.hp).toBeUndefined();
+  });
+  it("inLocation берёт текущую локацию игрока", () => {
+    const e = eff({ inLocation: ["hall"] });
+    expect(applyEffects([e], emptyProgress(), { locationId: "hall" }).progress.counters.hp).toBe(1);
+    expect(applyEffects([e], emptyProgress(), { locationId: "yard" }).progress.counters.hp).toBeUndefined();
+  });
+  it("валидатор проверяет ссылки в условии эффекта; deleteFlag убирает флаг из условия", () => {
+    const c = structuredClone(case001) as unknown as CaseFile;
+    c.dialogues[0].nodes[0].effects.push({ type: "addCharacterNote", characterId: c.characters[0].id, text: "t", requires: { evidence: ["нет_такой"] } });
+    const r = validateCase(c);
+    expect(r.ok ? "" : r.errors.join("\n")).toContain("условие эффекта");
+    c.flags = [{ id: "f1", name: "Флаг" }];
+    c.dialogues[0].nodes[0].effects = [{ type: "addCharacterNote", characterId: c.characters[0].id, text: "t", requires: { flags: ["f1"] } }];
+    const out = deleteFlag(c, "f1");
+    expect(out.dialogues[0].nodes[0].effects[0].requires).toBeUndefined();
   });
 });

@@ -57,7 +57,13 @@ export function flagsOf(d: FormCtx["draft"]): string[] {
     for (const n of dl.nodes) {
       n.choices.forEach((ch) => cond(ch.requires));
     }
-  effectSites(d).forEach((site) => site.effects.forEach((e) => flagOfEffect(e) && out.add(flagOfEffect(e)!.flag)));
+  effectSites(d).forEach((site) =>
+    site.effects.forEach((e) => {
+      const f = flagOfEffect(e);
+      if (f) out.add(f.flag);
+      cond(e.requires);
+    }),
+  );
   d.locations.forEach((l) => {
     l.doors.forEach((door) => cond(door.requires));
     l.npcs.forEach((n) => n.dialogues.forEach((nd) => cond(nd.requires)));
@@ -93,7 +99,10 @@ export function flagUsage(d: FormCtx["draft"]): Map<string, FlagUse[]> {
     }
   effectSites(d).forEach((site) => {
     const { where, focus } = siteInfo(site.owner, who);
-    site.effects.forEach((e) => useOf(e, where, focus));
+    site.effects.forEach((e) => {
+      useOf(e, where, focus);
+      cond(e.requires, `${where} (условие эффекта)`, focus);
+    });
   });
   d.locations.forEach((l) => {
     l.doors.forEach((door) => cond(door.requires, `Дверь ${door.id} — ${l.name}`, { section: "locations", sub: l.id, kind: "door", id: door.id }));
@@ -125,7 +134,7 @@ export function deleteFlag(d: CaseFile, flag: string): CaseFile {
     const { requires: _old, ...rest } = x;
     return (Object.keys(r).length ? { ...rest, requires: r } : rest) as T;
   };
-  const noSet = (effects: Effect[]) => effects.filter((e) => flagOfEffect(e)?.flag !== flag);
+  const noSet = (effects: Effect[]) => effects.filter((e) => flagOfEffect(e)?.flag !== flag).map(clean);
   const cleaned: CaseFile = {
     ...d,
     flags: (d.flags ?? []).filter((f) => f.id !== flag),

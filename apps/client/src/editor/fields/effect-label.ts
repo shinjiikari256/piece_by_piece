@@ -1,0 +1,19 @@
+import type { Effect } from "../../../../../shared/case";
+import { ENUM_LABELS } from "../labels";
+
+/** Короткая подпись эффекта для карточек и списков; эффект с условием помечается «если…». */
+export function effectLabel(e: Effect): string {
+  const text = (() => {
+    switch (e.type) {
+      case "addEvidence":
+        return `улика ${e.evidenceId}`;
+      case "changeVariable":
+        return `${e.variableId}: ${ENUM_LABELS[e.action]}${e.value === undefined ? "" : ` ${e.value}`}`;
+      case "addCharacterNote":
+        return `заметка о ${e.characterId}`;
+      default:
+        return `${ENUM_LABELS[e.type]} (${e.characterId})`;
+    }
+  })();
+  return e.requires ? `${text} (если…)` : text;
+}

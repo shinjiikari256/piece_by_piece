@@ -62,20 +62,24 @@ export const Condition = BaseCondition.extend({
     .describe("«Или»: должен выполняться хотя бы один из этих вариантов (каждый вариант — «и» своих строк); остальные строки условия тоже должны выполняться"),
 });
 
+/** Необязательное условие эффекта: проверяется в момент применения, по состоянию после предыдущих эффектов списка. */
+const effectWhen = { requires: Condition.optional().describe("Применять, только если условие выполнено (проверяется в момент применения)") };
+
 export const Effect = z.discriminatedUnion("type", [
-  z.object({ type: z.literal("addEvidence"), evidenceId: z.string() }),
+  z.object({ type: z.literal("addEvidence"), evidenceId: z.string(), ...effectWhen }),
   z
     .object({
       type: z.literal("changeVariable"),
       variableId: z.string(),
       action: z.enum(["on", "off", "toggle", "add", "subtract", "set"]),
       value: z.number().int().optional().describe("Число для счётчика (прибавить, отнять, задать); для флага не нужно"),
+      ...effectWhen,
     })
     .describe("Изменить переменную: флаг — поставить, снять или переключить; счётчик — прибавить, отнять или задать значение (в границах счётчика)"),
-  z.object({ type: z.literal("addCharacterNote"), characterId: z.string(), text: z.string() }),
-  z.object({ type: z.literal("follow"), characterId: z.string() }).describe("Персонаж идёт за игроком"),
-  z.object({ type: z.literal("stay"), characterId: z.string() }).describe("Перестаёт идти следом и остаётся, где стоит"),
-  z.object({ type: z.literal("returnHome"), characterId: z.string() }).describe("Возвращается на своё исходное место"),
+  z.object({ type: z.literal("addCharacterNote"), characterId: z.string(), text: z.string(), ...effectWhen }),
+  z.object({ type: z.literal("follow"), characterId: z.string(), ...effectWhen }).describe("Персонаж идёт за игроком"),
+  z.object({ type: z.literal("stay"), characterId: z.string(), ...effectWhen }).describe("Перестаёт идти следом и остаётся, где стоит"),
+  z.object({ type: z.literal("returnHome"), characterId: z.string(), ...effectWhen }).describe("Возвращается на своё исходное место"),
   z
     .object({
       type: z.literal("moveTo"),
@@ -85,6 +89,7 @@ export const Effect = z.discriminatedUnion("type", [
       y: z.number().int(),
       zoneId: z.string().optional().describe("Область цели: персонаж встанет на свободную клетку внутри неё (клетка x, y — запасная)"),
       failText: z.string().optional().describe("Что скажет персонаж, если не сможет дойти"),
+      ...effectWhen,
     })
     .describe("Персонаж идёт на клетку карты и остаётся там; за игроком не следует"),
 ]);

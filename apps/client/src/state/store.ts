@@ -176,8 +176,8 @@ function announceEvidence(ids: string[]) {
 }
 
 const whereIs = (characterId: string) => gameBridge.whereIs?.(characterId);
-/** Границы счётчиков дела — для эффектов «изменить переменную». */
-const counterDefs = () => state.caseFile?.counters ?? [];
+/** Окружение эффектов: где стоят персонажи, границы счётчиков, где игрок (для условий эффектов). */
+const fxCtx = () => ({ whereIs, counters: state.caseFile?.counters ?? [], locationId: state.locationId });
 
 /**
  * `moveTo` с областью: персонаж встаёт на свободную клетку внутри неё — подставляем её в `x, y`
@@ -204,7 +204,7 @@ function enterNode(npcId: string, dialogueId: string, nodeId: string) {
   const dialogue = state.caseFile?.dialogues.find((d) => d.id === dialogueId);
   const node = dialogue?.nodes.find((n) => n.id === nodeId);
   if (!node) return;
-  const { progress, newEvidence } = applyEffects(withZoneTargets(node.effects), state.progress, whereIs, counterDefs());
+  const { progress, newEvidence } = applyEffects(withZoneTargets(node.effects), state.progress, fxCtx());
   set({ progress, overlay: { kind: "dialogue", npcId, dialogueId, nodeId } });
   announceEvidence(newEvidence);
 }
@@ -253,7 +253,7 @@ function runZoneAction(zoneId: string, a: ZoneAction) {
     if (dialogue) enterNode(`zone:${zoneId}`, dialogue.id, dialogue.startNodeId);
   } else if (a.kind === "object") actions.interact(a.objectId);
   else if (a.kind === "effects") {
-    const { progress, newEvidence } = applyEffects(withZoneTargets(a.effects), state.progress, whereIs, counterDefs());
+    const { progress, newEvidence } = applyEffects(withZoneTargets(a.effects), state.progress, fxCtx());
     set({ progress });
     announceEvidence(newEvidence);
   } else actions.travel({ to: a.to, spawn: a.spawn });
@@ -379,7 +379,7 @@ export const actions = {
   releaseFollowers() {
     const ids = state.progress.followers;
     if (!ids.length) return;
-    const { progress } = applyEffects(ids.map((characterId) => ({ type: "returnHome" as const, characterId })), state.progress);
+    const { progress } = applyEffects(ids.map((characterId) => ({ type: "returnHome" as const, characterId })), state.progress, fxCtx());
     set({ progress });
   },
 
@@ -450,8 +450,7 @@ export const actions = {
       const { progress, newEvidence } = applyEffects(
         [{ type: "addEvidence", evidenceId: obj.interaction.evidenceId }, ...(first ? withZoneTargets(obj.interaction.effects ?? []) : [])],
         s.progress,
-        whereIs,
-        counterDefs(),
+        fxCtx(),
       );
       set({
         progress,
@@ -466,7 +465,7 @@ export const actions = {
   addObjectToJournal(objectId: string) {
     const obj = state.caseFile && findObject(state.caseFile, objectId);
     if (!obj?.interaction) return;
-    const { progress, newEvidence } = applyEffects([{ type: "addEvidence", evidenceId: obj.interaction.evidenceId }], state.progress);
+    const { progress, newEvidence } = applyEffects([{ type: "addEvidence", evidenceId: obj.interaction.evidenceId }], state.progress, fxCtx());
     set({ progress });
     announceEvidence(newEvidence);
   },
@@ -512,7 +511,7 @@ export const actions = {
     if (!state.usedChoices.includes(key)) set((s) => ({ usedChoices: [...s.usedChoices, key] }));
     // эффекты варианта — при каждом выборе, до ответа персонажа
     if (choice.effects?.length) {
-      const { progress, newEvidence } = applyEffects(withZoneTargets(choice.effects), state.progress, whereIs, counterDefs());
+      const { progress, newEvidence } = applyEffects(withZoneTargets(choice.effects), state.progress, fxCtx());
       set({ progress });
       announceEvidence(newEvidence);
     }
@@ -550,7 +549,7 @@ export const actions = {
     }
     if (!state.progress.deductions.includes(d.id)) {
       const base = { ...state.progress, deductions: [...state.progress.deductions, d.id] };
-      const { progress, newEvidence } = applyEffects(d.effects, base, undefined, counterDefs());
+      const { progress, newEvidence } = applyEffects(d.effects, base, fxCtx());
       set((s) => ({ progress, conclusions: { ...s.conclusions, [d.id]: verdict.conclusion ?? "" } }));
       toast(`Установлен вывод: ${d.title}`);
       announceEvidence(newEvidence);

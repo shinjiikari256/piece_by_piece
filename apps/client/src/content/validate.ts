@@ -79,6 +79,7 @@ function checkIntegrity(c: CaseFile): string[] {
   };
   const checkEffects = (effects: Effect[], where: string) => {
     for (const e of effects) {
+      checkCondition(e.requires, `${where}: условие эффекта`);
       if (e.type === "addEvidence") ref(evidence, e.evidenceId, where);
       if (e.type === "changeVariable") {
         if (isFlagAction(e.action)) {
@@ -292,7 +293,12 @@ function checkIntegrity(c: CaseFile): string[] {
     for (const n of dl.nodes) {
       n.choices.forEach((ch) => condFlags(ch.requires));
     }
-  effectSites(c).forEach((site) => site.effects.forEach(addFlagOf));
+  effectSites(c).forEach((site) =>
+    site.effects.forEach((e) => {
+      addFlagOf(e);
+      condFlags(e.requires);
+    }),
+  );
   c.locations.forEach((l) => l.npcs.forEach((n) => n.dialogues.forEach((nd) => condFlags(nd.requires))));
   c.locations.forEach((l) => l.zones.forEach((z) => z.actions.forEach((a) => condFlags(a.requires))));
   c.locations.forEach((l) => l.doors.forEach((d) => condFlags(d.requires)));

@@ -5,6 +5,7 @@ import { Dialogue as DialogueSchema, DialogueNode as NodeSchema } from "../../..
 import type { CaseFile, Dialogue, DialogueNode } from "../../../../shared/case";
 import { editor, useEditor } from "./state";
 import { ENUM_LABELS } from "./labels";
+import { effectLabel } from "./fields/effect-label";
 import { ObjectFields, type JS } from "./SchemaForm";
 import { ArtThumb } from "./Pickers";
 import { EntityList, ItemText } from "./EntityList";
@@ -526,19 +527,6 @@ function Graph({
       </div>
     </div>
   );
-}
-
-function effectLabel(e: DialogueNode["effects"][number]): string {
-  switch (e.type) {
-    case "addEvidence":
-      return `улика ${e.evidenceId}`;
-    case "changeVariable":
-      return `${e.variableId}: ${ENUM_LABELS[e.action]}${e.value === undefined ? "" : ` ${e.value}`}`;
-    case "addCharacterNote":
-      return `заметка о ${e.characterId}`;
-    default:
-      return `${ENUM_LABELS[e.type]} (${e.characterId})`;
-  }
 }
 
 function freeId(prefix: string, taken: string[]) {

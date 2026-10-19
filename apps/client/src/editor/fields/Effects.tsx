@@ -4,7 +4,7 @@ import { CellPicker } from "../map/CellPicker";
 import type { Effect } from "../../../../../shared/case";
 import { ENUM_LABELS } from "../labels";
 import { FormCtx, charOption } from "../SchemaForm";
-import { flagLabel, flagsOf } from "./Conditions";
+import { ConditionEditor, flagLabel, flagsOf, type Condition } from "./Conditions";
 import { NewVariableDialog } from "./NewVariable";
 import { firstFloorCell } from "../../content/case-utils";
 
@@ -135,6 +135,15 @@ export function EffectsEditor({ value, onChange, ctx }: { value: Effect[]; onCha
             {e.type === "addCharacterNote" && (
               <textarea rows={2} value={e.text} placeholder="Что запишется в карточку персонажа" onChange={(ev) => set(i, { ...e, text: ev.target.value })} />
             )}
+            <ConditionEditor
+              value={e.requires ?? {}}
+              ctx={ctx}
+              label="Только если"
+              onChange={(v) => {
+                const { requires: _old, ...rest } = e;
+                set(i, (Object.keys(v as object).length ? { ...rest, requires: v as Condition } : rest) as Effect);
+              }}
+            />
           </div>
           <button className="cond__remove" onClick={() => onChange(value.filter((_, k) => k !== i))} title="Убрать эффект">
             ✕

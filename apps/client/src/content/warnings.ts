@@ -34,7 +34,10 @@ export function caseWarnings(c: CaseFile): string[] {
     cnd?.flags?.forEach((f) => needsSetting.add(f));
     cnd?.anyOf?.forEach(positive);
   };
-  effectSites(c).forEach((site) => effects(site.effects));
+  effectSites(c).forEach((site) => {
+    effects(site.effects);
+    site.effects.forEach((e) => positive(e.requires));
+  });
   for (const d of c.dialogues) for (const n of d.nodes) n.choices.forEach((ch) => positive(ch.requires));
   for (const l of c.locations) {
     l.doors.forEach((d) => {

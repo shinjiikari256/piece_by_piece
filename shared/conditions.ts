@@ -85,15 +85,24 @@ export interface EffectOutcome {
 }
 
 /**
- * @param whereIs — где сейчас стоит персонаж (нужно для «stay»: остаётся там, куда дошёл).
+ * Окружение применения эффектов.
+ * - `whereIs` — где сейчас стоит персонаж (нужно для «stay»: остаётся там, куда дошёл).
+ * - `counters` — границы счётчиков дела.
+ * - `locationId` — где игрок (для условия `inLocation` у эффекта).
+ */
+export interface EffectContext {
+  whereIs?: (characterId: string) => Place | undefined;
+  counters?: readonly CounterDef[];
+  locationId?: string;
+}
+
+/**
+ * Эффект с условием `requires` применяется, только если оно выполнено на момент его очереди — по состоянию после предыдущих эффектов списка.
  * Эффект `moveTo` пишет итоговое место сразу; идёт персонаж к нему уже в сцене.
  */
-export function applyEffects(
-  effects: Effect[],
-  p: Progress,
-  whereIs: (characterId: string) => Place | undefined = () => undefined,
-  counterDefs: readonly CounterDef[] = [],
-): EffectOutcome {
+export function applyEffects(effects: Effect[], p: Progress, ctx: EffectContext = {}): EffectOutcome {
+  const whereIs = ctx.whereIs ?? (() => undefined);
+  const counterDefs = ctx.counters ?? [];
   const next: Progress = {
     ...p,
     collected: [...p.collected],
@@ -106,6 +115,7 @@ export function applyEffects(
   };
   const newEvidence: string[] = [];
   for (const e of effects) {
+    if (e.requires && !meets(e.requires, next, ctx.locationId)) continue;
     switch (e.type) {
       case "addEvidence":
         if (!next.collected.includes(e.evidenceId)) {
