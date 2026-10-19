@@ -67,7 +67,9 @@ function checkIntegrity(c: CaseFile): string[] {
   };
   const checkCondition = (cond: Condition | undefined, where: string): void => {
     cond?.evidence?.forEach((id) => ref(evidence, id, where));
+    cond?.notEvidence?.forEach((id) => ref(evidence, id, where));
     cond?.deductions?.forEach((id) => ref(deductions, id, where));
+    cond?.notDeductions?.forEach((id) => ref(deductions, id, where));
     cond?.following?.forEach((id) => ref(characters, id, where));
     cond?.notFollowing?.forEach((id) => ref(characters, id, where));
     cond?.inLocation?.forEach((id) => ref(locationIds, id, where));
@@ -80,6 +82,7 @@ function checkIntegrity(c: CaseFile): string[] {
   const checkEffects = (effects: Effect[], where: string) => {
     for (const e of effects) {
       checkCondition(e.requires, `${where}: условие эффекта`);
+      if (e.type === "message" && !e.text.trim()) err(`${where}: у сообщения нет текста`);
       if (e.type === "addEvidence") ref(evidence, e.evidenceId, where);
       if (e.type === "changeVariable") {
         if (isFlagAction(e.action)) {

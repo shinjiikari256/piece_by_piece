@@ -39,7 +39,9 @@ const BaseCondition = z.object({
   evidence: z.array(z.string()).optional().describe("Все эти улики должны быть в журнале"),
   flags: z.array(z.string()).optional().describe("Все эти флаги должны быть установлены"),
   notFlags: z.array(z.string()).optional().describe("Ни один из этих флагов не должен быть установлен"),
+  notEvidence: z.array(z.string()).optional().describe("Ни одной из этих улик не должно быть в журнале"),
   deductions: z.array(z.string()).optional().describe("Все эти сопоставления должны быть решены"),
+  notDeductions: z.array(z.string()).optional().describe("Ни одно из этих сопоставлений не должно быть решено"),
   following: z.array(z.string()).optional().describe("Эти персонажи идут за игроком"),
   notFollowing: z.array(z.string()).optional().describe("Эти персонажи не идут за игроком"),
   inLocation: z.array(z.string()).optional().describe("Игрок сейчас в одной из этих локаций"),
@@ -76,6 +78,7 @@ export const Effect = z.discriminatedUnion("type", [
       ...effectWhen,
     })
     .describe("Изменить переменную: флаг — поставить, снять или переключить; счётчик — прибавить, отнять или задать значение (в границах счётчика)"),
+  z.object({ type: z.literal("message"), text: z.string(), ...effectWhen }).describe("Показать игроку короткое сообщение (без диалога)"),
   z.object({ type: z.literal("addCharacterNote"), characterId: z.string(), text: z.string(), ...effectWhen }),
   z.object({ type: z.literal("follow"), characterId: z.string(), ...effectWhen }).describe("Персонаж идёт за игроком"),
   z.object({ type: z.literal("stay"), characterId: z.string(), ...effectWhen }).describe("Перестаёт идти следом и остаётся, где стоит"),

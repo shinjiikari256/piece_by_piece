@@ -739,4 +739,17 @@ describe("эффекты варианта ответа", () => {
     expect(store.get().progress.flags).toContain("asked");
     expect(store.get().progress.counters.asks).toBe(2);
   });
+
+  it("эффект «сообщение» показывает тост", () => {
+    const raw = load("case-001.json") as unknown as CaseFile;
+    raw.dialogues.find((d) => d.id === "dlg_alina")!.nodes.find((n) => n.id === "start")!.choices.find((c) => c.id === "pass")!.effects = [{ type: "message", text: "Вы что-то заметили" }];
+    const c = validateCase(raw);
+    if (!c.ok) throw new Error(c.errors.join("; "));
+    setPlatform(createMemoryPlatform());
+    actions.openCase(new LocalAuthority(c.caseFile));
+    actions.beginInvestigation();
+    actions.interact("npc_alina");
+    actions.choose("pass");
+    expect(store.get().toasts.map((t) => t.text)).toContain("Вы что-то заметили");
+  });
 });

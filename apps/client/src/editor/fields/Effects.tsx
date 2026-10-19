@@ -12,7 +12,7 @@ const cellOf = (l: Parameters<typeof firstFloorCell>[0] | undefined) => (l ? l.p
 
 // ---------- эффекты ----------
 
-const EFFECT_TYPES: Effect["type"][] = ["addEvidence", "changeVariable", "follow", "stay", "returnHome", "moveTo", "addCharacterNote"];
+const EFFECT_TYPES: Effect["type"][] = ["addEvidence", "changeVariable", "message", "follow", "stay", "returnHome", "moveTo", "addCharacterNote"];
 
 const blankEffect = (type: Effect["type"], d: FormCtx["draft"]): Effect => {
   const ch = d.characters[0]?.id ?? "";
@@ -21,6 +21,8 @@ const blankEffect = (type: Effect["type"], d: FormCtx["draft"]): Effect => {
       return { type, evidenceId: "" };
     case "changeVariable":
       return { type, variableId: "", action: "on" };
+    case "message":
+      return { type, text: "" };
     case "addCharacterNote":
       return { type, characterId: ch, text: "" };
     case "moveTo":
@@ -131,6 +133,9 @@ export function EffectsEditor({ value, onChange, ctx }: { value: Effect[]; onCha
                   onChange={(ev) => set(i, { ...e, failText: ev.target.value || undefined })}
                 />
               </>
+            )}
+            {e.type === "message" && (
+              <textarea rows={2} value={e.text} placeholder="Что увидит игрок (короткое сообщение на экране)" onChange={(ev) => set(i, { ...e, text: ev.target.value })} />
             )}
             {e.type === "addCharacterNote" && (
               <textarea rows={2} value={e.text} placeholder="Что запишется в карточку персонажа" onChange={(ev) => set(i, { ...e, text: ev.target.value })} />

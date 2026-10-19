@@ -378,3 +378,39 @@ describe("условие у эффекта (requires)", () => {
     expect(out.dialogues[0].nodes[0].effects[0].requires).toBeUndefined();
   });
 });
+
+describe("эффект message", () => {
+  it("отдаёт тексты по порядку; условие и пустой текст учитываются", () => {
+    const fx: Effect[] = [
+      { type: "message", text: "Первое" },
+      { type: "message", text: "Скрытое", requires: { flags: ["нет"] } },
+      { type: "message", text: "   " },
+      { type: "message", text: "Второе" },
+    ];
+    expect(applyEffects(fx, emptyProgress()).messages).toEqual(["Первое", "Второе"]);
+  });
+  it("валидатор: сообщение без текста — ошибка", () => {
+    const c = structuredClone(case001) as unknown as CaseFile;
+    c.dialogues[0].nodes[0].effects.push({ type: "message", text: " " });
+    const r = validateCase(c);
+    expect(r.ok ? "" : r.errors.join("\n")).toContain("нет текста");
+  });
+});
+
+describe("условия-отрицания: notEvidence, notDeductions", () => {
+  it("meets: ни одной из улик и ни одного из выводов", () => {
+    const p = { ...emptyProgress(), collected: ["a"], deductions: ["d1"] };
+    expect(meets({ notEvidence: ["b", "c"] }, p)).toBe(true);
+    expect(meets({ notEvidence: ["b", "a"] }, p)).toBe(false);
+    expect(meets({ notDeductions: ["d2"] }, p)).toBe(true);
+    expect(meets({ notDeductions: ["d2", "d1"] }, p)).toBe(false);
+  });
+  it("валидатор проверяет ссылки в отрицаниях", () => {
+    const c = structuredClone(case001) as unknown as CaseFile;
+    c.dialogues[0].nodes[0].choices[0].requires = { notEvidence: ["нет_такой"], notDeductions: ["нет_вывода"] };
+    const r = validateCase(c);
+    const text = r.ok ? "" : r.errors.join("\n");
+    expect(text).toContain("нет_такой");
+    expect(text).toContain("нет_вывода");
+  });
+});

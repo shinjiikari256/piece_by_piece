@@ -15,7 +15,9 @@ import { RefMulti } from "./RefChips";
 
 export type Condition = {
   evidence?: string[];
+  notEvidence?: string[];
   deductions?: string[];
+  notDeductions?: string[];
   flags?: string[];
   notFlags?: string[];
   following?: string[];
@@ -258,7 +260,9 @@ export function ConditionEditor({ value, onChange, ctx, label, nested }: { value
   const chars = d.characters.map(charOption);
   const rows: { key: ListKey; title: string; options: Option[] | "flags" }[] = [
     { key: "evidence", title: "Есть улики (все)", options: d.evidence.map((e) => ({ value: e.id, label: e.title })) },
+    { key: "notEvidence", title: "Улик нет (ни одной из)", options: d.evidence.map((e) => ({ value: e.id, label: e.title })) },
     { key: "deductions", title: "Установлены выводы (все)", options: d.deductions.map((x) => ({ value: x.id, label: x.title })) },
+    { key: "notDeductions", title: "Выводы не установлены (ни одного из)", options: d.deductions.map((x) => ({ value: x.id, label: x.title })) },
     { key: "flags", title: "Флаги поставлены", options: "flags" },
     { key: "notFlags", title: "Флагов нет", options: "flags" },
     { key: "following", title: "Идут за игроком", options: chars },

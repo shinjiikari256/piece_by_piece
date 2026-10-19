@@ -40,7 +40,9 @@ function meetsAll(cond: Omit<Condition, "anyOf">, p: Progress, locationId?: stri
     (cond.evidence ?? []).every((id) => p.collected.includes(id)) &&
     (cond.flags ?? []).every((f) => p.flags.includes(f)) &&
     (cond.notFlags ?? []).every((f) => !p.flags.includes(f)) &&
+    (cond.notEvidence ?? []).every((id) => !p.collected.includes(id)) &&
     (cond.deductions ?? []).every((id) => p.deductions.includes(id)) &&
+    (cond.notDeductions ?? []).every((id) => !p.deductions.includes(id)) &&
     (cond.following ?? []).every((id) => p.followers.includes(id)) &&
     (cond.notFollowing ?? []).every((id) => !p.followers.includes(id)) &&
     (cond.counters ?? []).every((r) => {
@@ -82,6 +84,8 @@ export function meets(cond: Condition | undefined, p: Progress, locationId?: str
 export interface EffectOutcome {
   progress: Progress;
   newEvidence: string[];
+  /** Тексты эффектов `message` по порядку — показывает вызывающий. */
+  messages: string[];
 }
 
 /**
@@ -114,6 +118,7 @@ export function applyEffects(effects: Effect[], p: Progress, ctx: EffectContext 
     fired: [...(p.fired ?? [])],
   };
   const newEvidence: string[] = [];
+  const messages: string[] = [];
   for (const e of effects) {
     if (e.requires && !meets(e.requires, next, ctx.locationId)) continue;
     switch (e.type) {
@@ -138,6 +143,9 @@ export function applyEffects(effects: Effect[], p: Progress, ctx: EffectContext 
         }
         break;
       }
+      case "message":
+        if (e.text.trim()) messages.push(e.text);
+        break;
       case "addCharacterNote": {
         const notes = next.characterNotes[e.characterId] ?? [];
         if (!notes.includes(e.text)) next.characterNotes[e.characterId] = [...notes, e.text];
@@ -163,5 +171,5 @@ export function applyEffects(effects: Effect[], p: Progress, ctx: EffectContext 
         break;
     }
   }
-  return { progress: next, newEvidence };
+  return { progress: next, newEvidence, messages };
 }

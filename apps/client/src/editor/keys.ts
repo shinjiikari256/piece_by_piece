@@ -13,7 +13,7 @@ export const caseKey = (number: string) => `case-${toKey(number) || "new"}`;
 /** Поля, в которых дело ссылается на другие элементы по ключу. */
 const REF_FIELDS = new Set([
   "characterId", "speaker", "responsibleCharacter", "relatedCharacters", "following", "notFollowing", "characters",
-  "evidenceId", "evidenceIds", "evidence", "deductions", "relatedEvents", "dialogueId", "to",
+  "evidenceId", "evidenceIds", "evidence", "notEvidence", "deductions", "notDeductions", "relatedEvents", "dialogueId", "to",
   "flag", "flags", "notFlags", "locationId", "inLocation", "counterId",
 ]);
 
