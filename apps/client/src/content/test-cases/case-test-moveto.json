@@ -1,5 +1,5 @@
 {
-  "formatVersion": 4,
+  "formatVersion": 5,
   "id": "case-test-moveto",
   "number": "T01",
   "title": "Тест: перемещения персонажей",
@@ -70,7 +70,6 @@
           "y": 3,
           "label": "Стол коменданта",
           "interaction": {
-            "type": "evidence",
             "title": "Стол коменданта",
             "description": "Сверху лежит свежий акт с приколотыми распечатками фотографий.",
             "evidenceId": "inspection_act"
@@ -83,7 +82,6 @@
           "y": 1,
           "label": "Шкаф с журналами",
           "interaction": {
-            "type": "evidence",
             "title": "Шкаф с журналами",
             "description": "На полке — «Журнал аварийных заявок» общежития. Раскрыт на октябре.",
             "evidenceId": "repair_log"
@@ -96,7 +94,6 @@
           "y": 2,
           "label": "Компьютер коменданта",
           "interaction": {
-            "type": "evidence",
             "title": "Компьютер коменданта",
             "description": "Открыта служебная почта. Последнее входящее — от проректора по хозяйственной части.",
             "evidenceId": "memo"
@@ -109,7 +106,6 @@
           "y": 9,
           "label": "Доска объявлений",
           "interaction": {
-            "type": "evidence",
             "title": "Доска объявлений",
             "description": "Расписание дежурств, объявление о субботнике и выдержка из Правил проживания в общежитии.",
             "evidenceId": "dorm_rules"
@@ -122,7 +118,6 @@
           "y": 3,
           "label": "Стол Тимура",
           "interaction": {
-            "type": "evidence",
             "title": "Записка на столе Тимура",
             "description": "",
             "evidenceId": "doc_timur_desk"
@@ -175,10 +170,22 @@
           "y": 1,
           "label": "Холодильник",
           "interaction": {
-            "type": "evidence",
             "title": "Общий холодильник",
             "description": "",
-            "evidenceId": "doc_fridge"
+            "evidenceId": "doc_fridge",
+            "effects": [
+              {
+                "type": "changeVariable",
+                "variableId": "test_fridge_seen",
+                "action": "on"
+              },
+              {
+                "type": "changeVariable",
+                "variableId": "test_trust",
+                "action": "add",
+                "value": 1
+              }
+            ]
           }
         },
         {
@@ -284,7 +291,6 @@
           "y": 9,
           "label": "Объявление",
           "interaction": {
-            "type": "evidence",
             "title": "Объявление в коридоре",
             "description": "",
             "evidenceId": "doc_poster"
@@ -611,8 +617,9 @@
               "kind": "effects",
               "effects": [
                 {
-                  "type": "setFlag",
-                  "flag": "visited_corner"
+                  "type": "changeVariable",
+                  "variableId": "visited_corner",
+                  "action": "on"
                 }
               ],
               "auto": true
@@ -663,7 +670,6 @@
           "y": 6,
           "label": "Вахта",
           "interaction": {
-            "type": "evidence",
             "title": "Вахта",
             "description": "Журнал вахты: кто входит и выходит, кому выдаются дубликаты ключей.",
             "evidenceId": "vakhta_log"
@@ -676,7 +682,6 @@
           "y": 2,
           "label": "Почтовые ящики",
           "interaction": {
-            "type": "evidence",
             "title": "Почтовые ящики",
             "description": "",
             "evidenceId": "doc_mailboxes"
@@ -689,7 +694,6 @@
           "y": 0,
           "label": "Объявление",
           "interaction": {
-            "type": "evidence",
             "title": "Объявление в холле",
             "description": "",
             "evidenceId": "doc_lobby_poster"
@@ -790,7 +794,6 @@
           "y": 16,
           "label": "Выход",
           "interaction": {
-            "type": "evidence",
             "title": "Входная дверь",
             "description": "",
             "evidenceId": "doc_entrance"
@@ -1395,8 +1398,9 @@
           "mood": "nervous",
           "effects": [
             {
-              "type": "setFlag",
-              "flag": "timur_lied"
+              "type": "changeVariable",
+              "variableId": "timur_lied",
+              "action": "on"
             }
           ],
           "choices": [
@@ -1413,8 +1417,9 @@
           "mood": "angry",
           "effects": [
             {
-              "type": "setFlag",
-              "flag": "timur_closed"
+              "type": "changeVariable",
+              "variableId": "timur_closed",
+              "action": "on"
             }
           ],
           "choices": [
@@ -1431,8 +1436,9 @@
           "mood": "sad",
           "effects": [
             {
-              "type": "setFlag",
-              "flag": "timur_truth"
+              "type": "changeVariable",
+              "variableId": "timur_truth",
+              "action": "on"
             },
             {
               "type": "addCharacterNote",
@@ -1454,8 +1460,9 @@
           "mood": "neutral",
           "effects": [
             {
-              "type": "setFlag",
-              "flag": "key_412"
+              "type": "changeVariable",
+              "variableId": "key_412",
+              "action": "on"
             },
             {
               "type": "addCharacterNote",
@@ -1559,6 +1566,16 @@
                       "dorm_lobby"
                     ]
                   }
+                ]
+              }
+            },
+            {
+              "id": "t11",
+              "text": "11. Видно, если осмотрен холодильник (эффекты предмета)",
+              "next": "t11",
+              "requires": {
+                "flags": [
+                  "test_fridge_seen"
                 ]
               }
             },
@@ -1761,9 +1778,9 @@
           "mood": "neutral",
           "effects": [
             {
-              "type": "changeCounter",
-              "counterId": "test_trust",
-              "mode": "add",
+              "type": "changeVariable",
+              "variableId": "test_trust",
+              "action": "add",
               "value": 1
             }
           ],
@@ -1804,6 +1821,19 @@
         {
           "id": "t10",
           "text": "Сработало условие «или».",
+          "mood": "neutral",
+          "effects": [],
+          "choices": [
+            {
+              "id": "back_menu",
+              "text": "Назад к списку",
+              "next": "t_menu"
+            }
+          ]
+        },
+        {
+          "id": "t11",
+          "text": "Холодильник осмотрен: флаг поставлен, доверие +1 (только при первом осмотре).",
           "mood": "neutral",
           "effects": [],
           "choices": [
@@ -1945,8 +1975,9 @@
           "mood": "angry",
           "effects": [
             {
-              "type": "setFlag",
-              "flag": "zuev_hostile"
+              "type": "changeVariable",
+              "variableId": "zuev_hostile",
+              "action": "on"
             },
             {
               "type": "addCharacterNote",
@@ -2018,8 +2049,9 @@
               "evidenceId": "zuev_admission"
             },
             {
-              "type": "setFlag",
-              "flag": "zuev_admitted"
+              "type": "changeVariable",
+              "variableId": "zuev_admitted",
+              "action": "on"
             }
           ],
           "choices": [
@@ -2412,8 +2444,9 @@
               "evidenceId": "zuev_admission"
             },
             {
-              "type": "setFlag",
-              "flag": "zuev_admitted"
+              "type": "changeVariable",
+              "variableId": "zuev_admitted",
+              "action": "on"
             },
             {
               "type": "returnHome",
@@ -2435,8 +2468,9 @@
           "mood": "nervous",
           "effects": [
             {
-              "type": "setFlag",
-              "flag": "denis_scared"
+              "type": "changeVariable",
+              "variableId": "denis_scared",
+              "action": "on"
             },
             {
               "type": "returnHome",
@@ -2726,8 +2760,9 @@
       "conclusion": "Комнату осматривали в отсутствие Тимура и без его согласия.",
       "effects": [
         {
-          "type": "setFlag",
-          "flag": "d_absent"
+          "type": "changeVariable",
+          "variableId": "d_absent",
+          "action": "on"
         }
       ]
     },
@@ -2762,8 +2797,9 @@
       "conclusion": "В комнату 412 вошёл комендант Зуев с дубликатом ключа с вахты.",
       "effects": [
         {
-          "type": "setFlag",
-          "flag": "d_who"
+          "type": "changeVariable",
+          "variableId": "d_who",
+          "action": "on"
         }
       ]
     },
@@ -2798,8 +2834,9 @@
       "conclusion": "Аварийной ситуации не было — объяснение коменданта ложно.",
       "effects": [
         {
-          "type": "setFlag",
-          "flag": "d_no_emergency"
+          "type": "changeVariable",
+          "variableId": "d_no_emergency",
+          "action": "on"
         }
       ]
     },
@@ -2834,8 +2871,9 @@
       "conclusion": "Вход в комнату совершён с нарушением всех условий, которые устанавливают Правила проживания.",
       "effects": [
         {
-          "type": "setFlag",
-          "flag": "d_procedure"
+          "type": "changeVariable",
+          "variableId": "d_procedure",
+          "action": "on"
         }
       ]
     },
@@ -2870,8 +2908,9 @@
       "conclusion": "Мотив — «план» по нарушителям. Он объясняет поступок, но не делает его законным.",
       "effects": [
         {
-          "type": "setFlag",
-          "flag": "d_motive"
+          "type": "changeVariable",
+          "variableId": "d_motive",
+          "action": "on"
         }
       ]
     }
@@ -3305,6 +3344,10 @@
       "id": "test_ready",
       "name": "[ТЕСТ] Начальный флаг",
       "initial": true
+    },
+    {
+      "id": "test_fridge_seen",
+      "name": "[ТЕСТ] Холодильник осмотрен"
     }
   ],
   "lawReference": {

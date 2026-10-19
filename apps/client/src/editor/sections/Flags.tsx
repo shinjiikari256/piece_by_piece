@@ -1,14 +1,14 @@
 import { useEffect, useState } from "react";
 import { CaseFile } from "../../../../../shared/case";
 import { editor, useEditor } from "../state";
-import { FlagDialog, deleteFlag, flagUsage, type FlagUse } from "../SchemaForm";
+import { deleteFlag, flagUsage, type FlagUse } from "../SchemaForm";
+import { NewVariableDialog } from "../fields/NewVariable";
 import { renameKey, toKey } from "../keys";
 import { useUrlParam, useWriteDefaultParam } from "../url";
 import { Icon } from "../../ui/icons";
 import { EntityList, ItemText } from "../EntityList";
 import { ask, tell } from "../../ui/dialog";
-import { Dialog } from "../../ui/window";
-import { CounterDialog, CounterEditor } from "./Counters";
+import { CounterEditor } from "./Counters";
 
 type Entry = { kind: "flag" | "counter"; id: string };
 
@@ -16,7 +16,7 @@ type Entry = { kind: "flag" | "counter"; id: string };
 export function FlagsSection() {
   const draft = useEditor((s) => s.draft);
   const focus = useEditor((s) => s.focus);
-  const [dialog, setDialog] = useState<"flag" | "counter" | "pick" | null>(null);
+  const [dialog, setDialog] = useState<"new" | null>(null);
   const usage = flagUsage(draft);
   const nameOf = (id: string) => draft.flags?.find((f) => f.id === id)?.name ?? "";
   const flagIds = [...new Set([...(draft.flags ?? []).map((f) => f.id), ...usage.keys()])].sort((a, b) =>
@@ -38,7 +38,7 @@ export function FlagsSection() {
         getKey={(e) => `${e.kind}:${e.id}`}
         isActive={(e) => e.id === current?.id}
         onSelect={(e) => setSelected(e.id)}
-        onAdd={() => setDialog("pick")}
+        onAdd={() => setDialog("new")}
         addLabel="Добавить переменную"
         empty="Переменных пока нет."
         renderItem={(e) =>
@@ -66,37 +66,11 @@ export function FlagsSection() {
           </p>
         )}
       </div>
-      {dialog === "pick" && (
-        <Dialog
-          title="Новая переменная"
-          onClose={() => setDialog(null)}
-          actions={
-            <>
-              <button className="btn" onClick={() => setDialog("flag")}>
-                <Icon name="flag" size={15} /> Флаг
-              </button>
-              <button className="btn" onClick={() => setDialog("counter")}>
-                <Icon name="counter" size={15} /> Счётчик
-              </button>
-            </>
-          }
-        >
-          <p className="muted">Тип переменной: флаг — «произошло или нет», счётчик — число.</p>
-        </Dialog>
-      )}
-      {dialog === "counter" && (
-        <CounterDialog
+      {dialog === "new" && (
+        <NewVariableDialog
           onDone={(id) => {
             setDialog(null);
             if (id) setSelected(id);
-          }}
-        />
-      )}
-      {dialog === "flag" && (
-        <FlagDialog
-          onDone={(f) => {
-            setDialog(null);
-            if (f) setSelected(f);
           }}
         />
       )}

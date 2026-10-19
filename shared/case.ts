@@ -64,11 +64,14 @@ export const Condition = BaseCondition.extend({
 
 export const Effect = z.discriminatedUnion("type", [
   z.object({ type: z.literal("addEvidence"), evidenceId: z.string() }),
-  z.object({ type: z.literal("setFlag"), flag: z.string() }),
-  z.object({ type: z.literal("removeFlag"), flag: z.string() }).describe("Снять ранее поставленный флаг"),
   z
-    .object({ type: z.literal("changeCounter"), counterId: z.string(), mode: z.enum(["add", "set"]), value: z.number().int() })
-    .describe("Изменить счётчик: прибавить (можно отрицательное) или задать значение"),
+    .object({
+      type: z.literal("changeVariable"),
+      variableId: z.string(),
+      action: z.enum(["on", "off", "toggle", "add", "subtract", "set"]),
+      value: z.number().int().optional().describe("Число для счётчика (прибавить, отнять, задать); для флага не нужно"),
+    })
+    .describe("Изменить переменную: флаг — поставить, снять или переключить; счётчик — прибавить, отнять или задать значение (в границах счётчика)"),
   z.object({ type: z.literal("addCharacterNote"), characterId: z.string(), text: z.string() }),
   z.object({ type: z.literal("follow"), characterId: z.string() }).describe("Персонаж идёт за игроком"),
   z.object({ type: z.literal("stay"), characterId: z.string() }).describe("Перестаёт идти следом и остаётся, где стоит"),
@@ -144,10 +147,10 @@ export const Evidence = z.object({
 
 /** Осматриваемый предмет: при осмотре его материал сразу попадает в дело. */
 export const ObjectInteraction = z.object({
-  type: z.literal("evidence"),
   title: z.string(),
   description: z.string().describe("Что видно при осмотре"),
   evidenceId: z.string(),
+  effects: z.array(Effect).default([]).meta({ always: true }).describe("Эффекты первого осмотра: флаги, счётчики, перемещения людей и т. д. (выдача улики — отдельно, полем выше)"),
 });
 
 export const SpriteKey = z.enum([
@@ -447,7 +450,15 @@ export const CaseFile = z.object({
     .optional()
     .describe("Флаги дела: пометки «это уже произошло» с русскими названиями"),
   counters: z
-    .array(z.object({ id: z.string(), name: z.string().describe("Что считает счётчик, по-русски"), initial: z.number().int().optional().describe("Значение в начале расследования (по умолчанию 0)") }))
+    .array(
+      z.object({
+        id: z.string(),
+        name: z.string().describe("Что считает счётчик, по-русски"),
+        initial: z.number().int().optional().describe("Значение в начале расследования (по умолчанию 0)"),
+        min: z.number().int().optional().describe("Наименьшее значение: меньше счётчик не опустится"),
+        max: z.number().int().optional().describe("Наибольшее значение: больше счётчик не вырастет"),
+      }),
+    )
     .optional()
     .describe("Счётчики дела: числа, которые меняют эффекты и проверяют условия"),
   lawReference: z

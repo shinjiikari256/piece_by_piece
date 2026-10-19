@@ -690,3 +690,27 @@ describe("начальные флаги и счётчики в игре", () => 
     expect(store.get().progress.counters).toEqual({ trust: 3 });
   });
 });
+
+describe("эффекты осмотра предмета", () => {
+  it("срабатывают при первом осмотре, повторно — нет", () => {
+    const raw = load("case-001.json") as unknown as CaseFile;
+    raw.flags = [...(raw.flags ?? []), { id: "seen_pc", name: "Компьютер осмотрен" }];
+    raw.counters = [{ id: "looks", name: "Осмотры" }];
+    const obj = raw.locations.flatMap((l) => l.objects).find((o) => o.id === "obj_computer")!;
+    obj.interaction!.effects = [
+      { type: "changeVariable", variableId: "seen_pc", action: "on" },
+      { type: "changeVariable", variableId: "looks", action: "add", value: 1 },
+    ];
+    const c = validateCase(raw);
+    if (!c.ok) throw new Error(c.errors.join("; "));
+    setPlatform(createMemoryPlatform());
+    actions.openCase(new LocalAuthority(c.caseFile));
+    actions.beginInvestigation();
+    actions.interact("obj_computer");
+    actions.close();
+    actions.interact("obj_computer");
+    actions.close();
+    expect(store.get().progress.flags).toContain("seen_pc");
+    expect(store.get().progress.counters.looks).toBe(1);
+  });
+});

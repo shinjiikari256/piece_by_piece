@@ -9,11 +9,11 @@ import { flagsOf } from "../fields/Conditions";
 
 type Counter = NonNullable<CaseFile["counters"]>[number];
 
-/** Убрать счётчик из дела: сам счётчик, эффекты «изменить счётчик» и строки условий по нему (пустые условия исчезают). */
+/** Убрать счётчик из дела: сам счётчик, эффекты «изменить переменную» по нему и строки условий по нему (пустые условия исчезают). */
 export function deleteCounter(d: CaseFile, id: string): CaseFile {
   const clean = (node: unknown): unknown => {
     if (Array.isArray(node)) {
-      return node.filter((x) => !(x && typeof x === "object" && (x as { type?: string; counterId?: string }).type === "changeCounter" && (x as { counterId?: string }).counterId === id)).map(clean);
+      return node.filter((x) => !(x && typeof x === "object" && (x as { type?: string; variableId?: string }).type === "changeVariable" && (x as { variableId?: string }).variableId === id)).map(clean);
     }
     if (node && typeof node === "object") {
       const out: Record<string, unknown> = {};
@@ -160,7 +160,21 @@ export function CounterEditor({ counter, onRenamed }: { counter: Counter; onRena
         <span className="ef__label">Значение в начале расследования</span>
         <input type="number" value={counter.initial ?? 0} onChange={(e) => patch({ initial: Math.trunc(Number(e.target.value)) || undefined }, `counter:${id}:initial`)} />
       </label>
-      <p className="muted">Используется в {Math.max(refs, 0)} мест(ах): эффекты «изменить счётчик» и условия.</p>
+      <div className="pair">
+        {(["min", "max"] as const).map((k) => (
+          <label key={k} className="ef">
+            <span className="ef__label">{k === "min" ? "Наименьшее значение" : "Наибольшее значение"}</span>
+            <input
+              type="number"
+              value={counter[k] ?? ""}
+              placeholder="без границы"
+              onChange={(e) => patch({ [k]: e.target.value === "" ? undefined : Math.trunc(Number(e.target.value)) || 0 }, `counter:${id}:${k}`)}
+            />
+          </label>
+        ))}
+      </div>
+      <p className="muted">Эффекты не выведут значение за эти границы: лишнее отбрасывается.</p>
+      <p className="muted">Используется в {Math.max(refs, 0)} мест(ах): эффекты «изменить переменную» и условия.</p>
       <button className="btn btn--danger flag-ed__delete" onClick={remove}>
         Удалить счётчик
       </button>

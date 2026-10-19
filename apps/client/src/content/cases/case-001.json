@@ -1,5 +1,5 @@
 {
-  "formatVersion": 4,
+  "formatVersion": 5,
   "id": "case-001",
   "number": "001",
   "title": "Чужие письма",
@@ -12,7 +12,7 @@
     "points": 10
   },
   "published": true,
-  "updatedAt": "2026-10-15T09:43:57Z",
+  "updatedAt": "2026-10-19T22:33:31Z",
   "locations": [
     {
       "id": "admin_building",
@@ -65,7 +65,6 @@
           "y": 2,
           "label": "Компьютер деканата",
           "interaction": {
-            "type": "evidence",
             "title": "Рабочий компьютер, кабинет 214",
             "description": "На экране открыта панель администратора почтовой системы факультета. Журнал событий не очищен.",
             "evidenceId": "mail_log"
@@ -78,7 +77,6 @@
           "y": 3,
           "label": "Стол Крылова",
           "interaction": {
-            "type": "evidence",
             "title": "Стол специалиста деканата",
             "description": "Среди служебных бумаг — распечатка, совсем не похожая на служебную. Сверху приклеен стикер.",
             "evidenceId": "printout"
@@ -91,7 +89,6 @@
           "y": 1,
           "label": "Шкаф",
           "interaction": {
-            "type": "evidence",
             "title": "Шкаф с папками",
             "description": "В папке «Входящие — разное» лежит распечатка с университетского форума с пометками от руки.",
             "evidenceId": "complaint_copy"
@@ -104,7 +101,6 @@
           "y": 9,
           "label": "Доска объявлений",
           "interaction": {
-            "type": "evidence",
             "title": "Доска объявлений",
             "description": "Расписание, объявление о конференции и приколотое официальное Положение о корпоративной почте факультета. В углу — памятка: «Ключи от кабинетов выдаются на посту охраны под подпись».",
             "evidenceId": "mail_policy"
@@ -117,7 +113,6 @@
           "y": 12,
           "label": "Пост охраны",
           "interaction": {
-            "type": "evidence",
             "title": "Пост охраны",
             "description": "На стойке лежит раскрытый журнал выдачи ключей. Рядом — опечатанный ящик с запасными ключами, печать цела.",
             "evidenceId": "key_log"
@@ -138,7 +133,6 @@
           "y": 1,
           "label": "Принтер",
           "interaction": {
-            "type": "evidence",
             "title": "Принтер PRN-214",
             "description": "",
             "evidenceId": "doc_printer"
@@ -175,7 +169,6 @@
           "y": 3,
           "label": "Стол в учительской",
           "interaction": {
-            "type": "evidence",
             "title": "Стол в учительской",
             "description": "",
             "evidenceId": "doc_teacher_table"
@@ -260,7 +253,6 @@
           "y": 9,
           "label": "Плакат",
           "interaction": {
-            "type": "evidence",
             "title": "Плакат в коридоре",
             "description": "",
             "evidenceId": "doc_poster"
@@ -273,7 +265,6 @@
           "y": 10,
           "label": "Автомат",
           "interaction": {
-            "type": "evidence",
             "title": "Автомат со снеками",
             "description": "",
             "evidenceId": "doc_vending"
@@ -835,8 +826,9 @@
           "mood": "sad",
           "effects": [
             {
-              "type": "setFlag",
-              "flag": "knows_quote"
+              "type": "changeVariable",
+              "variableId": "knows_quote",
+              "action": "on"
             },
             {
               "type": "addCharacterNote",
@@ -876,8 +868,9 @@
           "mood": "nervous",
           "effects": [
             {
-              "type": "setFlag",
-              "flag": "alina_lied"
+              "type": "changeVariable",
+              "variableId": "alina_lied",
+              "action": "on"
             }
           ],
           "choices": [
@@ -894,8 +887,9 @@
           "mood": "angry",
           "effects": [
             {
-              "type": "setFlag",
-              "flag": "alina_closed"
+              "type": "changeVariable",
+              "variableId": "alina_closed",
+              "action": "on"
             }
           ],
           "choices": [
@@ -912,8 +906,9 @@
           "mood": "sad",
           "effects": [
             {
-              "type": "setFlag",
-              "flag": "alina_told_truth"
+              "type": "changeVariable",
+              "variableId": "alina_told_truth",
+              "action": "on"
             },
             {
               "type": "addCharacterNote",
@@ -1073,8 +1068,9 @@
           "mood": "angry",
           "effects": [
             {
-              "type": "setFlag",
-              "flag": "krylov_hostile"
+              "type": "changeVariable",
+              "variableId": "krylov_hostile",
+              "action": "on"
             },
             {
               "type": "addCharacterNote",
@@ -1146,8 +1142,9 @@
               "evidenceId": "krylov_admission"
             },
             {
-              "type": "setFlag",
-              "flag": "krylov_admitted"
+              "type": "changeVariable",
+              "variableId": "krylov_admitted",
+              "action": "on"
             }
           ],
           "choices": [
@@ -1300,8 +1297,9 @@
           "mood": "angry",
           "effects": [
             {
-              "type": "setFlag",
-              "flag": "lebedeva_closed"
+              "type": "changeVariable",
+              "variableId": "lebedeva_closed",
+              "action": "on"
             }
           ],
           "choices": [
@@ -1322,8 +1320,9 @@
               "evidenceId": "teacher_testimony"
             },
             {
-              "type": "setFlag",
-              "flag": "lebedeva_told"
+              "type": "changeVariable",
+              "variableId": "lebedeva_told",
+              "action": "on"
             }
           ],
           "choices": [
@@ -1571,8 +1570,9 @@
               "evidenceId": "krylov_admission"
             },
             {
-              "type": "setFlag",
-              "flag": "krylov_admitted"
+              "type": "changeVariable",
+              "variableId": "krylov_admitted",
+              "action": "on"
             },
             {
               "type": "returnHome",
@@ -1594,8 +1594,9 @@
           "mood": "angry",
           "effects": [
             {
-              "type": "setFlag",
-              "flag": "lebedeva_offended"
+              "type": "changeVariable",
+              "variableId": "lebedeva_offended",
+              "action": "on"
             },
             {
               "type": "returnHome",
@@ -1817,8 +1818,9 @@
       "conclusion": "Доступ к почте Алины получен через панель администратора с компьютера кабинета 214 — без её ведома.",
       "effects": [
         {
-          "type": "setFlag",
-          "flag": "d_access"
+          "type": "changeVariable",
+          "variableId": "d_access",
+          "action": "on"
         }
       ]
     },
@@ -1853,8 +1855,9 @@
       "conclusion": "Во время входа в почту Алины ключ от кабинета 214 был только у Крылова.",
       "effects": [
         {
-          "type": "setFlag",
-          "flag": "d_who"
+          "type": "changeVariable",
+          "variableId": "d_who",
+          "action": "on"
         }
       ]
     },
@@ -1889,8 +1892,9 @@
       "conclusion": "Законного основания для доступа к содержанию писем не было: ни заявления Алины, ни судебного решения.",
       "effects": [
         {
-          "type": "setFlag",
-          "flag": "d_basis"
+          "type": "changeVariable",
+          "variableId": "d_basis",
+          "action": "on"
         }
       ]
     },
@@ -1925,8 +1929,9 @@
       "conclusion": "Содержание личного письма стало известно третьему лицу: распечатку показали куратору.",
       "effects": [
         {
-          "type": "setFlag",
-          "flag": "d_spread"
+          "type": "changeVariable",
+          "variableId": "d_spread",
+          "action": "on"
         }
       ]
     },
@@ -1961,8 +1966,9 @@
       "conclusion": "Мотив — найти автора критической жалобы. Это объясняет поступок, но не делает его законным.",
       "effects": [
         {
-          "type": "setFlag",
-          "flag": "d_motive"
+          "type": "changeVariable",
+          "variableId": "d_motive",
+          "action": "on"
         }
       ]
     }

@@ -53,13 +53,26 @@ function meetsAll(cond: Omit<Condition, "anyOf">, p: Progress, locationId?: stri
 
 /** @param locationId — где сейчас игрок (для `inLocation`; не передан — такое условие не выполняется). */
 /** Начало расследования: флаги и счётчики с начальными значениями из дела. */
-export function startProgress(c: { flags?: { id: string; initial?: boolean }[]; counters?: { id: string; initial?: number }[] } | null | undefined): Progress {
+export function startProgress(c: { flags?: { id: string; initial?: boolean }[]; counters?: CounterDef[] } | null | undefined): Progress {
   return {
     ...emptyProgress(),
     flags: (c?.flags ?? []).filter((f) => f.initial).map((f) => f.id),
-    counters: Object.fromEntries((c?.counters ?? []).filter((x) => x.initial).map((x) => [x.id, x.initial!])),
+    counters: Object.fromEntries((c?.counters ?? []).filter((x) => x.initial).map((x) => [x.id, clampCounter(x.initial!, x)])),
   };
 }
+
+/** Действия над флагом (остальные — над счётчиком). */
+export const isFlagAction = (a: Extract<Effect, { type: "changeVariable" }>["action"]): boolean => a === "on" || a === "off" || a === "toggle";
+
+/** Флаг, который меняет эффект, — или `undefined`, если это эффект не про флаг. */
+export const flagOfEffect = (e: Effect): { flag: string; action: "on" | "off" | "toggle" } | undefined =>
+  e.type === "changeVariable" && isFlagAction(e.action) ? { flag: e.variableId, action: e.action as "on" | "off" | "toggle" } : undefined;
+
+/** Счётчик с границами (нужны только `min`/`max`). */
+export type CounterDef = { id: string; initial?: number; min?: number; max?: number };
+
+/** Значение счётчика в его границах. */
+export const clampCounter = (v: number, def?: { min?: number; max?: number }): number => Math.min(def?.max ?? Infinity, Math.max(def?.min ?? -Infinity, v));
 
 export function meets(cond: Condition | undefined, p: Progress, locationId?: string): boolean {
   if (!cond) return true;
@@ -79,6 +92,7 @@ export function applyEffects(
   effects: Effect[],
   p: Progress,
   whereIs: (characterId: string) => Place | undefined = () => undefined,
+  counterDefs: readonly CounterDef[] = [],
 ): EffectOutcome {
   const next: Progress = {
     ...p,
@@ -99,20 +113,26 @@ export function applyEffects(
           newEvidence.push(e.evidenceId);
         }
         break;
-      case "setFlag":
-        if (!next.flags.includes(e.flag)) next.flags.push(e.flag);
+      case "changeVariable": {
+        const id = e.variableId;
+        if (e.action === "on" || e.action === "off" || e.action === "toggle") {
+          const has = next.flags.includes(id);
+          const want = e.action === "toggle" ? !has : e.action === "on";
+          if (want && !has) next.flags.push(id);
+          if (!want) next.flags = next.flags.filter((f) => f !== id);
+        } else {
+          const cur = next.counters[id] ?? 0;
+          const n = e.value ?? 0;
+          const v = e.action === "add" ? cur + n : e.action === "subtract" ? cur - n : n;
+          next.counters[id] = clampCounter(v, counterDefs.find((c) => c.id === id));
+        }
         break;
-      case "removeFlag":
-        next.flags = next.flags.filter((f) => f !== e.flag);
-        break;
+      }
       case "addCharacterNote": {
         const notes = next.characterNotes[e.characterId] ?? [];
         if (!notes.includes(e.text)) next.characterNotes[e.characterId] = [...notes, e.text];
         break;
       }
-      case "changeCounter":
-        next.counters[e.counterId] = e.mode === "add" ? (next.counters[e.counterId] ?? 0) + e.value : e.value;
-        break;
       case "follow":
         if (!next.followers.includes(e.characterId)) next.followers.push(e.characterId);
         break;

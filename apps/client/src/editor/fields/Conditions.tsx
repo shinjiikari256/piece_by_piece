@@ -3,7 +3,8 @@ import { editor, useEditor, type Focus } from "../state";
 import { countRefs, renameKey, toKey } from "../keys";
 import { Dialog } from "../../ui/window";
 import { Select } from "../../ui/Select";
-import type { CaseFile } from "../../../../../shared/case";
+import type { CaseFile, Effect } from "../../../../../shared/case";
+import { flagOfEffect } from "../../../../../shared/conditions";
 import { ask } from "../../ui/dialog";
 import { Icon } from "../../ui/icons";
 import { FormCtx, Option, charOption } from "../SchemaForm";
@@ -25,6 +26,20 @@ export type Condition = {
   anyOf?: Omit<Condition, "anyOf">[];
 };
 
+const FLAG_VERB = { on: "ставит", off: "снимает", toggle: "переключает" } as const;
+
+/** Все списки эффектов дела (без адресов). */
+function effectLists(d: FormCtx["draft"]): Effect[][] {
+  return [
+    ...d.dialogues.flatMap((dl) => dl.nodes.map((n) => n.effects)),
+    ...d.deductions.map((x) => x.effects),
+    ...d.locations.flatMap((l) => [
+      ...l.objects.flatMap((o) => (o.interaction ? [o.interaction.effects ?? []] : [])),
+      ...l.zones.flatMap((z) => z.actions.flatMap((a) => (a.kind === "effects" ? [a.effects] : []))),
+    ]),
+  ];
+}
+
 /** Все флаги, которые встречаются в деле: описанные, поставленные эффектами или проверяемые условиями. */
 export function flagsOf(d: FormCtx["draft"]): string[] {
   const out = new Set<string>(d.flags?.map((f) => f.id) ?? []);
@@ -35,10 +50,9 @@ export function flagsOf(d: FormCtx["draft"]): string[] {
   };
   for (const dl of d.dialogues)
     for (const n of dl.nodes) {
-      n.effects.forEach((e) => (e.type === "setFlag" || e.type === "removeFlag") && out.add(e.flag));
       n.choices.forEach((ch) => cond(ch.requires));
     }
-  d.deductions.forEach((x) => x.effects.forEach((e) => (e.type === "setFlag" || e.type === "removeFlag") && out.add(e.flag)));
+  effectLists(d).forEach((list) => list.forEach((e) => flagOfEffect(e) && out.add(flagOfEffect(e)!.flag)));
   d.locations.forEach((l) => {
     l.doors.forEach((door) => cond(door.requires));
     l.npcs.forEach((n) => n.dialogues.forEach((nd) => cond(nd.requires)));
@@ -48,7 +62,7 @@ export function flagsOf(d: FormCtx["draft"]): string[] {
 }
 
 export interface FlagUse {
-  kind: "ставит" | "снимает" | "проверяет" | "проверяет отсутствие";
+  kind: "ставит" | "снимает" | "переключает" | "проверяет" | "проверяет отсутствие";
   where: string;
   focus: Focus;
 }
@@ -57,6 +71,10 @@ export interface FlagUse {
 export function flagUsage(d: FormCtx["draft"]): Map<string, FlagUse[]> {
   const out = new Map<string, FlagUse[]>();
   const add = (f: string, use: FlagUse) => out.set(f, [...(out.get(f) ?? []), use]);
+  const useOf = (e: Effect, where: string, focus: Focus) => {
+    const f = flagOfEffect(e);
+    if (f) add(f.flag, { kind: FLAG_VERB[f.action], where, focus });
+  };
   const who = (id: string) => d.characters.find((c) => c.id === id)?.name ?? id;
   const dialogueFocus = (dialogueId: string, sub: string): Focus => ({ section: "dialogues", id: dialogueId, sub });
   const cond = (c: Condition | undefined, where: string, focus: Focus): void => {
@@ -66,14 +84,18 @@ export function flagUsage(d: FormCtx["draft"]): Map<string, FlagUse[]> {
   };
   for (const dl of d.dialogues)
     for (const n of dl.nodes) {
-      n.effects.forEach(
-        (e) => (e.type === "setFlag" || e.type === "removeFlag") && add(e.flag, { kind: e.type === "setFlag" ? "ставит" : "снимает", where: `Разговор: ${who(dl.characterId)} — реплика «${n.text.slice(0, 50)}»`, focus: dialogueFocus(dl.id, n.id) }),
-      );
+      n.effects.forEach((e) => useOf(e, `Разговор: ${who(dl.characterId)} — реплика «${n.text.slice(0, 50)}»`, dialogueFocus(dl.id, n.id)));
       n.choices.forEach((ch) => cond(ch.requires, `Разговор: ${who(dl.characterId)} — вариант «${ch.text.slice(0, 50)}»`, dialogueFocus(dl.id, n.id)));
     }
-  d.deductions.forEach((x) =>
-    x.effects.forEach((e) => e.type === "setFlag" && add(e.flag, { kind: "ставит", where: `Сопоставление «${x.title}»`, focus: { section: "deductions", id: x.id } })),
-  );
+  d.locations.forEach((l) => {
+    l.objects.forEach((o) =>
+      o.interaction?.effects?.forEach((e) => useOf(e, `Осмотр «${o.label || o.id}» — ${l.name}`, { section: "locations", sub: l.id, kind: "object", id: o.id })),
+    );
+    l.zones.forEach((z) =>
+      z.actions.forEach((a) => a.kind === "effects" && a.effects.forEach((e) => useOf(e, `Область «${z.name}» — ${l.name}`, { section: "locations", sub: l.id, kind: "zone", id: z.id }))),
+    );
+  });
+  d.deductions.forEach((x) => x.effects.forEach((e) => useOf(e, `Сопоставление «${x.title}»`, { section: "deductions", id: x.id })));
   d.locations.forEach((l) => {
     l.doors.forEach((door) => cond(door.requires, `Дверь ${door.id} — ${l.name}`, { section: "locations", sub: l.id, kind: "door", id: door.id }));
     l.npcs.forEach((n) => n.dialogues.forEach((nd) => cond(nd.requires, `Диалог по условию: ${who(n.characterId)} — ${l.name}`, { section: "locations", sub: l.id, kind: "npc", id: n.id })));
@@ -104,7 +126,7 @@ export function deleteFlag(d: CaseFile, flag: string): CaseFile {
     const { requires: _old, ...rest } = x;
     return (Object.keys(r).length ? { ...rest, requires: r } : rest) as T;
   };
-  const noSet = <E extends { type: string; flag?: string }>(effects: E[]) => effects.filter((e) => !((e.type === "setFlag" || e.type === "removeFlag") && e.flag === flag));
+  const noSet = (effects: Effect[]) => effects.filter((e) => flagOfEffect(e)?.flag !== flag);
   return {
     ...d,
     flags: (d.flags ?? []).filter((f) => f.id !== flag),
@@ -115,9 +137,10 @@ export function deleteFlag(d: CaseFile, flag: string): CaseFile {
     deductions: d.deductions.map((x) => ({ ...x, effects: noSet(x.effects) })),
     locations: d.locations.map((l) => ({
       ...l,
+      objects: l.objects.map((o) => (o.interaction ? { ...o, interaction: { ...o.interaction, effects: noSet(o.interaction.effects ?? []) } } : o)),
       doors: l.doors.map(clean),
       npcs: l.npcs.map((n) => ({ ...n, dialogues: n.dialogues.map(clean) })),
-      zones: l.zones.map((z) => ({ ...z, actions: z.actions.map(clean) })),
+      zones: l.zones.map((z) => ({ ...z, actions: z.actions.map((a) => clean(a.kind === "effects" ? { ...a, effects: noSet(a.effects) } : a)) })),
     })),
   };
 }

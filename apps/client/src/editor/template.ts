@@ -34,7 +34,7 @@ export function blankCase(): CaseFile {
             x: 3,
             y: 3,
             label: "Стол",
-            interaction: { type: "evidence", title: "Стол", description: "На столе лежит документ.", evidenceId: "ev_document" },
+            interaction: { title: "Стол", description: "На столе лежит документ.", evidenceId: "ev_document", effects: [] },
           },
           {
             id: "obj_board",
@@ -42,7 +42,7 @@ export function blankCase(): CaseFile {
             x: 13,
             y: 0,
             label: "Доска",
-            interaction: { type: "evidence", title: "Доска объявлений", description: "Приколот документ.", evidenceId: "ev_rule" },
+            interaction: { title: "Доска объявлений", description: "Приколот документ.", evidenceId: "ev_rule", effects: [] },
           },
         ],
         npcs: [{ id: "npc_witness", characterId: "witness", dialogueId: "dlg_witness", dialogues: [], x: 12, y: 8 }],

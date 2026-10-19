@@ -1,4 +1,5 @@
 import type { CaseFile, Condition, Effect } from "../../../../shared/case";
+import { flagOfEffect } from "../../../../shared/conditions";
 
 /**
  * Предупреждения: дело корректно и запустится, но что-то, скорее всего, недоделано. Не блокируют сохранение и запуск.
@@ -23,7 +24,10 @@ export function caseWarnings(c: CaseFile): string[] {
 
   // флаги: условие ждёт флаг, который никто не ставит (обратное — флаг поставлен, но не проверяется — не предупреждаем: так пишут «история» дела)
   const set = new Set<string>((c.flags ?? []).filter((f) => f.initial).map((f) => f.id)); // начальные флаги стоят с самого начала
-  const effects = (list: Effect[]) => list.forEach((e) => e.type === "setFlag" && set.add(e.flag));
+  const effects = (list: Effect[]) => list.forEach((e) => {
+    const f = flagOfEffect(e);
+    if (f && f.action !== "off") set.add(f.flag);
+  });
   const needsSetting = new Set<string>(); // проверяемые «флаг стоит» — их обязательно кто-то ставит
   const positive = (cnd: Condition | undefined): void => {
     cnd?.flags?.forEach((f) => needsSetting.add(f));
@@ -38,6 +42,7 @@ export function caseWarnings(c: CaseFile): string[] {
     }
   c.deductions.forEach((x) => effects(x.effects));
   for (const l of c.locations) {
+    l.objects.forEach((o) => o.interaction && effects(o.interaction.effects ?? []));
     l.doors.forEach((d) => {
       positive(d.requires);
     });

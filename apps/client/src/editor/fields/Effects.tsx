@@ -4,25 +4,23 @@ import { CellPicker } from "../map/CellPicker";
 import type { Effect } from "../../../../../shared/case";
 import { ENUM_LABELS } from "../labels";
 import { FormCtx, charOption } from "../SchemaForm";
-import { FlagPicker } from "./Conditions";
+import { flagLabel, flagsOf } from "./Conditions";
+import { NewVariableDialog } from "./NewVariable";
 import { firstFloorCell } from "../../content/case-utils";
 
 const cellOf = (l: Parameters<typeof firstFloorCell>[0] | undefined) => (l ? l.playerStart ?? firstFloorCell(l) : { x: 0, y: 0 });
 
 // ---------- эффекты ----------
 
-const EFFECT_TYPES: Effect["type"][] = ["addEvidence", "setFlag", "removeFlag", "changeCounter", "follow", "stay", "returnHome", "moveTo", "addCharacterNote"];
+const EFFECT_TYPES: Effect["type"][] = ["addEvidence", "changeVariable", "follow", "stay", "returnHome", "moveTo", "addCharacterNote"];
 
 const blankEffect = (type: Effect["type"], d: FormCtx["draft"]): Effect => {
   const ch = d.characters[0]?.id ?? "";
   switch (type) {
     case "addEvidence":
       return { type, evidenceId: "" };
-    case "setFlag":
-    case "removeFlag":
-      return { type, flag: "" };
-    case "changeCounter":
-      return { type, counterId: d.counters?.[0]?.id ?? "", mode: "add", value: 1 };
+    case "changeVariable":
+      return { type, variableId: "", action: "on" };
     case "addCharacterNote":
       return { type, characterId: ch, text: "" };
     case "moveTo":
@@ -31,6 +29,50 @@ const blankEffect = (type: Effect["type"], d: FormCtx["draft"]): Effect => {
       return { type, characterId: ch };
   }
 };
+
+const NEW_VARIABLE = "__new_variable__";
+const FLAG_ACTIONS = ["on", "off", "toggle"] as const;
+const COUNTER_ACTIONS = ["add", "subtract", "set"] as const;
+
+/** «Изменить переменную»: что меняем (флаг или счётчик), как и — для счётчика — на сколько. */
+function VariableEffect({ effect, ctx, onChange }: { effect: Extract<Effect, { type: "changeVariable" }>; ctx: FormCtx; onChange: (e: Effect) => void }) {
+  const d = ctx.draft;
+  const [creating, setCreating] = useState(false);
+  const counters = d.counters ?? [];
+  const isCounter = counters.some((c) => c.id === effect.variableId);
+  const actions = isCounter ? COUNTER_ACTIONS : FLAG_ACTIONS;
+  const pick = (id: string) => {
+    const counter = counters.some((c) => c.id === id);
+    if (counter === isCounter && effect.variableId) return onChange({ ...effect, variableId: id });
+    onChange(counter ? { type: "changeVariable", variableId: id, action: "add", value: 1 } : { type: "changeVariable", variableId: id, action: "on" });
+  };
+  return (
+    <>
+      <Select
+        value={effect.variableId}
+        placeholder="какая переменная"
+        options={[
+          { value: NEW_VARIABLE, label: "+ Добавить переменную…" },
+          ...flagsOf(d).filter((f) => !counters.some((c) => c.id === f)).map((f) => ({ value: f, label: `Флаг · ${flagLabel(d, f)}` })),
+          ...counters.map((c) => ({ value: c.id, label: `Счётчик · ${c.name || c.id}` })),
+        ]}
+        onChange={(v) => (v === NEW_VARIABLE ? setCreating(true) : pick(v))}
+      />
+      <div className="pair">
+        <Select value={effect.action} options={actions.map((a) => ({ value: a, label: ENUM_LABELS[a] }))} onChange={(v) => onChange({ ...effect, action: v as typeof effect.action })} />
+        {isCounter && <input type="number" value={effect.value ?? 0} onChange={(ev) => onChange({ ...effect, value: Math.trunc(Number(ev.target.value)) || 0 })} />}
+      </div>
+      {creating && (
+        <NewVariableDialog
+          onDone={(id) => {
+            if (id) pick(id);
+            setCreating(false);
+          }}
+        />
+      )}
+    </>
+  );
+}
 
 /** Эффекты списком строк «что произойдёт + с чем», одинаково для реплик и сопоставлений. */
 export function EffectsEditor({ value, onChange, ctx }: { value: Effect[]; onChange: (v: unknown) => void; ctx: FormCtx }) {
@@ -50,28 +92,7 @@ export function EffectsEditor({ value, onChange, ctx }: { value: Effect[]; onCha
             {e.type === "addEvidence" && (
               <Select value={e.evidenceId} placeholder="какую улику" options={evidence} onChange={(v) => set(i, { ...e, evidenceId: v })} />
             )}
-            {(e.type === "setFlag" || e.type === "removeFlag") && <FlagPicker value={e.flag} onChange={(v) => set(i, { ...e, flag: String(v) })} ctx={ctx} />}
-            {e.type === "changeCounter" && (
-              <>
-                <Select
-                  value={e.counterId}
-                  placeholder="какой счётчик"
-                  options={(d.counters ?? []).map((x) => ({ value: x.id, label: x.name || x.id }))}
-                  onChange={(v) => set(i, { ...e, counterId: v })}
-                />
-                <div className="pair">
-                  <Select
-                    value={e.mode}
-                    options={[
-                      { value: "add", label: ENUM_LABELS.add },
-                      { value: "set", label: ENUM_LABELS.set },
-                    ]}
-                    onChange={(v) => set(i, { ...e, mode: v as "add" | "set" })}
-                  />
-                  <input type="number" value={e.value} onChange={(ev) => set(i, { ...e, value: Math.trunc(Number(ev.target.value)) || 0 })} />
-                </div>
-              </>
-            )}
+            {e.type === "changeVariable" && <VariableEffect effect={e} ctx={ctx} onChange={(v) => set(i, v)} />}
             {"characterId" in e && (
               <Select value={e.characterId} placeholder="кто" options={chars} onChange={(v) => set(i, { ...e, characterId: v } as Effect)} />
             )}

@@ -35,7 +35,7 @@ export function runMigrations(
 
 // ——— Дело ———
 
-export const CASE_FORMAT_VERSION = 4;
+export const CASE_FORMAT_VERSION = 5;
 
 const WALL_CHARS = new Set(["#", "W", "B", "G", "P", "F"]);
 
@@ -131,8 +131,38 @@ function caseV3toV4(data: Raw): Raw {
   return { ...data, locations };
 }
 
+/**
+ * 4 → 5: эффекты флагов и счётчиков объединены в `changeVariable` (флаг: on/off/toggle; счётчик: add/subtract/set);
+ * у взаимодействия предмета убрано лишнее поле `type`.
+ */
+function caseV4toV5(data: Raw): Raw {
+  const walk = (node: unknown): unknown => {
+    if (Array.isArray(node)) return node.map(walk);
+    if (!node || typeof node !== "object") return node;
+    const o = node as Raw;
+    if (o.type === "setFlag" && typeof o.flag === "string") return { type: "changeVariable", variableId: o.flag, action: "on" };
+    if (o.type === "removeFlag" && typeof o.flag === "string") return { type: "changeVariable", variableId: o.flag, action: "off" };
+    if (o.type === "changeCounter" && typeof o.counterId === "string") {
+      const value = Number(o.value) || 0;
+      if (o.mode === "set") return { type: "changeVariable", variableId: o.counterId, action: "set", value };
+      return value < 0 ? { type: "changeVariable", variableId: o.counterId, action: "subtract", value: -value } : { type: "changeVariable", variableId: o.counterId, action: "add", value };
+    }
+    return Object.fromEntries(Object.entries(o).map(([k, v]) => [k, walk(v)]));
+  };
+  const moved = walk(data) as Raw;
+  const locations = ((moved.locations as Raw[] | undefined) ?? []).map((loc) => ({
+    ...loc,
+    objects: ((loc.objects as Raw[] | undefined) ?? []).map((obj) => {
+      if (!obj.interaction || typeof obj.interaction !== "object") return obj;
+      const { type: _gone, ...interaction } = obj.interaction as Raw;
+      return { ...obj, interaction };
+    }),
+  }));
+  return { ...moved, locations };
+}
+
 /** Звенья цепочки: `caseMigrations[v]` переводит дело версии v в v + 1. */
-export const caseMigrations: Record<number, Migration> = { 1: caseV1toV2, 2: caseV2toV3, 3: caseV3toV4 };
+export const caseMigrations: Record<number, Migration> = { 1: caseV1toV2, 2: caseV2toV3, 3: caseV3toV4, 4: caseV4toV5 };
 
 export const migrateCase = (raw: unknown, chain = caseMigrations, current = CASE_FORMAT_VERSION): Migrated =>
   runMigrations(raw, "formatVersion", chain, current, "дело");

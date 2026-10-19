@@ -527,14 +527,10 @@ function effectLabel(e: DialogueNode["effects"][number]): string {
   switch (e.type) {
     case "addEvidence":
       return `улика ${e.evidenceId}`;
-    case "setFlag":
-      return `флаг ${e.flag}`;
-    case "removeFlag":
-      return `снять флаг ${e.flag}`;
+    case "changeVariable":
+      return `${e.variableId}: ${ENUM_LABELS[e.action]}${e.value === undefined ? "" : ` ${e.value}`}`;
     case "addCharacterNote":
       return `заметка о ${e.characterId}`;
-    case "changeCounter":
-      return `счётчик ${e.counterId}: ${e.mode === "add" ? (e.value >= 0 ? "+" : "") : "= "}${e.value}`;
     default:
       return `${ENUM_LABELS[e.type]} (${e.characterId})`;
   }

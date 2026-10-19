@@ -176,6 +176,8 @@ function announceEvidence(ids: string[]) {
 }
 
 const whereIs = (characterId: string) => gameBridge.whereIs?.(characterId);
+/** Границы счётчиков дела — для эффектов «изменить переменную». */
+const counterDefs = () => state.caseFile?.counters ?? [];
 
 /**
  * `moveTo` с областью: персонаж встаёт на свободную клетку внутри неё — подставляем её в `x, y`
@@ -202,7 +204,7 @@ function enterNode(npcId: string, dialogueId: string, nodeId: string) {
   const dialogue = state.caseFile?.dialogues.find((d) => d.id === dialogueId);
   const node = dialogue?.nodes.find((n) => n.id === nodeId);
   if (!node) return;
-  const { progress, newEvidence } = applyEffects(withZoneTargets(node.effects), state.progress, whereIs);
+  const { progress, newEvidence } = applyEffects(withZoneTargets(node.effects), state.progress, whereIs, counterDefs());
   set({ progress, overlay: { kind: "dialogue", npcId, dialogueId, nodeId } });
   announceEvidence(newEvidence);
 }
@@ -251,7 +253,7 @@ function runZoneAction(zoneId: string, a: ZoneAction) {
     if (dialogue) enterNode(`zone:${zoneId}`, dialogue.id, dialogue.startNodeId);
   } else if (a.kind === "object") actions.interact(a.objectId);
   else if (a.kind === "effects") {
-    const { progress, newEvidence } = applyEffects(withZoneTargets(a.effects), state.progress, whereIs);
+    const { progress, newEvidence } = applyEffects(withZoneTargets(a.effects), state.progress, whereIs, counterDefs());
     set({ progress });
     announceEvidence(newEvidence);
   } else actions.travel({ to: a.to, spawn: a.spawn });
@@ -443,7 +445,14 @@ export const actions = {
     // осмотренное сразу попадает в дело
     const obj = findObject(s.caseFile, targetId);
     if (obj?.interaction) {
-      const { progress, newEvidence } = applyEffects([{ type: "addEvidence", evidenceId: obj.interaction.evidenceId }], s.progress);
+      const first = !s.examined.includes(obj.id);
+      // эффекты — только при первом осмотре
+      const { progress, newEvidence } = applyEffects(
+        [{ type: "addEvidence", evidenceId: obj.interaction.evidenceId }, ...(first ? withZoneTargets(obj.interaction.effects ?? []) : [])],
+        s.progress,
+        whereIs,
+        counterDefs(),
+      );
       set({
         progress,
         overlay: { kind: "object", objectId: obj.id },
@@ -535,7 +544,7 @@ export const actions = {
     }
     if (!state.progress.deductions.includes(d.id)) {
       const base = { ...state.progress, deductions: [...state.progress.deductions, d.id] };
-      const { progress, newEvidence } = applyEffects(d.effects, base);
+      const { progress, newEvidence } = applyEffects(d.effects, base, undefined, counterDefs());
       set((s) => ({ progress, conclusions: { ...s.conclusions, [d.id]: verdict.conclusion ?? "" } }));
       toast(`Установлен вывод: ${d.title}`);
       announceEvidence(newEvidence);

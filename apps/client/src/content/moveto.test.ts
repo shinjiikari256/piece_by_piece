@@ -27,12 +27,19 @@ describe("эффект moveTo: ядро", () => {
   });
 });
 
-describe("эффект removeFlag", () => {
+describe("эффект changeVariable: флаги", () => {
   it("снимает флаг, повторно — безопасно; исходное состояние не меняется", () => {
     const start = { ...emptyProgress(), flags: ["a", "b"] };
-    const { progress } = applyEffects([{ type: "removeFlag", flag: "a" }, { type: "removeFlag", flag: "нет_такого" }], start);
+    const { progress } = applyEffects([{ type: "changeVariable", variableId: "a", action: "off" }, { type: "changeVariable", variableId: "нет_такого", action: "off" }], start);
     expect(progress.flags).toEqual(["b"]);
     expect(start.flags).toEqual(["a", "b"]);
+  });
+  it("on ставит один раз, toggle переключает", () => {
+    const on = (a: "on" | "toggle", p = emptyProgress()) => applyEffects([{ type: "changeVariable", variableId: "f", action: a }], p).progress;
+    const once = on("on", on("on"));
+    expect(once.flags).toEqual(["f"]);
+    expect(on("toggle", once).flags).toEqual([]);
+    expect(on("toggle", on("toggle", once)).flags).toEqual(["f"]);
   });
 });
 
@@ -260,6 +267,35 @@ describe("старт игрока: один на дело", () => {
   });
 });
 
+/* eslint-disable @typescript-eslint/no-explicit-any -- сырые данные старого формата */
+describe("миграция 4 → 5: переменные", () => {
+  it("setFlag/removeFlag/changeCounter становятся changeVariable, у предмета убирается type", () => {
+    const old = structuredClone(case001) as unknown as Record<string, any>;
+    old.formatVersion = 4;
+    old.dialogues[0].nodes[0].effects = [
+      { type: "setFlag", flag: "a" },
+      { type: "removeFlag", flag: "b" },
+      { type: "changeCounter", counterId: "c", mode: "add", value: -2 },
+      { type: "changeCounter", counterId: "c", mode: "set", value: 7 },
+    ];
+    const obj = old.locations.flatMap((l: any) => l.objects).find((o: any) => o.interaction);
+    obj.interaction = { type: "evidence", ...obj.interaction };
+    const r = migrateCase(old);
+    expect(r.ok).toBe(true);
+    if (!r.ok) return;
+    const data = r.data as any;
+    expect(data.dialogues[0].nodes[0].effects).toEqual([
+      { type: "changeVariable", variableId: "a", action: "on" },
+      { type: "changeVariable", variableId: "b", action: "off" },
+      { type: "changeVariable", variableId: "c", action: "subtract", value: 2 },
+      { type: "changeVariable", variableId: "c", action: "set", value: 7 },
+    ]);
+    expect(data.locations.flatMap((l: any) => l.objects).find((o: any) => o.interaction).interaction.type).toBeUndefined();
+  });
+});
+
+/* eslint-enable @typescript-eslint/no-explicit-any */
+
 describe("счётчики и начальные флаги", () => {
   const withCounters = () => {
     const c = structuredClone(case001) as unknown as CaseFile;
@@ -274,18 +310,29 @@ describe("счётчики и начальные флаги", () => {
   });
   it("changeCounter: прибавить / задать; условие по границам", () => {
     const p = startProgress(withCounters());
-    const up = applyEffects([{ type: "changeCounter", counterId: "trust", mode: "add", value: 3 }], p).progress;
+    const up = applyEffects([{ type: "changeVariable", variableId: "trust", action: "add", value: 3 }], p).progress;
     expect(up.counters.trust).toBe(5);
     expect(p.counters.trust).toBe(2); // исходное не меняется
-    expect(applyEffects([{ type: "changeCounter", counterId: "trust", mode: "set", value: -1 }], up).progress.counters.trust).toBe(-1);
+    expect(applyEffects([{ type: "changeVariable", variableId: "trust", action: "set", value: -1 }], up).progress.counters.trust).toBe(-1);
     expect(meets({ counters: [{ counterId: "trust", min: 3, max: 5 }] }, up)).toBe(true);
     expect(meets({ counters: [{ counterId: "trust", min: 6 }] }, up)).toBe(false);
     expect(meets({ counters: [{ counterId: "none", max: 0 }] }, up)).toBe(true); // нет значения — 0
+    expect(applyEffects([{ type: "changeVariable", variableId: "trust", action: "subtract", value: 4 }], up).progress.counters.trust).toBe(1);
+  });
+  it("границы счётчика: эффекты и начальное значение не выходят за min/max", () => {
+    const defs = [{ id: "hp", min: 0, max: 10 }];
+    const fx = (action: "add" | "subtract" | "set", value: number, p = emptyProgress()) =>
+      applyEffects([{ type: "changeVariable", variableId: "hp", action, value }], p, undefined, defs).progress;
+    const full = fx("add", 99);
+    expect(full.counters.hp).toBe(10);
+    expect(fx("subtract", 99, full).counters.hp).toBe(0);
+    expect(fx("set", -5).counters.hp).toBe(0);
+    expect(startProgress({ counters: [{ id: "hp", initial: 50, max: 10 }] }).counters.hp).toBe(10);
   });
   it("валидатор: счётчик без названия, неизвестная ссылка, «от» больше «до»", () => {
     const c = withCounters();
     c.counters![0].name = " ";
-    c.dialogues[0].nodes[0].effects.push({ type: "changeCounter", counterId: "нет", mode: "add", value: 1 });
+    c.dialogues[0].nodes[0].effects.push({ type: "changeVariable", variableId: "нет", action: "add", value: 1 });
     c.locations[0].doors.push({ id: "d_cnt", x: 0, y: 0, orientation: "h", requires: { counters: [{ counterId: "trust", min: 5, max: 1 }] } } as never);
     const r = validateCase(c);
     const text = r.ok ? "" : r.errors.join("\n");
@@ -295,7 +342,7 @@ describe("счётчики и начальные флаги", () => {
   });
   it("deleteCounter убирает счётчик, эффекты и строки условий", () => {
     const c = withCounters();
-    c.dialogues[0].nodes[0].effects.push({ type: "changeCounter", counterId: "trust", mode: "add", value: 1 });
+    c.dialogues[0].nodes[0].effects.push({ type: "changeVariable", variableId: "trust", action: "add", value: 1 });
     c.dialogues[0].nodes[0].choices[0].requires = { counters: [{ counterId: "trust", min: 1 }] };
     const out = deleteCounter(c, "trust");
     expect(out.counters).toEqual([]);

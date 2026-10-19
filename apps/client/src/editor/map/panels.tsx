@@ -4,11 +4,12 @@ import {
   drawTile,
 } from "../../game/art";
 import { Door, Location, LocationObject, NpcPlacement } from "../../../../../shared/case";
-import type { CaseFile as CaseFileT, Location as LocationT, NpcDialogue, Zone } from "../../../../../shared/case";
+import type { CaseFile as CaseFileT, Location as LocationT, LocationObject as LocationObjectT, NpcDialogue, Zone } from "../../../../../shared/case";
 import { Icon } from "../../ui/icons";
 import { tell } from "../../ui/dialog";
 import { editor } from "../state";
 import { zoneKey } from "./ZoneCreator";
+import { ObjectZones } from "./ObjectZones";
 import { ZONE_COLORS } from "./helpers";
 import { ZoneActions } from "./ZoneActions";
 import { NpcDialogues } from "./NpcDialogues";
@@ -187,7 +188,10 @@ export function SelectedPanel({
             />
           </>
         ) : (
-          <Field name={key} schema={schema} value={item} ctx={{ draft }} bare onChange={onChange} />
+          <>
+            <Field name={key} schema={schema} value={item} ctx={{ draft }} bare onChange={onChange} />
+            {sel.kind === "object" && (item as unknown as LocationObjectT).interaction && <ObjectZones draft={draft} object={item as unknown as LocationObjectT} locationId={loc.id} />}
+          </>
         );
       })()}
       <button className="btn btn--sm btn--danger" onClick={onDelete}>

@@ -1,4 +1,5 @@
 import { type CaseFile, type Condition, type Effect } from "../../../../shared/case";
+import { flagOfEffect, isFlagAction } from "../../../../shared/conditions";
 import { parseCase } from "../../../../shared/migrate";
 import { FLOOR_TILES, SPRITES, WALL_TILES, resolveLook } from "../game/art";
 import { zoneTargetCell } from "./case-utils";
@@ -42,7 +43,11 @@ function checkIntegrity(c: CaseFile): string[] {
   }
   const counterIds = unique("counters", (c.counters ?? []).map((x) => x.id));
   (c.flags ?? []).forEach((f) => counterIds.has(f.id) && err(`counters: ключ «${f.id}» занят и флагом, и счётчиком — ключи должны отличаться`));
-  (c.counters ?? []).forEach((x) => x.name.trim() || err(`counters: у счётчика «${x.id}» нет названия`));
+  (c.counters ?? []).forEach((x) => {
+    if (!x.name.trim()) err(`counters: у счётчика «${x.id}» нет названия`);
+    if (x.min !== undefined && x.max !== undefined && x.min > x.max) err(`counters: у счётчика «${x.id}» наименьшее значение больше наибольшего`);
+    if (x.initial !== undefined && ((x.min !== undefined && x.initial < x.min) || (x.max !== undefined && x.initial > x.max))) err(`counters: начальное значение счётчика «${x.id}» вне его границ`);
+  });
   const evidence = unique("evidence", c.evidence.map((x) => x.id));
   const events = unique("events", c.events.map((x) => x.id));
   const dialogues = unique("dialogues", c.dialogues.map((x) => x.id));
@@ -74,7 +79,14 @@ function checkIntegrity(c: CaseFile): string[] {
   const checkEffects = (effects: Effect[], where: string) => {
     for (const e of effects) {
       if (e.type === "addEvidence") ref(evidence, e.evidenceId, where);
-      if (e.type === "changeCounter") ref(counterIds, e.counterId, where);
+      if (e.type === "changeVariable") {
+        if (isFlagAction(e.action)) {
+          if (counterIds.has(e.variableId)) err(`${where}: «${e.variableId}» — счётчик, а действие над флагом`);
+        } else {
+          ref(counterIds, e.variableId, where);
+          if (e.value === undefined) err(`${where}: у счётчика «${e.variableId}» не указано число`);
+        }
+      }
       if (e.type === "addCharacterNote" || e.type === "follow" || e.type === "stay" || e.type === "returnHome" || e.type === "moveTo")
         ref(characters, e.characterId, where);
       if (e.type === "moveTo") checkMoveTo(e, where);
@@ -124,7 +136,7 @@ function checkIntegrity(c: CaseFile): string[] {
 
     for (const o of loc.objects) {
       if (!inBounds(o.x, o.y)) err(`${L}/object ${o.id}: вне карты`);
-      if (o.interaction?.type === "evidence") {
+      if (o.interaction) {
         ref(evidence, o.interaction.evidenceId, `object ${o.id}`);
         obtainable.add(o.interaction.evidenceId);
       }
@@ -248,6 +260,7 @@ function checkIntegrity(c: CaseFile): string[] {
     if (d.options.filter((o) => o.correct).length !== 1) err(`deduction ${d.id}: должен быть ровно один верный вариант`);
     checkEffects(d.effects, `deduction ${d.id}`);
   }
+  for (const l of c.locations) for (const o of l.objects) if (o.interaction) checkEffects(o.interaction.effects, `location ${l.id}/object ${o.id}: эффекты осмотра`);
   // цепочки без циклов: факт не может зависеть от себя через другие
   const deps = new Map(c.deductions.map((d) => [d.id, d.evidenceIds.filter((id) => deductions.has(id))]));
   const visiting = new Set<string>();
@@ -265,17 +278,22 @@ function checkIntegrity(c: CaseFile): string[] {
   // у каждого флага — русское название
   const named = unique("flags", (c.flags ?? []).map((f) => f.id));
   const usedFlags = new Set<string>();
+  const addFlagOf = (e: Effect) => {
+    const f = flagOfEffect(e);
+    if (f) usedFlags.add(f.flag);
+  };
   const condFlags = (cond?: Condition): void => {
     [...(cond?.flags ?? []), ...(cond?.notFlags ?? [])].forEach((f) => usedFlags.add(f));
     cond?.anyOf?.forEach(condFlags);
   };
   for (const dl of c.dialogues)
     for (const n of dl.nodes) {
-      n.effects.forEach((e) => (e.type === "setFlag" || e.type === "removeFlag") && usedFlags.add(e.flag));
+      n.effects.forEach(addFlagOf);
       n.choices.forEach((ch) => condFlags(ch.requires));
     }
-  c.deductions.forEach((x) => x.effects.forEach((e) => (e.type === "setFlag" || e.type === "removeFlag") && usedFlags.add(e.flag)));
-  c.locations.forEach((l) => l.zones.forEach((z) => z.actions.forEach((a) => a.kind === "effects" && a.effects.forEach((e) => (e.type === "setFlag" || e.type === "removeFlag") && usedFlags.add(e.flag)))));
+  c.deductions.forEach((x) => x.effects.forEach(addFlagOf));
+  c.locations.forEach((l) => l.objects.forEach((o) => o.interaction?.effects.forEach(addFlagOf)));
+  c.locations.forEach((l) => l.zones.forEach((z) => z.actions.forEach((a) => a.kind === "effects" ? a.effects.forEach(addFlagOf) : undefined)));
   c.locations.forEach((l) => l.npcs.forEach((n) => n.dialogues.forEach((nd) => condFlags(nd.requires))));
   c.locations.forEach((l) => l.zones.forEach((z) => z.actions.forEach((a) => condFlags(a.requires))));
   c.locations.forEach((l) => l.doors.forEach((d) => condFlags(d.requires)));
