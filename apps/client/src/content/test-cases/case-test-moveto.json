@@ -2123,7 +2123,7 @@
           "id": "n_menu",
           "mood": "neutral",
           "effects": [],
-          "text": "[ТЕСТ] Новые возможности. 1 — эффекты варианта; 2 — перечисление «сейф»; 3 — предмет-ключ; 4 — составное условие; 5 — вход в вестибюль, ошибка в сопоставлении (события); 6 — область «Режимы» рядом со стартом; 8 — узел-переход по флагу A; 7 — ящик с тремя предметами (закладки), диалог, перенос, провал.",
+          "text": "[ТЕСТ] Новые возможности. 1 — эффекты варианта; 2 — перечисление «сейф»; 3 — предмет-ключ; 4 — составное условие; 5 — вход в вестибюль, ошибка в сопоставлении (события); 6 — область «Режимы» рядом со стартом; 8 — узел-переход по флагу A; 9 — выдать всё для хронологии; 7 — ящик с тремя предметами (закладки), диалог, перенос, провал.",
           "choices": [
             {
               "id": "n1",
@@ -2395,6 +2395,59 @@
               "text": "8. Узел-переход: выбирается сам по флагу A",
               "next": "n_router",
               "effects": []
+            },
+            {
+              "id": "n9",
+              "text": "9. Хронология: открыть все события (улики и флаги для условий)",
+              "next": "n_menu",
+              "effects": [
+                {
+                  "type": "addEvidence",
+                  "evidenceId": "vakhta_log"
+                },
+                {
+                  "type": "addEvidence",
+                  "evidenceId": "inspection_act"
+                },
+                {
+                  "type": "addEvidence",
+                  "evidenceId": "memo"
+                },
+                {
+                  "type": "addEvidence",
+                  "evidenceId": "timur_testimony"
+                },
+                {
+                  "type": "addEvidence",
+                  "evidenceId": "denis_testimony"
+                },
+                {
+                  "type": "addEvidence",
+                  "evidenceId": "guard_testimony"
+                },
+                {
+                  "type": "addEvidence",
+                  "evidenceId": "zuev_denial"
+                },
+                {
+                  "type": "addEvidence",
+                  "evidenceId": "zuev_admission"
+                },
+                {
+                  "type": "changeVariable",
+                  "variableId": "zuev_admitted",
+                  "action": "on"
+                },
+                {
+                  "type": "changeVariable",
+                  "variableId": "timur_truth",
+                  "action": "on"
+                },
+                {
+                  "type": "message",
+                  "text": "Открыты все события хронологии"
+                }
+              ]
             },
             {
               "id": "n_back",
