@@ -10,7 +10,7 @@ export * from "./characters";
 export * from "./characters/parts";
 export { registerCaseParts, partSpecOf } from "./characters/registry";
 export { registerCaseTiles, tileSpecOf } from "./tiles/registry";
-export { TILES, TILE_GROUPS, type TileSpec } from "./tiles/model";
+export { TILES, TILE_GROUPS, drawTileKey, type TileSpec } from "./tiles/model";
 import { registerCaseSprites } from "./sprites";
 import { registerCaseParts } from "./characters/registry";
 import { registerCaseTiles } from "./tiles/registry";

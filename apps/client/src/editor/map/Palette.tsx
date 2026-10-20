@@ -4,7 +4,7 @@ import type { CaseFile as CaseFileT } from "../../../../../shared/case";
 import { ArtThumb } from "../Pickers";
 import { spriteGroups } from "../sprites/catalog";
 import { PaletteGroup, PaletteSection, SwatchButton, ToolButton } from "./panels";
-import { TILE_TOOLS } from "./canvases";
+import { tileTools } from "./canvases";
 import type { Tool } from "./types";
 
 /** Левая панель редактора карты: инструменты, клетки, предметы, люди. */
@@ -36,6 +36,7 @@ export function MapPalette({
   // поиск клеток по названию («кафель», «паркет»); отдельно от поиска предметов
   const [tileQuery, setTileQuery] = useState("");
   const tq = tileQuery.trim().toLowerCase();
+  const TILE_TOOLS = tileTools();
   const tileGroups = (list: { id: string; label: string; chars: string[] }[]) =>
     list.map((g) => {
       const tiles = TILE_TOOLS.filter((t) => g.chars.includes(t.ch) && (!tq || t.label.toLowerCase().includes(tq)));

@@ -12,6 +12,7 @@ import { isBuiltin, copyOf, spriteGroups, spriteView } from "./catalog";
 import { SpriteCanvas, SpriteToolbar, TOOLS, type Tool } from "./SpriteCanvas";
 import { DrawPanel, FootBar, PropsPanel } from "./SpritePanels";
 import { PartsSection } from "./PartsSection";
+import { TilesSection } from "./TilesSection";
 import { SpriteAnims, SpriteParams, SpriteStates } from "./SpriteStates";
 import { frameLabel, moveFrame, newSprite, patchSprite, spriteUses, uniqueKey } from "./helpers";
 
@@ -197,16 +198,17 @@ function SpriteEditor() {
 const KINDS = [
   { id: "sprites", label: "Предметы" },
   { id: "parts", label: "Части персонажей" },
+  { id: "tiles", label: "Тайлы" },
 ] as const;
 
-/** Раздел «Спрайты»: предметы и части персонажей — две страницы с одним переключателем. */
+/** Раздел «Спрайты»: предметы, части персонажей и тайлы — три страницы с одним переключателем. */
 export function SpritesSection() {
   const focus = useEditor((s) => s.focus);
-  const [kind, setKind] = useUrlParam<"sprites" | "parts">("kind", focus?.sub === "parts" ? "parts" : "sprites", ["sprites", "parts"]);
+  const [kind, setKind] = useUrlParam<"sprites" | "parts" | "tiles">("kind", focus?.sub === "parts" ? "parts" : focus?.sub === "tiles" ? "tiles" : "sprites", ["sprites", "parts", "tiles"]);
   return (
     <div style={{ display: "flex", flexDirection: "column", height: "100%", minHeight: 0 }}>
       <Tabs variant="bar" tabs={KINDS.map((k) => ({ id: k.id, label: k.label }))} active={kind} onChange={setKind} />
-      <div style={{ flex: 1, minHeight: 0 }}>{kind === "parts" ? <PartsSection /> : <SpriteEditor />}</div>
+      <div style={{ flex: 1, minHeight: 0 }}>{kind === "parts" ? <PartsSection /> : kind === "tiles" ? <TilesSection /> : <SpriteEditor />}</div>
     </div>
   );
 }

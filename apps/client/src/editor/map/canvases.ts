@@ -12,7 +12,8 @@ import {
 } from "../../game/art";
 
 
-export const TILE_TOOLS = Object.entries(TILE_NAMES).map(([ch, label]) => ({ ch, label }));
+/** Клетки палитры по легенде текущего дела (тайлы дела подключаются при правке). */
+export const tileTools = () => Object.entries(TILE_NAMES).map(([ch, label]) => ({ ch, label }));
 
 export const T = BASE_TILE;
 
