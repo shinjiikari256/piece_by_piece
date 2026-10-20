@@ -35,6 +35,7 @@ export function lookCanvas(look: Look) {
 export function useSpriteCanvases() {
   const version = spriteVersion();
   return useMemo(() => {
+    void version; // набор спрайтов дела сменился — перерисовать
     const sprites = new Map<string, HTMLCanvasElement>();
     for (const [key, spec] of Object.entries(SPRITES)) {
       const c = document.createElement("canvas");
