@@ -55,3 +55,6 @@
 .tab--add {
   font-weight: 700;
 }
+.tab[data-drop] {
+  box-shadow: inset 3px 0 0 var(--accent);
+}

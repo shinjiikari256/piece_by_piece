@@ -1,19 +1,39 @@
 import { useEffect, useRef, useState } from "react";
 import type { CustomSprite } from "../../../../../shared/case";
 import { drawSprite, specOf } from "../../game/art";
+import { Icon } from "../../ui/icons";
 import { editor } from "../state";
-import { cellSolid, setFrameOps, spriteMaxScale, toggleCell, withAlpha, type Op, patchSprite } from "./helpers";
+import { CELL, cellSolid, setFrameOps, spriteMaxScale, toggleCell, withAlpha, type Op, patchSprite } from "./helpers";
 
-export type Tool = "pencil" | "eraser" | "rect" | "pick";
-export const TOOLS: { id: Tool; label: string; hint: string; icon: "pen" | "eraser" | "rect" | "pipette" }[] = [
+export type Tool = "pencil" | "eraser" | "rect" | "pick" | "foot";
+export const TOOLS: { id: Tool; label: string; hint: string; icon: "pen" | "eraser" | "rect" | "pipette" | "grid" }[] = [
   { id: "pencil", label: "Карандаш", hint: "Нажмите на пиксель или ведите с зажатой кнопкой", icon: "pen" },
   { id: "eraser", label: "Ластик", hint: "Делает пиксели прозрачными", icon: "eraser" },
   { id: "rect", label: "Прямоугольник", hint: "Протяните, чтобы залить прямоугольник выбранным цветом", icon: "rect" },
   { id: "pick", label: "Пипетка", hint: "Нажмите на рисунок, чтобы взять цвет", icon: "pipette" },
+  { id: "foot", label: "Опора", hint: "Клетки пола, которые предмет занимает на карте: нажмите клетку, чтобы разрешить или запретить проход", icon: "grid" },
 ];
 
-/** Размер клетки карты в пикселях рисунка. */
-export const CELL = 16;
+/** Панель инструментов над рисунком: только значки, названия — во всплывающих подсказках. */
+export function SpriteToolbar({ sprite, frame, tool, setTool, readOnly }: { sprite: CustomSprite; frame: string; tool: Tool; setTool: (t: Tool) => void; readOnly: boolean }) {
+  const ops = sprite.frames[frame] ?? [];
+  return (
+    <div className="sprite-toolbar" role="toolbar" aria-label="Инструменты">
+      {TOOLS.map((t) => (
+        <button key={t.id} className="btn btn--icon btn--sm" aria-pressed={tool === t.id} disabled={readOnly && t.id !== "foot"} title={`${t.label}. ${t.hint}`} aria-label={t.label} onClick={() => setTool(t.id)}>
+          <Icon name={t.icon} size={16} />
+        </button>
+      ))}
+      <span className="sprite-toolbar__gap" />
+      <button className="btn btn--icon btn--sm" disabled={readOnly || !ops.length} title="Отменить последний мазок или фигуру" aria-label="Отменить последнее" onClick={() => editor.update((d) => setFrameOps(d, sprite.key, frame, ops.slice(0, -1)))}>
+        <Icon name="undo" size={16} />
+      </button>
+      <button className="btn btn--icon btn--sm" disabled={readOnly || !ops.length} title="Очистить кадр" aria-label="Очистить кадр" onClick={() => editor.update((d) => setFrameOps(d, sprite.key, frame, []))}>
+        <Icon name="trash" size={16} />
+      </button>
+    </div>
+  );
+}
 
 /** Холст спрайта: рисование кадра или (при `foot`) выбор проходимых клеток опоры поверх рисунка. */
 export function SpriteCanvas({
@@ -110,6 +130,7 @@ export function SpriteCanvas({
           }
         }}
       />
+      <span className="sprite-stage__grid" style={{ backgroundSize: `${CELL * scale}px ${CELL * scale}px` }} />
       {foot &&
         Array.from({ length: fh }, (_, r) =>
           Array.from({ length: fw }, (_, c) => {

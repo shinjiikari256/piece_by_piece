@@ -7,8 +7,7 @@ import { ask } from "../../ui/dialog";
 import { ColorPicker } from "../fields/ColorPicker";
 import { editor, editorStore } from "../state";
 import { DEFAULT_GROUP, groupLabels } from "./catalog";
-import { TOOLS, type Tool } from "./SpriteCanvas";
-import { frameLabel, patchSprite, renameFrame, setFrameOps } from "./helpers";
+import { CELL, cellsOf, frameLabel, patchSprite, renameFrame, resizeSprite } from "./helpers";
 
 const upd = (s: CustomSprite, patch: Partial<CustomSprite>) => editor.update((d) => patchSprite(d, s.key, patch), `sprite:${s.key}`);
 
@@ -37,12 +36,10 @@ export function Check({ checked, onChange, children, hint }: { checked: boolean;
   );
 }
 
-/** Вкладка «Рисунок»: инструменты, цвет, действия с кадром. */
+/** Вкладка «Рисунок»: цвет и название кадра. Инструменты — над рисунком. */
 export function DrawPanel({
   sprite,
   frame,
-  tool,
-  setTool,
   color,
   alpha,
   setColor,
@@ -50,14 +47,11 @@ export function DrawPanel({
 }: {
   sprite: CustomSprite;
   frame: string;
-  tool: Tool;
-  setTool: (t: Tool) => void;
   color: string;
   alpha: number;
   setColor: (c: string, a: number) => void;
   onFrame: (f: string) => void;
 }) {
-  const ops = sprite.frames[frame] ?? [];
   const [name, setName] = useState(frame);
   const [prev, setPrev] = useState(frame);
   if (prev !== frame) {
@@ -82,37 +76,21 @@ export function DrawPanel({
   };
   return (
     <div className="stack">
-      <h3>Инструмент</h3>
-      <div className="sprite-tools">
-        {TOOLS.map((t) => (
-          <button key={t.id} className="btn btn--sm" aria-pressed={tool === t.id} title={t.hint} onClick={() => setTool(t.id)}>
-            <Icon name={t.icon} size={15} /> {t.label}
-          </button>
-        ))}
-      </div>
       <h3>Цвет</h3>
       <ColorPicker color={color} alpha={alpha} swatches={palette} onChange={setColor} />
       <h3>Кадр «{frameLabel(frame)}»</h3>
-      <p className="muted">Кадры — разные картинки одного предмета (например, дверь закрыта и открыта). Переключайте их вкладками над рисунком. Операций в кадре: {ops.length}.</p>
+      <p className="muted">Кадры — разные картинки одного предмета (например, дверь закрыта и открыта). Переключайте их вкладками над рисунком, порядок меняется перетаскиванием.</p>
       {frame !== "default" && (
         <label className="ef">
           <span className="ef__label">Название кадра</span>
           <input value={name} onChange={(e) => setName(e.target.value)} onBlur={commitName} onKeyDown={(e) => e.key === "Enter" && e.currentTarget.blur()} />
         </label>
       )}
-      <div className="row">
-        <button className="btn btn--sm" disabled={!ops.length} onClick={() => editor.update((d) => setFrameOps(d, sprite.key, frame, ops.slice(0, -1)))} title="Убрать последний мазок или фигуру">
-          <Icon name="undo" size={15} /> Отменить последнее
+      {frame !== "default" && (
+        <button className="btn btn--sm btn--danger" onClick={del}>
+          <Icon name="trash" size={15} /> Удалить кадр
         </button>
-        <button className="btn btn--sm" disabled={!ops.length} onClick={() => editor.update((d) => setFrameOps(d, sprite.key, frame, []))}>
-          <Icon name="eraser" size={15} /> Очистить кадр
-        </button>
-        {frame !== "default" && (
-          <button className="btn btn--sm btn--danger" onClick={del}>
-            <Icon name="trash" size={15} /> Удалить кадр
-          </button>
-        )}
-      </div>
+      )}
     </div>
   );
 }
@@ -127,10 +105,12 @@ export function PropsPanel({ sprite }: { sprite: CustomSprite }) {
       </label>
       <GroupField sprite={sprite} />
       <div className="pair">
-        <NumField label="Ширина" value={sprite.w} min={1} max={256} suffix="пикс." onChange={(w) => upd(sprite, { w })} />
-        <NumField label="Высота" value={sprite.h} min={1} max={256} suffix="пикс." onChange={(h) => upd(sprite, { h })} />
+        <NumField label="Ширина" value={cellsOf(sprite.w)} min={1} max={16} suffix="клеток" onChange={(cw) => upd(sprite, resizeSprite(sprite, cw, cellsOf(sprite.h)))} />
+        <NumField label="Высота" value={cellsOf(sprite.h)} min={1} max={16} suffix="клеток" onChange={(ch) => upd(sprite, resizeSprite(sprite, cellsOf(sprite.w), ch))} />
       </div>
-      <p className="muted">В клетке карты 16×16 пикселей. Изменение размера не обрезает нарисованное.</p>
+      <p className="muted">
+        Размер задаётся в клетках поля: одна клетка — {CELL}×{CELL} пикселей рисунка. Сейчас рисунок {sprite.w}×{sprite.h} пикселей. Нарисованное не обрезается.
+      </p>
       <h3>Особенности</h3>
       <Check checked={!!sprite.flat} onChange={(flat) => upd(sprite, { flat: flat || undefined })} hint="Например, ковёр: персонажи всегда выше него.">Лежит на полу</Check>
       <Check checked={!!sprite.mirrorRight} onChange={(v) => upd(sprite, { mirrorRight: v || undefined })} hint="Для боковых дверей: притолока всегда у внешней стены.">Зеркалится в правой половине карты</Check>
@@ -185,36 +165,39 @@ function GroupField({ sprite }: { sprite: CustomSprite }) {
           }
         >
           <p className="muted">Группа — раздел списка предметов слева в «Локациях». Спрайт будет лежать в ней.</p>
-          <input autoFocus placeholder="Например, «Лаборатория»" value={text} onChange={(e) => setText(e.target.value)} />
+          <input className="sprite-input" autoFocus placeholder="Например, «Лаборатория»" value={text} onChange={(e) => setText(e.target.value)} />
         </Dialog>
       )}
     </>
   );
 }
 
-/** Вкладка «Опора»: размер опоры в клетках и пояснение. Проходимость клеток — нажатием на рисунок. */
-export function FootPanel({ sprite }: { sprite: CustomSprite }) {
+/** Панель опоры под рисунком (инструмент «Опора»): размер в клетках и проходимость. Сами клетки переключаются на рисунке. */
+export function FootBar({ sprite, readOnly }: { sprite: CustomSprite; readOnly: boolean }) {
   const { w, h } = sprite.footprint;
+  const set = (fw: number, fh: number) => upd(sprite, { footprint: { w: fw, h: fh }, cells: sprite.cells?.filter((c) => c.dx < fw && c.dy < fh) });
   return (
-    <div className="stack">
-      <p>
-        <b>Опора</b> — клетки пола, которые предмет занимает на карте. Предмет ставится на нижнюю левую клетку, остальные идут вправо и вверх.
-      </p>
-      <p className="muted">На рисунке слева поверх спрайта показаны эти клетки. Красная × — игрок не пройдёт, зелёная ✓ — пройдёт (например, место перед столом). Нажмите клетку, чтобы переключить.</p>
-      <div className="pair">
-        <NumField label="Ширина" value={w} min={1} max={16} suffix="клеток" onChange={(w) => upd(sprite, { footprint: { w, h }, cells: sprite.cells?.filter((c) => c.dx < w) })} />
-        <NumField label="Высота" value={h} min={1} max={16} suffix="клеток" onChange={(h) => upd(sprite, { footprint: { w, h }, cells: sprite.cells?.filter((c) => c.dy < h) })} />
-      </div>
-      <Check checked={sprite.solid} onChange={(solid) => upd(sprite, { solid, cells: undefined })} hint="Новое значение сбрасывает исключения.">Предмет мешает проходу</Check>
-      <div className="sprite-legend">
-        <span data-tone="bad">× не пропускает</span>
-        <span data-tone="good">✓ пропускает</span>
-      </div>
-      {!!sprite.cells?.length && (
-        <button className="btn btn--sm" onClick={() => upd(sprite, { cells: undefined })}>
-          <Icon name="undo" size={15} /> Сбросить исключения
+    <div className="foot-bar">
+      <label>
+        Опора, клеток: ширина
+        <input type="number" min={1} max={cellsOf(sprite.w)} value={w} disabled={readOnly} onChange={(e) => e.target.value !== "" && set(Math.min(cellsOf(sprite.w), Math.max(1, Math.trunc(Number(e.target.value)))), h)} />
+      </label>
+      <label>
+        высота
+        <input type="number" min={1} max={cellsOf(sprite.h)} value={h} disabled={readOnly} onChange={(e) => e.target.value !== "" && set(w, Math.min(cellsOf(sprite.h), Math.max(1, Math.trunc(Number(e.target.value)))))} />
+      </label>
+      <label className="foot-bar__check" title="Новое значение сбрасывает исключения для отдельных клеток">
+        <input type="checkbox" checked={sprite.solid} disabled={readOnly} onChange={(e) => upd(sprite, { solid: e.target.checked, cells: undefined })} />
+        Мешает проходу
+      </label>
+      {!!sprite.cells?.length && !readOnly && (
+        <button className="btn btn--sm" onClick={() => upd(sprite, { cells: undefined })} title="Вернуть всем клеткам опоры общее значение">
+          <Icon name="undo" size={15} /> Сбросить
         </button>
       )}
+      <span className="foot-bar__legend">
+        <span data-tone="bad">× не пропускает</span> <span data-tone="good">✓ пропускает</span>
+      </span>
     </div>
   );
 }

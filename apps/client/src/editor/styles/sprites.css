@@ -161,7 +161,12 @@
   z-index: 1000;
   display: grid;
   gap: 0.6rem;
-  width: 15rem;
+  box-sizing: border-box;
+  grid-template-columns: minmax(0, 1fr);
+  width: 16rem;
+  max-width: calc(100vw - 16px);
+  max-height: calc(100vh - 16px);
+  overflow-y: auto;
   padding: 0.7rem;
   background: var(--bg-surface);
   border: 1px solid var(--accent);
@@ -250,4 +255,123 @@
 .colorpick__swatch[aria-pressed="true"] {
   outline: 2px solid var(--accent);
   outline-offset: 1px;
+}
+
+/* панель инструментов над рисунком */
+.sprite-center {
+  grid-template-rows: auto 1fr auto;
+}
+.sprite-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.35rem 0.8rem;
+  background: var(--bg-page);
+}
+.sprite-toolbar__gap {
+  width: 1px;
+  align-self: stretch;
+  margin: 0 0.3rem;
+  background: var(--border-strong);
+}
+.sprite-stage__grid {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: linear-gradient(to right, var(--sprite-grid) 1px, transparent 1px), linear-gradient(to bottom, var(--sprite-grid) 1px, transparent 1px);
+  --sprite-grid: color-mix(in srgb, var(--text) 22%, transparent);
+}
+.sprite-status__size {
+  margin-left: auto;
+  color: var(--text-on-dark);
+}
+
+/* список спрайтов: по одному в строке */
+.sprite-list {
+  display: grid;
+  gap: 0.25rem;
+}
+.sprite-row {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.2rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg-surface);
+}
+.sprite-row:hover {
+  border-color: var(--accent);
+}
+.sprite-row[aria-current] {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+.sprite-row__main {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.sprite-row__art {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 2.6rem;
+  height: 2.6rem;
+}
+.sprite-row__art .art-thumb {
+  max-width: 2.6rem;
+  max-height: 2.6rem;
+  width: auto !important;
+  height: auto !important;
+}
+.sprite-row__name {
+  min-width: 0;
+}
+.sprite-row .btn--icon {
+  flex: none;
+}
+.sprite-row__lock {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 1.9rem;
+  color: var(--text-muted);
+}
+
+/* панель опоры под рисунком */
+.foot-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem 1rem;
+  width: 100%;
+}
+.foot-bar label {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.foot-bar input[type="number"] {
+  width: 4rem;
+  color: var(--text);
+}
+.foot-bar__legend {
+  margin-left: auto;
+}
+
+/* высота полей — как у остальных полей конструктора (окна и всплывающие окошки лежат вне .ed) */
+.lm input:not([type="checkbox"], [type="radio"], [type="range"]),
+.sprite-ro input:not([type="checkbox"], [type="radio"], [type="range"]),
+.sprite-input,
+.colorpick__pop input:not([type="checkbox"], [type="radio"], [type="range"]) {
+  min-height: var(--ctl-h, 2.15rem);
 }

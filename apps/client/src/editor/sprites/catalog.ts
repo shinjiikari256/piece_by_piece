@@ -25,21 +25,25 @@ export interface SpriteGroupList {
   keys: string[];
 }
 
-/** Группы палитры и списка спрайтов: встроенные, в них же — спрайты дела с той же группой; остальные группы дела — следом. */
+/** Группы палитры и списка спрайтов: «Свои» первой, затем встроенные (в них же — спрайты дела с той же группой), остальные группы дела — следом. */
 export function spriteGroups(d: Pick<CaseFile, "sprites">): SpriteGroupList[] {
   const extra = new Map<string, string[]>();
   for (const s of d.sprites ?? []) {
     const label = s.group?.trim() || DEFAULT_GROUP;
     extra.set(label, [...(extra.get(label) ?? []), s.key]);
   }
-  const out: SpriteGroupList[] = SPRITE_GROUPS.map((g) => ({ id: g.id, label: g.label, keys: [...Object.keys(g.sprites), ...(extra.get(g.label) ?? [])] }));
-  for (const [label, keys] of extra) if (!SPRITE_GROUPS.some((g) => g.label === label)) out.push({ id: `custom:${label}`, label, keys });
-  return out;
+  const builtin: SpriteGroupList[] = SPRITE_GROUPS.map((g) => ({ id: g.id, label: g.label, keys: [...Object.keys(g.sprites), ...(extra.get(g.label) ?? [])] }));
+  const own: SpriteGroupList[] = [];
+  for (const [label, keys] of extra) if (!SPRITE_GROUPS.some((g) => g.label === label)) own.push({ id: `custom:${label}`, label, keys });
+  // «Свои» — первой: там лежит то, что автор делает сам
+  own.sort((a, b) => Number(b.label === DEFAULT_GROUP) - Number(a.label === DEFAULT_GROUP));
+  const first = own.filter((g) => g.label === DEFAULT_GROUP);
+  return [...first, ...builtin, ...own.filter((g) => g.label !== DEFAULT_GROUP)];
 }
 
 /** Все названия групп для выбора. */
 export const groupLabels = (d: Pick<CaseFile, "sprites">): string[] => {
-  const all = [...SPRITE_GROUPS.map((g) => g.label), DEFAULT_GROUP, ...(d.sprites ?? []).map((s) => s.group?.trim() || DEFAULT_GROUP)];
+  const all = [DEFAULT_GROUP, ...SPRITE_GROUPS.map((g) => g.label), ...(d.sprites ?? []).map((s) => s.group?.trim() || DEFAULT_GROUP)];
   return [...new Set(all)];
 };
 

@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import type { CaseFile, CustomSprite } from "../../../../../shared/case";
 import { SPRITE_GROUPS } from "../../game/art";
 import { copyOf, groupLabels, isBuiltin, spriteGroups, spriteView } from "./catalog";
-import { describeRules, frameLabel, renameFrame, uniqueKey, withoutParam } from "./helpers";
+import { cellsOf, describeRules, frameLabel, moveFrame, resizeSprite, renameFrame, uniqueKey, withoutParam } from "./helpers";
 
 const mine = (over: Partial<CustomSprite> = {}): CustomSprite => ({ key: "lamp", name: "Лампа", w: 16, h: 16, footprint: { w: 1, h: 1 }, solid: true, frames: { default: [[0, 0, 1, 1, "#ffffff"]], on: [] }, ...over });
 const draft = (sprites: CustomSprite[] = [mine()]) => ({ sprites, locations: [{ id: "l", objects: [{ id: "o", sprite: "lamp", states: [{ id: "s", frame: "on" }] }] }] }) as unknown as CaseFile;
@@ -31,6 +31,28 @@ describe("каталог спрайтов", () => {
     expect(g.find((x) => x.label === "Лаборатория")!.keys).toEqual(["b"]);
     expect(g.find((x) => x.label === "Свои")!.keys).toEqual(["c"]);
     expect(groupLabels({ sprites: [mine({ group: "Лаборатория" })] })).toContain("Лаборатория");
+    expect(g[0].label).toBe("Свои");
+    expect(groupLabels({ sprites: [] })[0]).toBe("Свои");
+  });
+});
+
+describe("размер в клетках и порядок кадров", () => {
+  it("размер в клетках округляется вверх", () => {
+    expect(cellsOf(16)).toBe(1);
+    expect(cellsOf(17)).toBe(2);
+    expect(cellsOf(48)).toBe(3);
+  });
+  it("при изменении размера опора, равная размеру, растёт с ним, иначе обрезается", () => {
+    const s = mine({ w: 32, h: 16, footprint: { w: 2, h: 1 }, cells: [{ dx: 1, dy: 0, solid: false }] });
+    expect(resizeSprite(s, 3, 1)).toMatchObject({ w: 48, h: 16, footprint: { w: 3, h: 1 } });
+    const small = resizeSprite(mine({ w: 48, footprint: { w: 2, h: 1 }, cells: [{ dx: 1, dy: 0, solid: false }] }), 1, 1);
+    expect(small).toMatchObject({ w: 16, footprint: { w: 1, h: 1 }, cells: [] });
+  });
+  it("кадр переезжает на новое место, остальные сохраняют порядок", () => {
+    const s = mine({ frames: { default: [], a: [], b: [] } });
+    expect(Object.keys(moveFrame(s.frames, "b", "default"))).toEqual(["b", "default", "a"]);
+    expect(Object.keys(moveFrame(s.frames, "default", "b"))).toEqual(["a", "b", "default"]);
+    expect(Object.keys(moveFrame(s.frames, "a", "a"))).toEqual(["default", "a", "b"]);
   });
 });
 

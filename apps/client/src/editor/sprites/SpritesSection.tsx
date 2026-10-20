@@ -9,16 +9,15 @@ import { Tabs } from "../Tabs";
 import { editor, editorStore, useEditor } from "../state";
 import { useUrlParam } from "../url";
 import { isBuiltin, copyOf, spriteGroups, spriteView } from "./catalog";
-import { SpriteCanvas, TOOLS, type Tool } from "./SpriteCanvas";
-import { DrawPanel, FootPanel, PropsPanel } from "./SpritePanels";
+import { SpriteCanvas, SpriteToolbar, TOOLS, type Tool } from "./SpriteCanvas";
+import { DrawPanel, FootBar, PropsPanel } from "./SpritePanels";
 import { SpriteAnims, SpriteParams, SpriteStates } from "./SpriteStates";
-import { frameLabel, newSprite, spriteUses, uniqueKey } from "./helpers";
+import { frameLabel, moveFrame, newSprite, patchSprite, spriteUses, uniqueKey } from "./helpers";
 
-type Tab = "draw" | "props" | "foot" | "vars" | "states" | "anims";
+type Tab = "draw" | "props" | "vars" | "states" | "anims";
 const TABS: { id: Tab; label: string; own: boolean }[] = [
   { id: "draw", label: "Рисунок", own: true },
   { id: "props", label: "Свойства", own: false },
-  { id: "foot", label: "Опора", own: false },
   { id: "vars", label: "Переменные", own: true },
   { id: "states", label: "Состояния", own: true },
   { id: "anims", label: "Анимации", own: true },
@@ -89,17 +88,32 @@ export function SpritesSection() {
           if (!keys.length) return null;
           return (
             <PaletteGroup key={g.id} title={g.label} count={keys.length} open={!!q || (open[g.id] ?? (g.id.startsWith("custom:") || keys.includes(key)))} onToggle={() => setOpen((o) => ({ ...o, [g.id]: !(o[g.id] ?? (g.id.startsWith("custom:") || keys.includes(key))) }))}>
-              <div className="lm__things">
-                {keys.map((k) => (
-                  <button key={k} className="lm__thing" aria-pressed={k === key} title={nameOf(k)} onClick={() => choose(k)}>
-                    <span className="lm__thing-art">
-                      <ArtThumb kind="sprite" id={k} scale={1.5} />
-                    </span>
-                    <span className="lm__thing-label">
-                      {isBuiltin(k) && <Icon name="lock" size={11} />} {nameOf(k)}
-                    </span>
-                  </button>
-                ))}
+              <div className="sprite-list">
+                {keys.map((k) => {
+                  const own = draft.sprites?.find((x) => x.key === k);
+                  return (
+                    <div key={k} className="sprite-row" aria-current={k === key || undefined}>
+                      <button className="sprite-row__main" title={nameOf(k)} onClick={() => choose(k)}>
+                        <span className="sprite-row__art">
+                          <ArtThumb kind="sprite" id={k} scale={1} />
+                        </span>
+                        <span className="sprite-row__name ellipsis">{nameOf(k)}</span>
+                      </button>
+                      <button className="btn btn--icon btn--sm" title="Копировать: своя копия, которую можно править" aria-label="Копировать" onClick={() => copy(spriteView(draft, k)!)}>
+                        <Icon name="copy" size={14} />
+                      </button>
+                      {own ? (
+                        <button className="btn btn--icon btn--sm btn--danger" title="Удалить спрайт" aria-label="Удалить" onClick={() => remove(own)}>
+                          <Icon name="trash" size={14} />
+                        </button>
+                      ) : (
+                        <span className="sprite-row__lock" title="Встроенный спрайт: менять и удалять нельзя, можно копировать">
+                          <Icon name="lock" size={14} />
+                        </span>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             </PaletteGroup>
           );
@@ -115,6 +129,7 @@ export function SpritesSection() {
               tabs={Object.keys(sprite.frames).map((f) => ({ id: f, label: frameLabel(f) }))}
               active={current}
               onChange={setFrame}
+              onReorder={builtin ? undefined : (from, to) => editor.update((d) => patchSprite(d, sprite.key, { frames: moveFrame(sprite.frames, from, to) }))}
               trailing={
                 !builtin && (
                   <button className="tab tab--add" onClick={addFrame} title="Новый кадр — копия текущего">
@@ -123,20 +138,22 @@ export function SpritesSection() {
                 )
               }
             />
-            <div className="lm__center">
+            <div className="lm__center sprite-center">
+              <SpriteToolbar sprite={sprite} frame={current} tool={tool} setTool={setTool} readOnly={builtin} />
               <div className="lm__stage">
-                <SpriteCanvas sprite={sprite} frame={current} tool={tool} color={color} alpha={alpha} readOnly={builtin} foot={tab === "foot"} onPickColor={(c, a) => (setColor(c), setAlpha(a))} />
+                <SpriteCanvas sprite={sprite} frame={current} tool={tool} color={color} alpha={alpha} readOnly={builtin} foot={tool === "foot"} onPickColor={(c, a) => (setColor(c), setAlpha(a))} />
               </div>
               <div className="lm__status">
-                <span className="lm__hint">
-                  {builtin
-                    ? "Встроенный спрайт нельзя изменить — сделайте копию и правьте её"
-                    : tab === "foot"
-                      ? "Нажимайте клетки опоры: красные не пропускают игрока, зелёные пропускают"
-                      : tab === "draw"
-                        ? (TOOLS.find((t) => t.id === tool)?.hint ?? "")
-                        : `${sprite.w}×${sprite.h} пикс.`}
-                </span>
+                {tool === "foot" ? (
+                  <FootBar sprite={sprite} readOnly={builtin} />
+                ) : (
+                  <span className="lm__hint">
+                    {builtin ? "Встроенный спрайт нельзя изменить — сделайте копию и правьте её" : (TOOLS.find((t) => t.id === tool)?.hint ?? "")}
+                    <span className="sprite-status__size">
+                      {sprite.w}×{sprite.h} пикс. · клетка поля 16×16
+                    </span>
+                  </span>
+                )}
               </div>
             </div>
           </>
@@ -154,18 +171,11 @@ export function SpritesSection() {
                 <span className="sprite-head__title ellipsis">
                   {builtin && <Icon name="lock" size={14} />} {sprite.name || "Без названия"}
                 </span>
-                <button className="btn btn--sm" onClick={() => copy(sprite)} title="Создать свою копию и править её">
-                  <Icon name="copy" size={15} /> Копировать
-                </button>
-                <button className="btn btn--sm btn--danger" disabled={builtin} onClick={() => remove(sprite)} title={builtin ? "Встроенные спрайты удалять нельзя" : "Удалить спрайт"}>
-                  <Icon name="trash" size={15} />
-                </button>
               </div>
               {builtin && <p className="muted">Встроенный спрайт: смотреть можно, менять и удалять нельзя. Сделайте копию, чтобы править.</p>}
               <fieldset className="sprite-ro" disabled={builtin}>
-                {tab === "draw" && <DrawPanel sprite={sprite} frame={current} tool={tool} setTool={setTool} color={color} alpha={alpha} setColor={(c, a) => (setColor(c), setAlpha(a))} onFrame={setFrame} />}
+                {tab === "draw" && <DrawPanel sprite={sprite} frame={current} color={color} alpha={alpha} setColor={(c, a) => (setColor(c), setAlpha(a))} onFrame={setFrame} />}
                 {tab === "props" && <PropsPanel sprite={sprite} />}
-                {tab === "foot" && <FootPanel sprite={sprite} />}
                 {tab === "vars" && <SpriteParams sprite={sprite} />}
                 {tab === "states" && <SpriteStates sprite={sprite} />}
                 {tab === "anims" && <SpriteAnims sprite={sprite} />}

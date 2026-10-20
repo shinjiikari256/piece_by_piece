@@ -135,3 +135,29 @@ export function describeRules(params: SpriteParam[], rules: Record<string, Param
   });
   return parts.length ? parts.join("; ") : "всегда";
 }
+
+/** Размер клетки поля в пикселях рисунка: спрайты строятся из целых клеток. */
+export const CELL = 16;
+
+/** Сколько клеток поля занимает размер в пикселях (с округлением вверх). */
+export const cellsOf = (px: number): number => Math.max(1, Math.ceil(px / CELL));
+
+/** Перенести кадр `from` на место кадра `to` (остальные сдвигаются). */
+export function moveFrame(frames: CustomSprite["frames"], from: string, to: string): CustomSprite["frames"] {
+  const keys = Object.keys(frames);
+  const a = keys.indexOf(from);
+  const b = keys.indexOf(to);
+  if (a < 0 || b < 0 || a === b) return frames;
+  keys.splice(a, 1);
+  keys.splice(b, 0, from);
+  return Object.fromEntries(keys.map((k) => [k, frames[k]])) as CustomSprite["frames"];
+}
+
+/** Новый размер спрайта в клетках: опора, совпадавшая с прежним размером, растёт вместе с ним, иначе только обрезается. */
+export function resizeSprite(s: CustomSprite, cw: number, ch: number): Partial<CustomSprite> {
+  const oldW = cellsOf(s.w);
+  const oldH = cellsOf(s.h);
+  const fw = s.footprint.w === oldW ? cw : Math.min(s.footprint.w, cw);
+  const fh = s.footprint.h === oldH ? ch : Math.min(s.footprint.h, ch);
+  return { w: cw * CELL, h: ch * CELL, footprint: { w: fw, h: fh }, cells: s.cells?.filter((c) => c.dx < fw && c.dy < fh) };
+}
