@@ -1,18 +1,14 @@
 import { ENUM_LABELS, HINTS, LONG_TEXT, labelOf } from "./labels";
-import { Icon } from "../ui/icons";
-import { useEffect, useState, type ReactNode } from "react";
-import { editor, useEditor } from "./state";
-import { caseKey, countRefs, isEntityKey, renameKey, toKey } from "./keys";
+import { useState, type ReactNode } from "react";
+import { caseKey, toKey } from "./keys";
 import { Select } from "../ui/Select";
-import { formatEventTime } from "../../../../shared/events";
 import { ItemTools } from "./ItemTools";
 import { moveItem } from "../util/lists";
-import { ArtThumb, TilePicker } from "./Pickers";
-import { SPRITE_NAMES, resolveLook } from "../game/art";
-import type { CaseFile, ClipStep, Dialogue, Effect, LocationObject } from "../../../../shared/case";
+import { TilePicker } from "./Pickers";
+import { SPRITE_NAMES } from "../game/art";
+import type { ClipStep, Effect } from "../../../../shared/case";
 import { ClipEditor } from "./fields/ClipEditor";
 import { SPRITES } from "../game/art";
-import { ask, tell } from "../ui/dialog";
 import { RefMulti, StringList } from "./fields/RefChips";
 import { Condition, ConditionEditor, FlagPicker } from "./fields/Conditions";
 
@@ -23,143 +19,17 @@ import { AttachmentSource } from "./fields/Attachment";
 import { frameLabel } from "./sprites/helpers";
 export { FlagDialog, deleteFlag, evidenceUsage, flagUsage, type FlagUse } from "./fields/Conditions";
 
+export { type JS, defaultFor, itemTitle } from "./schema-utils";
+export { type FormCtx, type Option, charOption } from "./ref-options";
+import { defaultFor, isBlank, isNullable, itemTitle, nonNull, discriminatorOf, type JS } from "./schema-utils";
+import { refOptions, type FormCtx, type Option } from "./ref-options";
+import { KeyField } from "./fields/KeyField";
+
 /**
  * Форма по JSON Schema (из z.toJSONSchema). Понимает объекты, массивы,
  * перечисления, nullable, варианты oneOf (по полю-дискриминатору) и
  * ссылки на другие сущности дела — по имени поля.
  */
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type JS = any;
-
-export interface FormCtx {
-  draft: CaseFile;
-  /** Диалог, внутри которого редактируем (для ссылок на узлы). */
-  dialogue?: Dialogue;
-  /** Предмет, внутри которого редактируем (для выбора кадров спрайта и состояний). */
-  object?: Pick<LocationObject, "sprite" | "states">;
-}
-
-/** Персонаж в списках и чипах — всегда с портретом. */
-export type Option = { value: string; label: string; art?: ReactNode };
-
-export const charOption = (c: CaseFile["characters"][number]): Option => ({
-  value: c.id,
-  label: c.name,
-  art: <ArtThumb kind="look" id={c.look} look={resolveLook(c)} scale={1} />,
-});
-
-/** Варианты для полей-ссылок. null — поле не ссылочное. */
-function refOptions(name: string, ctx: FormCtx, isArrayItem: boolean): Option[] | null {
-  const d = ctx.draft;
-  const chars = () => d.characters.map(charOption);
-  const ev = () => d.evidence.map((e) => ({ value: e.id, label: `${e.title} (${e.id})` }));
-  switch (name) {
-    case "characterId":
-    case "speaker":
-    case "responsibleCharacter":
-    case "relatedCharacters":
-    case "following":
-    case "notFollowing":
-      return chars();
-    case "characters":
-      return isArrayItem ? chars() : null;
-    case "evidenceId":
-      return ev();
-    case "evidenceIds":
-      // в сопоставлении можно брать и установленные факты — цепочкой; предметы (ключ, фонарь) уликами не считаются
-      return [...d.evidence.filter((e) => e.kind !== "item").map((e) => ({ value: e.id, label: `${e.title} (${e.id})` })), ...d.deductions.map((x) => ({ value: x.id, label: `Вывод: ${x.title} (${x.id})` }))];
-    case "evidence":
-    case "notEvidence":
-      return isArrayItem ? ev() : null;
-    case "notDeductions":
-      return isArrayItem ? d.deductions.map((x) => ({ value: x.id, label: `${x.title} (${x.id})` })) : null;
-    case "deductions":
-      return isArrayItem ? d.deductions.map((x) => ({ value: x.id, label: `${x.title} (${x.id})` })) : null;
-    case "relatedEvents":
-      return d.events.map((e) => ({ value: e.id, label: `${formatEventTime(e.at, e.until)} — ${e.title}` }));
-    case "right":
-    case "topic":
-      // права — варианты вопроса категории «right» самого дела
-      return (d.questions.find((q) => q.category === "right")?.options ?? []).map((o) => ({ value: o.id, label: o.label || o.id }));
-    case "dialogueId":
-      return d.dialogues.map((x) => ({ value: x.id, label: x.id }));
-    case "to":
-      return d.locations.map((l) => ({ value: l.id, label: `${l.name} (${l.id})` }));
-    case "startNodeId":
-    case "next":
-      return ctx.dialogue ? ctx.dialogue.nodes.map((n) => ({ value: n.id, label: `${n.id}: ${n.text.slice(0, 40)}` })) : null;
-    default:
-      return null;
-  }
-}
-
-const isNullable = (s: JS) =>
-  (Array.isArray(s.type) && s.type.includes("null")) || (Array.isArray(s.anyOf) && s.anyOf.some((x: JS) => x.type === "null"));
-
-const nonNull = (s: JS): JS => {
-  if (Array.isArray(s.type)) return { ...s, type: s.type.find((t: string) => t !== "null") };
-  if (Array.isArray(s.anyOf)) return { ...s.anyOf.find((x: JS) => x.type !== "null"), description: s.description };
-  return s;
-};
-
-const discriminatorOf = (variants: JS[]) =>
-  Object.keys(variants[0]?.properties ?? {}).find((k) => variants.every((v: JS) => v.properties?.[k]?.const !== undefined));
-
-/** Значение по умолчанию для новой записи. */
-/** Пустое значение необязательного поля: его не пишем в дело. */
-function isBlank(v: unknown): boolean {
-  if (v === undefined || v === null || v === "") return true;
-  if (Array.isArray(v)) return v.length === 0;
-  if (typeof v === "object") return Object.values(v as Record<string, unknown>).every(isBlank);
-  return false;
-}
-
-export function defaultFor(s: JS): unknown {
-  if (isNullable(s)) return null;
-  if (s.oneOf) return defaultFor(s.oneOf[0]);
-  if (s.const !== undefined) return s.const;
-  if (s.enum) return s.enum[0];
-  switch (s.type) {
-    case "object": {
-      const out: Record<string, unknown> = {};
-      for (const key of s.required ?? []) out[key] = defaultFor(s.properties[key]);
-      return out;
-    }
-    case "array":
-      return [];
-    case "string":
-      return "";
-    case "number":
-    case "integer":
-      return 0;
-    case "boolean":
-      return false;
-    default:
-      return null;
-  }
-}
-
-export function itemTitle(item: unknown, index: number): string {
-  if (item && typeof item === "object") {
-    const o = item as Record<string, unknown>;
-    // эффекты: «поставить флаг: x», «добавить улику в дело: e1»
-    if (typeof o.type === "string" && ENUM_LABELS[o.type]) {
-      const arg = o.flag ?? o.evidenceId ?? o.characterId;
-      return arg ? `${ENUM_LABELS[o.type]}: ${String(arg)}` : ENUM_LABELS[o.type];
-    }
-    const main = o.title ?? o.name ?? o.text ?? o.label ?? o.prompt ?? o.question;
-    const id = o.id ?? o.evidenceId ?? o.characterId;
-    const head = typeof main === "string" && main ? main.slice(0, 50) : "";
-    if (id && head) return `${head} · ${id}`;
-    if (id) return String(id);
-    if (head) return head;
-    if (o.type) return String(o.type);
-  }
-  if (typeof item === "string") return item || "(пусто)";
-  return `#${index + 1}`;
-}
-
 interface FieldProps {
   name: string;
   schema: JS;
@@ -362,58 +232,6 @@ export function Field({ name, schema, value, onChange, ctx, bare }: FieldProps):
     default:
       return <div className="ef">{label}?</div>;
   }
-}
-
-/**
- * Ключ элемента. Сам не меняется никогда: только вручную (Enter или уход с поля).
- * Если на ключ ссылаются — подтверждение и переименование во всех местах.
- */
-function KeyField({ value, suggestion, onChange }: { value: string; suggestion: string; onChange: (v: string) => void }) {
-  const draft = useEditor((s) => s.draft);
-  const [text, setText] = useState(value);
-  useEffect(() => setText(value), [value]);
-  const commit = async (next: string) => {
-    const key = next.trim();
-    if (!key || key === value) return setText(value);
-    const d = draft as unknown as Record<string, unknown>;
-    if (!isEntityKey(d, value)) return onChange(key);
-    if (isEntityKey(d, key)) {
-      setText(value);
-      return tell({ title: "Ключ уже занят", text: `«${key}» уже есть в деле — выберите другой.` });
-    }
-    const refs = countRefs(d, value);
-    if (refs > 0) {
-      const ok = await ask({
-        title: "Переименовать ключ?",
-        text: `Ключ «${value}» используется в ${refs} мест(ах). Он заменится на «${key}» во всех ссылках.`,
-        confirmLabel: "Переименовать",
-      });
-      if (!ok) return setText(value);
-    }
-    editor.update((c) => renameKey(c as unknown as Record<string, unknown>, value, key) as unknown as CaseFile);
-  };
-  return (
-    <div className="ef">
-      <span className="ef__label">Ключ</span>
-      <div className="key-field row">
-        <input
-          className="key-field__input"
-          value={text}
-          onChange={(e) => setText(e.target.value.replace(/[^\w-]+/g, "_"))}
-          onBlur={() => commit(text)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") commit(text);
-            if (e.key === "Escape") setText(value);
-          }}
-        />
-        {suggestion && suggestion !== value && (
-          <button className="btn btn--sm btn--icon" onClick={() => commit(suggestion)} title="Сгенерировать из названия" aria-label="Сгенерировать из названия">
-            <Icon name="sparkle" size={16} />
-          </button>
-        )}
-      </div>
-    </div>
-  );
 }
 
 export function ObjectFields({
