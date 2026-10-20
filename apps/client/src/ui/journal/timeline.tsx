@@ -5,7 +5,7 @@ import { resolveLook } from "../../game/art";
 import { useGame } from "../../state/store";
 import { Portrait } from "../panels";
 import { Select } from "../Select";
-import { formatGap, layoutTimeline, TIMELINE_DEFAULTS } from "./timeline-layout";
+import { layoutTimeline, TIMELINE_DEFAULTS } from "./timeline-layout";
 import { useCase } from "./index";
 import "./timeline.css";
 
@@ -80,9 +80,7 @@ export function TimelineTab() {
         <div className="timeline__scroll">
           <div className="timeline__plot" style={{ width: layout.width, ["--lanes" as string]: layout.lanes }}>
             {layout.breaks.map((b) => (
-              <div key={b.x} className="timeline__break" style={{ left: b.x, width: b.width }}>
-                <span>{formatGap(b.minutes)}</span>
-              </div>
+              <div key={b.x} className="timeline__break" style={{ left: b.x, width: b.width }} />
             ))}
             {ticks.map((t) => (
               <div key={t.minute} className="timeline__tick" style={{ left: t.x }}>

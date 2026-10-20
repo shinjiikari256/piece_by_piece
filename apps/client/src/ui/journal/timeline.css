@@ -73,11 +73,6 @@
   font-size: var(--fs-sm);
   color: var(--text-muted);
 }
-.timeline__break span {
-  background: var(--bg-surface);
-  padding: 0 0.3rem;
-  border-radius: 4px;
-}
 
 /* полоса события: точка у момента, вытянутая — у того, что длилось */
 .timeline__span {
