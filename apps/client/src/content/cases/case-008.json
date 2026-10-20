@@ -1,0 +1,2914 @@
+{
+  "formatVersion": 11,
+  "legend": {
+    "#": "wall",
+    "W": "window",
+    "B": "brick",
+    "G": "glass",
+    "P": "painted_wall",
+    "F": "fence",
+    ".": "tile",
+    ",": "carpet",
+    "_": "parquet",
+    "w": "dark_parquet",
+    "b": "linoleum",
+    "k": "ceramic",
+    "m": "marble",
+    "r": "runner",
+    "S": "stairs",
+    "Z": "stairs_side",
+    "D": "doorway",
+    "g": "grass",
+    "a": "asphalt",
+    "p": "sidewalk"
+  },
+  "id": "case-008",
+  "number": "008",
+  "title": "В воспитательных целях",
+  "tagline": "Может ли отец оправдаться тем, что «воспитывал» сыновей, пока ими занималась мать, — и где проходит граница между воспитанием и жестоким обращением?",
+  "introduction": "Двух мальчиков, шести и двух лет, забрали у родителей: у них гематомы, анемия, рахит и задержка развития. Отец уверяет, что только воспитывал сыновей. Вы — дознаватель: изучите материалы в центре помощи семье, осмотрите квартиру, поговорите с врачом, инспектором, опекуном и свидетелями и решите, кто и в чём отвечает.",
+  "difficulty": "medium",
+  "timeBonus": {
+    "minutes": 20,
+    "points": 10
+  },
+  "published": true,
+  "updatedAt": "2026-10-20T20:51:56Z",
+  "locations": [
+    {
+      "id": "center",
+      "name": "Центр помощи семье и детям «Берег»",
+      "tiles": [
+        "###WW########WW########WW#####",
+        "#________#,,,,,,,,,,#wwwwwwww#",
+        "#________#,,,,,,,,,,#wwwwwwww#",
+        "#________#,,,,,,,,,,#wwwwwwww#",
+        "#________D,,,,,,,,,,#wwwwwwww#",
+        "#________#,,,,,,,,,,#wwwwwwww#",
+        "#________#,,,,,,,,,,####D#####",
+        "##########,,,,,,,,,,,,,,,,,,,#",
+        "#bbbbbbbb#,,,,,,,,,,,,,,,,,,,#",
+        "#bbbbbbbb#,,,,,,,,,,,,,,,,,,,#",
+        "#bbbbbbbb#,,,,,,,,,,,,,,,,,,,#",
+        "#bbbbbbbbD,,,,,,,,,,,,,,,,,,,#",
+        "#bbbbbbbb#,,,,,,,,,,,,,,,,,,,#",
+        "#bbbbbbbb#,,,,,,,,,,,,,,,,,,,#",
+        "#####WW##########DD#####WW####"
+      ],
+      "areas": [
+        {
+          "name": "Кабинет инспектора",
+          "x": 4,
+          "y": 4
+        },
+        {
+          "name": "Кабинет педиатра",
+          "x": 4,
+          "y": 11
+        },
+        {
+          "name": "Кабинет опеки",
+          "x": 25,
+          "y": 3
+        },
+        {
+          "name": "Холл",
+          "x": 15,
+          "y": 9
+        }
+      ],
+      "playerStart": {
+        "x": 17,
+        "y": 12
+      },
+      "objects": [
+        {
+          "id": "door_insp",
+          "sprite": "door_v",
+          "x": 9,
+          "y": 4,
+          "label": "Дверь",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "door_ped",
+          "sprite": "door_v",
+          "x": 9,
+          "y": 11,
+          "label": "Дверь",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "door_guard",
+          "sprite": "door_h",
+          "x": 24,
+          "y": 6,
+          "label": "Дверь",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "door_main",
+          "sprite": "door_h",
+          "x": 17,
+          "y": 14,
+          "label": "Дверь",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "obj_pdn",
+          "sprite": "desk_papers",
+          "x": 3,
+          "y": 3,
+          "label": "Учётное дело семьи",
+          "interaction": {
+            "title": "Учётное дело семьи на профилактическом учёте",
+            "description": "Материалы профилактического учёта: акты проверок, протоколы об административных правонарушениях, справки о беседах."
+          },
+          "onInteract": [
+            {
+              "type": "addEvidence",
+              "evidenceId": "pdn_file"
+            }
+          ]
+        },
+        {
+          "id": "obj_stair",
+          "sprite": "desk_papers",
+          "x": 6,
+          "y": 3,
+          "label": "Рапорт о детях на лестнице",
+          "interaction": {
+            "title": "Рапорт и сообщение в полицию",
+            "description": "Рапорт о ночном обнаружении детей на лестничной площадке и сообщение сестры отца."
+          },
+          "onInteract": [
+            {
+              "type": "addEvidence",
+              "evidenceId": "stair_report"
+            }
+          ]
+        },
+        {
+          "id": "obj_psych",
+          "sprite": "cabinet",
+          "x": 2,
+          "y": 1,
+          "label": "Справки врачей",
+          "interaction": {
+            "title": "Справки врача-психиатра и нарколога",
+            "description": "Выписки из диспансера, приобщённые к материалам дела."
+          },
+          "onInteract": [
+            {
+              "type": "addEvidence",
+              "evidenceId": "psych_cert"
+            }
+          ]
+        },
+        {
+          "id": "obj_ped_card",
+          "sprite": "desk_papers",
+          "x": 3,
+          "y": 10,
+          "label": "Карты ребёнка",
+          "interaction": {
+            "title": "Амбулаторные карты и сведения диспансеризации",
+            "description": "Карты обоих мальчиков, направления на анализы, отметки о визитах на дом."
+          },
+          "onInteract": [
+            {
+              "type": "addEvidence",
+              "evidenceId": "ped_card"
+            }
+          ]
+        },
+        {
+          "id": "obj_couch",
+          "sprite": "hospital_bed",
+          "x": 7,
+          "y": 12,
+          "label": "Кушетка",
+          "interaction": {
+            "title": "Смотровая кушетка",
+            "description": "Здесь осматривают детей. Рядом ростомер и детские весы."
+          },
+          "onInteract": []
+        },
+        {
+          "id": "obj_rules",
+          "sprite": "bookshelf",
+          "x": 12,
+          "y": 1,
+          "label": "Кодексы и приказы",
+          "interaction": {
+            "title": "Семейный кодекс и Уголовный кодекс",
+            "description": "Закладки на нормах об обязанностях родителей и об ответственности за ненадлежащее воспитание."
+          },
+          "onInteract": [
+            {
+              "type": "addEvidence",
+              "evidenceId": "sk_rules"
+            }
+          ]
+        },
+        {
+          "id": "obj_fe",
+          "sprite": "desk_papers",
+          "x": 14,
+          "y": 3,
+          "label": "Заключение эксперта (старший)",
+          "interaction": {
+            "title": "Заключение судебно-медицинской экспертизы по старшему мальчику",
+            "description": "Эксперт осмотрел старшего ребёнка и изучил медицинские документы."
+          },
+          "onInteract": [
+            {
+              "type": "addEvidence",
+              "evidenceId": "forensic_elder"
+            }
+          ]
+        },
+        {
+          "id": "obj_fy",
+          "sprite": "desk_papers",
+          "x": 17,
+          "y": 3,
+          "label": "Заключение эксперта (младший)",
+          "interaction": {
+            "title": "Заключение судебно-медицинской экспертизы по младшему мальчику",
+            "description": "Эксперт осмотрел младшего ребёнка и изучил медицинские документы."
+          },
+          "onInteract": [
+            {
+              "type": "addEvidence",
+              "evidenceId": "forensic_younger"
+            }
+          ]
+        },
+        {
+          "id": "obj_guard_desk",
+          "sprite": "desk",
+          "x": 23,
+          "y": 2,
+          "label": "Стол специалиста опеки",
+          "interaction": {
+            "title": "Стол специалиста опеки",
+            "description": "Список документов по приёмной семье, свидетельства о рождении, распечатка расписания занятий и реабилитации."
+          },
+          "onInteract": []
+        },
+        {
+          "id": "obj_toys",
+          "sprite": "coffee_table",
+          "x": 26,
+          "y": 4,
+          "label": "Детский столик",
+          "interaction": {
+            "title": "Детский уголок",
+            "description": "Пара книжек с картинками, мягкая игрушка и кубики. Старший мальчик долго не решался до них дотронуться."
+          },
+          "onInteract": []
+        },
+        {
+          "id": "f_center_chair_1",
+          "sprite": "chair",
+          "x": 3,
+          "y": 2,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_center_chair_2",
+          "sprite": "chair",
+          "x": 6,
+          "y": 2,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_center_clock_1",
+          "sprite": "clock",
+          "x": 6,
+          "y": 0,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_center_poster_1",
+          "sprite": "poster",
+          "x": 1,
+          "y": 0,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_center_plant_1",
+          "sprite": "plant",
+          "x": 1,
+          "y": 6,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_center_trash_bin_1",
+          "sprite": "trash_bin",
+          "x": 8,
+          "y": 6,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_center_floor_lamp_1",
+          "sprite": "floor_lamp",
+          "x": 8,
+          "y": 1,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_center_whiteboard_1",
+          "sprite": "whiteboard",
+          "x": 8,
+          "y": 7,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_center_printer_1",
+          "sprite": "printer",
+          "x": 7,
+          "y": 1,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_center_chair_3",
+          "sprite": "chair",
+          "x": 3,
+          "y": 9,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_center_clock_2",
+          "sprite": "clock",
+          "x": 2,
+          "y": 7,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_center_poster_2",
+          "sprite": "poster",
+          "x": 6,
+          "y": 7,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_center_sink_1",
+          "sprite": "sink",
+          "x": 1,
+          "y": 8,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_center_cabinet_1",
+          "sprite": "cabinet",
+          "x": 5,
+          "y": 8,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_center_plant_2",
+          "sprite": "plant",
+          "x": 8,
+          "y": 13,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_center_trash_bin_2",
+          "sprite": "trash_bin",
+          "x": 1,
+          "y": 13,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_center_floor_lamp_2",
+          "sprite": "floor_lamp",
+          "x": 8,
+          "y": 8,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_center_nightstand_1",
+          "sprite": "nightstand",
+          "x": 6,
+          "y": 12,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_center_chair_4",
+          "sprite": "chair",
+          "x": 23,
+          "y": 1,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_center_bookshelf_1",
+          "sprite": "bookshelf",
+          "x": 27,
+          "y": 1,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_center_sofa_1",
+          "sprite": "sofa",
+          "x": 27,
+          "y": 3,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_center_plant_3",
+          "sprite": "plant",
+          "x": 21,
+          "y": 5,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_center_clock_3",
+          "sprite": "clock",
+          "x": 26,
+          "y": 0,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_center_poster_3",
+          "sprite": "poster",
+          "x": 21,
+          "y": 0,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_center_trash_bin_3",
+          "sprite": "trash_bin",
+          "x": 28,
+          "y": 5,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_center_floor_lamp_3",
+          "sprite": "floor_lamp",
+          "x": 21,
+          "y": 1,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_center_chair_5",
+          "sprite": "chair",
+          "x": 14,
+          "y": 2,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_center_chair_6",
+          "sprite": "chair",
+          "x": 17,
+          "y": 2,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_center_clock_4",
+          "sprite": "clock",
+          "x": 12,
+          "y": 0,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_center_poster_4",
+          "sprite": "poster",
+          "x": 16,
+          "y": 0,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_center_board_1",
+          "sprite": "board",
+          "x": 19,
+          "y": 1,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_center_water_cooler_1",
+          "sprite": "water_cooler",
+          "x": 10,
+          "y": 13,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_center_plant_4",
+          "sprite": "plant",
+          "x": 10,
+          "y": 1,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_center_plant_5",
+          "sprite": "plant",
+          "x": 19,
+          "y": 13,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_center_sofa_2",
+          "sprite": "sofa",
+          "x": 22,
+          "y": 9,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_center_coffee_table_1",
+          "sprite": "coffee_table",
+          "x": 24,
+          "y": 9,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_center_vending_1",
+          "sprite": "vending",
+          "x": 28,
+          "y": 7,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_center_coat_rack_1",
+          "sprite": "coat_rack",
+          "x": 28,
+          "y": 12,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_center_fire_extinguisher_1",
+          "sprite": "fire_extinguisher",
+          "x": 28,
+          "y": 10,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_center_trash_bin_4",
+          "sprite": "trash_bin",
+          "x": 11,
+          "y": 13,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_center_bench_1",
+          "sprite": "bench",
+          "x": 12,
+          "y": 11,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_center_armchair_1",
+          "sprite": "armchair",
+          "x": 26,
+          "y": 12,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        }
+      ],
+      "npcs": [
+        {
+          "id": "npc_insp",
+          "characterId": "rybtseva",
+          "dialogueId": "dlg_rybtseva",
+          "x": 5,
+          "y": 5,
+          "dialogues": []
+        },
+        {
+          "id": "npc_ped",
+          "characterId": "somova",
+          "dialogueId": "dlg_somova",
+          "x": 5,
+          "y": 12,
+          "dialogues": []
+        },
+        {
+          "id": "npc_guard",
+          "characterId": "frolova",
+          "dialogueId": "dlg_frolova",
+          "x": 26,
+          "y": 3,
+          "dialogues": []
+        },
+        {
+          "id": "npc_sister",
+          "characterId": "yulia",
+          "dialogueId": "dlg_yulia",
+          "x": 13,
+          "y": 10,
+          "dialogues": []
+        }
+      ],
+      "zones": [
+        {
+          "id": "to_flat",
+          "name": "Выход к дому",
+          "cells": [
+            {
+              "x": 17,
+              "y": 14
+            },
+            {
+              "x": 18,
+              "y": 14
+            }
+          ],
+          "actions": [
+            {
+              "kind": "exit",
+              "to": "flat",
+              "spawn": {
+                "x": 23,
+                "y": 13
+              }
+            }
+          ]
+        }
+      ],
+      "onEnter": []
+    },
+    {
+      "id": "flat",
+      "name": "Квартира на третьем этаже",
+      "tiles": [
+        "###WW#######WW########WW####",
+        "#_______#kkkkkkkkkk#.......#",
+        "#_______#kkkkkkkkkk#.......#",
+        "#_______#kkkkkkkkkk#.......#",
+        "#_______#kkkkkkkkkk#.......#",
+        "#_______#kkkkkkkkkk#.......#",
+        "####D########D######.......#",
+        "#..................D.......#",
+        "#############D######.......#",
+        "#wwwwwwwwwwwwwwwwww#.......#",
+        "#wwwwwwwwwwwwwwwwww#.......#",
+        "#wwwwwwwwwwwwwwwwww#.......#",
+        "#wwwwwwwwwwwwwwwwww#.......#",
+        "#wwwwwwwwwwwwwwwwww#.......#",
+        "#wwwwwwwwwwwwwwwwww#.......#",
+        "####WW####WW##WW#######DD###"
+      ],
+      "areas": [
+        {
+          "name": "Комната хозяина",
+          "x": 4,
+          "y": 3
+        },
+        {
+          "name": "Кухня",
+          "x": 13,
+          "y": 3
+        },
+        {
+          "name": "Коридор",
+          "x": 10,
+          "y": 7
+        },
+        {
+          "name": "Комната семьи",
+          "x": 9,
+          "y": 12
+        },
+        {
+          "name": "Лестничная площадка",
+          "x": 23,
+          "y": 7
+        }
+      ],
+      "objects": [
+        {
+          "id": "door_owner",
+          "sprite": "door_h",
+          "x": 4,
+          "y": 6,
+          "label": "Дверь",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "door_kitchen",
+          "sprite": "door_h",
+          "x": 13,
+          "y": 6,
+          "label": "Дверь",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "door_family",
+          "sprite": "door_h",
+          "x": 13,
+          "y": 8,
+          "label": "Дверь",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "door_front",
+          "sprite": "door_v",
+          "x": 19,
+          "y": 7,
+          "label": "Дверь",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "door_exit",
+          "sprite": "door_h",
+          "x": 23,
+          "y": 15,
+          "label": "Дверь",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "obj_act",
+          "sprite": "desk_papers",
+          "x": 14,
+          "y": 3,
+          "label": "Акт обследования",
+          "interaction": {
+            "title": "Акт обследования семейно-бытовых условий",
+            "description": "Акт, составленный комиссией при проверке жилья семьи: условия для проживания детей, спальные места, продукты."
+          },
+          "onInteract": [
+            {
+              "type": "addEvidence",
+              "evidenceId": "act_housing"
+            }
+          ]
+        },
+        {
+          "id": "obj_fridge",
+          "sprite": "fridge",
+          "x": 17,
+          "y": 1,
+          "label": "Холодильник",
+          "interaction": {
+            "title": "Холодильник",
+            "description": "Почти пусто: початая бутылка пива, засохший кусок сыра и пакет молока с истёкшим сроком. Детского питания нет."
+          },
+          "onInteract": []
+        },
+        {
+          "id": "obj_stove",
+          "sprite": "stove",
+          "x": 10,
+          "y": 1,
+          "label": "Газовая плита",
+          "interaction": {
+            "title": "Газовая плита",
+            "description": "Старая плита без датчика отключения подачи газа. Ручки конфорок ничем не закрыты."
+          },
+          "onInteract": []
+        },
+        {
+          "id": "obj_trash",
+          "sprite": "trash_bin",
+          "x": 17,
+          "y": 5,
+          "label": "Мусорное ведро",
+          "interaction": {
+            "title": "Мусорное ведро",
+            "description": "Переполнено. Поверх мусора — недоеденная каша, давно покрывшаяся плесенью."
+          },
+          "onInteract": []
+        },
+        {
+          "id": "obj_scene",
+          "sprite": "evidence_tag",
+          "x": 8,
+          "y": 11,
+          "label": "Метка осмотра",
+          "interaction": {
+            "title": "Место осмотра",
+            "description": "Здесь составлялись протоколы осмотра квартиры — 11 августа и 16 октября."
+          },
+          "onInteract": [
+            {
+              "type": "addEvidence",
+              "evidenceId": "scene_protocol"
+            }
+          ]
+        },
+        {
+          "id": "obj_bed",
+          "sprite": "bed",
+          "x": 4,
+          "y": 14,
+          "label": "Кровать у окна",
+          "interaction": {
+            "title": "Кровать у окна",
+            "description": "Кровать придвинута вплотную к подоконнику. Окно старое, ни замка, ни ограничителя нет: открывается одним движением."
+          },
+          "onInteract": []
+        },
+        {
+          "id": "obj_mattress",
+          "sprite": "rug",
+          "x": 9,
+          "y": 13,
+          "label": "Место для сна детей",
+          "interaction": {
+            "title": "Место для сна детей",
+            "description": "Голый матрас на полу, без простыни и одеяла. Отдельных спальных мест для детей в комнате нет."
+          },
+          "onInteract": []
+        },
+        {
+          "id": "obj_landing",
+          "sprite": "evidence_tag",
+          "x": 22,
+          "y": 9,
+          "label": "Бетонный пол площадки",
+          "interaction": {
+            "title": "Лестничная площадка",
+            "description": "Холодный бетон. Здесь ночью лежали двое маленьких детей рядом с пьяными родителями."
+          },
+          "onInteract": []
+        },
+        {
+          "id": "f_flat_bed_1",
+          "sprite": "bed",
+          "x": 2,
+          "y": 2,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_flat_nightstand_1",
+          "sprite": "nightstand",
+          "x": 2,
+          "y": 4,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_flat_desk_1",
+          "sprite": "desk",
+          "x": 5,
+          "y": 2,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_flat_chair_1",
+          "sprite": "chair",
+          "x": 5,
+          "y": 1,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_flat_clock_1",
+          "sprite": "clock",
+          "x": 6,
+          "y": 0,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_flat_plant_1",
+          "sprite": "plant",
+          "x": 7,
+          "y": 5,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_flat_trash_bin_1",
+          "sprite": "trash_bin",
+          "x": 7,
+          "y": 1,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_flat_floor_lamp_1",
+          "sprite": "floor_lamp",
+          "x": 1,
+          "y": 5,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_flat_kitchen_counter_1",
+          "sprite": "kitchen_counter",
+          "x": 11,
+          "y": 1,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_flat_sink_1",
+          "sprite": "sink",
+          "x": 13,
+          "y": 1,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_flat_kitchen_table_1",
+          "sprite": "kitchen_table",
+          "x": 11,
+          "y": 3,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_flat_chair_2",
+          "sprite": "chair",
+          "x": 10,
+          "y": 3,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_flat_chair_3",
+          "sprite": "chair",
+          "x": 12,
+          "y": 3,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_flat_clock_2",
+          "sprite": "clock",
+          "x": 16,
+          "y": 0,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_flat_poster_1",
+          "sprite": "poster",
+          "x": 9,
+          "y": 0,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_flat_coat_rack_1",
+          "sprite": "coat_rack",
+          "x": 17,
+          "y": 7,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_flat_trash_bin_2",
+          "sprite": "trash_bin",
+          "x": 2,
+          "y": 7,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_flat_sofa_1",
+          "sprite": "sofa",
+          "x": 15,
+          "y": 13,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_flat_coffee_table_1",
+          "sprite": "coffee_table",
+          "x": 15,
+          "y": 11,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_flat_trash_bin_3",
+          "sprite": "trash_bin",
+          "x": 17,
+          "y": 14,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_flat_floor_lamp_2",
+          "sprite": "floor_lamp",
+          "x": 17,
+          "y": 9,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_flat_plant_2",
+          "sprite": "plant",
+          "x": 1,
+          "y": 14,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_flat_boxes_1",
+          "sprite": "boxes",
+          "x": 16,
+          "y": 10,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_flat_clock_3",
+          "sprite": "clock",
+          "x": 7,
+          "y": 15,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_flat_poster_2",
+          "sprite": "poster",
+          "x": 1,
+          "y": 15,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_flat_nightstand_2",
+          "sprite": "nightstand",
+          "x": 6,
+          "y": 14,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_flat_chair_4",
+          "sprite": "chair",
+          "x": 11,
+          "y": 14,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_flat_lockers_1",
+          "sprite": "lockers",
+          "x": 24,
+          "y": 1,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_flat_mailbox_1",
+          "sprite": "mailbox",
+          "x": 26,
+          "y": 4,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_flat_fire_extinguisher_1",
+          "sprite": "fire_extinguisher",
+          "x": 26,
+          "y": 6,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_flat_trash_bin_4",
+          "sprite": "trash_bin",
+          "x": 25,
+          "y": 13,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_flat_bench_1",
+          "sprite": "bench",
+          "x": 21,
+          "y": 12,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_flat_plant_3",
+          "sprite": "plant",
+          "x": 20,
+          "y": 1,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_flat_street_lamp_1",
+          "sprite": "street_lamp",
+          "x": 21,
+          "y": 3,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        }
+      ],
+      "npcs": [
+        {
+          "id": "npc_kryukov",
+          "characterId": "kryukov",
+          "dialogueId": "dlg_kryukov",
+          "x": 10,
+          "y": 11,
+          "dialogues": []
+        },
+        {
+          "id": "npc_owner",
+          "characterId": "olshansky",
+          "dialogueId": "dlg_olshansky",
+          "x": 5,
+          "y": 4,
+          "dialogues": []
+        }
+      ],
+      "zones": [
+        {
+          "id": "to_center",
+          "name": "Выход из подъезда",
+          "cells": [
+            {
+              "x": 23,
+              "y": 15
+            },
+            {
+              "x": 24,
+              "y": 15
+            }
+          ],
+          "actions": [
+            {
+              "kind": "exit",
+              "to": "center",
+              "spawn": {
+                "x": 17,
+                "y": 12
+              }
+            }
+          ]
+        }
+      ],
+      "onEnter": []
+    }
+  ],
+  "characters": [
+    {
+      "id": "kryukov",
+      "name": "Денис Крюков",
+      "look": "worker_m",
+      "position": "отец мальчиков, продавец-консультант",
+      "description": "Живёт в комнате квартиры знакомого. Состоит на учёте у врача-психиатра, пьёт по выходным. Согласился ответить на вопросы."
+    },
+    {
+      "id": "lilia",
+      "name": "Лилия Крюкова",
+      "look": "casual_f",
+      "position": "мать мальчиков",
+      "description": "Жена Крюкова. Уголовное дело в отношении неё выделено в отдельное производство, поэтому на вопросы дознавателя не отвечает."
+    },
+    {
+      "id": "rybtseva",
+      "name": "Марина Рябцева",
+      "look": "official_f",
+      "position": "старший инспектор по делам несовершеннолетних",
+      "description": "Вела профилактический учёт семьи, проверяла её каждый месяц и составляла протоколы."
+    },
+    {
+      "id": "somova",
+      "name": "Ольга Сомова",
+      "look": "doctor_f",
+      "position": "участковый врач-педиатр",
+      "description": "Наблюдала старшего мальчика с 2020 года. Помнит, как семья отказывалась приходить на приём."
+    },
+    {
+      "id": "frolova",
+      "name": "Нина Фролова",
+      "look": "elder_f",
+      "position": "опекун мальчиков, законный представитель потерпевших",
+      "description": "Приняла детей в свою семью после изъятия. Рассказывает, какими они пришли."
+    },
+    {
+      "id": "yulia",
+      "name": "Юлия Крюкова",
+      "look": "student_f2",
+      "position": "сестра подсудимого, свидетель",
+      "description": "Бывала у брата в гостях, видела, как с детьми обращались. Ночью забрала детей с лестницы."
+    },
+    {
+      "id": "olshansky",
+      "name": "Павел Ольшанский",
+      "look": "casual_m",
+      "position": "хозяин квартиры, свидетель",
+      "description": "Одноклассник Крюкова. Разрешил семье жить в проходной комнате. Однажды снял младшего ребёнка с подоконника."
+    }
+  ],
+  "events": [
+    {
+      "id": "ev_clinic",
+      "title": "Семья встаёт на учёт в детской поликлинике; позже выявлена задержка развития старшего",
+      "at": "2020-08-20",
+      "showInTimeline": true
+    },
+    {
+      "id": "ev_pdn",
+      "title": "Семью ставят на профилактический учёт в отделе по делам несовершеннолетних",
+      "at": "2024-11-12",
+      "showInTimeline": true
+    },
+    {
+      "id": "ev_head",
+      "title": "Крюков бьёт кулаком младшего сына по голове — появляется гематома",
+      "at": "2025-06-20",
+      "showInTimeline": true
+    },
+    {
+      "id": "ev_window",
+      "title": "Родители уходят за спиртным, младший залезает на подоконник открытого окна",
+      "at": "2025-08-09T20:00",
+      "until": "2025-08-09T21:00",
+      "showInTimeline": true
+    },
+    {
+      "id": "ev_stair",
+      "title": "Пьяные родители ночуют с детьми на лестничной площадке; сестра забирает детей",
+      "at": "2025-10-13T00:00",
+      "until": "2025-10-13T00:40",
+      "showInTimeline": true
+    },
+    {
+      "id": "ev_taken",
+      "title": "Опека забирает детей у родителей",
+      "at": "2025-10-14",
+      "showInTimeline": true
+    }
+  ],
+  "evidence": [
+    {
+      "id": "sk_rules",
+      "title": "Семейный кодекс РФ и УК РФ: нормы об обязанностях родителей",
+      "description": "Родители обязаны заботиться о здоровье и развитии детей и не вправе применять жестокое обращение.",
+      "details": "КОНСТИТУЦИЯ РФ, ч. 2 ст. 38: забота о детях, их воспитание — равное право и обязанность родителей.\n\nСК РФ, п. 1 ст. 63: родители имеют право и обязаны воспитывать своих детей; несут ответственность за их воспитание и развитие; обязаны заботиться о здоровье, физическом, психическом, духовном и нравственном развитии детей.\n\nСК РФ, п. 1 ст. 65: родительские права не могут осуществляться в противоречии с интересами детей. Родители не вправе причинять вред физическому и психическому здоровью детей, их нравственному развитию. Способы воспитания должны исключать пренебрежительное, жестокое, грубое, унижающее человеческое достоинство обращение, оскорбление или эксплуатацию детей.\n\nУК РФ, ст. 156: неисполнение или ненадлежащее исполнение обязанностей по воспитанию несовершеннолетнего родителем, если это деяние соединено с жестоким обращением с несовершеннолетним.",
+      "kind": "evidence",
+      "subtype": "Нормативный акт",
+      "relatedCharacters": [],
+      "relatedEvents": [],
+      "reliability": "high",
+      "onCollect": []
+    },
+    {
+      "id": "act_housing",
+      "title": "Акт обследования семейно-бытовых условий",
+      "description": "Условий для проживания детей нет: спальных мест, постельного белья и детского питания нет, в квартире антисанитария.",
+      "details": "АКТ обследования семейно-бытовых условий жизни семьи.\n\nЖилое помещение: двухкомнатная квартира на третьем этаже. Семья занимает проходную комнату.\nУсловия для проживания несовершеннолетних отсутствуют. Спальных мест у детей нет, постельных принадлежностей нет. Помещение в антисанитарном состоянии: отсутствуют обои, частично нет напольного покрытия, требуется капитальный ремонт. Продуктов питания, соответствующих возрасту детей, нет.",
+      "kind": "evidence",
+      "subtype": "Документ",
+      "relatedCharacters": [
+        "kryukov",
+        "lilia"
+      ],
+      "relatedEvents": [
+        "ev_taken"
+      ],
+      "reliability": "high",
+      "onCollect": []
+    },
+    {
+      "id": "scene_protocol",
+      "title": "Протоколы осмотра места происшествия",
+      "description": "Осмотрена квартира; зафиксирована обстановка, ничего не изъято.",
+      "details": "ПРОТОКОЛЫ осмотра места происшествия с фототаблицами, 11.08.2025 и 16.10.2025.\n\nОсмотрена квартира на третьем этаже. Зафиксированы кровать у окна, открывающегося без запоров, газовая плита без устройства автоматического отключения, незащищённые розетки, мусор и остатки пищи. В ходе осмотров ничего не изъято.",
+      "kind": "evidence",
+      "subtype": "Протокол осмотра",
+      "relatedCharacters": [
+        "olshansky"
+      ],
+      "relatedEvents": [
+        "ev_window"
+      ],
+      "reliability": "high",
+      "onCollect": []
+    },
+    {
+      "id": "forensic_elder",
+      "title": "Заключение судебно-медицинского эксперта по старшему мальчику",
+      "description": "У старшего сына множественные гематомы на плече, локте, бедре, ягодицах, колене и груди; вред здоровью не причинён.",
+      "details": "ЗАКЛЮЧЕНИЕ эксперта по освидетельствованию старшего сына (6 лет).\n\nУстановлены множественные гематомы левого плечевого и локтевого суставов, левого бедра, в проекции обеих ягодиц, правого коленного сустава, правой половины грудной клетки.\nОднозначно определить свойства травмирующего предмета, число воздействий и давность по имеющимся медицинским документам нельзя. С учётом сроков обращения за помощью оснований исключать получение повреждений в период, указанный в постановлении, нет.\nПоверхностные повреждения расцениваются как не причинившие вред здоровью.",
+      "kind": "evidence",
+      "subtype": "Экспертиза",
+      "relatedCharacters": [
+        "kryukov"
+      ],
+      "relatedEvents": [
+        "ev_taken"
+      ],
+      "reliability": "high",
+      "onCollect": []
+    },
+    {
+      "id": "forensic_younger",
+      "title": "Заключение судебно-медицинского эксперта по младшему мальчику",
+      "description": "У младшего сына гематома лобной области; вред здоровью не причинён.",
+      "details": "ЗАКЛЮЧЕНИЕ эксперта по освидетельствованию младшего сына.\n\nУстановлена гематома лобной области. Описания цвета, формы, размеров и точного расположения в медицинских документах нет, поэтому категорично определить свойства предмета, число воздействий, давность и обстоятельства нельзя. Оснований исключать получение гематомы в период, указанный в постановлении, нет.\nПоверхностное повреждение расценивается как не причинившее вред здоровью.",
+      "kind": "evidence",
+      "subtype": "Экспертиза",
+      "relatedCharacters": [
+        "kryukov"
+      ],
+      "relatedEvents": [
+        "ev_head"
+      ],
+      "reliability": "high",
+      "onCollect": []
+    },
+    {
+      "id": "ped_card",
+      "title": "Сведения участкового педиатра и результаты диспансеризации",
+      "description": "У старшего — задержка развития и анемия, у младшего — рахит; рекомендации врачей родители не выполняли.",
+      "details": "СВЕДЕНИЯ детской поликлиники.\n\nСтарший: в 2020 году мать несколько раз приводила его на приём; после года обозначена задержка психомоторного развития. Назначены ЛФК, массаж, препараты — не выполнялись. Диагноз: задержка психического и физического развития, анемия (вероятно, от недостатка питания), отставание в росте.\nМладший: плохо ходит, ноги искривлены. Родители обращались к врачам лишь через бабушку.\nНаправления на анализы крови и мочи, ЭКГ, УЗИ не реализованы. Выходы на дом: дверь не открывали, оставляли записки.\nПосле перехода детей под опеку установлены рахит у младшего и анемия у старшего; врачи рекомендуют оформить старшему инвалидность.",
+      "kind": "evidence",
+      "subtype": "Документ",
+      "relatedCharacters": [
+        "somova",
+        "frolova"
+      ],
+      "relatedEvents": [
+        "ev_clinic"
+      ],
+      "reliability": "high",
+      "onCollect": []
+    },
+    {
+      "id": "pdn_file",
+      "title": "Материалы профилактического учёта семьи",
+      "description": "Родителей учили и предупреждали ежемесячно, составляли протоколы по ст. 5.35 КоАП РФ.",
+      "details": "УЧЁТНОЕ ДЕЛО семьи (на учёте с 12.11.2024). Дети: старший (6 лет), младший (2 года).\n\nОтец и мать злоупотребляют спиртным; мать не работает. Семья проверялась ежемесячно инспекторами и ежеквартально участковыми. С родителями неоднократно проводились беседы о недопустимости противоправных действий в отношении детей. В отношении обоих неоднократно составлялись протоколы по ст. 5.35 КоАП РФ (неисполнение обязанностей по содержанию и воспитанию). Положительной динамики нет.",
+      "kind": "evidence",
+      "subtype": "Документ",
+      "relatedCharacters": [
+        "rybtseva",
+        "kryukov",
+        "lilia"
+      ],
+      "relatedEvents": [
+        "ev_pdn"
+      ],
+      "reliability": "high",
+      "onCollect": []
+    },
+    {
+      "id": "stair_report",
+      "title": "Рапорт и сообщение в полицию: дети на лестничной площадке",
+      "description": "Ночью пьяные родители лежали на лестнице, не могли попасть домой; двое детей — на холодном бетоне.",
+      "details": "РАПОРТ по сообщению Ю. Крюковой, ночь 13.10.2025.\n\nНа лестничной площадке третьего подъезда обнаружены Крюков Д. и Крюкова Л. в состоянии сильного алкогольного опьянения. Самостоятельно передвигаться не могли; ключи от квартиры потеряли. Двое малолетних детей лежали на холодном бетонном полу. Юлия Крюкова забрала детей и сообщила в полицию.",
+      "kind": "evidence",
+      "subtype": "Рапорт",
+      "relatedCharacters": [
+        "yulia",
+        "kryukov",
+        "lilia"
+      ],
+      "relatedEvents": [
+        "ev_stair"
+      ],
+      "reliability": "high",
+      "onCollect": []
+    },
+    {
+      "id": "psych_cert",
+      "title": "Справки врача-психиатра и нарколога",
+      "description": "Крюков состоит на учёте у психиатра с 2002 года, у нарколога — с 2025; вменяемым признан.",
+      "details": "СПРАВКИ.\n\nПсихиатр (на учёте с 2002 года): умственная отсталость умеренная, инвалидность 2-й группы.\nНарколог (на учёте с 2025 года): психические и поведенческие расстройства в результате употребления алкоголя, пагубное употребление.\n\nИз заключений следует, что лицо осознаёт значение своих действий и может руководить ими.",
+      "kind": "evidence",
+      "subtype": "Справка",
+      "relatedCharacters": [
+        "kryukov"
+      ],
+      "relatedEvents": [],
+      "reliability": "high",
+      "onCollect": []
+    },
+    {
+      "id": "t_kry_lie",
+      "title": "Показания Крюкова: «воспитывал, как все»",
+      "description": "Отец говорит, что лишь шлёпал сына «в воспитательных целях», детьми занималась мать, а он работал.",
+      "details": "Крюков: «Я их не бил, а воспитывал. Шлёпнул по попе, как все отцы делают. Старший орёт без причины, надо приструнить. Кормили, чем могли, денег-то мало. Хозяйством занималась жена, я работаю. К врачам лишний раз незачем, дети здоровы. Оставил их на пять минут — и ничего же не случилось».",
+      "kind": "testimony",
+      "subtype": "Показания",
+      "relatedCharacters": [
+        "kryukov"
+      ],
+      "relatedEvents": [
+        "ev_head"
+      ],
+      "reliability": "low",
+      "onCollect": []
+    },
+    {
+      "id": "t_kry_admit",
+      "title": "Показания Крюкова: признание",
+      "description": "Отец признал, что бил детей, голодом лишал еды, не водил к врачам и оставлял одних ради спиртного.",
+      "details": "Крюков: «Бил сына кулаком по ягодицам, по спине и телу, отшвыривал в стену. Три–четыре раза в неделю. Кричал и бил младшего по голове. Кормили раз в день, детским питанием из бутылки, и даже прокисшим. Иногда не давал еды сутки, чтобы не кричали. В поликлинику не водил, анализы не сдавали, к врачу не пускали. Уходили пить, детей оставляли одних. Знал, что приходили из полиции и опеки, беседовали — не слушал. Вину признаю».",
+      "kind": "testimony",
+      "subtype": "Показания",
+      "relatedCharacters": [
+        "kryukov"
+      ],
+      "relatedEvents": [
+        "ev_head",
+        "ev_window"
+      ],
+      "reliability": "high",
+      "onCollect": []
+    },
+    {
+      "id": "t_guardian",
+      "title": "Показания Фроловой: какими дети пришли в семью",
+      "description": "Мальчики пришли в синяках, не умели жевать, не играли, не говорили; потребовались лечение и реабилитация.",
+      "details": "Фролова: «Дети были в синяках, не могли себя обслуживать, самостоятельно есть не умели, жевать не умели, не играли, сидели на одном месте. Старший не говорил: если ему что-то не нравилось, бил себя по губам и закрывал глаза руками. После диспансеризации у младшего нашли рахит, у старшего — анемию и отставание в развитии; старшего положили в больницу. Сейчас ходят в детский сад, младший стал ходить, говорит “мама”, старший шепчет. Родители связаться с детьми не пытались».",
+      "kind": "testimony",
+      "subtype": "Показания",
+      "relatedCharacters": [
+        "frolova"
+      ],
+      "relatedEvents": [
+        "ev_taken"
+      ],
+      "reliability": "high",
+      "onCollect": []
+    },
+    {
+      "id": "t_sister",
+      "title": "Показания Юлии Крюковой",
+      "description": "Видела, как мать выкручивала сыну уши, а отец бил детей тапком; ночью забрала детей с лестницы.",
+      "details": "Юлия: «Брат трезвый нормальный, а пьяный агрессивный. Детьми больше занималась жена, он работал. Дети жили плохо: спали на полу, не гуляли. Я видела следы ладони на теле старшего, видела, как невестка выкручивала ему уши. Однажды невестка показала мне следы от побоев: брат избил ребёнка прорезиненным тапком. В ту ночь я нашла их на лестнице — все пьяные, дети на бетонном полу. Я забрала детей и позвонила в полицию. Бил брат “для воспитания”, а иногда попадало и без причины, когда злился на жену».",
+      "kind": "testimony",
+      "subtype": "Показания",
+      "relatedCharacters": [
+        "yulia",
+        "kryukov",
+        "lilia"
+      ],
+      "relatedEvents": [
+        "ev_stair"
+      ],
+      "reliability": "high",
+      "onCollect": []
+    },
+    {
+      "id": "t_olshansky",
+      "title": "Показания Ольшанского",
+      "description": "Дети спали на полу и ели прокисшую кашу; видел, как отец бил тапком и рукой; снял младшего с окна.",
+      "details": "Ольшанский: «Крюковы живут у меня. Он днём работал, вечером пил. Детьми никто не занимался, дети спали на полу, просили есть, а он кричал и бил: я видел, как тапком и рукой. Кашу им давали старую, с плесенью, из помойки тоже брали. Не раз вызывал полицию, он меня за это избивал. В августе в обед нет никого дома. Я пришёл около девяти вечера — младший стоит на подоконнике, окно настежь, кровать приставлена к окну, а этаж третий. Снял его, закрыл окно. Вернулись пьяные».",
+      "kind": "testimony",
+      "subtype": "Показания",
+      "relatedCharacters": [
+        "olshansky",
+        "kryukov"
+      ],
+      "relatedEvents": [
+        "ev_window"
+      ],
+      "reliability": "high",
+      "onCollect": []
+    },
+    {
+      "id": "t_somova",
+      "title": "Показания Сомовой",
+      "description": "Родители не выполняли назначений, не открывали дверь, дети были истощёнными; ребёнок «как Маугли».",
+      "details": "Сомова: «С августа 2020 года семья на нашем участке. К году у старшего задержка психомоторного развития; назначили лечение, родители не выполняли. Дозвониться не могли, шли через бабушку. На дом выходили — дверь не открывали. Когда мы с патронажем пришли, увидели замученного ребёнка: условий нет, антисанитария, тараканы, постельного белья нет, детей голыми. Анализы, ЭКГ, УЗИ не сделаны, специалистов не посещали категорически. Ситуация угрожает жизни и здоровью малолетних».",
+      "kind": "testimony",
+      "subtype": "Показания",
+      "relatedCharacters": [
+        "somova"
+      ],
+      "relatedEvents": [
+        "ev_clinic"
+      ],
+      "reliability": "high",
+      "onCollect": []
+    },
+    {
+      "id": "t_rybtseva",
+      "title": "Показания Рябцевой",
+      "description": "Беседы и протоколы не помогли; найденные ночью на лестнице дети были с пьяными родителями.",
+      "details": "Рябцева: «Семья на учёте с ноября 2024 года. Проверяли ежемесячно, участковые — ежеквартально. Проводили беседы, составляли протоколы по ст. 5.35 КоАП. Условия: голые стены, нет пола, нет спальных мест, антисанитария, клопы, тараканы. Оба родителя злоупотребляют спиртным. В октябре ночью их нашли на лестнице вместе с детьми: оба пьяны так, что не могли встать. После этого дети были изъяты».",
+      "kind": "testimony",
+      "subtype": "Показания",
+      "relatedCharacters": [
+        "rybtseva"
+      ],
+      "relatedEvents": [
+        "ev_pdn",
+        "ev_stair",
+        "ev_taken"
+      ],
+      "reliability": "high",
+      "onCollect": []
+    }
+  ],
+  "dialogues": [
+    {
+      "id": "dlg_kryukov",
+      "characterId": "kryukov",
+      "startNodeId": "start",
+      "nodes": [
+        {
+          "id": "start",
+          "text": "Спрашивайте. Мне скрывать нечего.",
+          "mood": "nervous",
+          "effects": [],
+          "choices": [
+            {
+              "id": "family",
+              "text": "Расскажите о семье и о том, где вы живёте.",
+              "next": "family",
+              "effects": []
+            },
+            {
+              "id": "work",
+              "text": "Чем вы занимаетесь и как проводите выходные?",
+              "next": "work",
+              "effects": []
+            },
+            {
+              "id": "how",
+              "text": "Как вы воспитывали сыновей?",
+              "next": "lie",
+              "requires": {
+                "notFlags": [
+                  "kry_admitted",
+                  "kry_closed"
+                ]
+              },
+              "effects": []
+            },
+            {
+              "id": "press",
+              "text": "Экспертиза, акт обследования и показания хозяина квартиры: вы били детей и лишали их еды.",
+              "next": "admit",
+              "requires": {
+                "evidence": [
+                  "forensic_elder",
+                  "act_housing",
+                  "t_olshansky"
+                ],
+                "flags": [
+                  "kry_lied"
+                ],
+                "notFlags": [
+                  "kry_admitted",
+                  "kry_closed"
+                ]
+              },
+              "effects": []
+            },
+            {
+              "id": "rude",
+              "text": "Вы издевались над маленькими детьми и теперь выкручиваетесь.",
+              "next": "closed",
+              "requires": {
+                "flags": [
+                  "kry_lied"
+                ],
+                "notFlags": [
+                  "kry_admitted",
+                  "kry_closed"
+                ]
+              },
+              "effects": []
+            },
+            {
+              "id": "bye",
+              "text": "Вернусь позже.",
+              "next": null,
+              "effects": []
+            }
+          ]
+        },
+        {
+          "id": "family",
+          "text": "Жена Лилия и два сына. Живём в проходной комнате у Павла. Старшему шесть лет, младшему два. Условия тесные, но что поделаешь.",
+          "mood": "neutral",
+          "effects": [],
+          "choices": [
+            {
+              "id": "back",
+              "text": "Понятно.",
+              "next": "start",
+              "effects": []
+            }
+          ]
+        },
+        {
+          "id": "work",
+          "text": "Работаю продавцом, иногда подрабатываю. В выходные выпиваю, не скрываю. Когда выпью — я вспыльчивый.",
+          "mood": "neutral",
+          "effects": [
+            {
+              "type": "changeVariable",
+              "variableId": "kry_drinks",
+              "action": "on"
+            }
+          ],
+          "choices": [
+            {
+              "id": "back",
+              "text": "Понятно.",
+              "next": "start",
+              "effects": []
+            }
+          ]
+        },
+        {
+          "id": "lie",
+          "text": "Я не бил, а воспитывал. Шлёпнул по попе, как все. Старший орёт, надо приструнить. Кормили, чем могли, денег мало. Хозяйство — это жена, я работаю. К врачам незачем, дети здоровые. Оставил их на пять минут — и ничего же не случилось.",
+          "mood": "nervous",
+          "effects": [
+            {
+              "type": "changeVariable",
+              "variableId": "kry_lied",
+              "action": "on"
+            },
+            {
+              "type": "addEvidence",
+              "evidenceId": "t_kry_lie"
+            },
+            {
+              "type": "addCharacterNote",
+              "characterId": "kryukov",
+              "text": "Утверждает, что только «воспитывал», ссылается на бедность и на то, что детьми занималась жена."
+            }
+          ],
+          "choices": [
+            {
+              "id": "back",
+              "text": "Запишу.",
+              "next": "start",
+              "effects": []
+            }
+          ]
+        },
+        {
+          "id": "admit",
+          "text": "…Да. Бил кулаком по ягодицам, по спине, отшвыривал в стену. Младшего ударил по голове — он заплакал, я испугался и ушёл. Кормили раз в день, иногда я не давал еды сутки, чтобы не кричали. В поликлинику не водил. Уходили пить, детей оставляли. Из полиции приходили, а мы не слушали. Вину признаю.",
+          "mood": "sad",
+          "effects": [
+            {
+              "type": "changeVariable",
+              "variableId": "kry_admitted",
+              "action": "on"
+            },
+            {
+              "type": "addEvidence",
+              "evidenceId": "t_kry_admit"
+            },
+            {
+              "type": "addCharacterNote",
+              "characterId": "kryukov",
+              "text": "Признал побои, лишение пищи, отказ от медицинской помощи и оставление детей без присмотра."
+            }
+          ],
+          "choices": [
+            {
+              "id": "back",
+              "text": "Спасибо, что сказали.",
+              "next": "start",
+              "effects": []
+            }
+          ]
+        },
+        {
+          "id": "closed",
+          "text": "Дальше только с защитником.",
+          "mood": "angry",
+          "effects": [
+            {
+              "type": "changeVariable",
+              "variableId": "kry_closed",
+              "action": "on"
+            }
+          ],
+          "choices": [
+            {
+              "id": "back",
+              "text": "Как хотите.",
+              "next": null,
+              "effects": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "dlg_olshansky",
+      "characterId": "olshansky",
+      "startNodeId": "start",
+      "nodes": [
+        {
+          "id": "start",
+          "text": "Я хозяин квартиры. Что вас интересует?",
+          "mood": "neutral",
+          "effects": [],
+          "choices": [
+            {
+              "id": "life",
+              "text": "Как жили Крюковы с детьми?",
+              "next": "life",
+              "effects": []
+            },
+            {
+              "id": "window",
+              "text": "Что было в августе вечером?",
+              "next": "window",
+              "effects": []
+            },
+            {
+              "id": "bye",
+              "text": "Спасибо, пока всё.",
+              "next": null,
+              "effects": []
+            }
+          ]
+        },
+        {
+          "id": "life",
+          "text": "Он днём работал, вечером пил. Дети спали на полу, просили есть, он на них кричал и бил — я видел тапком и рукой. Кашу давали старую, с плесенью. Я вызывал полицию, так он меня избил. Вот и молчал потом.",
+          "mood": "sad",
+          "effects": [
+            {
+              "type": "addEvidence",
+              "evidenceId": "t_olshansky"
+            }
+          ],
+          "choices": [
+            {
+              "id": "back",
+              "text": "Понятно.",
+              "next": "start",
+              "effects": []
+            }
+          ]
+        },
+        {
+          "id": "window",
+          "text": "Пришёл около девяти вечера, дома никого. Младший стоит на подоконнике, окно настежь, кровать у самого окна. Третий этаж. Я его снял, закрыл окно. Вернулись пьяные. Начал им выговаривать — они меня избили.",
+          "mood": "angry",
+          "effects": [
+            {
+              "type": "addEvidence",
+              "evidenceId": "t_olshansky"
+            }
+          ],
+          "choices": [
+            {
+              "id": "back",
+              "text": "Понятно.",
+              "next": "start",
+              "effects": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "dlg_rybtseva",
+      "characterId": "rybtseva",
+      "startNodeId": "start",
+      "nodes": [
+        {
+          "id": "start",
+          "text": "Я инспектор по делам несовершеннолетних. Слушаю вас.",
+          "mood": "neutral",
+          "effects": [],
+          "choices": [
+            {
+              "id": "family",
+              "text": "Что известно об этой семье?",
+              "next": "family",
+              "effects": []
+            },
+            {
+              "id": "border",
+              "text": "Где граница между воспитанием и жестоким обращением?",
+              "next": "border",
+              "effects": []
+            },
+            {
+              "id": "bye",
+              "text": "Спасибо, пока всё.",
+              "next": null,
+              "effects": []
+            }
+          ]
+        },
+        {
+          "id": "family",
+          "text": "На учёте с ноября 2024 года. Проверяем каждый месяц. Составляли протоколы по статье 5.35 КоАП, беседовали. Но у них устоявшийся образ жизни: пьют, детьми не занимаются. В октябре ночью их нашли на лестнице вместе с детьми.",
+          "mood": "sad",
+          "effects": [
+            {
+              "type": "addEvidence",
+              "evidenceId": "t_rybtseva"
+            }
+          ],
+          "choices": [
+            {
+              "id": "back",
+              "text": "Понятно.",
+              "next": "start",
+              "effects": []
+            }
+          ]
+        },
+        {
+          "id": "border",
+          "text": "Закон даёт родителю право воспитывать, но запрещает пренебрежительное, жестокое, грубое и унижающее обращение. Побои, лишение пищи, запугивание — не воспитание, даже если родитель называет это так. А ненадлежащее исполнение обязанностей — это не только удары: ещё и еда, одежда, гигиена, врач, присмотр.",
+          "mood": "neutral",
+          "effects": [
+            {
+              "type": "changeVariable",
+              "variableId": "border_explained",
+              "action": "on"
+            }
+          ],
+          "choices": [
+            {
+              "id": "back",
+              "text": "Понятно.",
+              "next": "start",
+              "effects": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "dlg_somova",
+      "characterId": "somova",
+      "startNodeId": "start",
+      "nodes": [
+        {
+          "id": "start",
+          "text": "Я участковый педиатр. Спрашивайте.",
+          "mood": "neutral",
+          "effects": [],
+          "choices": [
+            {
+              "id": "obs",
+              "text": "Что вы наблюдали у детей?",
+              "next": "obs",
+              "effects": []
+            },
+            {
+              "id": "bye",
+              "text": "Спасибо, пока всё.",
+              "next": null,
+              "effects": []
+            }
+          ]
+        },
+        {
+          "id": "obs",
+          "text": "К году у старшего задержка психомоторного развития. Назначили лечение — не выполняли. Ходили к ним домой, дверь не открывали. Когда добрались, увидели замученного ребёнка, антисанитарию и голых детей. Анализы и обследования так и не сделали. Если бы не бабушка, ребёнок остался бы совсем без помощи.",
+          "mood": "sad",
+          "effects": [
+            {
+              "type": "addEvidence",
+              "evidenceId": "t_somova"
+            }
+          ],
+          "choices": [
+            {
+              "id": "back",
+              "text": "Понятно.",
+              "next": "start",
+              "effects": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "dlg_frolova",
+      "characterId": "frolova",
+      "startNodeId": "start",
+      "nodes": [
+        {
+          "id": "start",
+          "text": "Я опекун мальчиков. Что вы хотели узнать?",
+          "mood": "sad",
+          "effects": [],
+          "choices": [
+            {
+              "id": "came",
+              "text": "Какими дети пришли в вашу семью?",
+              "next": "came",
+              "effects": []
+            },
+            {
+              "id": "now",
+              "text": "Как они сейчас?",
+              "next": "now",
+              "effects": []
+            },
+            {
+              "id": "bye",
+              "text": "Спасибо, пока всё.",
+              "next": null,
+              "effects": []
+            }
+          ]
+        },
+        {
+          "id": "came",
+          "text": "В синяках. Не умели есть самостоятельно, жевать не умели, не играли, сидели на одном месте. Старший молчал, бил себя по губам, закрывал глаза руками. У младшего нашли рахит, у старшего — анемию, старшего положили в больницу.",
+          "mood": "sad",
+          "effects": [
+            {
+              "type": "addEvidence",
+              "evidenceId": "t_guardian"
+            }
+          ],
+          "choices": [
+            {
+              "id": "back",
+              "text": "Понятно.",
+              "next": "start",
+              "effects": []
+            }
+          ]
+        },
+        {
+          "id": "now",
+          "text": "Ходят в детский сад. Младший стал ходить, сказал «мама». Старший шепчет. Анемия и рахит остаются, но лечение идёт. Родители с детьми связаться не пытались.",
+          "mood": "neutral",
+          "effects": [
+            {
+              "type": "addEvidence",
+              "evidenceId": "t_guardian"
+            }
+          ],
+          "choices": [
+            {
+              "id": "back",
+              "text": "Понятно.",
+              "next": "start",
+              "effects": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "dlg_yulia",
+      "characterId": "yulia",
+      "startNodeId": "start",
+      "nodes": [
+        {
+          "id": "start",
+          "text": "Я сестра Дениса. Что вам рассказать?",
+          "mood": "nervous",
+          "effects": [],
+          "choices": [
+            {
+              "id": "kids",
+              "text": "Что вы видели у брата в семье?",
+              "next": "kids",
+              "effects": []
+            },
+            {
+              "id": "night",
+              "text": "Что было ночью на лестнице?",
+              "next": "night",
+              "effects": []
+            },
+            {
+              "id": "bye",
+              "text": "Спасибо, пока всё.",
+              "next": null,
+              "effects": []
+            }
+          ]
+        },
+        {
+          "id": "kids",
+          "text": "Брат трезвый — нормальный, а пьяный — агрессивный. Бил для воспитания, а иногда попадало просто так, когда злился на жену. Невестка выкручивала сыну уши. Я видела на теле старшего следы ладони. Дети спали на полу, не гуляли. Детьми больше занималась она, он работал, но бил он.",
+          "mood": "sad",
+          "effects": [
+            {
+              "type": "addEvidence",
+              "evidenceId": "t_sister"
+            }
+          ],
+          "choices": [
+            {
+              "id": "back",
+              "text": "Понятно.",
+              "next": "start",
+              "effects": []
+            }
+          ]
+        },
+        {
+          "id": "night",
+          "text": "Ночью я нашла их на лестнице: оба пьяные, дети на бетоне, ключи потеряли. Я забрала мальчиков, позвонила в полицию. Не могла оставить их там.",
+          "mood": "sad",
+          "effects": [
+            {
+              "type": "addEvidence",
+              "evidenceId": "t_sister"
+            }
+          ],
+          "choices": [
+            {
+              "id": "back",
+              "text": "Понятно.",
+              "next": "start",
+              "effects": []
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "deductions": [
+    {
+      "id": "d_duty",
+      "title": "Обязанности родителей",
+      "evidenceIds": [
+        "sk_rules",
+        "pdn_file"
+      ],
+      "question": "На ком лежала обязанность заботиться о детях, и знали ли об этом родители?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Только на матери: отец содержит семью",
+          "correct": false,
+          "feedback": "Обязанность по воспитанию и заботе о здоровье равна для обоих родителей (ч. 2 ст. 38 Конституции, ст. 63 СК РФ)."
+        },
+        {
+          "id": "b",
+          "text": "На обоих родителях: закон возлагает её на каждого, а беседы и протоколы показывают, что они это знали",
+          "correct": true,
+          "feedback": "Нормы СК РФ едины для обоих родителей; их неоднократно предупреждали и привлекали по ст. 5.35 КоАП РФ."
+        },
+        {
+          "id": "c",
+          "text": "Только на органах опеки",
+          "correct": false,
+          "feedback": "Опека контролирует, но обязанность воспитывать несут родители."
+        }
+      ],
+      "conclusion": "Оба родителя обязаны были заботиться о детях и знали об этом.",
+      "effects": [
+        {
+          "type": "changeVariable",
+          "variableId": "d_duty",
+          "action": "on"
+        }
+      ],
+      "failEffects": []
+    },
+    {
+      "id": "d_neglect",
+      "title": "Заброшенные дети",
+      "evidenceIds": [
+        "act_housing",
+        "ped_card"
+      ],
+      "question": "Что установлено об условиях жизни и заботе о здоровье детей?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Условия скромные, но допустимые",
+          "correct": false,
+          "feedback": "Нет спальных мест, постельного белья и пищи; обои и пол отсутствуют; антисанитария."
+        },
+        {
+          "id": "b",
+          "text": "Родители систематически не обеспечивали детей питанием, одеждой по сезону, гигиеной, спальными местами и медицинской помощью, не поддерживали санитарные условия",
+          "correct": true,
+          "feedback": "Акт обследования и сведения педиатра показывают системную запущенность и вред здоровью: задержка развития, анемия, рахит."
+        },
+        {
+          "id": "c",
+          "text": "Это временные бытовые трудности",
+          "correct": false,
+          "feedback": "Нарушения продолжались годами, и помощь семья отвергала."
+        }
+      ],
+      "conclusion": "Обязанности по воспитанию не исполнялись систематически.",
+      "effects": [
+        {
+          "type": "changeVariable",
+          "variableId": "d_neglect",
+          "action": "on"
+        }
+      ],
+      "failEffects": []
+    },
+    {
+      "id": "d_cruel",
+      "title": "Воспитание или жестокость",
+      "evidenceIds": [
+        "forensic_elder",
+        "t_olshansky"
+      ],
+      "question": "Можно ли назвать «воспитанием» то, что делал отец?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Да: родитель вправе наказывать ребёнка",
+          "correct": false,
+          "feedback": "Закон запрещает жестокое, грубое и унижающее обращение (п. 1 ст. 65 СК РФ); цель «воспитания» не оправдывает побои."
+        },
+        {
+          "id": "b",
+          "text": "Нет: побои, голод и запугивание — жестокое обращение, а не метод воспитания",
+          "correct": true,
+          "feedback": "Гематомы на разных частях тела подтверждены экспертизой, свидетель видел удары рукой и тапком; еду отец сознательно не давал."
+        },
+        {
+          "id": "c",
+          "text": "Это нормальная практика, если нет вреда здоровью",
+          "correct": false,
+          "feedback": "Состав ст. 156 не требует вреда здоровью, а страдания и нарушение развития детей установлены."
+        }
+      ],
+      "conclusion": "Побои и лишение пищи — жестокое обращение, не воспитание.",
+      "effects": [
+        {
+          "type": "changeVariable",
+          "variableId": "d_cruel",
+          "action": "on"
+        }
+      ],
+      "failEffects": []
+    },
+    {
+      "id": "d_both",
+      "title": "Не только мать",
+      "evidenceIds": [
+        "t_sister",
+        "t_kry_admit"
+      ],
+      "question": "Снимает ли ответственность с отца то, что детьми больше занималась мать и дело в её отношении выделено отдельно?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Да: пока дело в отношении матери не решено, отец не отвечает",
+          "correct": false,
+          "feedback": "Ответственность каждого из родителей определяется его собственными действиями; он сам бил детей и знал о поведении матери."
+        },
+        {
+          "id": "b",
+          "text": "Нет: отец сам ненадлежаще исполнял обязанности и действовал совместно с матерью",
+          "correct": true,
+          "feedback": "Отец бил детей, лишал пищи, не водил к врачам, оставлял одних; суд учёл совершение преступления в составе группы."
+        },
+        {
+          "id": "c",
+          "text": "Отвечает только тот, кто чаще бил",
+          "correct": false,
+          "feedback": "Закон не требует равного вклада: достаточно собственных нарушений."
+        }
+      ],
+      "conclusion": "Отец отвечает за собственные действия независимо от вклада матери.",
+      "effects": [
+        {
+          "type": "changeVariable",
+          "variableId": "d_both",
+          "action": "on"
+        }
+      ],
+      "failEffects": []
+    },
+    {
+      "id": "d_danger",
+      "title": "Дети одни",
+      "evidenceIds": [
+        "stair_report",
+        "t_olshansky"
+      ],
+      "question": "Как оценить уходы за спиртным и ночь на лестнице?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Это бытовая неосторожность, к делу не относится",
+          "correct": false,
+          "feedback": "Дети остались одни в квартире с открытым окном, незащищёнными розетками и газовой плитой; ночью лежали на бетоне."
+        },
+        {
+          "id": "b",
+          "text": "Это тоже ненадлежащая забота; отдельный эпизод с окном суд оценил как оставление в опасности (ст. 125 УК РФ)",
+          "correct": true,
+          "feedback": "Суд квалифицировал эпизод с окном по ст. 125 УК РФ отдельно, а общее пренебрежение — по ст. 156."
+        },
+        {
+          "id": "c",
+          "text": "Это обязанность опеки следить за детьми",
+          "correct": false,
+          "feedback": "До изъятия за детей отвечали родители."
+        }
+      ],
+      "conclusion": "Оставление детей без присмотра усилило общую картину пренебрежения и стало отдельным составом.",
+      "effects": [
+        {
+          "type": "changeVariable",
+          "variableId": "d_danger",
+          "action": "on"
+        }
+      ],
+      "failEffects": []
+    },
+    {
+      "id": "d_alcohol",
+      "title": "Болезнь и алкоголь",
+      "evidenceIds": [
+        "psych_cert",
+        "stair_report"
+      ],
+      "question": "Освобождают ли от ответственности психическое расстройство Крюкова и его опьянение?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Да: инвалидность и алкоголь исключают вину",
+          "correct": false,
+          "feedback": "Он признан осознающим значение своих действий; опьянение не освобождает от ответственности."
+        },
+        {
+          "id": "b",
+          "text": "Нет: он вменяем, а инвалидность суд лишь учёл как смягчающее обстоятельство; опьянение отягчающим не признано, но и не оправдывает",
+          "correct": true,
+          "feedback": "Суд смягчил наказание с учётом признания вины, раскаяния и здоровья, но признаков невменяемости нет."
+        },
+        {
+          "id": "c",
+          "text": "Опьянение — единственная причина его поведения",
+          "correct": false,
+          "feedback": "Он бил детей и в трезвом состоянии, а также лишал их пищи сознательно."
+        }
+      ],
+      "conclusion": "Болезнь и алкоголь не снимают ответственности.",
+      "effects": [
+        {
+          "type": "changeVariable",
+          "variableId": "d_alcohol",
+          "action": "on"
+        }
+      ],
+      "failEffects": []
+    },
+    {
+      "id": "d_final",
+      "title": "Итог",
+      "evidenceIds": [
+        "d_neglect",
+        "d_cruel"
+      ],
+      "question": "Что образуют вместе систематическое неисполнение обязанностей и жестокое обращение?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Только административное нарушение (ст. 5.35 КоАП РФ)",
+          "correct": false,
+          "feedback": "Если неисполнение обязанностей соединено с жестоким обращением, наступает уголовная ответственность."
+        },
+        {
+          "id": "b",
+          "text": "Ненадлежащее исполнение родителем обязанностей по воспитанию, соединённое с жестоким обращением",
+          "correct": true,
+          "feedback": "Это признаки преступления по ст. 156 УК РФ."
+        },
+        {
+          "id": "c",
+          "text": "Лишение родительских прав и ничего больше",
+          "correct": false,
+          "feedback": "Лишение прав — мера гражданского права; оно не заменяет уголовную ответственность."
+        }
+      ],
+      "conclusion": "Действия содержат признаки преступления, предусмотренного ст. 156 УК РФ.",
+      "effects": [
+        {
+          "type": "changeVariable",
+          "variableId": "d_final",
+          "action": "on"
+        }
+      ],
+      "failEffects": []
+    }
+  ],
+  "hints": [
+    {
+      "level": 1,
+      "text": "Выясните, какие обязанности закон возлагает на родителей и что именно делал и не делал отец.",
+      "penalty": 5
+    },
+    {
+      "level": 2,
+      "text": "Сопоставьте акты и медицинские сведения: что дети не получали? И отдельно — что показывают экспертиза и свидетели о том, как отец «воспитывал»?",
+      "penalty": 7
+    },
+    {
+      "level": 3,
+      "text": "Отцу не помогут ссылки на «воспитание», бедность, участие матери, инвалидность или алкоголь: нарушения были систематическими и соединены с жестоким обращением.",
+      "penalty": 10
+    }
+  ],
+  "questions": [
+    {
+      "id": "q_right",
+      "category": "right",
+      "prompt": "Какое право затронуто?",
+      "kind": "single",
+      "source": "inline",
+      "maxPoints": 30,
+      "options": [
+        {
+          "id": "child_care",
+          "label": "Право ребёнка на заботу и воспитание; забота о детях — равная обязанность родителей",
+          "mark": "ч. 2 ст. 38 Конституции РФ",
+          "points": 30,
+          "feedback": "Верно: родители обязаны воспитывать и беречь детей."
+        },
+        {
+          "id": "dignity",
+          "label": "Достоинство личности и запрет жестокого обращения",
+          "mark": "ст. 21 Конституции РФ",
+          "points": 14,
+          "feedback": "Достоинство нарушено, но центральная норма дела — об обязанностях родителей."
+        },
+        {
+          "id": "health",
+          "label": "Право на охрану здоровья",
+          "mark": "ст. 41 Конституции РФ",
+          "points": 10,
+          "feedback": "Здоровье пострадало, но главный предмет дела — ненадлежащее воспитание."
+        },
+        {
+          "id": "life",
+          "label": "Право на жизнь",
+          "mark": "ст. 20 Конституции РФ",
+          "points": 6,
+          "feedback": "Жизни детей угрожала опасность, но их смерть не наступила."
+        },
+        {
+          "id": "property",
+          "label": "Право собственности",
+          "mark": "ст. 35 Конституции РФ",
+          "points": 0,
+          "feedback": "Имущественные права не затронуты."
+        }
+      ]
+    },
+    {
+      "id": "q_violation",
+      "category": "violation",
+      "prompt": "Было ли нарушение?",
+      "kind": "single",
+      "source": "inline",
+      "maxPoints": 15,
+      "options": [
+        {
+          "id": "yes",
+          "label": "Да",
+          "mark": "",
+          "points": 15,
+          "feedback": "Верно: отец не исполнял обязанностей по воспитанию и жестоко обращался с детьми."
+        },
+        {
+          "id": "no",
+          "label": "Нет",
+          "mark": "",
+          "points": 0,
+          "feedback": "Нарушение есть: акты, экспертизы и показания подтверждают систематические нарушения."
+        },
+        {
+          "id": "insufficient",
+          "label": "Данных недостаточно",
+          "mark": "",
+          "points": 4,
+          "feedback": "Данных достаточно: документы, экспертизы, свидетели и признание."
+        }
+      ]
+    },
+    {
+      "id": "q_qualification",
+      "category": "qualification",
+      "prompt": "Как можно квалифицировать действия виновного?",
+      "kind": "single",
+      "source": "inline",
+      "maxPoints": 15,
+      "options": [
+        {
+          "id": "art156",
+          "label": "Признаки преступления: ст. 156 УК РФ",
+          "mark": "",
+          "points": 15,
+          "feedback": "Верно как возможная квалификация. Окончательную оценку дают следствие и суд."
+        },
+        {
+          "id": "art117",
+          "label": "Истязание (п. «г», «е» ч. 2 ст. 117 УК РФ)",
+          "mark": "",
+          "points": 8,
+          "feedback": "Суд по этому приговору вменил и истязание отдельно, но в центре дела — ненадлежащее воспитание, соединённое с жестоким обращением."
+        },
+        {
+          "id": "art125",
+          "label": "Оставление в опасности (ст. 125 УК РФ)",
+          "mark": "",
+          "points": 5,
+          "feedback": "Относится к эпизоду с окном; суд оценил его отдельно, и он не исчерпывает дела."
+        },
+        {
+          "id": "art5_35",
+          "label": "Административное правонарушение (ст. 5.35 КоАП РФ)",
+          "mark": "",
+          "points": 3,
+          "feedback": "КоАП применяется, пока нет жестокого обращения; здесь оно установлено."
+        },
+        {
+          "id": "art116",
+          "label": "Побои (ст. 116.1 УК РФ)",
+          "mark": "",
+          "points": 1,
+          "feedback": "Побои — лишь часть картины, а не вся вина родителя."
+        },
+        {
+          "id": "none",
+          "label": "Состава нет: родитель вправе воспитывать по-своему",
+          "mark": "",
+          "points": 0,
+          "feedback": "Право воспитывать не включает жестокого обращения."
+        }
+      ]
+    },
+    {
+      "id": "q_responsible",
+      "category": "responsible",
+      "prompt": "Кто несёт ответственность в рамках этого дела?",
+      "kind": "single",
+      "source": "characters",
+      "maxPoints": 20,
+      "options": [
+        {
+          "id": "kryukov",
+          "label": "",
+          "mark": "",
+          "points": 20,
+          "feedback": "Верно: отец не исполнял обязанностей и жестоко обращался с детьми."
+        },
+        {
+          "id": "lilia",
+          "label": "",
+          "mark": "",
+          "points": 5,
+          "feedback": "Мать тоже виновна, но в отношении неё дело выделено в отдельное производство; в этом деле отвечает отец."
+        },
+        {
+          "id": "yulia",
+          "label": "",
+          "mark": "",
+          "points": 0,
+          "feedback": "Сестра забрала детей и сообщила в полицию."
+        },
+        {
+          "id": "olshansky",
+          "label": "",
+          "mark": "",
+          "points": 0,
+          "feedback": "Хозяин снял ребёнка с окна и вызывал полицию; обязанностей по воспитанию у него нет."
+        },
+        {
+          "id": "rybtseva",
+          "label": "",
+          "mark": "",
+          "points": 0,
+          "feedback": "Инспектор проверяла семью, проводила беседы и составляла протоколы."
+        },
+        {
+          "id": "somova",
+          "label": "",
+          "mark": "",
+          "points": 0,
+          "feedback": "Врач назначала лечение, которое родители не выполняли."
+        },
+        {
+          "id": "frolova",
+          "label": "",
+          "mark": "",
+          "points": 0,
+          "feedback": "Опекун приняла детей уже после изъятия."
+        }
+      ]
+    },
+    {
+      "id": "q_evidence",
+      "category": "evidence",
+      "prompt": "Какие доказательства это подтверждают?",
+      "kind": "multi",
+      "source": "evidence",
+      "maxPoints": 20,
+      "options": [
+        {
+          "id": "t_kry_admit",
+          "label": "",
+          "mark": "",
+          "points": 3,
+          "feedback": "Отец признал побои, лишение пищи, отказ от медицинской помощи и оставление детей."
+        },
+        {
+          "id": "ped_card",
+          "label": "",
+          "mark": "",
+          "points": 3,
+          "feedback": "Диагнозы и невыполнение назначений: вред развитию и здоровью."
+        },
+        {
+          "id": "forensic_elder",
+          "label": "",
+          "mark": "",
+          "points": 3,
+          "feedback": "Множественные гематомы у старшего мальчика."
+        },
+        {
+          "id": "act_housing",
+          "label": "",
+          "mark": "",
+          "points": 2,
+          "feedback": "Нет спальных мест, пищи, антисанитария."
+        },
+        {
+          "id": "sk_rules",
+          "label": "",
+          "mark": "",
+          "points": 2,
+          "feedback": "Нормы об обязанностях родителей и запрете жестокого обращения."
+        },
+        {
+          "id": "t_olshansky",
+          "label": "",
+          "mark": "",
+          "points": 2,
+          "feedback": "Очевидец побоев, питания «с помойки» и эпизода с окном."
+        },
+        {
+          "id": "t_sister",
+          "label": "",
+          "mark": "",
+          "points": 2,
+          "feedback": "Видела следы побоев и ночь на лестнице."
+        },
+        {
+          "id": "stair_report",
+          "label": "",
+          "mark": "",
+          "points": 1,
+          "feedback": "Ночь на бетоне с пьяными родителями."
+        },
+        {
+          "id": "pdn_file",
+          "label": "",
+          "mark": "",
+          "points": 1,
+          "feedback": "Родителей предупреждали, но они не меняли поведения."
+        },
+        {
+          "id": "t_guardian",
+          "label": "",
+          "mark": "",
+          "points": 1,
+          "feedback": "Состояние детей при передаче опекуну."
+        },
+        {
+          "id": "scene_protocol",
+          "label": "",
+          "mark": "",
+          "points": 0,
+          "feedback": "Фиксирует обстановку, но отдельно вину не доказывает."
+        },
+        {
+          "id": "forensic_younger",
+          "label": "",
+          "mark": "",
+          "points": 0,
+          "feedback": "Гематома лобной области — отдельный эпизод, но не главное доказательство ст. 156."
+        },
+        {
+          "id": "psych_cert",
+          "label": "",
+          "mark": "",
+          "points": 0,
+          "feedback": "Сведения о личности; к ответственности отношение косвенное."
+        },
+        {
+          "id": "t_somova",
+          "label": "",
+          "mark": "",
+          "points": 0,
+          "feedback": "Подтверждает запущенность, но врач прямых выводов о жестокости не делает."
+        },
+        {
+          "id": "t_rybtseva",
+          "label": "",
+          "mark": "",
+          "points": 0,
+          "feedback": "Подтверждает учёт и условия, но не побои."
+        },
+        {
+          "id": "t_kry_lie",
+          "label": "",
+          "mark": "",
+          "points": -3,
+          "feedback": "Ложная версия: опровергнута экспертизой, показаниями свидетелей и признанием."
+        }
+      ]
+    }
+  ],
+  "solution": {
+    "right": "child_care",
+    "rightText": "Забота о детях и их воспитание — равная обязанность родителей, а ребёнок вправе на заботу и защиту (ч. 1 и 2 ст. 38 Конституции РФ); затронуты также достоинство (ст. 21) и охрана здоровья (ст. 41).",
+    "violation": true,
+    "responsibleCharacter": "kryukov",
+    "correctAnswer": "Денис Крюков, отец двух малолетних сыновей, был обязан заботиться об их здоровье, физическом и психическом развитии (ст. 63 и 65 СК РФ). Вместе с матерью он систематически не обеспечивал детей питанием, одеждой по сезону, гигиеной, спальными местами и медицинской помощью, не поддерживал санитарных условий, пил и курил при детях, бил старшего сына рукой и тапком, лишал еды и запугивал. Дети жили в антисанитарной квартире, отставали в развитии, у них были гематомы, анемия и рахит. Возможная квалификация — ст. 156 УК РФ.",
+    "whatHappened": "Крюковы с двумя сыновьями жили в проходной комнате чужой квартиры. Родители пили; детям давали еду раз в день, иногда не давали сутки; врачей, анализов и детского сада у мальчиков не было. Отец бил старшего сына ладонью, кулаком и тапком, младшего ударил по голове. Семью ставили на профилактический учёт, беседовали, составляли протоколы, но поведение не менялось. В августе родители ушли за спиртным, и младший залез на подоконник открытого окна на третьем этаже. Осенью они уснули пьяными на лестничной площадке вместе с детьми. Сестра отца забрала детей, и опека их изъяла.",
+    "explanation": "Ст. 156 УК РФ наказывает неисполнение или ненадлежащее исполнение родителем обязанностей по воспитанию несовершеннолетнего, если это соединено с жестоким обращением. Крюков — родитель; обязанности возложены на него ст. 63 и 65 СК РФ; нарушения систематические (питание, одежда, гигиена, спальные места, медицинская помощь, санитарные условия, пьянство при детях) соединены с жестоким обращением (побои, лишение еды, запугивание). «Воспитательные цели», бедность, ссылка на то, что детьми занималась мать, психическое расстройство и алкоголь ответственности не снимают: родитель отвечает за собственные действия, вменяемость не исключена, а закон прямо запрещает жестокие способы воспитания. Суд признал вину по трём статьям: п. «г», «е» ч. 2 ст. 117, ст. 125 и ст. 156 УК РФ. За ст. 156 назначен штраф 50 000 рублей, за ст. 125 — 30 000 рублей, за истязание — 4 года лишения свободы; по совокупности — 4 года колонии общего режима и штраф 80 000 рублей. Смягчающими признаны признание вины, раскаяние, активное способствование расследованию и состояние здоровья (инвалидность 2-й группы); отягчающими — совершение преступлений в составе группы, в отношении малолетних и родителем в отношении несовершеннолетнего. Алкогольное опьянение отягчающим не признано: объективных данных о его влиянии на поведение не нашли.",
+    "legalQualification": "Действия Крюкова содержат признаки преступления, предусмотренного ст. 156 УК РФ (ненадлежащее исполнение родителем обязанностей по воспитанию несовершеннолетнего, соединённое с жестоким обращением). Виновность определяет только суд.",
+    "qualificationNotes": [
+      {
+        "kind": "right",
+        "applies": "yes",
+        "text": "Нарушены права детей на заботу, воспитание и защиту от жестокого обращения (ст. 38, 21, 41 Конституции РФ)."
+      },
+      {
+        "kind": "violation",
+        "applies": "yes",
+        "text": "Родители не исполняли обязанностей по воспитанию, а отец применял побои и лишение пищи."
+      },
+      {
+        "kind": "criminal",
+        "applies": "possible",
+        "text": "Признаки ст. 156 УК РФ; отдельные эпизоды могут образовать иные составы (ст. 117, 125). Вывод о виновности делает суд."
+      },
+      {
+        "kind": "administrative",
+        "applies": "no",
+        "text": "Ст. 5.35 КоАП РФ применяется, когда нет жестокого обращения; здесь оно установлено."
+      },
+      {
+        "kind": "civil",
+        "applies": "possible",
+        "text": "Возможны лишение родительских прав (ст. 69 СК РФ) и взыскание алиментов на содержание детей."
+      },
+      {
+        "kind": "disciplinary",
+        "applies": "possible",
+        "text": "Профилактический учёт и контроль органов опеки продолжаются; это не заменяет уголовной ответственности."
+      }
+    ],
+    "keyEvidence": [
+      {
+        "evidenceId": "t_kry_admit",
+        "why": "Отец признал побои, лишение пищи, отказ от врачей и оставление детей."
+      },
+      {
+        "evidenceId": "ped_card",
+        "why": "Диагнозы и невыполненные назначения показывают вред здоровью и развитию."
+      },
+      {
+        "evidenceId": "forensic_elder",
+        "why": "Множественные гематомы у старшего сына подтверждают насилие."
+      },
+      {
+        "evidenceId": "act_housing",
+        "why": "Нет спальных мест, еды, соблюдения санитарии."
+      },
+      {
+        "evidenceId": "sk_rules",
+        "why": "Нормы об обязанностях родителей и запрете жестокого обращения."
+      }
+    ],
+    "sources": [
+      "Конституция РФ, ст. 21, 38, 41",
+      "Семейный кодекс РФ, ст. 63, 65, 69",
+      "УК РФ, ст. 156, п. «г», «е» ч. 2 ст. 117, ст. 125; п. «в», «з», «п» ч. 1 ст. 63; ч. 3 ст. 69",
+      "КоАП РФ, ст. 5.35",
+      "Приговор Подольского городского суда от 26.03.2026 по делу № 1-176/2026 (обстоятельства использованы как основа; люди, места, организации и даты в деле вымышлены или условны)"
+    ]
+  },
+  "flags": [
+    {
+      "id": "kry_drinks",
+      "name": "Крюков признал, что пьёт по выходным"
+    },
+    {
+      "id": "border_explained",
+      "name": "Инспектор объяснила, где граница воспитания"
+    },
+    {
+      "id": "kry_lied",
+      "name": "Крюков утверждал, что только «воспитывал»"
+    },
+    {
+      "id": "kry_admitted",
+      "name": "Крюков признал побои и пренебрежение"
+    },
+    {
+      "id": "kry_closed",
+      "name": "Крюков отказался говорить"
+    },
+    {
+      "id": "d_duty",
+      "name": "Решено: Обязанности родителей"
+    },
+    {
+      "id": "d_neglect",
+      "name": "Решено: Заброшенные дети"
+    },
+    {
+      "id": "d_cruel",
+      "name": "Решено: Воспитание или жестокость"
+    },
+    {
+      "id": "d_both",
+      "name": "Решено: Не только мать"
+    },
+    {
+      "id": "d_danger",
+      "name": "Решено: Дети одни"
+    },
+    {
+      "id": "d_alcohol",
+      "name": "Решено: Болезнь и алкоголь"
+    },
+    {
+      "id": "d_final",
+      "name": "Решено: Итог"
+    }
+  ],
+  "lawReference": {
+    "basis": [
+      {
+        "article": "ч. 2 ст. 38 Конституции РФ",
+        "title": "Забота о детях",
+        "text": "Забота о детях, их воспитание — равное право и обязанность родителей.",
+        "url": "http://www.consultant.ru/document/cons_doc_LAW_28399/"
+      },
+      {
+        "article": "ст. 63 СК РФ",
+        "title": "Права и обязанности родителей по воспитанию",
+        "text": "Родители обязаны заботиться о здоровье, физическом, психическом, духовном и нравственном развитии своих детей.",
+        "url": "http://www.consultant.ru/document/cons_doc_LAW_8982/"
+      },
+      {
+        "article": "ст. 65 СК РФ",
+        "title": "Осуществление родительских прав",
+        "text": "Способы воспитания должны исключать пренебрежительное, жестокое, грубое, унижающее человеческое достоинство обращение, оскорбление или эксплуатацию детей.",
+        "url": "http://www.consultant.ru/document/cons_doc_LAW_8982/"
+      },
+      {
+        "article": "ст. 156 УК РФ",
+        "title": "Неисполнение обязанностей по воспитанию",
+        "text": "Неисполнение или ненадлежащее исполнение обязанностей по воспитанию несовершеннолетнего родителем, если это деяние соединено с жестоким обращением с несовершеннолетним.",
+        "url": "http://www.consultant.ru/document/cons_doc_LAW_10699/"
+      }
+    ],
+    "notes": [
+      {
+        "title": "«Воспитательные цели»",
+        "text": "Родитель вправе воспитывать, но не вправе применять жестокие способы. Побои, лишение пищи и запугивание воспитанием не являются, как бы их ни называл виновный."
+      },
+      {
+        "title": "Вклад каждого родителя",
+        "text": "Обязанность по воспитанию лежит на обоих родителях. То, что детьми больше занималась мать и дело в отношении неё выделено отдельно, не освобождает отца от ответственности за его собственные действия."
+      },
+      {
+        "title": "Болезнь и опьянение",
+        "text": "Психическое расстройство, не исключающее вменяемости, учитывается как смягчающее обстоятельство. Алкогольное опьянение не оправдывает, а отягчающим его суд признаёт, только если оно повлияло на поведение."
+      },
+      {
+        "title": "Соотношение со ст. 117 и 125",
+        "text": "Побои как истязание (ст. 117) и оставление детей в опасности (ст. 125) суд оценил отдельно; ст. 156 охватывает общее ненадлежащее исполнение обязанностей, соединённое с жестоким обращением."
+      }
+    ]
+  }
+}
