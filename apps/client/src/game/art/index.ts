@@ -6,5 +6,4 @@
 export * from "./common";
 export * from "./tiles";
 export * from "./sprites";
-export * from "./doors";
 export * from "./characters";

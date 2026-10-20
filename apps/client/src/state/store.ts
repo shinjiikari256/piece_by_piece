@@ -560,11 +560,6 @@ export const actions = {
   interact(targetId: string) {
     const s = state;
     if (isWorldBlocked(s) || !s.caseFile) return;
-    if (targetId.startsWith("door:")) {
-      const door = s.caseFile.locations.find((l) => l.id === s.locationId)?.doors.find((d) => `door:${d.id}` === targetId);
-      if (door) toast(door.lockedText ? `Заперто. ${door.lockedText}` : "Заперто.");
-      return;
-    }
     if (targetId.startsWith("zone:")) {
       const zoneId = targetId.slice(5);
       const action = zoneAction(zoneId);

@@ -1,5 +1,5 @@
 import Phaser from "phaser";
-import { isInteractive, type Door, type Location, type LocationObject } from "../../../../shared/case";
+import { isInteractive, type Location, type LocationObject } from "../../../../shared/case";
 import type { PublicCase as CaseFile } from "../../../../shared/public-case";
 import { meets } from "../../../../shared/conditions";
 import { objectView } from "../../../../shared/object-state";
@@ -12,14 +12,13 @@ import {
   footprintCells,
   TILE,
   WALL_TILES,
-  doorMirrored,
-  drawTile,
+    drawTile,
 } from "./art";
 import { gameBridge } from "./bridge";
 import type { SceneHost } from "./host";
 import { collides, findPath, nearestFree, reachWithin, slideShift, type IsFree, type Tile } from "./scene/navigation";
 import { redirect, startWalk, stepWalk, tileOfPoint, turnBack } from "./scene/walker";
-import { ensureCharacterTextures, ensureDoorTextures, ensureExitTextures, ensureObjectFrameTexture, ensureObjectTextures } from "./scene/textures";
+import { ensureCharacterTextures, ensureExitTextures, ensureObjectFrameTexture, ensureObjectTextures } from "./scene/textures";
 import type { Interactable, Npc } from "./scene/types";
 
 const SPEED = 150; // px/с в мировых координатах
@@ -51,9 +50,6 @@ export class OfficeScene extends Phaser.Scene {
   /** Путь игрока — по нему идут сопровождающие. */
   private trail: { x: number; y: number }[] = [];
   private leaving = false;
-  private doors: { def: Door; sprite: Phaser.GameObjects.Image; tiles: { x: number; y: number }[]; locked: boolean; item: Interactable | null }[] = [];
-  /** Клетки запертых дверей — непроходимы. */
-  private doorTiles = new Set<string>();
   /** Предметы с состояниями: вид и проходимость зависят от прогресса. */
   private stateful: { o: LocationObject; img: Phaser.GameObjects.Image; footprint: { x: number; y: number }[]; item: Interactable | null }[] = [];
   private objectTiles = new Set<string>();
@@ -82,8 +78,6 @@ export class OfficeScene extends Phaser.Scene {
     if (import.meta.env.MODE === "development") Object.assign(window, { __scene: this });
     // при scene.restart() экземпляр тот же — состояние сбрасываем вручную
     this.interactables = [];
-    this.doors = [];
-    this.doorTiles = new Set();
     this.stateful = [];
     this.objectTiles = new Set();
     this.npcs = new Map();
@@ -101,7 +95,6 @@ export class OfficeScene extends Phaser.Scene {
     this.buildMap();
     this.buildObjects();
     this.buildZones();
-    this.buildDoors();
     this.buildPlayer();
     this.syncNpcs();
     this.fitCamera();
@@ -253,7 +246,8 @@ export class OfficeScene extends Phaser.Scene {
         .setDepth(spec.flat ? 0 : bottom);
       const footprint = footprintCells(o.x, o.y, spec.footprint);
       const entry = { o, img, footprint, item: null as Interactable | null };
-      if (o.states?.length) this.stateful.push(entry);
+      if (spec.mirrorRight && o.x >= this.location.tiles[0].length / 2) img.setFlipX(true);
+      if (o.states?.length || spec.opensNear) this.stateful.push(entry);
       else {
         if (spec.solid) footprint.forEach((t) => this.setSolid(t.x, t.y));
         if (isInteractive(o)) this.addObjectItem(entry, o.label);
@@ -682,66 +676,25 @@ export class OfficeScene extends Phaser.Scene {
       return;
     }
     this.refreshChecks();
-    this.syncDoors();
     this.syncObjects();
     this.syncNpcs();
   }
 
   // ---------- двери ----------
 
-  private buildDoors() {
-    ensureDoorTextures(this.textures);
-    for (const def of this.location.doors) {
-      const h = def.orientation === "h";
-      const tiles = h ? [{ x: def.x, y: def.y }, { x: def.x + 1, y: def.y }] : [{ x: def.x, y: def.y }, { x: def.x, y: def.y + 1 }];
-      const cx = h ? (def.x + 1) * TILE : (def.x + 0.5) * TILE;
-      const bottom = h ? (def.y + 1) * TILE : (def.y + 2) * TILE;
-      const sprite = this.add.image(cx, bottom, `door_${def.orientation}_closed`).setOrigin(0.5, 1).setScale(SCALE).setDepth(bottom);
-      if (!h && doorMirrored(def.x, this.location.tiles[0].length)) sprite.setFlipX(true);
-      this.doors.push({ def, sprite, tiles, locked: false, item: null });
-    }
-    this.syncDoors();
-  }
-
-  /** Заперта ли дверь сейчас — зависит от прогресса (ключ, разрешение, факт). */
-  private syncDoors() {
-    const { progress, locationId } = this.host.getState();
-    this.doorTiles.clear();
-    for (const d of this.doors) {
-      d.locked = !meets(d.def.requires, progress, locationId);
-      if (d.locked) d.tiles.forEach((t) => this.doorTiles.add(`${t.x},${t.y}`));
-      if (d.locked && !d.item) {
-        const label = "Дверь · заперто";
-        d.item = {
-          id: `door:${d.def.id}`,
-          label,
-          x: d.sprite.x,
-          y: d.sprite.y - TILE / 2,
-          footprint: d.tiles,
-          sprite: d.sprite,
-          labelText: this.makeLabel(label).setPosition(d.sprite.x, d.sprite.y - d.sprite.displayHeight - 4),
-        };
-        this.makeClickable(d.item);
-        this.interactables.push(d.item);
-      } else if (!d.locked && d.item) {
-        d.item.labelText.destroy();
-        d.sprite.removeAllListeners().disableInteractive();
-        this.interactables = this.interactables.filter((i) => i !== d.item);
-        if (this.focused === d.item) this.focused = null;
-        d.item = null;
-      }
-      d.sprite.setTexture(`door_${d.def.orientation}_${d.locked ? "locked" : "closed"}`);
-    }
-  }
-
-  /** Незапертые двери распахиваются, когда рядом игрок или сопровождающий. */
+  /** Предметы с `opensNear` (двери) распахиваются, когда рядом игрок или сопровождающий и они сейчас проходимы. */
   private animateDoors() {
+    const doors = this.stateful.filter((e) => SPRITES[e.o.sprite].opensNear);
+    if (!doors.length) return;
     const walkers = [this.player, ...[...this.npcs.values()].filter((n) => n.mode === "follower").map((n) => n.sprite)];
-    for (const d of this.doors) {
-      if (d.locked) continue;
-      const near = walkers.some((w) => Phaser.Math.Distance.Between(w.x, w.y - TILE / 4, d.sprite.x, d.sprite.y - TILE / 2) < TILE * 1.7);
-      const key = `door_${d.def.orientation}_${near ? "open" : "closed"}`;
-      if (d.sprite.texture.key !== key) d.sprite.setTexture(key);
+    const { progress, locationId } = this.host.getState();
+    for (const e of doors) {
+      const view = objectView(e.o, progress, locationId);
+      const solid = view.state?.solid ?? SPRITES[e.o.sprite].solid;
+      const near =
+        !solid && walkers.some((w) => Phaser.Math.Distance.Between(w.x, w.y - TILE / 4, e.img.x, e.img.y - TILE / 2) < TILE * 1.7);
+      const tex = ensureObjectFrameTexture(this.textures, e.o.sprite, near ? "open" : view.state?.frame);
+      if (e.img.texture.key !== tex) e.img.setTexture(tex);
     }
   }
 
@@ -796,7 +749,7 @@ export class OfficeScene extends Phaser.Scene {
 
   private isFree(x: number, y: number) {
     const key = `${x},${y}`;
-    return this.solid[y]?.[x] === false && !this.npcTiles.has(key) && !this.doorTiles.has(key) && !this.objectTiles.has(key);
+    return this.solid[y]?.[x] === false && !this.npcTiles.has(key) && !this.objectTiles.has(key);
   }
 
   private isFreeFn: IsFree = (x, y) => this.isFree(x, y);
@@ -822,7 +775,7 @@ export class OfficeScene extends Phaser.Scene {
   private reachKey = "";
   private reach = new Set<string>();
   /** Проходимая клетка (стены и закрытые двери — нет); людей и мебель не учитываем: это о том, по какую сторону стены стоит игрок. */
-  private walkable: IsFree = (x, y) => this.solid[y]?.[x] === false && !this.doorTiles.has(`${x},${y}`) && !this.objectTiles.has(`${x},${y}`);
+  private walkable: IsFree = (x, y) => this.solid[y]?.[x] === false && !this.objectTiles.has(`${x},${y}`);
 
   /** Клетки, достижимые от игрока за два шага: через стену взаимодействовать нельзя. */
   private reachableTiles() {

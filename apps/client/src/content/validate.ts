@@ -240,17 +240,6 @@ function checkIntegrity(c: CaseFile): string[] {
         }
       });
     }
-    unique(`${L}.doors`, loc.doors.map((d) => d.id));
-    for (const d of loc.doors) {
-      const tiles = d.orientation === "h" ? [[d.x, d.y], [d.x + 1, d.y]] : [[d.x, d.y], [d.x, d.y + 1]];
-      for (const [x, y] of tiles) {
-        if (!isFloor(x, y)) err(`${L}/door ${d.id}: клетка ${x},${y} — не проём (дверь ставится в проход)`);
-        if (occupied.has(`${x},${y}`)) err(`${L}/door ${d.id}: клетка ${x},${y} занята`);
-      }
-      checkCondition(d.requires, `${L}/door ${d.id}.requires`);
-      if (d.requires && Object.values(d.requires).every((v) => !v?.length))
-        err(`${L}/door ${d.id}: дверь закрыта, но условий, при которых она откроется, нет`);
-    }
   }
   // выходы (действия `exit` областей): точка появления — пол целевой карты, но не прямо в области с автоматическим выходом (иначе сразу выкинет обратно)
   for (const loc of c.locations) {
@@ -363,7 +352,6 @@ function checkIntegrity(c: CaseFile): string[] {
     }),
   );
   c.locations.forEach((l) => l.zones.forEach((z) => z.actions.forEach((a) => condFlags(a.requires))));
-  c.locations.forEach((l) => l.doors.forEach((d) => condFlags(d.requires)));
   c.locations.forEach((l) => l.objects.forEach((o) => o.states?.forEach((st) => condFlags(st.when))));
   c.events.forEach((ev) => condFlags(ev.requires));
   for (const f of usedFlags) if (!named.has(f)) err(`flags: у флага «${f}» нет названия — добавьте его в разделе «Переменные»`);

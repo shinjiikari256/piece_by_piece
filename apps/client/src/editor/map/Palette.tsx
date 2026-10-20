@@ -55,18 +55,6 @@ export function MapPalette({
         <ToolButton on={tool.kind === "select"} onClick={() => setTool({ kind: "select" })} icon="⬚" label="Выбор" keyHint="V" />
         <ToolButton on={tool.kind === "zone"} onClick={() => setTool({ kind: "zone" })} icon="▦" label="Область" />
         <ToolButton on={tool.kind === "start"} onClick={() => setTool({ kind: "start" })} icon="▶" label="Старт" hint="Старт игрока один на дело: клик переносит его сюда, и эта локация становится стартовой" />
-        <ToolButton
-          on={tool.kind === "door" && tool.orientation === "h"}
-          onClick={() => setTool({ kind: "door", orientation: "h" })}
-          icon="▬"
-          label="Дверь ─"
-        />
-        <ToolButton
-          on={tool.kind === "door" && tool.orientation === "v"}
-          onClick={() => setTool({ kind: "door", orientation: "v" })}
-          icon="▮"
-          label="Дверь │"
-        />
       </div>
 
       {/* пол и стены — одна группа «Клетки»: выбор клетки сразу включает кисть, Shift — прямоугольник */}

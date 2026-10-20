@@ -90,9 +90,6 @@ export function caseWarnings(c: CaseFile): string[] {
     out.push("settings: у части событий нет года — задайте базовый год в «Настройках», иначе он подберётся сам по самому раннему событию");
   c.deductions.forEach((x) => positive(x.requires));
   for (const l of c.locations) {
-    l.doors.forEach((d) => {
-      positive(d.requires);
-    });
     l.npcs.forEach((n) => {
       positive(n.requires);
       n.dialogues.forEach((d) => positive(d.requires));

@@ -3,7 +3,7 @@ import { formSchema } from "../json-schema";
 import {
   drawTile,
 } from "../../game/art";
-import { Door, Location, LocationObject, NpcPlacement, isInteractive } from "../../../../../shared/case";
+import { Location, LocationObject, NpcPlacement, isInteractive } from "../../../../../shared/case";
 import type { CaseFile as CaseFileT, Location as LocationT, LocationObject as LocationObjectT, NpcDialogue, Zone } from "../../../../../shared/case";
 import { Icon } from "../../ui/icons";
 import { tell } from "../../ui/dialog";
@@ -14,15 +14,12 @@ import { ZONE_COLORS } from "./helpers";
 import { ZoneActions } from "./ZoneActions";
 import { NpcDialogues } from "./NpcDialogues";
 import { Field, ObjectFields, type JS } from "../SchemaForm";
-import { ConditionEditor } from "../fields/Conditions";
-import type { Condition } from "../../../../../shared/case";
 import { T } from "./canvases";
 import { LIST_KEY, type Selection, type Tool } from "./types";
 
 
 const OBJECT_SCHEMA: JS = formSchema(LocationObject);
 const NPC_SCHEMA: JS = formSchema(NpcPlacement);
-const DOOR_SCHEMA: JS = formSchema(Door);
 export const LOCATION_SCHEMA: JS = formSchema(Location);
 
 export function ToolButton({ on, onClick, icon, label, keyHint, hint }: { on: boolean; onClick: () => void; icon: string; label: string; keyHint?: string; hint?: string }) {
@@ -165,21 +162,18 @@ export function SelectedPanel({
     );
   }
   const key = LIST_KEY[sel.kind];
-  const schema = { object: OBJECT_SCHEMA, npc: NPC_SCHEMA, door: DOOR_SCHEMA }[sel.kind];
+  const schema = { object: OBJECT_SCHEMA, npc: NPC_SCHEMA }[sel.kind];
   const item = (loc[key] as { id: string }[]).find((x) => x.id === sel.id);
   if (!item) return null;
-  const title = { object: "Предмет", npc: "Человек", door: "Дверь" }[sel.kind];
+  const title = { object: "Предмет", npc: "Человек" }[sel.kind];
   return (
     <>
       {back}
       <h3>{title}</h3>
-      {sel.kind === "door" && <p className="muted">Дверь ставится в проём стены. Пока не закрыта, открывается сама, когда игрок подходит.</p>}
       {(() => {
         const onChange = (v: unknown) =>
           updateLoc((l) => ({ ...l, [key]: (l[key] as { id: string }[]).map((x) => (x.id === sel.id ? v : x)) }), `${key}:${sel.id}`);
-        return sel.kind === "door" ? (
-          <DoorFields schema={schema} door={item as DoorValue} draft={draft} onChange={onChange} />
-        ) : sel.kind === "npc" ? (
+        return sel.kind === "npc" ? (
           <>
             <ObjectFields schema={schema} value={item} ctx={{ draft }} skip={["dialogues"]} onChange={onChange} />
             <NpcDialogues
@@ -279,45 +273,3 @@ export function SizeInput({ label, value, onChange }: { label: string; value: nu
 }
 
 /** Новая ширина/высота: обрезаем или достраиваем стенами. */
-
-
-type DoorValue = { id: string; x: number; y: number; orientation: "h" | "v"; requires?: Condition; lockedText?: string };
-
-/** Дверь: положение — обычными полями, а «Закрыта» включает текст у двери и условия, при которых она откроется. */
-function DoorFields({ schema, door, draft, onChange }: { schema: JS; door: DoorValue; draft: CaseFileT; onChange: (v: unknown) => void }) {
-  const locked = door.requires !== undefined;
-  const lock = (on: boolean) => {
-    const { requires: _r, lockedText: _t, ...rest } = door;
-    onChange(on ? { ...rest, requires: {} } : rest);
-  };
-  return (
-    <>
-      <ObjectFields schema={schema} value={door} ctx={{ draft }} skip={["requires", "lockedText"]} onChange={onChange} />
-      <label className="ef__toggle">
-        <input type="checkbox" checked={locked} onChange={(e) => lock(e.target.checked)} />
-        Закрыта
-      </label>
-      {locked && (
-        <>
-          <label className="ef">
-            <span className="ef__label">Что увидит игрок у закрытой двери</span>
-            <input
-              value={door.lockedText ?? ""}
-              placeholder="Например: Нужен ключ от комнаты"
-              onChange={(e) => {
-                const { lockedText: _t, ...rest } = door;
-                onChange(e.target.value ? { ...rest, lockedText: e.target.value } : rest);
-              }}
-            />
-          </label>
-          <ConditionEditor
-            value={door.requires ?? {}}
-            ctx={{ draft }}
-            label={<span className="ef__label">Условия, при которых дверь откроется</span>}
-            onChange={(v) => onChange({ ...door, requires: v })}
-          />
-        </>
-      )}
-    </>
-  );
-}

@@ -35,7 +35,7 @@ export function runMigrations(
 
 // ——— Дело ———
 
-export const CASE_FORMAT_VERSION = 9;
+export const CASE_FORMAT_VERSION = 10;
 
 const WALL_CHARS = new Set(["#", "W", "B", "G", "P", "F"]);
 
@@ -252,8 +252,34 @@ function caseV8toV9(data: Raw): Raw {
   return { ...data, events };
 }
 
+/**
+ * 9 → 10: дверь (`Location.doors`) стала обычным предметом `door_h`/`door_v` с состояниями.
+ * Дверь с условием: первое состояние `unlocked` (условие двери, обычный вид), второе без условия — `locked` (заперта: кадр с замком, проход закрыт,
+ * осмотр показывает «Заперто. …»). Вертикальная дверь занимает две клетки вверх от нижней, поэтому её `y` — нижняя клетка.
+ */
+function caseV9toV10(data: Raw): Raw {
+  const locations = ((data.locations as Raw[] | undefined) ?? []).map((loc) => {
+    const { doors, ...rest } = loc;
+    const converted = ((doors as Raw[] | undefined) ?? []).map((d) => {
+      const vertical = d.orientation === "v";
+      const base = { id: d.id, sprite: vertical ? "door_v" : "door_h", x: d.x, y: vertical ? (d.y as number) + 1 : d.y, label: "Дверь", interaction: null, onInteract: [] };
+      if (!d.requires) return base;
+      const text = typeof d.lockedText === "string" && d.lockedText ? `Заперто. ${d.lockedText}` : "Заперто.";
+      return {
+        ...base,
+        states: [
+          { id: "unlocked", when: d.requires },
+          { id: "locked", frame: "locked", solid: true, label: "Дверь · заперто", onInteract: [{ type: "message", text }] },
+        ],
+      };
+    });
+    return { ...rest, objects: [...((loc.objects as Raw[] | undefined) ?? []), ...converted] };
+  });
+  return { ...data, locations };
+}
+
 /** Звенья цепочки: `caseMigrations[v]` переводит дело версии v в v + 1. */
-export const caseMigrations: Record<number, Migration> = { 1: caseV1toV2, 2: caseV2toV3, 3: caseV3toV4, 4: caseV4toV5, 5: caseV5toV6, 6: caseV6toV7, 7: caseV7toV8, 8: caseV8toV9 };
+export const caseMigrations: Record<number, Migration> = { 1: caseV1toV2, 2: caseV2toV3, 3: caseV3toV4, 4: caseV4toV5, 5: caseV5toV6, 6: caseV6toV7, 7: caseV7toV8, 8: caseV8toV9, 9: caseV9toV10 };
 
 export const migrateCase = (raw: unknown, chain = caseMigrations, current = CASE_FORMAT_VERSION): Migrated =>
   runMigrations(raw, "formatVersion", chain, current, "дело");

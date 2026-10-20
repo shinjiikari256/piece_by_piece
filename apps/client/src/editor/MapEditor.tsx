@@ -15,7 +15,7 @@ import { ask } from "../ui/dialog";
 import { MapPalette } from "./map/Palette";
 import { renderMap } from "./map/render";
 import { addLocation, normRect, pickTopmost, rectCells, resize, selectionBox, zoneCells } from "./map/helpers";
-import { T, doorCanvas, doorTiles, lookCanvas, useSpriteCanvases } from "./map/canvases";
+import { T, lookCanvas, useSpriteCanvases } from "./map/canvases";
 import { LIST_KEY, type Selection, type Tool } from "./map/types";
 import { ObjectList } from "./map/ObjectList";
 import { LOCATION_SCHEMA, SelectedPanel, SizeInput } from "./map/panels";
@@ -34,7 +34,7 @@ function parseSelection(loc: LocationT | undefined, key: string): Selection {
   if (key === "start") return { kind: "start" };
   const [kind, ...rest] = key.split(":");
   const id = rest.join(":");
-  const list = { object: loc.objects, npc: loc.npcs, door: loc.doors, zone: loc.zones }[kind as "object" | "npc" | "door" | "zone"];
+  const list = { object: loc.objects, npc: loc.npcs, zone: loc.zones }[kind as "object" | "npc" | "zone"];
   return list?.some((x) => x.id === id) ? ({ kind, id } as Selection) : null;
 }
 
@@ -104,10 +104,6 @@ export function MapEditor() {
       const ch = n && draft.characters.find((x) => x.id === n.characterId);
       c = lookCanvas(ch ? resolveLook(ch) : LOOKS.casual_m);
     }
-    if (s.kind === "door") {
-      const d = loc.doors.find((x) => x.id === s.id);
-      if (d) c = doorCanvas(d.orientation, !!d.requires);
-    }
     const data = c?.getContext("2d")?.getImageData(Math.floor(lx), Math.floor(ly), 1, 1).data;
     return !data || data[3] > 16;
   };
@@ -120,8 +116,6 @@ export function MapEditor() {
     // запасной путь: клетка, которую занимает предмет или дверь
     const npc = loc.npcs.find((n) => n.x === t.x && n.y === t.y);
     if (npc) return { kind: "npc", id: npc.id };
-    const door = loc.doors.find((d) => doorTiles(d).some((p) => p.x === t.x && p.y === t.y));
-    if (door) return { kind: "door", id: door.id };
     const obj = [...loc.objects].reverse().find((o) => footprintHas(o.x, o.y, SPRITES[o.sprite].footprint, t.x, t.y));
     if (obj) return { kind: "object", id: obj.id };
     // область — самый нижний слой: выбирается, если в клетке больше ничего нет
@@ -185,13 +179,6 @@ export function MapEditor() {
         }));
         setTool({ kind: "select" });
         break;
-      case "door": {
-        const did = uniqueId("door_", draft.locations.flatMap((l) => l.doors.map((d) => d.id)));
-        updateLoc((l) => ({ ...l, doors: [...l.doors, { id: did, x: t.x, y: t.y, orientation: tool.orientation }] }));
-        setSel({ kind: "door", id: did });
-        setTool({ kind: "select" });
-        break;
-      }
       case "zone": {
         const add = !(tool.erase || e.altKey);
         let zid = sel?.kind === "zone" ? sel.id : null;
@@ -316,10 +303,6 @@ export function MapEditor() {
       const ch = draft.characters.find((c) => c.id === n.characterId);
       return `${ch?.name ?? n.characterId} · диалог «${n.dialogueId}»`;
     }
-    if (h.kind === "door") {
-      const d = loc.doors.find((x) => x.id === h.id)!;
-      return d.requires ? `Дверь · заперта, пока не выполнено условие` : "Дверь · открывается, когда игрок подходит";
-    }
     const o = loc.objects.find((x) => x.id === h.id)!;
     const name = o.label || SPRITE_NAMES[o.sprite] || o.sprite;
     if (!o.interaction) return o.onInteract?.length ? `${name} · только эффекты, без окна осмотра` : `${name} · декорация`;
@@ -343,9 +326,7 @@ export function MapEditor() {
                 : "Область: ведите с зажатой кнопкой — первая клетка создаст новую область (Shift — прямоугольником)"
             : tool.kind === "start"
               ? "Старт игрока: кликните по клетке пола"
-              : tool.kind === "door"
-                ? `Дверь ${tool.orientation === "h" ? "в горизонтальной стене (2 клетки вправо)" : "в вертикальной стене (2 клетки вниз)"}: кликните по первой клетке проёма`
-                : "Выход: кликните по проёму на краю карты";
+              : "Выход: кликните по проёму на краю карты";
 
   return (
     <section className="lm" data-dock={dock} style={dock === "left" ? panelVars(palettePanel, inspectorPanel) : panelVars(undefined, inspectorPanel, paletteDock)}>
@@ -437,7 +418,7 @@ export function MapEditor() {
             onChange={setInsp}
             tabs={[
               { id: "props", label: "Свойства" },
-              { id: "list", label: `Объекты (${loc.objects.length + loc.npcs.length + loc.zones.length + loc.doors.length})` },
+              { id: "list", label: `Объекты (${loc.objects.length + loc.npcs.length + loc.zones.length})` },
             ]}
           />
           <div className="lm__inspector-body">

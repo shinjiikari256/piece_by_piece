@@ -312,16 +312,6 @@ export const NpcPlacement = z.object({
   y: z.number().int(),
 });
 
-/** Дверь на 2 клетки в проёме. Открывается при подходе; с условием — заперта, пока оно не выполнено. */
-export const Door = z.object({
-  id: z.string(),
-  x: z.number().int().describe("Левая (для горизонтальной) или верхняя (для вертикальной) клетка"),
-  y: z.number().int(),
-  orientation: z.enum(["h", "v"]).describe("h — в горизонтальной стене, v — в вертикальной"),
-  requires: Condition.optional().describe("Пока условие не выполнено — заперто"),
-  lockedText: z.string().optional().describe("Что сказать, если заперто, например «Нужен ключ от комнаты»"),
-});
-
 const Point = z.object({ x: z.number().int(), y: z.number().int() });
 
 /** Когда срабатывает действие области (`ZoneAction.trigger`; без значения — `use`). */
@@ -387,7 +377,6 @@ export const Location = z.object({
     .describe("Старт игрока: задан ровно в одной локации — она и стартовая"),
   objects: z.array(LocationObject),
   npcs: z.array(NpcPlacement),
-  doors: z.array(Door),
   zones: z.array(Zone).default([]).describe("Именованные области с действиями: диалог, предмет, выход в другую локацию"),
   onEnter: z.array(Effect).default([]).describe("Эффекты при входе игрока в локацию (при каждом входе; «только один раз» — у самого эффекта)"),
 });
@@ -636,7 +625,6 @@ export type LocationObject = z.infer<typeof LocationObject>;
 export type ObjectState = z.infer<typeof ObjectState>;
 export type NpcPlacement = z.infer<typeof NpcPlacement>;
 export type Location = z.infer<typeof Location>;
-export type Door = z.infer<typeof Door>;
 export type Zone = z.infer<typeof Zone>;
 export type ZoneAction = z.infer<typeof ZoneAction>;
 export type NpcDialogue = z.infer<typeof NpcDialogue>;

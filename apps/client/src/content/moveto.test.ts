@@ -257,7 +257,7 @@ describe("условия: «или» и «игрок в локации»", () =>
 
 it("валидатор: неизвестная локация в inLocation (в том числе внутри anyOf)", () => {
   const c = structuredClone(case001) as unknown as CaseFile;
-  c.locations[0].doors.push({ id: "d_or", x: 0, y: 0, orientation: "h", requires: { anyOf: [{ inLocation: ["нет_такой"] }] } } as never);
+  c.locations[0].objects.push({ id: "d_or", sprite: "door_h", x: 0, y: 0, label: "", interaction: null, onInteract: [], states: [{ id: "s", when: { anyOf: [{ inLocation: ["нет_такой"] }] } }] } as never);
   const r = validateCase(c);
   expect(r.ok === false && r.errors.some((e) => e.includes("нет_такой"))).toBe(true);
 });
@@ -350,7 +350,7 @@ describe("счётчики и начальные флаги", () => {
     const c = withCounters();
     c.counters![0].name = " ";
     c.dialogues[0].nodes[0].effects.push({ type: "changeVariable", variableId: "нет", action: "add", value: 1 });
-    c.locations[0].doors.push({ id: "d_cnt", x: 0, y: 0, orientation: "h", requires: { counters: [{ counterId: "trust", min: 5, max: 1 }] } } as never);
+    c.locations[0].objects.push({ id: "d_cnt", sprite: "door_h", x: 0, y: 0, label: "", interaction: null, onInteract: [], states: [{ id: "s", when: { counters: [{ counterId: "trust", min: 5, max: 1 }] } }] } as never);
     const r = validateCase(c);
     const text = r.ok ? "" : r.errors.join("\n");
     expect(text).toContain("нет названия");

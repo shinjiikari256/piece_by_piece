@@ -91,3 +91,18 @@ describe("состояния предметов", () => {
     expect(open.onEnter).toEqual([]);
   });
 });
+
+describe("дверь — предмет с состояниями (door_412 в тестовом деле)", () => {
+  const door = () => base.locations.flatMap((l) => l.objects).find((o) => o.id === "door_412")!;
+  it("без ключа заперта: непроходима, осмотр даёт сообщение; с ключом — проходима, не интерактивна", () => {
+    const p = startProgress(base);
+    const locked = objectView(door(), p, "dorm_floor");
+    expect(locked.state?.id).toBe("locked");
+    expect(locked.state?.solid).toBe(true);
+    expect(locked.interactive).toBe(true);
+    const open = objectView(door(), { ...p, flags: [...p.flags, "key_412"] }, "dorm_floor");
+    expect(open.state?.id).toBe("unlocked");
+    expect(open.state?.solid ?? false).toBe(false);
+    expect(open.interactive).toBe(false);
+  });
+});

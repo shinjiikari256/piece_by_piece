@@ -11,7 +11,6 @@ const loc = (objects: Location["objects"]): Location => ({
   playerStart: { x: 1, y: 1 },
   objects,
   npcs: [],
-  doors: [],
   zones: [],
   onEnter: [],
 });

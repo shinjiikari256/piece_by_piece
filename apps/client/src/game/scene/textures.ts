@@ -1,6 +1,6 @@
 import type Phaser from "phaser";
 import type { PublicCase } from "../../../../../shared/public-case";
-import { CHAR_FRAMES, CHAR_H, CHAR_W, DOOR_SIZE, LOOKS, SPRITES, drawCharacter, drawDoor, drawSprite, resolveLook, type Look } from "../art";
+import { CHAR_FRAMES, CHAR_H, CHAR_W, LOOKS, SPRITES, drawCharacter, drawSprite, resolveLook, type Look } from "../art";
 
 type Textures = Phaser.Textures.TextureManager;
 
@@ -44,18 +44,6 @@ export function ensureCharacterTextures(textures: Textures, characters: PublicCa
     });
     canvas.refresh();
   }
-}
-
-/** Двери: горизонтальная и вертикальная, в трёх состояниях. */
-export function ensureDoorTextures(textures: Textures) {
-    for (const o of ["h", "v"] as const)
-      for (const state of ["open", "closed", "locked"] as const) {
-        const key = `door_${o}_${state}`;
-        if (textures.exists(key)) continue;
-        const c = textures.createCanvas(key, DOOR_SIZE[o].w, DOOR_SIZE[o].h)!;
-        drawDoor(c.getContext(), o, state === "open", state === "locked");
-        c.refresh();
-      }
 }
 
 /** Невидимая клетка-мишень выхода: клик и наведение ловит она, рисует выход сама карта (лестница, дверь). */

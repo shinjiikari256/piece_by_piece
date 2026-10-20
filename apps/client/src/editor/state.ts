@@ -38,7 +38,7 @@ export interface Focus {
   /** Уточнение: узел диалога, локация предмета и т.п. */
   sub?: string;
   /** Для локаций: что выделить на карте. */
-  kind?: "object" | "npc" | "door" | "zone";
+  kind?: "object" | "npc" | "zone";
 }
 
 export interface EditorState {

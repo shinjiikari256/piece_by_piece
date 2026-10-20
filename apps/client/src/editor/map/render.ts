@@ -1,7 +1,5 @@
 import {
   CHAR_H,
-  DOOR_SIZE,
-  doorMirrored,
   LOOKS,
   SPRITES,
   drawTile,
@@ -9,10 +7,10 @@ import {
 } from "../../game/art";
 import { LocationObject, NpcPlacement } from "../../../../../shared/case";
 import type { CaseFile as CaseFileT, Location as LocationT } from "../../../../../shared/case";
-import { doorCanvas, lookCanvas, T, useSpriteCanvases } from "./canvases";
+import { lookCanvas, T, useSpriteCanvases } from "./canvases";
 import { normRect, zoneColor } from "./helpers";
 import type { PxRect } from "./helpers";
-import type { Tool, DoorT } from "./types";
+import type { Tool } from "./types";
 
 /** Всё, что нужно, чтобы нарисовать карту локации в редакторе. */
 export interface MapRenderState {
@@ -45,7 +43,6 @@ export function renderMap(cv: HTMLCanvasElement, s: MapRenderState) {
   const items = [
     ...loc.objects.map((o) => ({ y: SPRITES[o.sprite].flat ? -1 : o.y, draw: () => drawObject(ctx, o) })),
     ...loc.npcs.map((n) => ({ y: n.y, draw: () => drawNpc(ctx, n) })),
-    ...loc.doors.map((d) => ({ y: d.orientation === "v" ? d.y + 1 : d.y, draw: () => drawDoorAt(ctx, d) })),
   ].sort((a, b) => a.y - b.y);
   items.forEach((i) => i.draw());
 
@@ -87,15 +84,14 @@ export function renderMap(cv: HTMLCanvasElement, s: MapRenderState) {
     if (tool.kind === "object") drawObject(ctx, { id: "", sprite: tool.sprite, x: hover.x, y: hover.y, label: "", interaction: null, onInteract: [] });
     if (tool.kind === "npc") drawNpc(ctx, { id: "", characterId: npcCharacter, dialogueId: "", dialogues: [], x: hover.x, y: hover.y });
     if (tool.kind === "tile") drawTile(ctx, tool.ch, hover.x * T, hover.y * T, {});
-    if (tool.kind === "door") drawDoorAt(ctx, { id: "", x: hover.x, y: hover.y, orientation: tool.orientation });
     if (tool.kind === "zone") {
       ctx.fillStyle = tool.erase ? "rgba(224,88,74,0.7)" : "rgba(46,158,91,0.7)";
       ctx.fillRect(hover.x * T, hover.y * T, T, T);
     }
     ctx.restore();
     const objFp = tool.kind === "object" ? SPRITES[tool.sprite].footprint : null;
-    const fw = objFp ? objFp.w : tool.kind === "door" && tool.orientation === "h" ? 2 : 1;
-    const fh = objFp ? objFp.h : tool.kind === "door" && tool.orientation === "v" ? 2 : 1;
+    const fw = objFp ? objFp.w : 1;
+    const fh = objFp ? objFp.h : 1;
     ctx.strokeStyle = "rgba(255,255,255,0.9)";
     ctx.lineWidth = 1;
     ctx.strokeRect(hover.x * T + 0.5, (hover.y - (objFp ? objFp.h - 1 : 0)) * T + 0.5, fw * T - 1, fh * T - 1);
@@ -129,21 +125,14 @@ export function renderMap(cv: HTMLCanvasElement, s: MapRenderState) {
     const spec = SPRITES[o.sprite];
     const img = art.sprites.get(o.sprite)!;
     const cx = (o.x + spec.footprint.w / 2) * T;
-    c.drawImage(img, cx - spec.w / 2, (o.y + 1) * T - spec.h - (spec.mount ?? 0));
-  }
-  function drawDoorAt(c: CanvasRenderingContext2D, d: DoorT) {
-    const h = d.orientation === "h";
-    const cx = h ? (d.x + 1) * T : (d.x + 0.5) * T;
-    const bottom = h ? (d.y + 1) * T : (d.y + 2) * T;
-    const size = DOOR_SIZE[d.orientation];
-    const img = doorCanvas(d.orientation, !!d.requires);
-    if (!h && doorMirrored(d.x, loc.tiles[0].length)) {
+    const top = (o.y + 1) * T - spec.h - (spec.mount ?? 0);
+    if (spec.mirrorRight && o.x >= loc.tiles[0].length / 2) {
       c.save();
       c.translate(cx, 0);
       c.scale(-1, 1);
-      c.drawImage(img, -size.w / 2, bottom - size.h);
+      c.drawImage(img, -spec.w / 2, top);
       c.restore();
-    } else c.drawImage(img, cx - size.w / 2, bottom - size.h);
+    } else c.drawImage(img, cx - spec.w / 2, top);
   }
   function drawNpc(c: CanvasRenderingContext2D, n: NpcPlacement) {
     const ch = characters.find((x) => x.id === n.characterId);

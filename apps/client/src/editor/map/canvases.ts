@@ -3,33 +3,13 @@ import {
   BASE_TILE,
   CHAR_H,
   CHAR_W,
-  DOOR_SIZE,
   SPRITES,
   TILE_NAMES,
   drawCharacter,
   drawSprite,
-  drawDoor,
   type Look,
 } from "../../game/art";
 
-
-/** Клетки, которые занимает дверь: две по ширине или по высоте. */
-export const doorTiles = (d: { x: number; y: number; orientation: "h" | "v" }) =>
-  d.orientation === "h" ? [{ x: d.x, y: d.y }, { x: d.x + 1, y: d.y }] : [{ x: d.x, y: d.y }, { x: d.x, y: d.y + 1 }];
-
-export const doorCache = new Map<string, HTMLCanvasElement>();
-export function doorCanvas(orientation: "h" | "v", locked: boolean) {
-  const key = `${orientation}:${locked}`;
-  let c = doorCache.get(key);
-  if (!c) {
-    c = document.createElement("canvas");
-    c.width = DOOR_SIZE[orientation].w;
-    c.height = DOOR_SIZE[orientation].h;
-    drawDoor(c.getContext("2d")!, orientation, false, locked);
-    doorCache.set(key, c);
-  }
-  return c;
-}
 
 export const TILE_TOOLS = Object.entries(TILE_NAMES).map(([ch, label]) => ({ ch, label }));
 

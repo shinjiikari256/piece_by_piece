@@ -59,12 +59,6 @@ export function ObjectList({ loc, draft, sel, onPick }: { loc: LocationT; draft:
         has("npc"),
       )}
       {section(
-        "doors",
-        "Двери",
-        loc.doors.map((d) => row({ kind: "door", id: d.id }, <span className="lm__row-glyph">{d.orientation === "h" ? "▬" : "▮"}</span>, d.requires ? "Дверь · с условием" : "Дверь", `${d.id} · клетка ${d.x}, ${d.y}`)),
-        has("door"),
-      )}
-      {section(
         "zones",
         "Области",
         loc.zones.map((z) =>
@@ -73,7 +67,7 @@ export function ObjectList({ loc, draft, sel, onPick }: { loc: LocationT; draft:
         has("zone"),
       )}
       {section("start", "Старт", loc.playerStart ? [row({ kind: "start" }, <span className="lm__row-glyph">▶</span>, "Старт игрока", `клетка ${loc.playerStart.x}, ${loc.playerStart.y}`)] : [], has("start"))}
-      {loc.objects.length + loc.npcs.length + loc.doors.length + loc.zones.length === 0 && <p className="muted">На локации пока ничего нет — выберите инструмент слева и кликните по карте.</p>}
+      {loc.objects.length + loc.npcs.length + loc.zones.length === 0 && <p className="muted">На локации пока ничего нет — выберите инструмент слева и кликните по карте.</p>}
     </div>
   );
 }

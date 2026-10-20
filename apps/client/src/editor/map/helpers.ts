@@ -1,4 +1,4 @@
-import { CHAR_H, CHAR_W, DOOR_SIZE, SPRITES } from "../../game/art";
+import { CHAR_H, CHAR_W, SPRITES } from "../../game/art";
 import { T } from "./canvases";
 import type { CaseFile as CaseFileT, Location as LocationT } from "../../../../../shared/case";
 import { editor } from "../state";
@@ -23,7 +23,7 @@ export function addLocation(draft: CaseFileT, select: (i: number) => void) {
   const tiles = ["#".repeat(20), ...Array.from({ length: 10 }, () => "#" + ".".repeat(18) + "#"), "#".repeat(20)];
   editor.update((d) => ({
     ...d,
-    locations: [...d.locations, { id, name: "Новая локация", tiles, areas: [], objects: [], npcs: [], doors: [], zones: [], onEnter: [] }],
+    locations: [...d.locations, { id, name: "Новая локация", tiles, areas: [], objects: [], npcs: [], zones: [], onEnter: [] }],
   }));
   select(draft.locations.length);
 }
@@ -39,7 +39,6 @@ export interface PxRect {
 
 type Obj = LocationT["objects"][number];
 type Npc = LocationT["npcs"][number];
-type Door = LocationT["doors"][number];
 
 /** Где предмет нарисован: картинка стоит низом по центру занимаемых клеток, настенные приподняты. */
 export const objectRect = (o: Obj): PxRect => {
@@ -47,13 +46,7 @@ export const objectRect = (o: Obj): PxRect => {
   return { x: (o.x + spec.footprint.w / 2) * T - spec.w / 2, y: (o.y + 1) * T - spec.h - (spec.mount ?? 0), w: spec.w, h: spec.h };
 };
 export const npcRect = (n: Npc): PxRect => ({ x: n.x * T, y: (n.y + 1) * T - CHAR_H - 1, w: CHAR_W, h: CHAR_H });
-export const doorRect = (d: Door): PxRect => {
-  const h = d.orientation === "h";
-  const size = DOOR_SIZE[d.orientation];
-  const cx = h ? (d.x + 1) * T : (d.x + 0.5) * T;
-  const bottom = h ? (d.y + 1) * T : (d.y + 2) * T;
-  return { x: cx - size.w / 2, y: bottom - size.h, w: size.w, h: size.h };
-};
+
 const tileRect = (x: number, y: number): PxRect => ({ x: x * T, y: y * T, w: T, h: T });
 
 /**
@@ -80,8 +73,7 @@ export function selectionBox(loc: LocationT | undefined, s: Selection): PxRect |
     const n = loc.npcs.find((x) => x.id === s.id);
     return n ? npcRect(n) : null;
   }
-  const d = loc.doors.find((x) => x.id === s.id);
-  return d ? doorRect(d) : null;
+  return null;
 }
 
 const inside = (r: PxRect, px: number, py: number) => px >= r.x && px < r.x + r.w && py >= r.y && py < r.y + r.h;
@@ -100,7 +92,6 @@ export function pickTopmost(
   const items: { order: number; sel: Exclude<Selection, null>; rect: PxRect }[] = [
     ...loc.objects.map((o) => ({ order: SPRITES[o.sprite].flat ? -1 : o.y, sel: { kind: "object", id: o.id } as const, rect: objectRect(o) })),
     ...loc.npcs.map((n) => ({ order: n.y, sel: { kind: "npc", id: n.id } as const, rect: npcRect(n) })),
-    ...loc.doors.map((d) => ({ order: d.orientation === "v" ? d.y + 1 : d.y, sel: { kind: "door", id: d.id } as const, rect: doorRect(d) })),
   ];
   // стабильная сортировка по возрастанию — как при рисовании; ищем с конца
   const drawn = items.map((it, i) => ({ ...it, i })).sort((a, b) => a.order - b.order || a.i - b.i);

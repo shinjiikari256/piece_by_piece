@@ -78,3 +78,42 @@ describe("миграция сохранения", () => {
     expect(readSave("other")).toBeNull();
   });
 });
+
+describe("миграция 9 → 10: двери становятся предметами", () => {
+  const old = {
+    ...structuredClone(current),
+    formatVersion: 9,
+  };
+  old.locations = old.locations.map((l: { objects: unknown[] }, i: number) => ({
+    ...l,
+    objects: l.objects.filter((o) => (o as { id: string }).id !== "d_free" && (o as { id: string }).id !== "d_lock"),
+    doors:
+      i === 0
+        ? [
+            { id: "d_free", x: 0, y: 0, orientation: "h" },
+            { id: "d_lock", x: 3, y: 4, orientation: "v", requires: { flags: ["k"] }, lockedText: "Нужен ключ" },
+          ]
+        : [],
+  }));
+
+  it("дверь без условия — предмет door_h/door_v без состояний, вертикальная смещается на клетку вниз", () => {
+    const m = migrateCase(old);
+    expect(m.ok).toBe(true);
+    if (!m.ok) return;
+    const objs = (m.data as { locations: { objects: { id: string; sprite: string; y: number; states?: unknown[] }[]; doors?: unknown }[] }).locations[0];
+    const free = objs.objects.find((o) => o.id === "d_free")!;
+    expect(free).toMatchObject({ sprite: "door_h", x: 0, y: 0 });
+    expect(free.states).toBeUndefined();
+    expect(objs.doors).toBeUndefined();
+  });
+
+  it("запертая дверь — состояния unlocked (по условию) и locked (непроходимо, сообщение)", () => {
+    const m = migrateCase(old);
+    if (!m.ok) throw new Error(m.error);
+    const lock = (m.data as { locations: { objects: { id: string; sprite: string; y: number; states: { id: string; solid?: boolean; onInteract?: { text: string }[] }[] }[] }[] }).locations[0].objects.find((o) => o.id === "d_lock")!;
+    expect(lock).toMatchObject({ sprite: "door_v", y: 5 });
+    expect(lock.states.map((s) => s.id)).toEqual(["unlocked", "locked"]);
+    expect(lock.states[1].solid).toBe(true);
+    expect(lock.states[1].onInteract?.[0].text).toBe("Заперто. Нужен ключ");
+  });
+});

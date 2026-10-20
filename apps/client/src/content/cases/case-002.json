@@ -1,5 +1,5 @@
 {
-  "formatVersion": 9,
+  "formatVersion": 10,
   "id": "case-002",
   "number": "002",
   "title": "Комната 412",
@@ -12,7 +12,7 @@
     "points": 10
   },
   "published": true,
-  "updatedAt": "2026-10-20T12:53:22Z",
+  "updatedAt": "2026-10-20T14:51:32Z",
   "locations": [
     {
       "id": "dorm_floor",
@@ -421,6 +421,55 @@
           "y": 1,
           "label": "",
           "interaction": null
+        },
+        {
+          "id": "door_412",
+          "sprite": "door_h",
+          "x": 5,
+          "y": 9,
+          "label": "Дверь",
+          "interaction": null,
+          "onInteract": [],
+          "states": [
+            {
+              "id": "unlocked",
+              "when": {
+                "flags": [
+                  "key_412"
+                ]
+              }
+            },
+            {
+              "id": "locked",
+              "frame": "locked",
+              "solid": true,
+              "label": "Дверь · заперто",
+              "onInteract": [
+                {
+                  "type": "message",
+                  "text": "Заперто. Комната 412 закрыта. Ключ — у Тимура."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "door_kitchen",
+          "sprite": "door_h",
+          "x": 14,
+          "y": 9,
+          "label": "Дверь",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "door_zuev",
+          "sprite": "door_h",
+          "x": 24,
+          "y": 9,
+          "label": "Дверь",
+          "interaction": null,
+          "onInteract": []
         }
       ],
       "npcs": [
@@ -479,32 +528,6 @@
           "x": 9,
           "y": 13,
           "dialogues": []
-        }
-      ],
-      "doors": [
-        {
-          "id": "door_412",
-          "x": 5,
-          "y": 9,
-          "orientation": "h",
-          "requires": {
-            "flags": [
-              "key_412"
-            ]
-          },
-          "lockedText": "Комната 412 закрыта. Ключ — у Тимура."
-        },
-        {
-          "id": "door_kitchen",
-          "x": 14,
-          "y": 9,
-          "orientation": "h"
-        },
-        {
-          "id": "door_zuev",
-          "x": 24,
-          "y": 9,
-          "orientation": "h"
         }
       ],
       "zones": [
@@ -824,7 +847,6 @@
           "dialogues": []
         }
       ],
-      "doors": [],
       "zones": [
         {
           "id": "stairs_up_a",
