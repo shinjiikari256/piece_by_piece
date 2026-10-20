@@ -63,6 +63,7 @@ export function flagsOf(d: FormCtx["draft"]): string[] {
   );
   d.locations.forEach((l) => {
     l.doors.forEach((door) => cond(door.requires));
+    l.objects.forEach((o) => o.states?.forEach((st) => cond(st.when)));
     l.npcs.forEach((n) => {
       cond(n.requires);
       n.dialogues.forEach((nd) => cond(nd.requires));
@@ -122,6 +123,7 @@ function collectUsage(d: FormCtx["draft"]): { vars: Map<string, FlagUse[]>; evid
   d.deductions.forEach((x) => x.evidenceIds.forEach((id) => push(evidence, id, { kind: "в сопоставлении", where: `Сопоставление «${x.title}»`, focus: { section: "deductions", id: x.id } })));
   d.locations.forEach((l) => {
     l.doors.forEach((door) => cond(door.requires, `Дверь ${door.id} — ${l.name}`, { section: "locations", sub: l.id, kind: "door", id: door.id }));
+    l.objects.forEach((o) => o.states?.forEach((st) => cond(st.when, `Состояние «${st.id}» предмета «${o.label}» — ${l.name}`, { section: "locations", sub: l.id, kind: "object", id: o.id })));
     l.npcs.forEach((n) => cond(n.requires, `Человек на карте: ${who(n.characterId)} — ${l.name}`, { section: "locations", sub: l.id, kind: "npc", id: n.id }));
     l.npcs.forEach((n) => n.dialogues.forEach((nd) => cond(nd.requires, `Диалог по условию: ${who(n.characterId)} — ${l.name}`, { section: "locations", sub: l.id, kind: "npc", id: n.id })));
     l.zones.forEach((z) => z.actions.forEach((a) => cond(a.requires, `Область «${z.name}» — ${l.name}`, { section: "locations", sub: l.id, kind: "zone", id: z.id })));
@@ -174,6 +176,7 @@ export function deleteFlag(d: CaseFile, flag: string): CaseFile {
     locations: d.locations.map((l) => ({
       ...l,
       doors: l.doors.map(clean),
+      objects: l.objects.map((o) => (o.states ? { ...o, states: o.states.map((st) => (st.when ? { ...st, when: cleanCond(st.when) } : st)) } : o)),
       npcs: l.npcs.map((n) => ({ ...clean(n), dialogues: n.dialogues.map(clean) })),
       zones: l.zones.map((z) => ({ ...z, actions: z.actions.map(clean) })),
     })),

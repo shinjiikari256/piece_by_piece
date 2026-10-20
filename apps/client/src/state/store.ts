@@ -1,5 +1,6 @@
 import { editorPathOfPlaytest } from "../content/drafts";
 import { useSyncExternalStore } from "react";
+import { currentInteraction } from "../../../../shared/object-state";
 import { isInteractive, objectEvidenceIds, type Effect, type Solution, type Zone, type ZoneAction } from "../../../../shared/case";
 import type { PublicCase, PublicDeduction } from "../../../../shared/public-case";
 import { RESULT_FORMAT_VERSION, type CaseAuthority, type DeductionVerdict, type FinishInput, type RevealedHint } from "../../../../shared/judge";
@@ -555,8 +556,8 @@ export const actions = {
       const { progress, newEvidence, messages, removedEvidence, followUp } = applyEffects(withZoneTargets(obj.onInteract ?? []), s.progress, fxCtx(`object:${obj.id}`));
       set({
         progress,
-        // окно осмотра — только у предмета с `interaction`; без него эффекты срабатывают молча (или сообщением)
-        ...(obj.interaction ? { overlay: { kind: "object" as const, objectId: obj.id, gained: newEvidence.filter((id) => objectEvidenceIds(obj).includes(id)) }, examined: s.examined.includes(obj.id) ? s.examined : [...s.examined, obj.id] } : {}),
+        // окно осмотра — только у предмета с `interaction` (в действующем состоянии); без него эффекты срабатывают молча (или сообщением)
+        ...(currentInteraction(obj, progress, s.locationId) ? { overlay: { kind: "object" as const, objectId: obj.id, gained: newEvidence.filter((id) => objectEvidenceIds(obj).includes(id)) }, examined: s.examined.includes(obj.id) ? s.examined : [...s.examined, obj.id] } : {}),
       });
       announce(newEvidence, messages, removedEvidence, followUp);
     }

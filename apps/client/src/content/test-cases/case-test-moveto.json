@@ -408,8 +408,46 @@
           "sprite": "safe",
           "x": 22,
           "y": 1,
-          "label": "",
-          "interaction": null
+          "label": "Сейф",
+          "interaction": null,
+          "states": [
+            {
+              "id": "open",
+              "when": {
+                "enums": [
+                  {
+                    "enumId": "test_safe",
+                    "in": [
+                      "open"
+                    ]
+                  }
+                ]
+              },
+              "frame": "open",
+              "solid": false,
+              "interaction": {
+                "title": "Сейф открыт",
+                "description": "Дверца распахнута, внутри пусто."
+              }
+            },
+            {
+              "id": "broken",
+              "when": {
+                "enums": [
+                  {
+                    "enumId": "test_safe",
+                    "in": [
+                      "broken"
+                    ]
+                  }
+                ]
+              },
+              "interaction": {
+                "title": "Сейф сломан",
+                "description": "Замок вырван, дверца не открывается."
+              }
+            }
+          ]
         },
         {
           "id": "dec_ac_412",

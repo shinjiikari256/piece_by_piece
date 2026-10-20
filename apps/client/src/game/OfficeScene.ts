@@ -1,7 +1,8 @@
 import Phaser from "phaser";
-import { isInteractive, type Door, type Location } from "../../../../shared/case";
+import { isInteractive, type Door, type Location, type LocationObject } from "../../../../shared/case";
 import type { PublicCase as CaseFile } from "../../../../shared/public-case";
 import { meets } from "../../../../shared/conditions";
+import { activeState } from "../../../../shared/object-state";
 import { firstFloorCell, getLocation } from "../content/case-utils";
 import {
   BASE_TILE,
@@ -18,7 +19,7 @@ import { gameBridge } from "./bridge";
 import type { SceneHost } from "./host";
 import { collides, findPath, nearestFree, reachWithin, slideShift, type IsFree, type Tile } from "./scene/navigation";
 import { redirect, startWalk, stepWalk, tileOfPoint, turnBack } from "./scene/walker";
-import { ensureCharacterTextures, ensureDoorTextures, ensureExitTextures, ensureObjectTextures } from "./scene/textures";
+import { ensureCharacterTextures, ensureDoorTextures, ensureExitTextures, ensureObjectFrameTexture, ensureObjectTextures } from "./scene/textures";
 import type { Interactable, Npc } from "./scene/types";
 
 const SPEED = 150; // px/с в мировых координатах
@@ -53,6 +54,9 @@ export class OfficeScene extends Phaser.Scene {
   private doors: { def: Door; sprite: Phaser.GameObjects.Image; tiles: { x: number; y: number }[]; locked: boolean; item: Interactable | null }[] = [];
   /** Клетки запертых дверей — непроходимы. */
   private doorTiles = new Set<string>();
+  /** Предметы с состояниями: вид и проходимость зависят от прогресса. */
+  private stateful: { o: LocationObject; img: Phaser.GameObjects.Image; footprint: { x: number; y: number }[]; solid: boolean }[] = [];
+  private objectTiles = new Set<string>();
   private player!: Phaser.GameObjects.Sprite;
   private keys!: Record<"up" | "down" | "left" | "right" | "w" | "a" | "s" | "d", Phaser.Input.Keyboard.Key>;
   private interactables: Interactable[] = [];
@@ -80,6 +84,8 @@ export class OfficeScene extends Phaser.Scene {
     this.interactables = [];
     this.doors = [];
     this.doorTiles = new Set();
+    this.stateful = [];
+    this.objectTiles = new Set();
     this.npcs = new Map();
     this.npcTiles = new Set();
     this.trail = [];
@@ -246,7 +252,8 @@ export class OfficeScene extends Phaser.Scene {
         .setScale(SCALE)
         .setDepth(spec.flat ? 0 : bottom);
       const footprint = footprintCells(o.x, o.y, spec.footprint);
-      if (spec.solid) footprint.forEach((t) => this.setSolid(t.x, t.y));
+      if (o.states?.length) this.stateful.push({ o, img, footprint, solid: spec.solid });
+      else if (spec.solid) footprint.forEach((t) => this.setSolid(t.x, t.y));
       if (!isInteractive(o)) continue;
 
       const top = bottom - spec.h * SCALE;
@@ -275,6 +282,21 @@ export class OfficeScene extends Phaser.Scene {
       };
       this.makeClickable(item);
       this.interactables.push(item);
+    }
+    this.syncObjects();
+  }
+
+  /** Вид и проходимость предметов с состояниями по текущему прогрессу. */
+  private syncObjects() {
+    if (!this.stateful.length) return;
+    const { progress, locationId } = this.host.getState();
+    this.objectTiles.clear();
+    for (const e of this.stateful) {
+      const st = activeState(e.o, progress, locationId);
+      const sprite = e.o.sprite;
+      const tex = ensureObjectFrameTexture(this.textures, sprite, st?.frame);
+      if (e.img.texture.key !== tex) e.img.setTexture(tex);
+      if (st?.solid ?? SPRITES[sprite].solid) e.footprint.forEach((t) => this.objectTiles.add(`${t.x},${t.y}`));
     }
   }
 
@@ -633,6 +655,7 @@ export class OfficeScene extends Phaser.Scene {
     }
     this.refreshChecks();
     this.syncDoors();
+    this.syncObjects();
     this.syncNpcs();
   }
 
@@ -745,7 +768,7 @@ export class OfficeScene extends Phaser.Scene {
 
   private isFree(x: number, y: number) {
     const key = `${x},${y}`;
-    return this.solid[y]?.[x] === false && !this.npcTiles.has(key) && !this.doorTiles.has(key);
+    return this.solid[y]?.[x] === false && !this.npcTiles.has(key) && !this.doorTiles.has(key) && !this.objectTiles.has(key);
   }
 
   private isFreeFn: IsFree = (x, y) => this.isFree(x, y);
@@ -771,7 +794,7 @@ export class OfficeScene extends Phaser.Scene {
   private reachKey = "";
   private reach = new Set<string>();
   /** Проходимая клетка (стены и закрытые двери — нет); людей и мебель не учитываем: это о том, по какую сторону стены стоит игрок. */
-  private walkable: IsFree = (x, y) => this.solid[y]?.[x] === false && !this.doorTiles.has(`${x},${y}`);
+  private walkable: IsFree = (x, y) => this.solid[y]?.[x] === false && !this.doorTiles.has(`${x},${y}`) && !this.objectTiles.has(`${x},${y}`);
 
   /** Клетки, достижимые от игрока за два шага: через стену взаимодействовать нельзя. */
   private reachableTiles() {

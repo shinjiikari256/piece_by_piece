@@ -15,6 +15,19 @@ export function ensureObjectTextures(textures: Textures) {
   }
 }
 
+/** Текстура кадра предмета (по умолчанию — обычная); возвращает её ключ. Неизвестный кадр рисуется как `default`. */
+export function ensureObjectFrameTexture(textures: Textures, sprite: string, frame?: string): string {
+  const spec = SPRITES[sprite as keyof typeof SPRITES];
+  if (!frame || frame === "default" || !spec.frames[frame]) return `obj_${sprite}`;
+  const tex = `obj_${sprite}#${frame}`;
+  if (!textures.exists(tex)) {
+    const canvas = textures.createCanvas(tex, spec.w, spec.h)!;
+    drawSprite(canvas.getContext(), spec, frame);
+    canvas.refresh();
+  }
+  return tex;
+}
+
 /** Текстура на игрока и на каждого персонажа дела (у персонажа может быть своя внешность). */
 export function ensureCharacterTextures(textures: Textures, characters: PublicCase["characters"]) {
   const looks: [string, Look][] = [

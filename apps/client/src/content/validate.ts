@@ -197,6 +197,13 @@ function checkIntegrity(c: CaseFile): string[] {
     for (const o of loc.objects) {
       const spec = SPRITES[o.sprite];
       if (spec.solid) for (const c of footprintCells(o.x, o.y, spec.footprint)) occupy(c.x, c.y, `object ${o.id}`);
+      if (o.states?.length) {
+        unique(`${L}/object ${o.id}.states`, o.states.map((st) => st.id));
+        for (const st of o.states) {
+          if (st.frame && !spec.frames[st.frame]) err(`${L}/object ${o.id}: состояние ${st.id}: у спрайта ${o.sprite} нет кадра ${st.frame}`);
+          checkCondition(st.when, `${L}/object ${o.id}: состояние ${st.id}.when`);
+        }
+      }
     }
     for (const n of loc.npcs) occupy(n.x, n.y, `npc ${n.id}`);
     occupiedOf.set(loc.id, occupied);
@@ -357,6 +364,7 @@ function checkIntegrity(c: CaseFile): string[] {
   );
   c.locations.forEach((l) => l.zones.forEach((z) => z.actions.forEach((a) => condFlags(a.requires))));
   c.locations.forEach((l) => l.doors.forEach((d) => condFlags(d.requires)));
+  c.locations.forEach((l) => l.objects.forEach((o) => o.states?.forEach((st) => condFlags(st.when))));
   c.events.forEach((ev) => condFlags(ev.requires));
   for (const f of usedFlags) if (!named.has(f)) err(`flags: у флага «${f}» нет названия — добавьте его в разделе «Переменные»`);
   c.lawReference?.basis.forEach((x, i) => x.title.trim() || err(`lawReference: у нормы №${i + 1} нет названия`));

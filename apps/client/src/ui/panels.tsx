@@ -7,6 +7,7 @@ import { CHAR_H, CHAR_W, drawCharacter, resolveLook, type CharFrame, type Look }
 import { actions, useGame } from "../state/store";
 import { findObject } from "../content/case-utils";
 import { objectEvidenceIds } from "../../../../shared/case";
+import { currentInteraction } from "../../../../shared/object-state";
 import { KIND_ICON, TabbedModal } from "./common";
 import { FolderTabs } from "./folder";
 import { EvidenceDetail } from "./journal/materials";
@@ -43,11 +44,13 @@ export function ObjectPanel({ objectId, gained = [] }: { objectId: string; gaine
   const caseFile = useCase();
   const marks = useGame((s) => s.marks);
   const collected = useGame((s) => s.progress.collected);
+  const progress = useGame((s) => s.progress);
+  const locationId = useGame((s) => s.locationId);
   const [tab, setTab] = useState("inspect");
   const [seen, setSeen] = useState<string[]>([]); // закладки «новое», которые игрок уже открыл
   const obj = findObject(caseFile, objectId);
-  if (!obj?.interaction) return null;
-  const it = obj.interaction;
+  const it = obj ? currentInteraction(obj, progress, locationId) : null;
+  if (!obj || !it) return null;
   // улики, которые этот предмет выдаёт и которые уже в деле (условия выдачи сработали при осмотре)
   const items = objectEvidenceIds(obj)
     .filter((id) => collected.includes(id))

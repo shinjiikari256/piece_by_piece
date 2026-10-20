@@ -258,6 +258,15 @@ export const SpriteKey = z.enum([
   "mailbox",
 ]);
 
+/** Вид и поведение предмета при условии. Состояние — производная переменных дела: сменить его можно только сменив переменную обычным эффектом. */
+export const ObjectState = z.object({
+  id: z.string(),
+  when: Condition.optional().meta({ always: true }).describe("Когда состояние действует; без условия — подходит всегда (ставьте последним)"),
+  frame: z.string().optional().describe("Кадр спрайта; без значения — кадр по умолчанию"),
+  solid: z.boolean().optional().describe("Мешает ли проходу в этом состоянии; без значения — как у спрайта"),
+  interaction: ObjectInteraction.nullable().optional().describe("Окно осмотра в этом состоянии; без значения — как у предмета, null — без окна"),
+});
+
 export const LocationObject = z.object({
   id: z.string(),
   sprite: SpriteKey,
@@ -265,6 +274,7 @@ export const LocationObject = z.object({
   y: z.number().int().describe("Строка тайла"),
   label: z.string().describe("Подпись над объектом"),
   interaction: ObjectInteraction.nullable().describe("Окно осмотра; null — без окна (декорация или предмет только с эффектами)"),
+  states: z.array(ObjectState).optional().describe("Состояния по условиям: действует первое подходящее по порядку; нет подходящего — вид по умолчанию"),
   onInteract: z.array(Effect).default([]).meta({ always: true }).describe("Эффекты осмотра предмета (при каждом осмотре; «только один раз» — у самого эффекта); выдача улики — в окне осмотра"),
 });
 
@@ -274,7 +284,8 @@ export const objectEvidenceIds = (o: { onInteract?: { type: string; evidenceId?:
 ];
 
 /** Предмет, с которым можно взаимодействовать: есть окно осмотра или эффекты. */
-export const isInteractive = (o: { interaction?: unknown; onInteract?: unknown[] }): boolean => !!o.interaction || !!o.onInteract?.length;
+export const isInteractive = (o: { interaction?: unknown; onInteract?: unknown[]; states?: { interaction?: unknown }[] }): boolean =>
+  !!o.interaction || !!o.onInteract?.length || !!o.states?.some((st) => st.interaction);
 
 /** Диалог персонажа, доступный при условии (например, очная ставка: другой персонаж идёт за игроком). */
 export const NpcDialogue = z.object({
@@ -616,6 +627,7 @@ export type Deduction = z.infer<typeof Deduction>;
 export type Question = z.infer<typeof Question>;
 export type QuestionCategory = z.infer<typeof QuestionCategory>;
 export type LocationObject = z.infer<typeof LocationObject>;
+export type ObjectState = z.infer<typeof ObjectState>;
 export type NpcPlacement = z.infer<typeof NpcPlacement>;
 export type Location = z.infer<typeof Location>;
 export type Door = z.infer<typeof Door>;
