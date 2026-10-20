@@ -31,11 +31,20 @@ export function parseEventTime(text: string): EventMoment | null {
   return { year, month, day, hour, minute };
 }
 
-/** Число для сортировки (минуты от условного начала); год без значения — условный. */
-export function eventSortKey(text: string): number {
+/**
+ * Год для дат без года: самый ранний год, который автор где-то задал, иначе условный.
+ * Так событие «3 октября» встаёт рядом с «1 октября 2026», а не в начало или конец ленты.
+ */
+export function defaultEventYear(events: { at: string; until?: string }[]): number {
+  const years = events.flatMap((e) => [e.at, e.until]).map((x) => (x ? parseEventTime(x)?.year : undefined)).filter((y): y is number => y !== undefined);
+  return years.length ? Math.min(...years) : NO_YEAR;
+}
+
+/** Число для сортировки (минуты от условного начала); год без значения — `fallbackYear`. */
+export function eventSortKey(text: string, fallbackYear = NO_YEAR): number {
   const t = parseEventTime(text);
   if (!t) return Number.POSITIVE_INFINITY;
-  return Date.UTC(t.year ?? NO_YEAR, t.month - 1, t.day, t.hour ?? 0, t.minute ?? 0) / 60000;
+  return Date.UTC(t.year ?? fallbackYear, t.month - 1, t.day, t.hour ?? 0, t.minute ?? 0) / 60000;
 }
 
 const pad = (n: number) => String(n).padStart(2, "0");
@@ -58,6 +67,18 @@ export function formatEventTime(at: string, until?: string): string {
   return `с ${from} по ${to}`;
 }
 
+/** Для ленты: день (ключ группировки и подпись) и время внутри дня («12:40», «12:40 – 17:15», «до 5 октября»; пусто — на весь день). */
+export function eventParts(at: string, until?: string): { dayKey: string; day: string; when: string; range: boolean } {
+  const a = parseEventTime(at);
+  if (!a) return { dayKey: at, day: at, when: "", range: false };
+  const b = until ? parseEventTime(until) : null;
+  const day = dayText(a);
+  const dayKey = `${a.year ?? ""}-${a.month}-${a.day}`;
+  if (!b) return { dayKey, day, when: clock(a), range: false };
+  if (dayText(b) === day) return { dayKey, day, when: a.hour === undefined && b.hour === undefined ? "" : `${clock(a) || "00:00"} – ${clock(b) || "00:00"}`, range: a.hour !== undefined || b.hour !== undefined };
+  return { dayKey, day, when: `${clock(a)}${clock(a) ? " " : ""}до ${dayText(b)}${clock(b) ? `, ${clock(b)}` : ""}`.trim(), range: true };
+}
+
 /** Конец не раньше начала (сравнивается только то, что задано: события без года — в одном условном году). */
 export const isRangeOrdered = (at: string, until: string) => eventSortKey(until) >= eventSortKey(at);
 
@@ -73,9 +94,10 @@ export function isEventKnown(c: Pick<CaseFile, "evidence">, ev: CaseEvent, p: Pr
 
 /** События, известные игроку, по порядку времени (при равенстве — как в деле). */
 export function knownEvents(c: Pick<CaseFile, "evidence" | "events">, p: Progress, locationId?: string): CaseEvent[] {
+  const year = defaultEventYear(c.events);
   return c.events
     .map((ev, i) => ({ ev, i }))
     .filter(({ ev }) => isEventKnown(c, ev, p, locationId))
-    .sort((x, y) => eventSortKey(x.ev.at) - eventSortKey(y.ev.at) || x.i - y.i)
+    .sort((x, y) => eventSortKey(x.ev.at, year) - eventSortKey(y.ev.at, year) || x.i - y.i)
     .map(({ ev }) => ev);
 }

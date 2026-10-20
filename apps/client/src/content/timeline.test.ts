@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { emptyProgress } from "../../../../shared/conditions";
-import { eventSortKey, formatEventTime, isEventKnown, isRangeOrdered, knownEvents, parseEventTime } from "../../../../shared/events";
+import { eventParts, eventSortKey, formatEventTime, isEventKnown, isRangeOrdered, knownEvents, parseEventTime } from "../../../../shared/events";
 import { migrateCase } from "../../../../shared/migrate";
 import type { CaseEvent, CaseFile } from "../../../../shared/case";
 import { toEventTime } from "../editor/fields/EventTime";
@@ -40,7 +40,7 @@ describe("хронология: время события", () => {
   });
 
   it("сортировка по началу; дата без времени — 00:00; без года — один условный год", () => {
-    const keys = ["03-14T21:43", "03-10", "03-14", "03-14T21:30"].map(eventSortKey);
+    const keys = ["03-14T21:43", "03-10", "03-14", "03-14T21:30"].map((x) => eventSortKey(x));
     expect([...keys].sort((a, b) => a - b)).toEqual([keys[1], keys[2], keys[3], keys[0]]);
     expect(eventSortKey("2026-01-01")).toBeGreaterThan(eventSortKey("2025-12-31T23:59"));
     expect(eventSortKey("мусор")).toBe(Number.POSITIVE_INFINITY);
@@ -90,9 +90,23 @@ describe("хронология: что видит игрок", () => {
     expect(isEventKnown({ evidence: [] }, events[0], emptyProgress(), "yard")).toBe(false);
   });
 
-  it("лента по порядку времени, при равенстве — как в деле", () => {
+  it("лента по порядку времени, при равенстве — как в деле; даты без года встают в год, который задал автор", () => {
     const events = [ev({ id: "late", at: "03-14T22:00" }), ev({ id: "b", at: "03-10" }), ev({ id: "a", at: "03-10" }), ev({ id: "dated", at: "2026-03-01" })];
-    expect(known(events, [])).toEqual(["b", "a", "late", "dated"]);
+    expect(known(events, [])).toEqual(["dated", "b", "a", "late"]);
+  });
+
+  it("события без года и с годом сортируются вместе", () => {
+    const events = [ev({ id: "dated", at: "2026-10-01" }), ev({ id: "plain", at: "10-03T12:40" }), ev({ id: "later", at: "2026-10-03T17:15" }), ev({ id: "early", at: "09-30" })];
+    expect(known(events, [])).toEqual(["early", "dated", "plain", "later"]);
+  });
+
+  it("части для ленты: день, время, диапазон", () => {
+    expect(eventParts("10-03T12:40")).toMatchObject({ day: "3 октября", when: "12:40", range: false });
+    expect(eventParts("10-03")).toMatchObject({ when: "", range: false });
+    expect(eventParts("10-03T12:40", "10-03T17:15")).toMatchObject({ when: "12:40 – 17:15", range: true });
+    expect(eventParts("10-01", "10-05")).toMatchObject({ day: "1 октября", when: "до 5 октября", range: true });
+    expect(eventParts("10-03T22:00", "10-04T02:00").when).toBe("22:00 до 4 октября, 02:00");
+    expect(eventParts("2026-10-03T12:40").dayKey).not.toBe(eventParts("10-03T12:40").dayKey);
   });
 
   it("в готовых делах без собранных улик лента не раскрывает событий с уликами", () => {
