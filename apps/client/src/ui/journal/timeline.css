@@ -23,7 +23,7 @@
 .timeline__plot {
   --head: 1.6rem; /* ось с часами */
   --band-h: 1.6rem;
-  --lane-h: 7.4rem;
+  --lane-h: 5.6rem;
   --bands: 0; /* число полос и дорожек задаёт разметка */
   --lanes: 1;
   --band-n: 0;
@@ -119,7 +119,7 @@
 }
 .timeline__title {
   display: -webkit-box;
-  -webkit-line-clamp: 3;
+  -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
   font-size: var(--fs-md);
