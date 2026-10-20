@@ -33,7 +33,7 @@
     "points": 10
   },
   "published": true,
-  "updatedAt": "2026-10-20T19:39:28Z",
+  "updatedAt": "2026-10-20T19:43:59Z",
   "locations": [
     {
       "id": "admin",
@@ -307,8 +307,8 @@
         {
           "id": "obj_asm_pc",
           "sprite": "computer_desk",
-          "x": 20,
-          "y": 2,
+          "x": 21,
+          "y": 6,
           "label": "Компьютер участка",
           "interaction": {
             "title": "Рабочий компьютер",
@@ -357,6 +357,420 @@
           "x": 17,
           "y": 9,
           "label": "Объявление",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_admin_clock_1",
+          "sprite": "clock",
+          "x": 1,
+          "y": 0,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_admin_whiteboard_1",
+          "sprite": "whiteboard",
+          "x": 5,
+          "y": 0,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_admin_bookshelf_1",
+          "sprite": "bookshelf",
+          "x": 6,
+          "y": 1,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_admin_printer_1",
+          "sprite": "printer",
+          "x": 8,
+          "y": 1,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_admin_sofa_1",
+          "sprite": "sofa",
+          "x": 1,
+          "y": 5,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_admin_coat_rack_1",
+          "sprite": "coat_rack",
+          "x": 1,
+          "y": 7,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_admin_floor_lamp_1",
+          "sprite": "floor_lamp",
+          "x": 7,
+          "y": 3,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_admin_water_cooler_1",
+          "sprite": "water_cooler",
+          "x": 9,
+          "y": 4,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_admin_rug_1",
+          "sprite": "rug",
+          "x": 7,
+          "y": 4,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_admin_trash_bin_1",
+          "sprite": "trash_bin",
+          "x": 9,
+          "y": 7,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_admin_coffee_table_1",
+          "sprite": "coffee_table",
+          "x": 1,
+          "y": 6,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_admin_poster_1",
+          "sprite": "poster",
+          "x": 15,
+          "y": 0,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_admin_clock_2",
+          "sprite": "clock",
+          "x": 11,
+          "y": 0,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_admin_plant_1",
+          "sprite": "plant",
+          "x": 11,
+          "y": 1,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_admin_printer_2",
+          "sprite": "printer",
+          "x": 18,
+          "y": 1,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_admin_floor_lamp_2",
+          "sprite": "floor_lamp",
+          "x": 11,
+          "y": 5,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_admin_rug_2",
+          "sprite": "rug",
+          "x": 12,
+          "y": 6,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_admin_computer_desk_1",
+          "sprite": "computer_desk",
+          "x": 17,
+          "y": 6,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_admin_chair_1",
+          "sprite": "chair",
+          "x": 18,
+          "y": 5,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_admin_coffee_machine_1",
+          "sprite": "coffee_machine",
+          "x": 11,
+          "y": 7,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_admin_trash_bin_2",
+          "sprite": "trash_bin",
+          "x": 18,
+          "y": 7,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_admin_poster_2",
+          "sprite": "poster",
+          "x": 25,
+          "y": 0,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_admin_whiteboard_2",
+          "sprite": "whiteboard",
+          "x": 27,
+          "y": 0,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_admin_printer_3",
+          "sprite": "printer",
+          "x": 25,
+          "y": 1,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_admin_sofa_2",
+          "sprite": "sofa",
+          "x": 21,
+          "y": 3,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_admin_floor_lamp_3",
+          "sprite": "floor_lamp",
+          "x": 22,
+          "y": 5,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_admin_rug_3",
+          "sprite": "rug",
+          "x": 26,
+          "y": 5,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_admin_lockers_1",
+          "sprite": "lockers",
+          "x": 26,
+          "y": 7,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_admin_coat_rack_2",
+          "sprite": "coat_rack",
+          "x": 21,
+          "y": 8,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_admin_water_cooler_2",
+          "sprite": "water_cooler",
+          "x": 28,
+          "y": 5,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_admin_trash_bin_3",
+          "sprite": "trash_bin",
+          "x": 28,
+          "y": 3,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_admin_plant_2",
+          "sprite": "plant",
+          "x": 28,
+          "y": 7,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_admin_plant_3",
+          "sprite": "plant",
+          "x": 1,
+          "y": 10,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_admin_plant_4",
+          "sprite": "plant",
+          "x": 28,
+          "y": 10,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_admin_plant_5",
+          "sprite": "plant",
+          "x": 1,
+          "y": 15,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_admin_plant_6",
+          "sprite": "plant",
+          "x": 28,
+          "y": 15,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_admin_bench_1",
+          "sprite": "bench",
+          "x": 8,
+          "y": 11,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_admin_bench_2",
+          "sprite": "bench",
+          "x": 20,
+          "y": 15,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_admin_water_cooler_3",
+          "sprite": "water_cooler",
+          "x": 20,
+          "y": 10,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_admin_trash_bin_4",
+          "sprite": "trash_bin",
+          "x": 21,
+          "y": 10,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_admin_vending_1",
+          "sprite": "vending",
+          "x": 22,
+          "y": 10,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_admin_coat_rack_3",
+          "sprite": "coat_rack",
+          "x": 27,
+          "y": 10,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_admin_rug_4",
+          "sprite": "rug",
+          "x": 12,
+          "y": 13,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_admin_armchair_1",
+          "sprite": "armchair",
+          "x": 5,
+          "y": 14,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_admin_armchair_2",
+          "sprite": "armchair",
+          "x": 7,
+          "y": 14,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_admin_bench_3",
+          "sprite": "bench",
+          "x": 8,
+          "y": 15,
+          "label": "",
           "interaction": null,
           "onInteract": []
         }
@@ -578,6 +992,168 @@
           "sprite": "fire_extinguisher",
           "x": 11,
           "y": 1,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_yard_car_1",
+          "sprite": "car",
+          "x": 15,
+          "y": 8,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_yard_car_2",
+          "sprite": "car",
+          "x": 6,
+          "y": 8,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_yard_car_3",
+          "sprite": "car",
+          "x": 14,
+          "y": 4,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_yard_boxes_1",
+          "sprite": "boxes",
+          "x": 19,
+          "y": 2,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_yard_crate_1",
+          "sprite": "crate",
+          "x": 1,
+          "y": 5,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_yard_crate_2",
+          "sprite": "crate",
+          "x": 1,
+          "y": 6,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_yard_crate_3",
+          "sprite": "crate",
+          "x": 2,
+          "y": 6,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_yard_street_lamp_1",
+          "sprite": "street_lamp",
+          "x": 22,
+          "y": 2,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_yard_street_lamp_2",
+          "sprite": "street_lamp",
+          "x": 4,
+          "y": 6,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_yard_street_lamp_3",
+          "sprite": "street_lamp",
+          "x": 22,
+          "y": 10,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_yard_tree_1",
+          "sprite": "tree",
+          "x": 5,
+          "y": 11,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_yard_bench_1",
+          "sprite": "bench",
+          "x": 22,
+          "y": 11,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_yard_mailbox_1",
+          "sprite": "mailbox",
+          "x": 24,
+          "y": 10,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_yard_trash_bin_1",
+          "sprite": "trash_bin",
+          "x": 10,
+          "y": 10,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_yard_trash_bin_2",
+          "sprite": "trash_bin",
+          "x": 19,
+          "y": 10,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_yard_boxes_2",
+          "sprite": "boxes",
+          "x": 9,
+          "y": 2,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_yard_crate_4",
+          "sprite": "crate",
+          "x": 24,
+          "y": 3,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_yard_crate_5",
+          "sprite": "crate",
+          "x": 24,
+          "y": 2,
           "label": "",
           "interaction": null,
           "onInteract": []
