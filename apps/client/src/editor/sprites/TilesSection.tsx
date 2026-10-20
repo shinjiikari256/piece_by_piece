@@ -177,6 +177,19 @@ export function TilesSection() {
   const builtin = tile ? isBuiltinTile(tile.key) : true;
   const layer = tile ? Math.min(layerIdx, tile.layers.length - 1) : 0;
   const palette = useMemo(() => [...new Set((tile?.layers ?? []).flatMap((l) => l.ops).flatMap((o) => (Array.isArray(o) ? [o[4].slice(0, 7)] : [])))].slice(0, 28), [tile]);
+  // окружение на холсте подстраивается под условие слоя, чтобы выбранный слой был виден
+  const whenKey = JSON.stringify(tile?.layers[layer]?.when ?? null);
+  useEffect(() => {
+    const when = (JSON.parse(whenKey) ?? {}) as Partial<Record<Side, unknown>>;
+    const next = { ...FLAT };
+    for (const side of SIDES) {
+      const v = when[side.id];
+      const c = typeof v === "string" ? v : Array.isArray(v) ? v[0] : undefined;
+      if (c === "solid" || c === "floor" || c === "edge") next[side.id] = c;
+      else if (c) next[side.id] = TILES[c]?.solid ? "solid" : "floor";
+    }
+    setCtx(next);
+  }, [tile?.key, layer, whenKey]);
   const chars = tile ? charsOf(draft, tile.key) : [];
   const baseOptions = [{ value: "", label: "нет" }, ...groups.flatMap((g) => g.keys).filter((k) => k !== tile?.key).map((k) => ({ value: k, label: tileView(draft, k)?.name ?? k }))];
 
