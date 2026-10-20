@@ -1,0 +1,2277 @@
+{
+  "formatVersion": 11,
+  "legend": {
+    "#": "wall",
+    "W": "window",
+    "B": "brick",
+    "G": "glass",
+    "P": "painted_wall",
+    "F": "fence",
+    ".": "tile",
+    ",": "carpet",
+    "_": "parquet",
+    "w": "dark_parquet",
+    "b": "linoleum",
+    "k": "ceramic",
+    "m": "marble",
+    "r": "runner",
+    "S": "stairs",
+    "Z": "stairs_side",
+    "D": "doorway",
+    "g": "grass",
+    "a": "asphalt",
+    "p": "sidewalk"
+  },
+  "id": "case-003",
+  "number": "003",
+  "title": "Сцепка на стоянке",
+  "tagline": "Кто отвечает за гибель водителя при сцепке — и при чём тут пункт 210?",
+  "introduction": "15 сентября на стоянке готовой продукции завода погиб водитель Виктор Громов: его зажало между дверью тягача и забором во время сцепки с полуприцепом. Начальник участка был в отпуске, его замещал Игорь Беляев. Вы — дознаватель: осмотрите административный корпус и стоянку, поговорите с людьми, сопоставьте документы и решите, нарушено ли чьё-то право и кто за это отвечает.",
+  "difficulty": "medium",
+  "timeBonus": {
+    "minutes": 20,
+    "points": 10
+  },
+  "published": true,
+  "updatedAt": "2026-10-20T19:39:28Z",
+  "locations": [
+    {
+      "id": "admin",
+      "name": "Административный корпус",
+      "tiles": [
+        "###WW##WW####WW#WW####WW######",
+        "#_________#kkkkkkkk#bbbbbbbbb#",
+        "#_________#kkkkkkkk#bbbbbbbbb#",
+        "#_________#kkkkkkkk#bbbbbbbbb#",
+        "#_________#kkkkkkkk#bbbbbbbbb#",
+        "#_________#kkkkkkkk#bbbbbbbbb#",
+        "#_________#kkkkkkkk#bbbbbbbbb#",
+        "#_________#kkkkkkkk#bbbbbbbbb#",
+        "#_________#kkkkkkkk#bbbbbbbbb#",
+        "#####DD#######DD########DD####",
+        "#............................#",
+        "#............................#",
+        "#............................#",
+        "#............................#",
+        "#............................#",
+        "#............................#",
+        "######WW######DD####WW########"
+      ],
+      "areas": [
+        {
+          "name": "Кабинет начальника производства",
+          "x": 5,
+          "y": 7
+        },
+        {
+          "name": "Служба охраны труда",
+          "x": 14,
+          "y": 7
+        },
+        {
+          "name": "Кабинет сборочного участка",
+          "x": 24,
+          "y": 7
+        },
+        {
+          "name": "Коридор",
+          "x": 14,
+          "y": 14
+        }
+      ],
+      "playerStart": {
+        "x": 14,
+        "y": 13
+      },
+      "objects": [
+        {
+          "id": "door_prod",
+          "sprite": "door_h",
+          "x": 5,
+          "y": 9,
+          "label": "Дверь",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "door_ot",
+          "sprite": "door_h",
+          "x": 14,
+          "y": 9,
+          "label": "Дверь",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "door_asm",
+          "sprite": "door_h",
+          "x": 24,
+          "y": 9,
+          "label": "Дверь",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "door_yard",
+          "sprite": "door_h",
+          "x": 14,
+          "y": 16,
+          "label": "Дверь",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "obj_briefing",
+          "sprite": "cabinet",
+          "x": 9,
+          "y": 1,
+          "label": "Журналы инструктажей",
+          "interaction": {
+            "title": "Журнал инструктажей",
+            "description": "Тонкая папка «Журнал регистрации инструктажей по охране труда». Раскрыта на странице водителей."
+          },
+          "onInteract": [
+            {
+              "type": "addEvidence",
+              "evidenceId": "briefing_log"
+            }
+          ]
+        },
+        {
+          "id": "obj_kuz_desk",
+          "sprite": "desk",
+          "x": 4,
+          "y": 3,
+          "label": "Стол начальника производства",
+          "interaction": {
+            "title": "Стол начальника производства",
+            "description": "График выпуска продукции, пара сводок по сборочному участку. Ничего, что относилось бы к делу."
+          },
+          "onInteract": []
+        },
+        {
+          "id": "dec_kuz_chair",
+          "sprite": "chair",
+          "x": 4,
+          "y": 2,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "dec_kuz_plant",
+          "sprite": "plant",
+          "x": 1,
+          "y": 1,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "obj_rules",
+          "sprite": "bookshelf",
+          "x": 12,
+          "y": 1,
+          "label": "Нормативные акты",
+          "interaction": {
+            "title": "Правила по охране труда на автомобильном транспорте",
+            "description": "На полке подшиты приказы Минтруда. Одна закладка — в Правилах по охране труда на автомобильном транспорте."
+          },
+          "onInteract": [
+            {
+              "type": "addEvidence",
+              "evidenceId": "rules_210"
+            }
+          ]
+        },
+        {
+          "id": "obj_acts",
+          "sprite": "cabinet",
+          "x": 17,
+          "y": 1,
+          "label": "Шкаф с актами",
+          "interaction": {
+            "title": "Акты о несчастных случаях",
+            "description": "Корешки подписаны по годам. Верхняя папка — свежий акт со смертельным исходом."
+          },
+          "onInteract": [
+            {
+              "type": "addEvidence",
+              "evidenceId": "act_accident"
+            }
+          ]
+        },
+        {
+          "id": "obj_ot_desk",
+          "sprite": "desk",
+          "x": 14,
+          "y": 3,
+          "label": "Стол специалиста по охране труда",
+          "interaction": {
+            "title": "Стол специалиста по охране труда",
+            "description": "К акту подшиты копии материалов проверки, среди них — заключение судебно-медицинской экспертизы."
+          },
+          "onInteract": [
+            {
+              "type": "addEvidence",
+              "evidenceId": "body_exam"
+            }
+          ]
+        },
+        {
+          "id": "dec_ot_chair",
+          "sprite": "chair",
+          "x": 14,
+          "y": 2,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "obj_stand",
+          "sprite": "board",
+          "x": 11,
+          "y": 9,
+          "label": "Стенд по охране труда",
+          "interaction": {
+            "title": "Стенд по охране труда",
+            "description": "Памятки водителям, схема эвакуации и распечатка Стандарта №10 «Процесс перемещения полуприцепов тягачем»."
+          },
+          "onInteract": [
+            {
+              "type": "addEvidence",
+              "evidenceId": "standard_10"
+            }
+          ]
+        },
+        {
+          "id": "obj_asm_desk",
+          "sprite": "desk",
+          "x": 23,
+          "y": 3,
+          "label": "Стол начальника участка",
+          "interaction": {
+            "title": "Стол начальника сборочного участка",
+            "description": "На столе — сменные задания за неделю, сверху задание на 15-е число."
+          },
+          "onInteract": [
+            {
+              "type": "addEvidence",
+              "evidenceId": "shift_task"
+            }
+          ]
+        },
+        {
+          "id": "dec_asm_chair",
+          "sprite": "chair",
+          "x": 23,
+          "y": 2,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "obj_orders",
+          "sprite": "cabinet",
+          "x": 28,
+          "y": 1,
+          "label": "Шкаф с приказами",
+          "interaction": {
+            "title": "Шкаф с приказами",
+            "description": "В отдельной папке — приказы по участку и по охране труда."
+          },
+          "onInteract": [
+            {
+              "type": "addEvidence",
+              "evidenceId": "order_duty"
+            }
+          ]
+        },
+        {
+          "id": "obj_instructions",
+          "sprite": "bookshelf",
+          "x": 26,
+          "y": 1,
+          "label": "Должностные инструкции",
+          "interaction": {
+            "title": "Должностные инструкции",
+            "description": "Папка с должностной инструкцией начальника сборочного участка. Подписи об ознакомлении на месте."
+          },
+          "onInteract": [
+            {
+              "type": "addEvidence",
+              "evidenceId": "job_instruction"
+            }
+          ]
+        },
+        {
+          "id": "obj_asm_pc",
+          "sprite": "computer_desk",
+          "x": 20,
+          "y": 2,
+          "label": "Компьютер участка",
+          "interaction": {
+            "title": "Рабочий компьютер",
+            "description": "Открыт план производства на месяц. К делу он не относится."
+          },
+          "onInteract": []
+        },
+        {
+          "id": "dec_clock",
+          "sprite": "clock",
+          "x": 21,
+          "y": 0,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "obj_cctv",
+          "sprite": "cctv_desk",
+          "x": 3,
+          "y": 11,
+          "label": "Пост видеонаблюдения",
+          "interaction": {
+            "title": "Пост видеонаблюдения",
+            "description": "Охранник включает архив камеры, смотрящей на стоянку готовой продукции. Нужная запись уже выбрана."
+          },
+          "onInteract": [
+            {
+              "type": "addEvidence",
+              "evidenceId": "cctv_record"
+            }
+          ]
+        },
+        {
+          "id": "dec_ext",
+          "sprite": "fire_extinguisher",
+          "x": 11,
+          "y": 10,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "dec_poster",
+          "sprite": "poster",
+          "x": 17,
+          "y": 9,
+          "label": "Объявление",
+          "interaction": null,
+          "onInteract": []
+        }
+      ],
+      "npcs": [
+        {
+          "id": "npc_belyaev",
+          "characterId": "belyaev",
+          "dialogueId": "dlg_belyaev",
+          "x": 24,
+          "y": 5,
+          "dialogues": []
+        },
+        {
+          "id": "npc_kuznetsov",
+          "characterId": "kuznetsov",
+          "dialogueId": "dlg_kuznetsov",
+          "x": 6,
+          "y": 6,
+          "dialogues": []
+        },
+        {
+          "id": "npc_savelyeva",
+          "characterId": "savelyeva",
+          "dialogueId": "dlg_savelyeva",
+          "x": 15,
+          "y": 5,
+          "dialogues": []
+        },
+        {
+          "id": "npc_orlov",
+          "characterId": "orlov",
+          "dialogueId": "dlg_orlov",
+          "x": 20,
+          "y": 12,
+          "dialogues": []
+        }
+      ],
+      "zones": [
+        {
+          "id": "to_yard",
+          "name": "Выход на стоянку",
+          "cells": [
+            {
+              "x": 14,
+              "y": 16
+            },
+            {
+              "x": 15,
+              "y": 16
+            }
+          ],
+          "actions": [
+            {
+              "kind": "exit",
+              "to": "yard",
+              "spawn": {
+                "x": 12,
+                "y": 2
+              }
+            }
+          ]
+        }
+      ],
+      "onEnter": []
+    },
+    {
+      "id": "yard",
+      "name": "Стоянка готовой продукции",
+      "tiles": [
+        "BBBWWBBBBBBBDDBBBBBBWWBBBB",
+        "FaaaaaaaaaaaaaaaaaaaaaaaaF",
+        "FaaaaaaaaaaaaaaaaaaaaaaaaF",
+        "FaaaaaaaaaaaaaaaaaaaaaaaaF",
+        "FaaaaaaaaaaaaaaaaaaaaaaaaF",
+        "FaaaaaaaaaaaaaaaaaaaaaaaaF",
+        "FaaaaaaaaaaaaaaaaaaaaaaaaF",
+        "FaaaaaaaaaaaaaaaaaaaaaaaaF",
+        "FaaaaaaaaaaaaaaaaaaaaaaaaF",
+        "FggggggaaaaaaaaaaaaaaaaaaF",
+        "FggggggaaaaaaaaaaaaaaaaaaF",
+        "FggggggaaaaaaaaaaaaaaaaaaF",
+        "FFFFFFFFFFFFFFFFFFFFFFFFFF"
+      ],
+      "areas": [
+        {
+          "name": "Стоянка готовой продукции",
+          "x": 12,
+          "y": 5
+        },
+        {
+          "name": "Забор",
+          "x": 24,
+          "y": 10
+        }
+      ],
+      "objects": [
+        {
+          "id": "door_back",
+          "sprite": "door_h",
+          "x": 12,
+          "y": 0,
+          "label": "Дверь",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "obj_truck",
+          "sprite": "car",
+          "x": 21,
+          "y": 6,
+          "label": "Тягач с полуприцепом",
+          "interaction": {
+            "title": "Тягач и полуприцеп",
+            "description": "Водительская дверь распахнута и упирается в металлический забор. Зеркало со стороны водителя разбито. Рядом оцеплена полоса асфальта: здесь следователь делал фотографии."
+          },
+          "onInteract": [
+            {
+              "type": "addEvidence",
+              "evidenceId": "scene_protocol"
+            }
+          ]
+        },
+        {
+          "id": "obj_tag",
+          "sprite": "evidence_tag",
+          "x": 24,
+          "y": 6,
+          "label": "Метка у забора",
+          "interaction": {
+            "title": "Метка у забора",
+            "description": "Номерная метка следователя. Между забором и кабиной оставалось меньше полуметра."
+          },
+          "onInteract": []
+        },
+        {
+          "id": "dec_boxes_a",
+          "sprite": "boxes",
+          "x": 3,
+          "y": 3,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "dec_boxes_b",
+          "sprite": "boxes",
+          "x": 6,
+          "y": 3,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "dec_crate_a",
+          "sprite": "crate",
+          "x": 2,
+          "y": 8,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "dec_crate_b",
+          "sprite": "crate",
+          "x": 3,
+          "y": 8,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "dec_crate_c",
+          "sprite": "crate",
+          "x": 23,
+          "y": 2,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "dec_lamp_a",
+          "sprite": "street_lamp",
+          "x": 10,
+          "y": 5,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "dec_lamp_b",
+          "sprite": "street_lamp",
+          "x": 16,
+          "y": 10,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "dec_tree",
+          "sprite": "tree",
+          "x": 2,
+          "y": 10,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "dec_bench",
+          "sprite": "bench",
+          "x": 8,
+          "y": 10,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "dec_ext_yard",
+          "sprite": "fire_extinguisher",
+          "x": 11,
+          "y": 1,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        }
+      ],
+      "npcs": [
+        {
+          "id": "npc_tarasov",
+          "characterId": "tarasov",
+          "dialogueId": "dlg_tarasov",
+          "x": 9,
+          "y": 6,
+          "dialogues": []
+        }
+      ],
+      "zones": [
+        {
+          "id": "to_admin",
+          "name": "Вход в административный корпус",
+          "cells": [
+            {
+              "x": 12,
+              "y": 0
+            },
+            {
+              "x": 13,
+              "y": 0
+            }
+          ],
+          "actions": [
+            {
+              "kind": "exit",
+              "to": "admin",
+              "spawn": {
+                "x": 14,
+                "y": 15
+              }
+            }
+          ]
+        }
+      ],
+      "onEnter": []
+    }
+  ],
+  "characters": [
+    {
+      "id": "belyaev",
+      "name": "Игорь Беляев",
+      "look": "official_m",
+      "position": "исполняющий обязанности начальника сборочного участка",
+      "description": "На время отпуска основного начальника руководит участком. Ответственный по приказу за охрану труда и инструктажи на участке."
+    },
+    {
+      "id": "kuznetsov",
+      "name": "Олег Кузнецов",
+      "look": "official_m_senior",
+      "position": "начальник производства",
+      "description": "Курирует цех. В момент обнаружения находился в переговорной вместе с Беляевым."
+    },
+    {
+      "id": "savelyeva",
+      "name": "Инна Савельева",
+      "look": "official_f",
+      "position": "руководитель службы охраны труда",
+      "description": "Вызвала скорую, участвовала в расследовании несчастного случая. Хранит акт и материалы проверки."
+    },
+    {
+      "id": "orlov",
+      "name": "Павел Орлов",
+      "look": "casual_m",
+      "position": "главный механик",
+      "description": "Первым из руководителей добрался до стоянки: ему сообщил рабочий."
+    },
+    {
+      "id": "tarasov",
+      "name": "Максим Тарасов",
+      "look": "worker_m",
+      "position": "водитель, сменщик погибшего",
+      "description": "Работал с Виктором Громовым по графику «два через два». Знает, как на самом деле шла сцепка."
+    }
+  ],
+  "events": [
+    {
+      "id": "ev_order",
+      "title": "Беляева временно назначили начальником участка и ответственным за охрану труда",
+      "at": "09-01",
+      "showInTimeline": true
+    },
+    {
+      "id": "ev_task",
+      "title": "Беляев выдал Громову задание перегнать полуприцеп в цех",
+      "at": "09-15T08:00",
+      "showInTimeline": true
+    },
+    {
+      "id": "ev_coupling",
+      "title": "Громов в одиночку начал сцепку тягача с полуприцепом",
+      "at": "09-15T14:30",
+      "showInTimeline": true
+    },
+    {
+      "id": "ev_found",
+      "title": "Рабочий заметил заведённый тягач без водителя",
+      "at": "09-15T14:50",
+      "showInTimeline": true
+    },
+    {
+      "id": "ev_scene",
+      "title": "Руководство прибыло на стоянку, Беляев отогнал тягач, вызвана скорая",
+      "at": "09-15T15:05",
+      "showInTimeline": true
+    },
+    {
+      "id": "ev_death",
+      "title": "Скорая констатировала смерть водителя",
+      "at": "09-15T15:15",
+      "showInTimeline": true
+    }
+  ],
+  "evidence": [
+    {
+      "id": "order_duty",
+      "title": "Приказ о назначении ответственного за охрану труда",
+      "description": "Приказ директора: Беляев — ответственный за безопасное производство работ и инструктажи на участке. Ознакомлен под подпись.",
+      "details": "ПРИКАЗ № 41 «О назначении лиц, ответственных за обеспечение безопасного производства работ, проведение инструктажей по охране труда»\n\nНа период исполнения обязанностей начальника сборочного участка ответственным за обеспечение безопасного производства работ и охраны труда, а также за проведение инструктажей на рабочем месте (первичного, повторного, внепланового и целевого) назначить Беляева И.В.\n\nС приказом ознакомлен: Беляев И.В. /подпись/, 01.09",
+      "kind": "evidence",
+      "subtype": "Документ",
+      "relatedCharacters": [
+        "belyaev"
+      ],
+      "relatedEvents": [
+        "ev_order"
+      ],
+      "reliability": "high",
+      "onCollect": []
+    },
+    {
+      "id": "job_instruction",
+      "title": "Должностная инструкция начальника участка",
+      "description": "Инструкция обязывает организовывать контроль охраны труда и требовать соблюдения инструкций; п. 2.2, 2.8, 3.6.",
+      "details": "ДОЛЖНОСТНАЯ ИНСТРУКЦИЯ начальника сборочного участка\n\n2.1 Выдаёт ежедневные сменные задания, распределяет работу согласно плану производства.\n2.2 Организует контроль за исполнением правил трудовой и производственной дисциплины, охраны труда и техники безопасности среди подчинённых.\n2.8 Ежедневно перед работой информирует персонал о безопасном выполнении работ.\n3.6 Предпринимает действия для предотвращения и устранения нарушений правил охраны труда.\n4.6 Несёт ответственность за нарушение правил охраны труда.\n\nОзнакомлен: Беляев И.В.",
+      "kind": "evidence",
+      "subtype": "Документ",
+      "relatedCharacters": [
+        "belyaev"
+      ],
+      "relatedEvents": [
+        "ev_order"
+      ],
+      "reliability": "high",
+      "onCollect": []
+    },
+    {
+      "id": "shift_task",
+      "title": "Сменное задание на 15-е число",
+      "description": "В задании Громову — «переместить полуприцеп со стоянки в цех». Сцепщик и координатор не указаны.",
+      "details": "СМЕННОЕ ЗАДАНИЕ · сборочный участок · 15.09\n\nВодитель автомобиля: Громов В.А.\nЗадание: переместить полуприцеп со стоянки готовой продукции в цех (сцепка с тягачом).\nДополнительный персонал (сцепщик, координатор): не назначен.\n\nЗадание выдал: и.о. нач. участка Беляев И.В.",
+      "kind": "evidence",
+      "subtype": "Документ",
+      "relatedCharacters": [
+        "belyaev"
+      ],
+      "relatedEvents": [
+        "ev_task"
+      ],
+      "reliability": "high",
+      "onCollect": []
+    },
+    {
+      "id": "rules_210",
+      "title": "Правила по охране труда на автомобильном транспорте, п. 210",
+      "description": "Сцепку автопоезда — тягача с прицепом — производят водитель, сцепщик и работник, координирующий их работу: не менее трёх человек.",
+      "details": "Правила по охране труда на автомобильном транспорте (утверждены приказом Минтруда России от 09.12.2020 № 871н)\n\nп. 210: «При работе на автопоездах сцепку автопоезда, состоящего из автомобиля и прицепов, должны производить водитель, сцепщик и работник, координирующий их работу».\n\nПо ПДД автопоезд — тягач с прицепом или полуприцепом.\n\nИз письма: п. 210 применяется к сцепке тягача и полуприцепа на территории организации.",
+      "kind": "evidence",
+      "subtype": "Нормативный акт",
+      "relatedCharacters": [],
+      "relatedEvents": [
+        "ev_coupling"
+      ],
+      "reliability": "high",
+      "onCollect": []
+    },
+    {
+      "id": "standard_10",
+      "title": "Стандарт №10 «Процесс перемещения полуприцепов тягачем»",
+      "description": "Локальный стандарт: после сцепки водитель обязан поставить тягач на ручной тормоз (п. 5).",
+      "details": "СТАНДАРТ № 10 «Процесс перемещения полуприцепов тягачем» (локальный акт организации)\n\nВодитель подаёт тягач задним ходом, цепляет шкворневую плиту прицепа и обязан поставить тягач на ручной тормоз (п. 5).\n\nСтандарт регулирует действия водителя. Количество работников на сцепке в нём не определено.",
+      "kind": "evidence",
+      "subtype": "Документ",
+      "relatedCharacters": [
+        "tarasov"
+      ],
+      "relatedEvents": [
+        "ev_coupling"
+      ],
+      "reliability": "medium",
+      "onCollect": []
+    },
+    {
+      "id": "briefing_log",
+      "title": "Журнал инструктажей",
+      "description": "Громов прошёл все инструктажи и медосмотр перед сменой 15-го числа. Замечаний нет.",
+      "details": "ЖУРНАЛ регистрации инструктажей по охране труда · водители\n\nГромов В.А. — первичный, повторные, целевой — пройдены, замечаний нет.\n15.09, 07:40 — предсменный медосмотр: допущен.\n\nОтметка о технике безопасности при сцепке — «знаком».",
+      "kind": "evidence",
+      "subtype": "Документ",
+      "relatedCharacters": [
+        "kuznetsov"
+      ],
+      "relatedEvents": [
+        "ev_task"
+      ],
+      "reliability": "high",
+      "onCollect": []
+    },
+    {
+      "id": "cctv_record",
+      "title": "Запись камеры наблюдения на стоянке",
+      "description": "Видно: водитель сцепляет один, рядом никого нет. Тягач трогается, водитель пытается залезть в кабину.",
+      "details": "Запись камеры, смотрящей на стоянку готовой продукции\n\nВ кадре один человек — водитель. Сцепщика и работника, который координирует сцепку, рядом нет. После сцепки водитель идёт к кабине, тягач начинает движение вперёд; водитель пытается проникнуть в кабину через водительскую дверь и оказывается зажат между дверью и кабиной.",
+      "kind": "evidence",
+      "subtype": "Видеозапись",
+      "relatedCharacters": [
+        "belyaev"
+      ],
+      "relatedEvents": [
+        "ev_coupling"
+      ],
+      "reliability": "high",
+      "onCollect": []
+    },
+    {
+      "id": "scene_protocol",
+      "title": "Протокол осмотра места происшествия",
+      "description": "Тягач у забора, водительская дверь прижата, машина заведена, ручной тормоз не включён.",
+      "details": "ПРОТОКОЛ ОСМОТРА МЕСТА ПРОИСШЕСТВИЯ\n\nТягач с полуприцепом длиной 13,6 м на площадке готовой продукции у забора. Двигатель работает, ручной тормоз не включён. Водительская дверь прижата к забору, зеркало со стороны водителя повреждено. Тело водителя обнаружено между забором и кабиной.\n\nК протоколу приложена фототаблица.",
+      "kind": "evidence",
+      "subtype": "Документ",
+      "relatedCharacters": [
+        "orlov"
+      ],
+      "relatedEvents": [
+        "ev_scene"
+      ],
+      "reliability": "high",
+      "onCollect": []
+    },
+    {
+      "id": "body_exam",
+      "title": "Заключение судебно-медицинской экспертизы",
+      "description": "Смерть Громова — от механической асфиксии вследствие сдавления груди и живота.",
+      "details": "ЗАКЛЮЧЕНИЕ ЭКСПЕРТА (экспертиза трупа)\n\nСмерть наступила от механической асфиксии вследствие сдавления грудной клетки и живота твёрдыми тупыми предметами. Переломы рёбер; прижизненное сдавление в переднезаднем направлении с большой силой. Повреждения квалифицируются как тяжкий вред здоровью и состоят в прямой причинной связи со смертью.",
+      "kind": "evidence",
+      "subtype": "Документ",
+      "relatedCharacters": [],
+      "relatedEvents": [
+        "ev_death"
+      ],
+      "reliability": "high",
+      "onCollect": []
+    },
+    {
+      "id": "act_accident",
+      "title": "Акт о расследовании несчастного случая",
+      "description": "Комиссия нашла нарушения у Громова (не поставил на ручной тормоз) и у Беляева (не контролировал соблюдение правил охраны труда).",
+      "details": "АКТ о расследовании несчастного случая со смертельным исходом\n\nВывод комиссии: водитель не выполнил п. 5 Стандарта №10 — после сцепки не поставил тягач на ручной тормоз. Начальник участка Беляев не осуществил контроль за соблюдением водителем правил и инструкций по охране труда и технике безопасности. Особых мнений не поступило.\n\nПримечание: ссылки на п. 210 Правил в акте на момент подписания нет.",
+      "kind": "evidence",
+      "subtype": "Документ",
+      "relatedCharacters": [
+        "savelyeva",
+        "belyaev"
+      ],
+      "relatedEvents": [
+        "ev_death"
+      ],
+      "reliability": "medium",
+      "onCollect": []
+    },
+    {
+      "id": "expert_conclusion",
+      "title": "Заключение инженерно-технической экспертизы",
+      "description": "Организационная причина — отсутствие контроля и допуск одного водителя к сцепке; сцепка втроём исключила бы несчастный случай.",
+      "details": "ЗАКЛЮЧЕНИЕ инженерно-технической экспертизы\n\nНепосредственная причина — небезопасный способ выполнения сцепки водителем. Организационно-техническая причина — неудовлетворительная организация работ: нет контроля со стороны руководителей участка.\n\nБеляев И.В. не выполнил требования ст. 214 ТК РФ, п. 3 и пп. 3 п. 6 Правил, п. 2.2 должностной инструкции. Если бы сцепку выполняли три работника по п. 210 Правил, водитель не оказался бы вне кабины и несчастный случай не наступил. Включённый ручной тормоз также исключил бы самопроизвольное движение.\n\nНарушения Беляева и водителя находятся в прямой причинной связи с несчастным случаем.",
+      "kind": "evidence",
+      "subtype": "Заключение",
+      "relatedCharacters": [
+        "belyaev"
+      ],
+      "relatedEvents": [
+        "ev_death"
+      ],
+      "reliability": "high",
+      "onCollect": []
+    },
+    {
+      "id": "t_belyaev_lie",
+      "title": "Показания Беляева: «водитель всё делал сам»",
+      "description": "Беляев: Громов делал сцепку сам по Стандарту №10, а ручник не поставил — его вина.",
+      "details": "Беляев: «Громов эту операцию делал сотни раз, это его работа. По Стандарту №10 водитель сцепляет сам. Ручник он не поставил — виноват он».",
+      "kind": "testimony",
+      "subtype": "Показания",
+      "relatedCharacters": [
+        "belyaev"
+      ],
+      "relatedEvents": [
+        "ev_task"
+      ],
+      "reliability": "low",
+      "onCollect": []
+    },
+    {
+      "id": "t_belyaev_admit",
+      "title": "Показания Беляева: признание",
+      "description": "Беляев признал, что отправил Громова на сцепку одного, зная о п. 210.",
+      "details": "Беляев: «Людей не хватало, сцепщика и координатора я не выделил. Про пункт 210 знал, но решил, что ничего не случится — Громов опытный. Хотел, чтобы участок работал по плану».",
+      "kind": "testimony",
+      "subtype": "Показания",
+      "relatedCharacters": [
+        "belyaev"
+      ],
+      "relatedEvents": [
+        "ev_task",
+        "ev_coupling"
+      ],
+      "reliability": "high",
+      "onCollect": []
+    },
+    {
+      "id": "t_kuznetsov",
+      "title": "Показания Кузнецова",
+      "description": "Сцепку выполнял один Громов, рядом никого. Контроль по должности — на начальнике участка.",
+      "details": "Кузнецов: «В тот день работы по сцепке выполнял один Громов, рядом не было никого. Контроль за ними входил в обязанности начальника участка — на время отпуска им был Беляев».",
+      "kind": "testimony",
+      "subtype": "Показания",
+      "relatedCharacters": [
+        "kuznetsov",
+        "belyaev"
+      ],
+      "relatedEvents": [
+        "ev_coupling"
+      ],
+      "reliability": "high",
+      "onCollect": []
+    },
+    {
+      "id": "t_orlov",
+      "title": "Показания Орлова",
+      "description": "Тягач стоял заведённым и без ручника, зеркало разбито, водитель зажат дверью. Рядом никого.",
+      "details": "Орлов: «Тягач был заведён, на ручник не поставлен, зеркало со стороны водителя разбито. Громов зажат между дверью и кабиной, признаков жизни нет. Рядом не было никого».",
+      "kind": "testimony",
+      "subtype": "Показания",
+      "relatedCharacters": [
+        "orlov"
+      ],
+      "relatedEvents": [
+        "ev_found"
+      ],
+      "reliability": "high",
+      "onCollect": []
+    },
+    {
+      "id": "t_tarasov",
+      "title": "Показания Тарасова",
+      "description": "Сцепку на участке давно делали в одиночку; правила и инструктаж Громов знал, ручник — обязательное требование.",
+      "details": "Тарасов: «Громов знал порядок и технику безопасности. По графику водитель получает задание от начальника и идёт сцеплять — обычно один. Ручник ставят всегда: так требует Стандарт №10».",
+      "kind": "testimony",
+      "subtype": "Показания",
+      "relatedCharacters": [
+        "tarasov"
+      ],
+      "relatedEvents": [
+        "ev_coupling"
+      ],
+      "reliability": "medium",
+      "onCollect": []
+    }
+  ],
+  "dialogues": [
+    {
+      "id": "dlg_belyaev",
+      "characterId": "belyaev",
+      "startNodeId": "start",
+      "nodes": [
+        {
+          "id": "start",
+          "text": "Вы по поводу Виктора? Тяжёлый день… Спрашивайте, мне скрывать нечего.",
+          "mood": "sad",
+          "effects": [],
+          "choices": [
+            {
+              "id": "role",
+              "text": "Кем вы были на участке в тот день?",
+              "next": "role",
+              "effects": []
+            },
+            {
+              "id": "task",
+              "text": "Какое задание вы дали Громову?",
+              "next": "task",
+              "effects": []
+            },
+            {
+              "id": "alone",
+              "text": "Почему он сцеплял один?",
+              "next": "lie",
+              "requires": {
+                "notFlags": [
+                  "belyaev_admitted",
+                  "belyaev_closed"
+                ]
+              },
+              "effects": []
+            },
+            {
+              "id": "press",
+              "text": "Задание, запись камеры и п. 210 Правил: вы отправили на сцепку одного человека. Скажите, как было.",
+              "next": "admit",
+              "requires": {
+                "evidence": [
+                  "shift_task",
+                  "cctv_record",
+                  "rules_210"
+                ],
+                "flags": [
+                  "belyaev_lied"
+                ],
+                "notFlags": [
+                  "belyaev_admitted",
+                  "belyaev_closed"
+                ]
+              },
+              "effects": []
+            },
+            {
+              "id": "rude",
+              "text": "Вы просто сэкономили людей и подставили водителя.",
+              "next": "closed",
+              "requires": {
+                "flags": [
+                  "belyaev_lied"
+                ],
+                "notFlags": [
+                  "belyaev_admitted",
+                  "belyaev_closed"
+                ]
+              },
+              "effects": []
+            },
+            {
+              "id": "bye",
+              "text": "Разберёмся. Я ещё вернусь.",
+              "next": null,
+              "effects": []
+            }
+          ]
+        },
+        {
+          "id": "role",
+          "text": "С начала месяца я исполняю обязанности начальника участка: основной в отпуске. Приказ о назначении и инструкция лежат в моём кабинете.",
+          "mood": "neutral",
+          "effects": [],
+          "choices": [
+            {
+              "id": "back",
+              "text": "Понятно.",
+              "next": "start",
+              "effects": []
+            }
+          ]
+        },
+        {
+          "id": "task",
+          "text": "После планёрки, около восьми, я выдал сменное задание: перегнать полуприцеп со стоянки в цех. Обычная работа.",
+          "mood": "neutral",
+          "effects": [],
+          "choices": [
+            {
+              "id": "back",
+              "text": "Понятно.",
+              "next": "start",
+              "effects": []
+            }
+          ]
+        },
+        {
+          "id": "lie",
+          "text": "Сцепку Громов делал сотни раз, это его операция. По Стандарту №10 водитель сцепляет сам. А ручник не поставил он — это его вина, он же знал, как положено.",
+          "mood": "nervous",
+          "effects": [
+            {
+              "type": "changeVariable",
+              "variableId": "belyaev_lied",
+              "action": "on"
+            },
+            {
+              "type": "addEvidence",
+              "evidenceId": "t_belyaev_lie"
+            },
+            {
+              "type": "addCharacterNote",
+              "characterId": "belyaev",
+              "text": "Сначала переложил вину на водителя: «по Стандарту №10 водитель всё делает сам»."
+            }
+          ],
+          "choices": [
+            {
+              "id": "back",
+              "text": "Запишу.",
+              "next": "start",
+              "effects": []
+            }
+          ]
+        },
+        {
+          "id": "admit",
+          "text": "…Да. Людей на участке не хватало. Сцепщика и координатора я не выделил. Про пункт 210 знал, но думал, что ничего не случится: Виктор опытный. Хотел, чтобы участок работал по плану. Надо было отказаться или поставить троих.",
+          "mood": "sad",
+          "effects": [
+            {
+              "type": "changeVariable",
+              "variableId": "belyaev_admitted",
+              "action": "on"
+            },
+            {
+              "type": "addEvidence",
+              "evidenceId": "t_belyaev_admit"
+            },
+            {
+              "type": "addCharacterNote",
+              "characterId": "belyaev",
+              "text": "Признал, что отправил Громова одного, зная о п. 210 Правил."
+            }
+          ],
+          "choices": [
+            {
+              "id": "back",
+              "text": "Спасибо, что сказали честно.",
+              "next": "start",
+              "effects": []
+            }
+          ]
+        },
+        {
+          "id": "closed",
+          "text": "Понятно. Дальше только через адвоката.",
+          "mood": "angry",
+          "effects": [
+            {
+              "type": "changeVariable",
+              "variableId": "belyaev_closed",
+              "action": "on"
+            }
+          ],
+          "choices": [
+            {
+              "id": "back",
+              "text": "Извините.",
+              "next": null,
+              "effects": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "dlg_kuznetsov",
+      "characterId": "kuznetsov",
+      "startNodeId": "start",
+      "nodes": [
+        {
+          "id": "start",
+          "text": "Я начальник производства. Мы с Беляевым сидели в переговорной, когда прибежал Орлов. Что вас интересует?",
+          "mood": "neutral",
+          "effects": [],
+          "choices": [
+            {
+              "id": "who",
+              "text": "Кто отвечал за охрану труда на участке?",
+              "next": "who",
+              "effects": []
+            },
+            {
+              "id": "day",
+              "text": "Что вы знаете о сцепке в тот день?",
+              "next": "day",
+              "effects": []
+            },
+            {
+              "id": "after",
+              "text": "Что делали, когда нашли Громова?",
+              "next": "after",
+              "effects": []
+            },
+            {
+              "id": "blame",
+              "text": "Может, Громов сам виноват — ручник не поставил?",
+              "next": "blame",
+              "effects": []
+            },
+            {
+              "id": "bye",
+              "text": "Спасибо, пока всё.",
+              "next": null,
+              "effects": []
+            }
+          ]
+        },
+        {
+          "id": "who",
+          "text": "Приказом директора — Беляев, пока основной начальник в отпуске. Он расписался в приказе, документы у него в кабинете.",
+          "mood": "neutral",
+          "effects": [],
+          "choices": [
+            {
+              "id": "back",
+              "text": "Понятно.",
+              "next": "start",
+              "effects": []
+            }
+          ]
+        },
+        {
+          "id": "day",
+          "text": "Сцепкой в тот день занимался один Громов, рядом никого не было. Контроль за такими работами входит в обязанности начальника участка. На тот период им был Беляев.",
+          "mood": "neutral",
+          "effects": [
+            {
+              "type": "addEvidence",
+              "evidenceId": "t_kuznetsov"
+            }
+          ],
+          "choices": [
+            {
+              "id": "back",
+              "text": "Понятно.",
+              "next": "start",
+              "effects": []
+            }
+          ]
+        },
+        {
+          "id": "after",
+          "text": "Беляев залез в кабину с пассажирской двери и отогнал тягач метра на полтора назад: иначе Громова было не освободить. Тягач стоял заведённый.",
+          "mood": "sad",
+          "effects": [],
+          "choices": [
+            {
+              "id": "back",
+              "text": "Понятно.",
+              "next": "start",
+              "effects": []
+            }
+          ]
+        },
+        {
+          "id": "blame",
+          "text": "Он нарушил наш Стандарт №10, это есть в акте. Но стандарт — это одно, а правила федерального уровня — другое. С ними пусть разбираются те, кому положено.",
+          "mood": "nervous",
+          "effects": [],
+          "choices": [
+            {
+              "id": "back",
+              "text": "Ясно.",
+              "next": "start",
+              "effects": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "dlg_savelyeva",
+      "characterId": "savelyeva",
+      "startNodeId": "start",
+      "nodes": [
+        {
+          "id": "start",
+          "text": "Служба охраны труда. Я вызвала скорую, когда прибежала на стоянку. Что вас интересует?",
+          "mood": "neutral",
+          "effects": [],
+          "choices": [
+            {
+              "id": "scene",
+              "text": "Что вы увидели на месте?",
+              "next": "scene",
+              "effects": []
+            },
+            {
+              "id": "act",
+              "text": "Что установила комиссия?",
+              "next": "act",
+              "effects": []
+            },
+            {
+              "id": "p210",
+              "text": "В акте нет п. 210 Правил. Почему?",
+              "next": "p210",
+              "requires": {
+                "evidence": [
+                  "act_accident"
+                ]
+              },
+              "effects": []
+            },
+            {
+              "id": "expert",
+              "text": "Есть заключение эксперта о причинах?",
+              "next": "expert",
+              "requires": {
+                "evidence": [
+                  "act_accident"
+                ],
+                "flags": [
+                  "p210_clear"
+                ],
+                "notFlags": [
+                  "expert_given"
+                ]
+              },
+              "effects": []
+            },
+            {
+              "id": "bye",
+              "text": "Спасибо, пока всё.",
+              "next": null,
+              "effects": []
+            }
+          ]
+        },
+        {
+          "id": "scene",
+          "text": "Тягач стоял вплотную к забору. Громов лежал на спине между забором и кабиной, без признаков жизни. Рядом были Беляев, Кузнецов и Орлов. Сказали, что подошли недавно и отогнали тягач метра на полтора назад.",
+          "mood": "sad",
+          "effects": [],
+          "choices": [
+            {
+              "id": "back",
+              "text": "Понятно.",
+              "next": "start",
+              "effects": []
+            }
+          ]
+        },
+        {
+          "id": "act",
+          "text": "В акте две причины. Громов не поставил тягач на ручной тормоз — это нарушение Стандарта №10. А Беляев не проконтролировал соблюдение правил охраны труда. Сам акт — в шкафу.",
+          "mood": "neutral",
+          "effects": [],
+          "choices": [
+            {
+              "id": "back",
+              "text": "Понятно.",
+              "next": "start",
+              "effects": []
+            }
+          ]
+        },
+        {
+          "id": "p210",
+          "text": "Сначала комиссия опиралась на наши локальные акты. Потом по запросу следователя дали разъяснение: п. 210 о сцепке автопоезда тремя работниками относится именно к этому случаю. Автопоезд — это тягач с полуприцепом.",
+          "mood": "neutral",
+          "effects": [
+            {
+              "type": "changeVariable",
+              "variableId": "p210_clear",
+              "action": "on"
+            }
+          ],
+          "choices": [
+            {
+              "id": "back",
+              "text": "Понятно.",
+              "next": "start",
+              "effects": []
+            }
+          ]
+        },
+        {
+          "id": "expert",
+          "text": "Да, заключение инженерно-технической экспертизы. Оно у меня. Копию дам.",
+          "mood": "neutral",
+          "effects": [
+            {
+              "type": "addEvidence",
+              "evidenceId": "expert_conclusion"
+            },
+            {
+              "type": "changeVariable",
+              "variableId": "expert_given",
+              "action": "on"
+            },
+            {
+              "type": "addCharacterNote",
+              "characterId": "savelyeva",
+              "text": "Передала заключение инженерно-технической экспертизы."
+            }
+          ],
+          "choices": [
+            {
+              "id": "back",
+              "text": "Спасибо.",
+              "next": "start",
+              "effects": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "dlg_orlov",
+      "characterId": "orlov",
+      "startNodeId": "start",
+      "nodes": [
+        {
+          "id": "start",
+          "text": "Ужасный день. Я главный механик: сам видел всё первым из начальства.",
+          "mood": "sad",
+          "effects": [],
+          "choices": [
+            {
+              "id": "found",
+              "text": "Как вы нашли Громова?",
+              "next": "found",
+              "effects": []
+            },
+            {
+              "id": "state",
+              "text": "В каком состоянии был тягач?",
+              "next": "state",
+              "effects": []
+            },
+            {
+              "id": "alone",
+              "text": "Рядом никого не было?",
+              "next": "alone",
+              "effects": []
+            },
+            {
+              "id": "bye",
+              "text": "Спасибо, пока всё.",
+              "next": null,
+              "effects": []
+            }
+          ]
+        },
+        {
+          "id": "found",
+          "text": "Около трёх часов мне позвонил рабочий: на стоянке стоит заведённая машина без водителя. Я пошёл туда, увидел Громова между дверью и кабиной. Побежал в офис к Кузнецову.",
+          "mood": "sad",
+          "effects": [],
+          "choices": [
+            {
+              "id": "back",
+              "text": "Понятно.",
+              "next": "start",
+              "effects": []
+            }
+          ]
+        },
+        {
+          "id": "state",
+          "text": "Тягач заведён, на ручник не поставлен, зеркало со стороны водителя разбито. Дверь прижата к забору.",
+          "mood": "neutral",
+          "effects": [
+            {
+              "type": "addEvidence",
+              "evidenceId": "t_orlov"
+            }
+          ],
+          "choices": [
+            {
+              "id": "back",
+              "text": "Понятно.",
+              "next": "start",
+              "effects": []
+            }
+          ]
+        },
+        {
+          "id": "alone",
+          "text": "Никого. В таких случаях на нормальных участках рядом ещё двое: сцепщик и тот, кто руководит. В тот день отправили одного.",
+          "mood": "angry",
+          "effects": [],
+          "choices": [
+            {
+              "id": "back",
+              "text": "Понятно.",
+              "next": "start",
+              "effects": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "dlg_tarasov",
+      "characterId": "tarasov",
+      "startNodeId": "start",
+      "nodes": [
+        {
+          "id": "start",
+          "text": "Я сменщик Громова. Работаем два через два. Тяжело это всё…",
+          "mood": "sad",
+          "effects": [],
+          "choices": [
+            {
+              "id": "him",
+              "text": "Каким он был водителем?",
+              "next": "him",
+              "effects": []
+            },
+            {
+              "id": "how",
+              "text": "Как у вас сцепляют полуприцепы?",
+              "next": "how",
+              "effects": []
+            },
+            {
+              "id": "brake",
+              "text": "Вы всегда ставите ручной тормоз после сцепки?",
+              "next": "brake",
+              "effects": []
+            },
+            {
+              "id": "bye",
+              "text": "Спасибо, пока всё.",
+              "next": null,
+              "effects": []
+            }
+          ]
+        },
+        {
+          "id": "him",
+          "text": "Опытный, на здоровье не жаловался. Инструктажи проходил, перед сменой всегда медосмотр, потом осмотр машины и задание от начальника.",
+          "mood": "neutral",
+          "effects": [],
+          "choices": [
+            {
+              "id": "back",
+              "text": "Понятно.",
+              "next": "start",
+              "effects": []
+            }
+          ]
+        },
+        {
+          "id": "how",
+          "text": "Получаешь задание от начальника участка и идёшь сцеплять. Обычно один. Бывает, кто-то свободный подойдёт, но чаще нет. Так давно повелось.",
+          "mood": "neutral",
+          "effects": [
+            {
+              "type": "addEvidence",
+              "evidenceId": "t_tarasov"
+            },
+            {
+              "type": "changeVariable",
+              "variableId": "tarasov_told",
+              "action": "on"
+            }
+          ],
+          "choices": [
+            {
+              "id": "back",
+              "text": "Понятно.",
+              "next": "start",
+              "effects": []
+            }
+          ]
+        },
+        {
+          "id": "brake",
+          "text": "Всегда. Это требование Стандарта №10. Громов это знал, потому и странно, что в тот раз что-то пошло не так.",
+          "mood": "sad",
+          "effects": [],
+          "choices": [
+            {
+              "id": "back",
+              "text": "Понятно.",
+              "next": "start",
+              "effects": []
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "deductions": [
+    {
+      "id": "d_duty",
+      "title": "Кто отвечал за охрану труда",
+      "evidenceIds": [
+        "order_duty",
+        "job_instruction"
+      ],
+      "question": "Кто на участке отвечал за соблюдение требований охраны труда в тот день?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Только директор филиала",
+          "correct": false,
+          "feedback": "Приказ называет конкретное лицо — Беляева."
+        },
+        {
+          "id": "b",
+          "text": "Беляев: приказом назначен ответственным, а по инструкции обязан организовывать контроль охраны труда",
+          "correct": true,
+          "feedback": "Приказ и должностная инструкция сходятся."
+        },
+        {
+          "id": "c",
+          "text": "Сам водитель: за себя он отвечает один",
+          "correct": false,
+          "feedback": "Водитель обязан соблюдать правила, но организует работы и отвечает за допуск начальник участка."
+        }
+      ],
+      "conclusion": "Беляев — лицо, на которое возложены обязанности по соблюдению требований охраны труда на участке.",
+      "effects": [
+        {
+          "type": "changeVariable",
+          "variableId": "d_duty",
+          "action": "on"
+        }
+      ],
+      "failEffects": []
+    },
+    {
+      "id": "d_alone",
+      "title": "Сцепка без помощников",
+      "evidenceIds": [
+        "shift_task",
+        "cctv_record"
+      ],
+      "question": "Сколько человек выполняли сцепку?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Трое: водитель, сцепщик и координатор",
+          "correct": false,
+          "feedback": "В задании дополнительный персонал не назначен, а камера показывает одного человека."
+        },
+        {
+          "id": "b",
+          "text": "Громов по собственной инициативе, вопреки заданию",
+          "correct": false,
+          "feedback": "Задание Беляева прямо предписывает перегнать полуприцеп; других работников он не назначил."
+        },
+        {
+          "id": "c",
+          "text": "Один Громов — по заданию Беляева, без сцепщика и координатора",
+          "correct": true,
+          "feedback": "Задание и запись камеры согласуются."
+        }
+      ],
+      "conclusion": "Громов сцеплял автопоезд один, без сцепщика и координатора, по заданию Беляева.",
+      "effects": [
+        {
+          "type": "changeVariable",
+          "variableId": "d_alone",
+          "action": "on"
+        }
+      ],
+      "failEffects": []
+    },
+    {
+      "id": "d_norm",
+      "title": "Нарушен ли п. 210",
+      "evidenceIds": [
+        "rules_210",
+        "d_alone"
+      ],
+      "question": "Соответствовало ли такое задание Правилам по охране труда?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Да: водитель сам вправе сцеплять",
+          "correct": false,
+          "feedback": "Правило прямо требует не менее трёх работников."
+        },
+        {
+          "id": "b",
+          "text": "Нет: п. 210 требует водителя, сцепщика и координатора",
+          "correct": true,
+          "feedback": "Тягач с полуприцепом — это автопоезд; значит, п. 210 нарушен."
+        },
+        {
+          "id": "c",
+          "text": "Нет, но только Стандарт №10, федеральных требований тут нет",
+          "correct": false,
+          "feedback": "Федеральное требование есть: это п. 210 Правил."
+        }
+      ],
+      "conclusion": "Допуск одного водителя к сцепке нарушил п. 210 Правил по охране труда на автомобильном транспорте.",
+      "effects": [
+        {
+          "type": "changeVariable",
+          "variableId": "d_norm",
+          "action": "on"
+        }
+      ],
+      "failEffects": []
+    },
+    {
+      "id": "d_brake",
+      "title": "Роль самого водителя",
+      "evidenceIds": [
+        "standard_10",
+        "t_orlov"
+      ],
+      "question": "Что можно сказать о поведении водителя?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Нарушений у Громова не было",
+          "correct": false,
+          "feedback": "Тягач стоял без ручного тормоза, а Стандарт №10 требует его включать."
+        },
+        {
+          "id": "b",
+          "text": "Громов не включил ручной тормоз, но это не отменяет обязанность Беляева организовать сцепку втроём",
+          "correct": true,
+          "feedback": "Нарушение водителя — отдельная причина, она не снимает ответственности с руководителя."
+        },
+        {
+          "id": "c",
+          "text": "Единственная причина — ручной тормоз, больше нарушений нет",
+          "correct": false,
+          "feedback": "Эксперты называют организационную причину: допуск одного водителя без контроля."
+        }
+      ],
+      "conclusion": "Громов нарушил Стандарт №10, но отсутствие сцепки втроём остаётся самостоятельным нарушением Беляева.",
+      "effects": [
+        {
+          "type": "changeVariable",
+          "variableId": "d_brake",
+          "action": "on"
+        }
+      ],
+      "failEffects": []
+    },
+    {
+      "id": "d_cause",
+      "title": "Связь с гибелью",
+      "evidenceIds": [
+        "expert_conclusion",
+        "d_norm"
+      ],
+      "question": "Связаны ли нарушения со смертью?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Нет: смерть — несчастный случай, не связанный с организацией работ",
+          "correct": false,
+          "feedback": "Эксперты установили прямую причинную связь."
+        },
+        {
+          "id": "b",
+          "text": "Да: при сцепке втроём водитель не оказался бы вне кабины, и случай не наступил бы",
+          "correct": true,
+          "feedback": "Заключение так и говорит."
+        },
+        {
+          "id": "c",
+          "text": "Связь есть только с действиями водителя",
+          "correct": false,
+          "feedback": "Связь есть и с нарушениями Беляева."
+        }
+      ],
+      "conclusion": "Между нарушением п. 210 и смертью Громова есть прямая причинная связь.",
+      "effects": [
+        {
+          "type": "changeVariable",
+          "variableId": "d_cause",
+          "action": "on"
+        }
+      ],
+      "failEffects": []
+    },
+    {
+      "id": "d_fault",
+      "title": "Форма вины",
+      "evidenceIds": [
+        "d_cause",
+        "d_duty"
+      ],
+      "question": "Какая форма вины у Беляева?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Умысел на причинение смерти",
+          "correct": false,
+          "feedback": "Беляев смерти не желал и не допускал."
+        },
+        {
+          "id": "b",
+          "text": "Неосторожность: не предвидел последствий, хотя должен был и мог",
+          "correct": true,
+          "feedback": "Руководитель с обязанностью по охране труда должен предвидеть опасность одиночной сцепки."
+        },
+        {
+          "id": "c",
+          "text": "Невиновное причинение (случай)",
+          "correct": false,
+          "feedback": "Нарушение известной ему нормы исключает «случай»."
+        }
+      ],
+      "conclusion": "Беляев действовал по неосторожности (небрежности).",
+      "effects": [
+        {
+          "type": "changeVariable",
+          "variableId": "d_fault",
+          "action": "on"
+        }
+      ],
+      "failEffects": []
+    }
+  ],
+  "hints": [
+    {
+      "level": 1,
+      "text": "Сравните сменное задание с тем, что показывает камера на стоянке: кто был рядом с водителем.",
+      "penalty": 5
+    },
+    {
+      "level": 2,
+      "text": "Узнайте, сколько человек должны выполнять сцепку тягача с полуприцепом, и сопоставьте с заданием.",
+      "penalty": 7
+    },
+    {
+      "level": 3,
+      "text": "Охрана труда — право, закреплённое в ч. 3 ст. 37 Конституции. За его нарушение отвечает лицо, на которое возложена эта обязанность.",
+      "penalty": 10
+    }
+  ],
+  "questions": [
+    {
+      "id": "q_right",
+      "category": "right",
+      "prompt": "Какое право затронуто?",
+      "kind": "single",
+      "source": "inline",
+      "maxPoints": 30,
+      "options": [
+        {
+          "id": "labor_safety",
+          "label": "Право на безопасные условия труда",
+          "mark": "ч. 3 ст. 37 Конституции РФ; ст. 22, 212 ТК РФ",
+          "points": 30,
+          "feedback": "Верно: работодатель обязан обеспечить безопасную организацию работ, а водителя отправили одного."
+        },
+        {
+          "id": "life",
+          "label": "Право на жизнь",
+          "mark": "ст. 20 Конституции РФ",
+          "points": 12,
+          "feedback": "Близко: человек погиб. Но нарушена безопасная организация труда, право на жизнь — её тяжёлое последствие."
+        },
+        {
+          "id": "fair_pay",
+          "label": "Право на справедливую оплату труда",
+          "mark": "ч. 3 ст. 37 Конституции РФ",
+          "points": 0,
+          "feedback": "Оплата труда не обсуждается."
+        },
+        {
+          "id": "rest",
+          "label": "Право на отдых",
+          "mark": "ч. 5 ст. 37 Конституции РФ",
+          "points": 0,
+          "feedback": "Отпуск и отдых здесь ни при чём."
+        },
+        {
+          "id": "association",
+          "label": "Право на объединение (профсоюз)",
+          "mark": "ст. 30 Конституции РФ",
+          "points": 0,
+          "feedback": "Профсоюз участвовал в расследовании, но право не затронуто."
+        }
+      ]
+    },
+    {
+      "id": "q_violation",
+      "category": "violation",
+      "prompt": "Было ли нарушение?",
+      "kind": "single",
+      "source": "inline",
+      "maxPoints": 15,
+      "options": [
+        {
+          "id": "yes",
+          "label": "Да",
+          "mark": "",
+          "points": 15,
+          "feedback": "Верно: сцепку поручили одному водителю вопреки п. 210 Правил, контроля не было."
+        },
+        {
+          "id": "no",
+          "label": "Нет",
+          "mark": "",
+          "points": 0,
+          "feedback": "Нарушение есть: задание противоречило п. 210, а контроль отсутствовал."
+        },
+        {
+          "id": "insufficient",
+          "label": "Данных недостаточно",
+          "mark": "",
+          "points": 4,
+          "feedback": "Данных достаточно: задание, запись камеры, Правила и заключение экспертов сходятся."
+        }
+      ]
+    },
+    {
+      "id": "q_qualification",
+      "category": "qualification",
+      "prompt": "Как можно квалифицировать действия виновного?",
+      "kind": "single",
+      "source": "inline",
+      "maxPoints": 15,
+      "options": [
+        {
+          "id": "criminal_143_2",
+          "label": "Признаки преступления: нарушение требований охраны труда лицом, обязанным их соблюдать, повлёкшее по неосторожности смерть (ч. 2 ст. 143 УК РФ)",
+          "mark": "",
+          "points": 15,
+          "feedback": "Верно как возможная квалификация. Окончательную оценку дают следствие и суд."
+        },
+        {
+          "id": "criminal_143_1",
+          "label": "Признаки преступления: ч. 1 ст. 143 УК РФ (тяжкий вред здоровью)",
+          "mark": "",
+          "points": 7,
+          "feedback": "Часть 1 — про тяжкий вред. Здесь наступила смерть: это ч. 2."
+        },
+        {
+          "id": "criminal_109",
+          "label": "Причинение смерти по неосторожности (ст. 109 УК РФ)",
+          "mark": "",
+          "points": 4,
+          "feedback": "Для нарушений охраны труда есть специальная норма — ст. 143."
+        },
+        {
+          "id": "administrative",
+          "label": "Административное правонарушение (ст. 5.27.1 КоАП РФ)",
+          "mark": "",
+          "points": 3,
+          "feedback": "КоАП — про нарушения без тяжких последствий. Гибель человека оценивают по УК РФ."
+        },
+        {
+          "id": "disciplinary",
+          "label": "Только дисциплинарный проступок",
+          "mark": "",
+          "points": 0,
+          "feedback": "Дисциплинарное взыскание возможно, но им дело не исчерпывается."
+        },
+        {
+          "id": "none",
+          "label": "Преступления нет: это несчастный случай",
+          "mark": "",
+          "points": 0,
+          "feedback": "Организационные причины и вина руководителя установлены."
+        }
+      ]
+    },
+    {
+      "id": "q_responsible",
+      "category": "responsible",
+      "prompt": "Кто несёт ответственность?",
+      "kind": "single",
+      "source": "characters",
+      "maxPoints": 20,
+      "options": [
+        {
+          "id": "belyaev",
+          "label": "",
+          "mark": "",
+          "points": 20,
+          "feedback": "Верно: он выдал задание, не назначил сцепщика и координатора и не контролировал работу. Ручник не поставил и Громов — это учитывается, но не снимает ответственности с Беляева."
+        },
+        {
+          "id": "kuznetsov",
+          "label": "",
+          "mark": "",
+          "points": 3,
+          "feedback": "Начальник производства отвечает за цех в целом, но допуск к сцепке и контроль на участке — задача Беляева."
+        },
+        {
+          "id": "savelyeva",
+          "label": "",
+          "mark": "",
+          "points": 0,
+          "feedback": "Служба охраны труда расследовала случай и вызвала скорую."
+        },
+        {
+          "id": "orlov",
+          "label": "",
+          "mark": "",
+          "points": 0,
+          "feedback": "Главный механик только обнаружил происшествие."
+        },
+        {
+          "id": "tarasov",
+          "label": "",
+          "mark": "",
+          "points": 0,
+          "feedback": "Сменщик не имел отношения к заданию в тот день."
+        }
+      ]
+    },
+    {
+      "id": "q_evidence",
+      "category": "evidence",
+      "prompt": "Какие доказательства это подтверждают?",
+      "kind": "multi",
+      "source": "evidence",
+      "maxPoints": 20,
+      "options": [
+        {
+          "id": "shift_task",
+          "label": "",
+          "mark": "",
+          "points": 3,
+          "feedback": "Задание: сцепка поручена одному водителю."
+        },
+        {
+          "id": "cctv_record",
+          "label": "",
+          "mark": "",
+          "points": 3,
+          "feedback": "Видно, что сцепка шла без помощников."
+        },
+        {
+          "id": "rules_210",
+          "label": "",
+          "mark": "",
+          "points": 3,
+          "feedback": "Норма, требующая не менее трёх работников."
+        },
+        {
+          "id": "expert_conclusion",
+          "label": "",
+          "mark": "",
+          "points": 3,
+          "feedback": "Устанавливает организационную причину и связь со смертью."
+        },
+        {
+          "id": "order_duty",
+          "label": "",
+          "mark": "",
+          "points": 2,
+          "feedback": "Показывает, что именно Беляев отвечал за охрану труда."
+        },
+        {
+          "id": "act_accident",
+          "label": "",
+          "mark": "",
+          "points": 2,
+          "feedback": "Комиссия отметила нарушения руководителя."
+        },
+        {
+          "id": "t_belyaev_admit",
+          "label": "",
+          "mark": "",
+          "points": 2,
+          "feedback": "Признание: знал о п. 210, но не выделил людей."
+        },
+        {
+          "id": "job_instruction",
+          "label": "",
+          "mark": "",
+          "points": 1,
+          "feedback": "Закрепляет обязанности организовывать контроль."
+        },
+        {
+          "id": "body_exam",
+          "label": "",
+          "mark": "",
+          "points": 1,
+          "feedback": "Подтверждает причину смерти."
+        },
+        {
+          "id": "t_belyaev_lie",
+          "label": "",
+          "mark": "",
+          "points": -3,
+          "feedback": "Ложная версия: после проверки не подтвердилась."
+        },
+        {
+          "id": "standard_10",
+          "label": "",
+          "mark": "",
+          "points": 0,
+          "feedback": "Относится к действиям водителя, на ответственность руководителя не влияет."
+        },
+        {
+          "id": "briefing_log",
+          "label": "",
+          "mark": "",
+          "points": 0,
+          "feedback": "Показывает, что водитель был обучен и допущен."
+        },
+        {
+          "id": "scene_protocol",
+          "label": "",
+          "mark": "",
+          "points": 0,
+          "feedback": "Описывает место, но не доказывает нарушение руководителем."
+        },
+        {
+          "id": "t_kuznetsov",
+          "label": "",
+          "mark": "",
+          "points": 0,
+          "feedback": "Подтверждает обстоятельства, но улика не главная."
+        },
+        {
+          "id": "t_orlov",
+          "label": "",
+          "mark": "",
+          "points": 0,
+          "feedback": "Описывает состояние тягача."
+        },
+        {
+          "id": "t_tarasov",
+          "label": "",
+          "mark": "",
+          "points": 0,
+          "feedback": "Рассказ о практике, не доказывает нарушение конкретного руководителя."
+        }
+      ]
+    }
+  ],
+  "solution": {
+    "right": "labor_safety",
+    "rightText": "Право на безопасные условия труда (ч. 3 ст. 37 Конституции РФ; ст. 22, 212, 214 ТК РФ). Тяжёлое последствие — гибель человека (ст. 20 Конституции).",
+    "violation": true,
+    "responsibleCharacter": "belyaev",
+    "correctAnswer": "Нарушено право на безопасные условия труда. Беляев, на которого приказом возложена охрана труда на участке, поручил водителю сцепку автопоезда без сцепщика и координатора вопреки п. 210 Правил и не контролировал работу. Водитель погиб. Возможная квалификация — ч. 2 ст. 143 УК РФ.",
+    "whatHappened": "1 сентября Беляева назначили и.о. начальника сборочного участка и ответственным за охрану труда. 15 сентября в 8 утра он поручил водителю Громову перегнать полуприцеп в цех. Сцепщика и координатора он не назначил. Около 14:30 Громов начал сцепку один; тягач тронулся, водитель пытался сесть в кабину и оказался зажат между дверью и кабиной у забора. Около 14:50 рабочий заметил заведённый тягач, Орлов и руководство прибежали на стоянку, Беляев отогнал тягач, а скорая констатировала смерть.",
+    "explanation": "П. 210 Правил по охране труда на автомобильном транспорте требует, чтобы сцепку автопоезда выполняли водитель, сцепщик и работник, координирующий их работу. Беляев знал это требование, но выдал задание одному. Он отвечал за охрану труда по приказу и по должностной инструкции. Эксперты установили прямую связь между организацией работ и гибелью. Водитель тоже нарушил Стандарт №10 (не включил ручник), но это не снимает ответственности с Беляева: ответственность руководителя возникает из его собственных обязанностей. В реальном деле суд назначил виновному принудительные работы с лишением права заниматься деятельностью, связанной с контролем безопасных условий труда.",
+    "legalQualification": "Действия Беляева содержат признаки преступления, предусмотренного ч. 2 ст. 143 УК РФ: нарушение требований охраны труда лицом, на которое возложены обязанности по их соблюдению, повлёкшее по неосторожности смерть человека. Виновность определяет только суд. Возможны также дисциплинарная ответственность и гражданско-правовые требования о компенсации вреда.",
+    "qualificationNotes": [
+      {
+        "kind": "right",
+        "applies": "yes",
+        "text": "Затронуто право на безопасные условия труда (ч. 3 ст. 37 Конституции РФ)."
+      },
+      {
+        "kind": "violation",
+        "applies": "yes",
+        "text": "Сцепка поручена одному водителю вопреки п. 210 Правил; контроля не было."
+      },
+      {
+        "kind": "criminal",
+        "applies": "possible",
+        "text": "Признаки ч. 2 ст. 143 УК РФ: нарушение требований охраны труда, повлёкшее по неосторожности смерть. Вывод о виновности делает суд."
+      },
+      {
+        "kind": "administrative",
+        "applies": "no",
+        "text": "Нарушение, повлёкшее смерть, оценивается по УК РФ, а не по КоАП РФ."
+      },
+      {
+        "kind": "civil",
+        "applies": "possible",
+        "text": "Близкие погибшего могут требовать компенсацию морального вреда (ст. 151, 1101 ГК РФ)."
+      },
+      {
+        "kind": "disciplinary",
+        "applies": "possible",
+        "text": "Работодатель может применить взыскание к виновному работнику (ст. 192 ТК РФ), но это не исключает уголовную ответственность."
+      }
+    ],
+    "keyEvidence": [
+      {
+        "evidenceId": "shift_task",
+        "why": "Сцепка поручена одному водителю, дополнительный персонал не назначен."
+      },
+      {
+        "evidenceId": "cctv_record",
+        "why": "На записи видно, что рядом с водителем никого нет."
+      },
+      {
+        "evidenceId": "rules_210",
+        "why": "Норма требует не менее трёх работников."
+      },
+      {
+        "evidenceId": "order_duty",
+        "why": "Беляев назначен ответственным за охрану труда."
+      },
+      {
+        "evidenceId": "expert_conclusion",
+        "why": "Эксперты установили организационную причину и прямую причинную связь."
+      }
+    ],
+    "sources": [
+      "Конституция РФ, ч. 3 ст. 37",
+      "УК РФ, ст. 143",
+      "ТК РФ, ст. 22, 212, 214",
+      "Правила по охране труда на автомобильном транспорте (приказ Минтруда России от 09.12.2020 № 871н), п. 210",
+      "Организация, должности и люди в деле вымышлены; фабула основана на обстоятельствах судебной практики"
+    ]
+  },
+  "flags": [
+    {
+      "id": "belyaev_lied",
+      "name": "Беляев переложил вину на водителя"
+    },
+    {
+      "id": "belyaev_admitted",
+      "name": "Беляев признал, что отправил водителя одного"
+    },
+    {
+      "id": "belyaev_closed",
+      "name": "Беляев закрылся и отказался говорить"
+    },
+    {
+      "id": "p210_clear",
+      "name": "Савельева объяснила, что п. 210 применим к сцепке"
+    },
+    {
+      "id": "expert_given",
+      "name": "Савельева передала заключение эксперта"
+    },
+    {
+      "id": "tarasov_told",
+      "name": "Тарасов рассказал о практике одиночной сцепки"
+    },
+    {
+      "id": "d_duty",
+      "name": "Решено: Кто отвечал за охрану труда"
+    },
+    {
+      "id": "d_alone",
+      "name": "Решено: Сцепка без помощников"
+    },
+    {
+      "id": "d_norm",
+      "name": "Решено: Нарушен ли п. 210"
+    },
+    {
+      "id": "d_brake",
+      "name": "Решено: Роль самого водителя"
+    },
+    {
+      "id": "d_cause",
+      "name": "Решено: Связь с гибелью"
+    },
+    {
+      "id": "d_fault",
+      "name": "Решено: Форма вины"
+    }
+  ],
+  "lawReference": {
+    "basis": [
+      {
+        "article": "ч. 3 ст. 37 Конституции РФ",
+        "title": "Право на безопасные условия труда",
+        "text": "Каждый имеет право на труд в условиях, отвечающих требованиям безопасности и гигиены.",
+        "url": "http://www.consultant.ru/document/cons_doc_LAW_28399/"
+      },
+      {
+        "article": "ст. 212 ТК РФ",
+        "title": "Обязанности работодателя по обеспечению безопасных условий и охраны труда",
+        "url": "http://www.consultant.ru/document/cons_doc_LAW_34683/"
+      },
+      {
+        "article": "ст. 214 ТК РФ",
+        "title": "Обязанности работодателя в области охраны труда",
+        "url": "http://www.consultant.ru/document/cons_doc_LAW_34683/"
+      },
+      {
+        "article": "ч. 2 ст. 143 УК РФ",
+        "title": "Нарушение требований охраны труда",
+        "text": "Нарушение требований охраны труда лицом, на которое возложены обязанности по их соблюдению, повлёкшее по неосторожности смерть человека.",
+        "url": "http://www.consultant.ru/document/cons_doc_LAW_10699/"
+      },
+      {
+        "article": "п. 210 Правил (приказ Минтруда от 09.12.2020 № 871н)",
+        "title": "Сцепка автопоезда",
+        "text": "Сцепку автопоезда, состоящего из автомобиля и прицепов, должны производить водитель, сцепщик и работник, координирующий их работу."
+      },
+      {
+        "article": "ст. 109 УК РФ",
+        "title": "Причинение смерти по неосторожности",
+        "url": "http://www.consultant.ru/document/cons_doc_LAW_10699/"
+      }
+    ],
+    "notes": [
+      {
+        "title": "Локальный акт против федеральной нормы",
+        "text": "Стандарт организации не может отменить федеральные Правила: даже если локальный стандарт не упоминает число работников, п. 210 всё равно обязателен."
+      },
+      {
+        "title": "Вина потерпевшего",
+        "text": "Нарушение самого работника (не включил ручной тормоз) учитывается при расследовании, но не освобождает ответственного руководителя от ответственности."
+      }
+    ]
+  }
+}
