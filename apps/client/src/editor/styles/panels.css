@@ -151,3 +151,10 @@ body.is-resizing-rows {
   user-select: none;
   cursor: row-resize;
 }
+
+.anim-preview__canvas {
+  image-rendering: pixelated;
+  align-self: flex-start;
+  border: 1px solid var(--border-strong);
+  background: var(--bg-paper-dim);
+}

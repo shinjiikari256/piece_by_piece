@@ -10,6 +10,7 @@ import { tell } from "../../ui/dialog";
 import { editor } from "../state";
 import { zoneKey } from "./ZoneCreator";
 import { ObjectZones } from "./ObjectZones";
+import { AnimPreview } from "./AnimPreview";
 import { ZONE_COLORS } from "./helpers";
 import { ZoneActions } from "./ZoneActions";
 import { NpcDialogues } from "./NpcDialogues";
@@ -184,7 +185,8 @@ export function SelectedPanel({
           </>
         ) : (
           <>
-            <Field name={key} schema={schema} value={item} ctx={{ draft }} bare onChange={onChange} />
+            <Field name={key} schema={schema} value={item} ctx={{ draft, object: sel.kind === "object" ? (item as unknown as LocationObjectT) : undefined }} bare onChange={onChange} />
+            {sel.kind === "object" && <AnimPreview object={item as unknown as LocationObjectT} />}
             {sel.kind === "object" && isInteractive(item as unknown as LocationObjectT) && <ObjectZones draft={draft} object={item as unknown as LocationObjectT} locationId={loc.id} />}
           </>
         );

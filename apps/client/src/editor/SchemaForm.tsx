@@ -9,7 +9,9 @@ import { ItemTools } from "./ItemTools";
 import { moveItem } from "../util/lists";
 import { ArtThumb, TilePicker } from "./Pickers";
 import { SPRITE_NAMES, resolveLook } from "../game/art";
-import type { CaseFile, Dialogue, Effect } from "../../../../shared/case";
+import type { CaseFile, ClipStep, Dialogue, Effect, LocationObject } from "../../../../shared/case";
+import { ClipEditor } from "./fields/ClipEditor";
+import { SPRITES } from "../game/art";
 import { ask, tell } from "../ui/dialog";
 import { RefMulti, StringList } from "./fields/RefChips";
 import { Condition, ConditionEditor, FlagPicker } from "./fields/Conditions";
@@ -33,6 +35,8 @@ export interface FormCtx {
   draft: CaseFile;
   /** Диалог, внутри которого редактируем (для ссылок на узлы). */
   dialogue?: Dialogue;
+  /** Предмет, внутри которого редактируем (для выбора кадров спрайта и состояний). */
+  object?: Pick<LocationObject, "sprite" | "states">;
 }
 
 /** Персонаж в списках и чипах — всегда с портретом. */
@@ -176,6 +180,34 @@ export function Field({ name, schema, value, onChange, ctx, bare }: FieldProps):
 
   if (name === "requires" && (schema.type === "object" || nonNull(schema).type === "object")) {
     return <ConditionEditor value={(value ?? {}) as Condition} onChange={onChange} ctx={ctx} label={label} />;
+  }
+  const frames = ctx.object ? Object.keys(SPRITES[ctx.object.sprite]?.frames ?? {}) : null;
+  if (name === "clip" && schema.type === "array" && frames) {
+    return (
+      <div className="ef">
+        {label}
+        <ClipEditor value={(value ?? []) as ClipStep[]} frames={frames} onChange={onChange} />
+      </div>
+    );
+  }
+  if (name === "frame" && schema.type === "string" && frames) {
+    return (
+      <div className="ef">
+        {label}
+        <Select value={String(value ?? "")} options={frames.map((f) => ({ value: f, label: f }))} onChange={onChange} />
+      </div>
+    );
+  }
+  if ((name === "from" || name === "to" || name === "state") && schema.type === "string" && ctx.object) {
+    const ids = [...(name === "state" ? [] : ["*"]), "default", ...(ctx.object.states ?? []).map((st) => st.id)];
+    const nice = (v: string) => (v === "*" ? "любое" : v === "default" ? "вид по умолчанию" : v);
+    const own = { from: "Из состояния", to: "В состояние", state: "Только в состоянии" }[name];
+    return (
+      <div className="ef">
+        <span className="ef__label" title={schema.description}>{own}</span>
+        <Select value={String(value ?? "")} options={ids.map((v) => ({ value: v, label: nice(v) }))} onChange={onChange} />
+      </div>
+    );
   }
   if (name === "src" && schema.type === "string") {
     return (
