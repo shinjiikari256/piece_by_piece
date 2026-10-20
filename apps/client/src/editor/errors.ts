@@ -68,7 +68,7 @@ export function locateError(message: string, c: CaseFile): LocatedError {
   if ((m = message.match(/^question (\S+?)[:.]/))) return make("questions", { id: m[1] });
   if ((m = message.match(/^characters[^«]*«([^»]+)»/))) return make("characters", { id: m[1] });
   if ((m = message.match(/^(\w+)[.:]/)) && PATH_SECTION[m[1]]) return make(PATH_SECTION[m[1]]);
-  if (/^hints/.test(message)) return make("hints");
+  if (/^hints?\b/.test(message)) return make("hints");
   if (/^questions/.test(message)) return make("questions");
   if (/^solution/.test(message)) return make("solution");
   if (/^lawReference/.test(message)) return make("law");

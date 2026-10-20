@@ -1,3 +1,4 @@
+import { meets } from "../../../../shared/conditions";
 import { useEffect, useRef, useState } from "react";
 import { useWindowKey } from "./hooks";
 import { MOOD_TONE } from "./tone";
@@ -284,6 +285,9 @@ export function HintsPanel() {
   const opened = useGame((s) => s.hints);
   const hints = [...caseFile.hints].sort((a, b) => a.level - b.level);
   const next = hints[used];
+  const progress = useGame((s) => s.progress);
+  const locationId = useGame((s) => s.locationId);
+  const locked = !!next && !meets(next.requires, progress, locationId);
   return (
     <TabbedModal tabs={[{ id: "hints", label: "Подсказки", icon: "bulb" }]} size="narrow">
       <p className="muted">Подсказки не дают ответа напрямую. Каждая снижает итоговый балл.</p>
@@ -297,8 +301,8 @@ export function HintsPanel() {
       </ol>
       <div className="modal__actions">
         {next ? (
-          <button className="btn btn--primary" onClick={() => void actions.revealHint()}>
-            Открыть подсказку {next.level} (−{next.penalty})
+          <button className="btn btn--primary" disabled={locked} onClick={() => void actions.revealHint()}>
+            {locked ? `Подсказка ${next.level} пока недоступна` : `Открыть подсказку ${next.level} (−${next.penalty})`}
           </button>
         ) : (
           <span className="muted">Все подсказки открыты.</span>

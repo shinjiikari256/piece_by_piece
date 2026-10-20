@@ -25,6 +25,7 @@ export function toPublicCase(c: CaseFile): PublicCase {
       title: d.title,
       evidenceIds: d.evidenceIds,
       question: d.question,
+      requires: d.requires,
       options: d.options.map((o) => ({ id: o.id, text: o.text })),
       effects: d.effects,
       failEffects: d.failEffects,
@@ -38,6 +39,6 @@ export function toPublicCase(c: CaseFile): PublicCase {
       maxPoints: q.maxPoints,
       options: q.options.map((o) => ({ id: o.id, label: o.label, mark: o.mark })),
     })),
-    hints: hints.map((h) => ({ level: h.level, penalty: h.penalty })),
+    hints: hints.map((h) => ({ level: h.level, penalty: h.penalty, requires: h.requires })),
   };
 }

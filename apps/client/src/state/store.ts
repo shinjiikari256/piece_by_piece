@@ -640,7 +640,7 @@ export const actions = {
 
   findDeduction(evidenceIds: string[]): PublicDeduction | undefined {
     const key = [...evidenceIds].sort().join("+");
-    return state.caseFile?.deductions.find((d) => [...d.evidenceIds].sort().join("+") === key);
+    return state.caseFile?.deductions.find((d) => [...d.evidenceIds].sort().join("+") === key && meets(d.requires, state.progress, state.locationId));
   },
 
   /** Ответ на вопрос сопоставления; верный — устанавливает факт. null — судья не ответил. */
@@ -672,7 +672,7 @@ export const actions = {
 
   async revealHint() {
     const next = [...(state.caseFile?.hints ?? [])].sort((a, b) => a.level - b.level)[state.hintsUsed];
-    if (!next) return;
+    if (!next || !meets(next.requires, state.progress, state.locationId)) return;
     const hint = await ask((a) => a.revealHint(next.level));
     // повторный клик, пока ждали, не должен открыть подсказку дважды
     if (!hint || state.hints.some((h) => h.level === hint.level)) return;

@@ -408,6 +408,7 @@ export const Deduction = z.object({
     z.object({ id: z.string(), text: z.string(), correct: z.boolean(), feedback: z.string() }),
   ),
   conclusion: z.string().describe("Установленный факт, попадает в журнал"),
+  requires: Condition.optional().describe("Когда сопоставление доступно: пока условие не выполнено, эти материалы игра не связывает (как будто сопоставления нет)"),
   effects: z.array(Effect).describe("Эффекты верного ответа"),
   failEffects: z.array(Effect).default([]).describe("Эффекты неверного ответа (при каждой ошибке): штраф, флаг, сообщение…"),
 });
@@ -416,6 +417,7 @@ export const Hint = z.object({
   level: z.number().int().describe("1 — на объект, 2 — связать улики, 3 — намёк на право"),
   text: z.string(),
   penalty: z.number().int(),
+  requires: Condition.optional().describe("Когда подсказку можно открыть. Подсказки открываются по порядку уровней: пока условие не выполнено, эту и следующие открыть нельзя"),
 });
 
 export const QuestionCategory = z.enum(["right", "violation", "qualification", "responsible", "evidence"]);

@@ -298,6 +298,8 @@ function checkIntegrity(c: CaseFile): string[] {
 
   // Сопоставления
   for (const d of c.deductions) {
+    checkCondition(d.requires, `deduction ${d.id}.requires`);
+    if (d.requires?.deductions?.includes(d.id)) err(`deduction ${d.id}: условие доступности требует само это сопоставление — оно никогда не станет доступным`);
     // вход — улика или уже установленный факт (так строятся цепочки)
     d.evidenceIds.forEach((id) => {
       if (!evidence.has(id) && !deductions.has(id)) err(`deduction ${d.id}: неизвестная ссылка «${id}»`);
@@ -361,6 +363,7 @@ function checkIntegrity(c: CaseFile): string[] {
   // Подсказки
   const levels = c.hints.map((h) => h.level).sort();
   if (levels.join(",") !== "1,2,3") err("hints: нужны подсказки уровней 1, 2 и 3");
+  c.hints.forEach((h) => checkCondition(h.requires, `hint ${h.level}.requires`));
 
   // Вопросы и баллы
   let total = 0;

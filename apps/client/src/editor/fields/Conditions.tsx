@@ -68,6 +68,8 @@ export function flagsOf(d: FormCtx["draft"]): string[] {
     });
     l.zones.forEach((z) => z.actions.forEach((a) => cond(a.requires)));
   });
+  d.hints.forEach((h) => cond(h.requires));
+  d.deductions.forEach((x) => cond(x.requires));
   return [...out].sort();
 }
 
@@ -121,6 +123,8 @@ function collectUsage(d: FormCtx["draft"]): { vars: Map<string, FlagUse[]>; evid
     l.npcs.forEach((n) => n.dialogues.forEach((nd) => cond(nd.requires, `Диалог по условию: ${who(n.characterId)} — ${l.name}`, { section: "locations", sub: l.id, kind: "npc", id: n.id })));
     l.zones.forEach((z) => z.actions.forEach((a) => cond(a.requires, `Область «${z.name}» — ${l.name}`, { section: "locations", sub: l.id, kind: "zone", id: z.id })));
   });
+  d.deductions.forEach((x) => cond(x.requires, `Сопоставление «${x.title}» (доступность)`, { section: "deductions", id: x.id }));
+  d.hints.forEach((h) => cond(h.requires, `Подсказка ${h.level}`, { section: "hints" }));
   return { vars, evidence };
 }
 
@@ -160,6 +164,8 @@ export function deleteFlag(d: CaseFile, flag: string): CaseFile {
   const cleaned: CaseFile = {
     ...d,
     flags: (d.flags ?? []).filter((f) => f.id !== flag),
+    hints: d.hints.map(clean),
+    deductions: d.deductions.map(clean),
     dialogues: d.dialogues.map((dl) => ({ ...dl, nodes: dl.nodes.map((n) => ({ ...n, choices: n.choices.map(clean) })) })),
     locations: d.locations.map((l) => ({
       ...l,

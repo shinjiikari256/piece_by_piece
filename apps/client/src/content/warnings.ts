@@ -81,6 +81,8 @@ export function caseWarnings(c: CaseFile): string[] {
     site.effects.forEach((e) => positive(e.requires));
   });
   for (const d of c.dialogues) for (const n of d.nodes) n.choices.forEach((ch) => positive(ch.requires));
+  c.hints.forEach((h) => positive(h.requires));
+  c.deductions.forEach((x) => positive(x.requires));
   for (const l of c.locations) {
     l.doors.forEach((d) => {
       positive(d.requires);
