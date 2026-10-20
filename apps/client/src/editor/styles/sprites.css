@@ -119,19 +119,24 @@
   background: var(--tone-soft);
   color: var(--tone-ink);
 }
-.colorpick {
-  display: grid;
-  gap: 0.5rem;
-}
-.colorpick__row {
+.colorpick__button {
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  width: 100%;
+  padding: 0.25rem 0.5rem 0.25rem 0.25rem;
+  border: 1px solid var(--border-strong);
+  border-radius: 8px;
+  background: var(--bg-surface);
+  cursor: pointer;
+}
+.colorpick__button[aria-expanded="true"] {
+  border-color: var(--accent);
 }
 .colorpick__sample {
   flex: none;
-  width: 2.2rem;
-  height: 2.2rem;
+  width: 2rem;
+  height: 2rem;
   border: 1px solid var(--border-strong);
   border-radius: 6px;
   background: repeating-conic-gradient(var(--bg-paper-dim) 0% 25%, var(--bg-paper) 0% 50%) 0 0 / 8px 8px;
@@ -142,25 +147,92 @@
   width: 100%;
   height: 100%;
 }
-.colorpick__native {
-  flex: none;
-  width: 2.2rem;
-  height: 2.2rem;
-  padding: 0;
-}
-.colorpick__hex {
-  width: 7rem;
+.colorpick__code {
+  flex: 1;
+  text-align: left;
   font-family: var(--font-mono);
 }
-.colorpick__alpha {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
+.colorpick__percent {
+  color: var(--text-muted);
   font-size: var(--fs-sm);
 }
-.colorpick__alpha input {
+.colorpick__pop {
+  position: fixed;
+  z-index: 1000;
+  display: grid;
+  gap: 0.6rem;
+  width: 15rem;
+  padding: 0.7rem;
+  background: var(--bg-surface);
+  border: 1px solid var(--accent);
+  border-radius: 10px;
+  box-shadow: var(--elev-3);
+  --cp-white: #fff;
+  --cp-black: #000;
+  --cp-hues: linear-gradient(to right, #f00, #ff0, #0f0, #0ff, #00f, #f0f, #f00);
+}
+.colorpick__sv,
+.colorpick__hue,
+.colorpick__alpha-strip {
+  position: relative;
+  touch-action: none;
+  cursor: crosshair;
+  border-radius: 6px;
+  border: 1px solid var(--border-strong);
+}
+.colorpick__sv {
+  height: 9rem;
+}
+.colorpick__sv-hue {
+  position: absolute;
+  inset: 0;
+  border-radius: 5px;
+  background: linear-gradient(to top, var(--cp-black), transparent), linear-gradient(to right, var(--cp-white), transparent), hsl(var(--hue) 100% 50%);
+}
+.colorpick__hue,
+.colorpick__alpha-strip {
+  height: 0.9rem;
+}
+.colorpick__hue {
+  background: var(--cp-hues);
+}
+.colorpick__alpha-strip {
+  background: repeating-conic-gradient(var(--bg-paper-dim) 0% 25%, var(--bg-paper) 0% 50%) 0 0 / 8px 8px;
+}
+.colorpick__alpha-fill {
+  position: absolute;
+  inset: 0;
+  border-radius: 5px;
+  background: linear-gradient(to right, transparent, rgb(var(--rgb)));
+}
+.colorpick__dot,
+.colorpick__thumb {
+  position: absolute;
+  width: 0.9rem;
+  height: 0.9rem;
+  border: 2px solid var(--cp-white);
+  border-radius: 50%;
+  box-shadow: var(--elev-2);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+.colorpick__thumb {
+  top: 50%;
+}
+.colorpick__hex {
   flex: 1;
   min-width: 0;
+  font-family: var(--font-mono);
+}
+.colorpick__formats {
+  display: flex;
+  gap: 0.3rem;
+}
+.colorpick__formats .btn {
+  flex: 1;
+}
+.colorpick__group {
+  --gap: 0.25rem;
 }
 .colorpick__swatches {
   display: flex;
