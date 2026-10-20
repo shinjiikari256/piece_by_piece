@@ -1,6 +1,6 @@
 import type { AccentStyle, Appearance, CustomLook, HairStyle } from "../../../../../shared/case";
 import { rect, type Ctx } from "./common";
-import { PARTS, drawPart } from "./characters/parts";
+import { drawPart, partOf } from "./characters/parts";
 
 // ---------- Персонажи ----------
 
@@ -198,7 +198,7 @@ export function drawCharacter(ctx: Ctx, look: Look, frame: CharFrame, ox: number
   ctx.fillRect(ox + 3, 22, 10, 2);
 
   // ноги и обувь (под юбкой — ноги в колготках цвета кожи)
-  const skirt = PARTS.bottom[look.bottom ?? "pants"];
+  const skirt = partOf("bottom", look.bottom);
   const legColor = skirt ? roles[skirt.legs ?? "$legs"] : look.legs;
   r(4, 16, 4, 6 - leftLift, O);
   r(8, 16, 4, 6 - rightLift, O);
@@ -220,7 +220,7 @@ export function drawCharacter(ctx: Ctx, look: Look, frame: CharFrame, ox: number
   r(2, 15 + bob, 1, 1, look.skin);
   r(13, 15 + bob, 1, 1, look.skin);
 
-  drawPart(ctx, PARTS.accent[look.accentStyle], roles, frame, ox);
+  drawPart(ctx, partOf("accent", look.accentStyle), roles, frame, ox);
 
   // голова
   const hy = bob;
@@ -237,10 +237,10 @@ export function drawCharacter(ctx: Ctx, look: Look, frame: CharFrame, ox: number
   r(10, 7 + hy, 1, 1, "rgba(220,120,120,0.45)");
   if (frame === "talk") r(7, 7 + hy, 2, 2, "#8a3b3b");
   else r(7, 8 + hy, 2, 1, "#a65a4f");
-  if (look.beard) drawPart(ctx, PARTS.face.beard, roles, frame, ox);
-  if (look.mustache) drawPart(ctx, PARTS.face.mustache, roles, frame, ox);
-  if (look.glasses) drawPart(ctx, PARTS.face.glasses, roles, frame, ox);
+  if (look.beard) drawPart(ctx, partOf("face", "beard"), roles, frame, ox);
+  if (look.mustache) drawPart(ctx, partOf("face", "mustache"), roles, frame, ox);
+  if (look.glasses) drawPart(ctx, partOf("face", "glasses"), roles, frame, ox);
 
   // волосы
-  drawPart(ctx, PARTS.hair[look.hairStyle], roles, frame, ox);
+  drawPart(ctx, partOf("hair", look.hairStyle), roles, frame, ox);
 }

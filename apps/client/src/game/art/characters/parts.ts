@@ -1,3 +1,4 @@
+import { PartSlot } from "../../../../../../shared/case";
 import type { Ctx } from "../common";
 import hair from "./parts/hair.json";
 import accent from "./parts/accent.json";
@@ -5,8 +6,8 @@ import face from "./parts/face.json";
 import bottom from "./parts/bottom.json";
 
 /** Слоты частей персонажа; порядок в `PART_SLOTS` — порядок показа в редакторе. */
-export const PART_SLOTS = ["hair", "accent", "face", "bottom"] as const;
-export type PartSlot = (typeof PART_SLOTS)[number];
+export const PART_SLOTS = PartSlot.options;
+export type { PartSlot };
 
 /** Операция части: (x, y, ширина, высота, цвет); цвет — `#rrggbb[aa]` или роль внешности `$skin`; без цвета — ластик. */
 export type PartOp = [x: number, y: number, w: number, h: number, color?: string];
@@ -54,6 +55,9 @@ export const BUILTIN_PARTS: Record<PartSlot, string[]> = {
   face: Object.keys(PARTS.face),
   bottom: Object.keys(PARTS.bottom),
 };
+
+/** Часть по слоту и ключу (нет такой — `undefined`). */
+export const partOf = (slot: PartSlot, key: string | undefined): PartSpec | undefined => (key !== undefined && Object.hasOwn(PARTS[slot], key) ? PARTS[slot][key] : undefined);
 
 /** Операции части для позы: свой кадр, иначе `default` (со сдвигом на `idle2`, если `bob`). */
 export function partOps(spec: PartSpec, pose: string): PartOp[] {

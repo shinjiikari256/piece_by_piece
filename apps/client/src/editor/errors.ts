@@ -55,6 +55,7 @@ export function locateError(message: string, c: CaseFile): LocatedError {
 
   if ((m = message.match(/^flag (\S+?):/))) return make("flags", { id: m[1] });
   if ((m = message.match(/^sprite (\S+?):/))) return make("sprites", { id: m[1] });
+  if ((m = message.match(/^part (\S+?)\/(\S+?):/))) return make("sprites", { sub: "parts", id: `${m[1]}/${m[2]}` });
   if ((m = message.match(/^location (\S+?)\/(object|npc|exit|zone) (\S+?):/)))
     return make("locations", { sub: m[1], kind: m[2] as Focus["kind"], id: m[3] });
   if ((m = message.match(/^location (\S+?)[/.:]/))) return make("locations", { sub: m[1] });

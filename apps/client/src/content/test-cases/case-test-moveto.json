@@ -38,6 +38,131 @@
       }
     }
   ],
+  "parts": [
+    {
+      "key": "tuft",
+      "name": "[ТЕСТ] Хохолок",
+      "slot": "hair",
+      "bob": true,
+      "frames": {
+        "default": [
+          [
+            3,
+            0,
+            10,
+            4,
+            "#2a2320"
+          ],
+          [
+            4,
+            1,
+            8,
+            3,
+            "$hair"
+          ],
+          [
+            7,
+            0,
+            2,
+            1,
+            "$hair"
+          ],
+          [
+            4,
+            4,
+            1,
+            2,
+            "$hair"
+          ],
+          [
+            11,
+            4,
+            1,
+            2,
+            "$hair"
+          ]
+        ]
+      }
+    },
+    {
+      "key": "medal",
+      "name": "[ТЕСТ] Медаль",
+      "slot": "accent",
+      "bob": true,
+      "frames": {
+        "default": [
+          [
+            5,
+            10,
+            6,
+            1,
+            "$topShade"
+          ],
+          [
+            7,
+            11,
+            2,
+            1,
+            "#c9d1d9"
+          ],
+          [
+            7,
+            12,
+            2,
+            2,
+            "$accent"
+          ],
+          [
+            7,
+            14,
+            2,
+            1,
+            "#f6d55c80"
+          ]
+        ]
+      }
+    },
+    {
+      "key": "blush",
+      "name": "[ТЕСТ] Румянец",
+      "slot": "face",
+      "bob": true,
+      "frames": {
+        "default": [
+          [
+            4,
+            6,
+            2,
+            1,
+            "#e0707080"
+          ],
+          [
+            10,
+            6,
+            2,
+            1,
+            "#e0707080"
+          ]
+        ],
+        "talk": [
+          [
+            4,
+            6,
+            2,
+            2,
+            "#e0707080"
+          ],
+          [
+            10,
+            6,
+            2,
+            2,
+            "#e0707080"
+          ]
+        ]
+      }
+    }
+  ],
   "locations": [
     {
       "id": "dorm_floor",
@@ -1560,6 +1685,20 @@
       "id": "denis",
       "name": "Денис Ковалёв",
       "look": "casual_m",
+      "appearance": {
+        "skin": "#d9a27a",
+        "hair": "#3a2a1a",
+        "hairStyle": "curly",
+        "top": "#7a4a8a",
+        "accent": "#c0392b",
+        "accentStyle": "tie",
+        "legs": "#2b2f3a",
+        "shoes": "#1d2229",
+        "glasses": true,
+        "mustache": true,
+        "beard": false,
+        "bottom": "pants"
+      },
       "position": "студент, сосед из комнаты 411",
       "description": "Живёт за стенкой от Тимура. Днём 3 октября был дома."
     },
@@ -1574,6 +1713,20 @@
       "id": "vika",
       "name": "Вика Морозова",
       "look": "student_f2",
+      "appearance": {
+        "skin": "#f0c8a0",
+        "hair": "#c0392b",
+        "hairStyle": "tuft",
+        "top": "#5b8c5a",
+        "accent": "#e0b23c",
+        "accentStyle": "medal",
+        "legs": "#2f3e57",
+        "shoes": "#f1f1f1",
+        "glasses": false,
+        "mustache": false,
+        "beard": false,
+        "bottom": "skirt"
+      },
       "position": "студентка, живёт в комнате 410",
       "description": "Соседка по этажу. Разговорчивая, немного побаивается коменданта."
     },

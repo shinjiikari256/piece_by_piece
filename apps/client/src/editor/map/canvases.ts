@@ -19,7 +19,7 @@ export const T = BASE_TILE;
 /** Персонажи: кэш картинок по внешности (она может быть своей у каждого). */
 export const lookCache = new Map<string, HTMLCanvasElement>();
 export function lookCanvas(look: Look) {
-  const key = JSON.stringify(look);
+  const key = `${spriteVersion()}|${JSON.stringify(look)}`; // части персонажей дела меняются вместе с версией рисунков
   let c = lookCache.get(key);
   if (!c) {
     c = document.createElement("canvas");

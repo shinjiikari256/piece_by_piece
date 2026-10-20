@@ -149,8 +149,11 @@ export const Attachment = z.object({
   caption: z.string(),
 });
 
-export const HairStyle = z.enum(["short", "long", "bun", "cap", "ponytail", "curly", "bald", "bob", "headscarf"]);
-export const AccentStyle = z.enum(["collar", "tie", "scarf", "badge", "apron"]);
+/** Ключи частей персонажа: встроенных (`short`, `tie`…) или частей дела (`CaseFile.parts`); существование проверяет валидатор. */
+export const HairStyle = z.string().describe("Ключ причёски (часть слота «hair»)");
+export const AccentStyle = z.string().describe("Ключ детали одежды (часть слота «accent»)");
+/** Слоты частей персонажа. */
+export const PartSlot = z.enum(["hair", "accent", "face", "bottom"]);
 
 /** Своя внешность персонажа (цвета — #rrggbb). */
 export const CustomLook = z.object({
@@ -372,6 +375,21 @@ export const CustomSprite = z.object({
   actions: z.array(ObjectAction).optional().describe("Анимации на осмотр"),
   timers: z.array(ObjectTimer).optional().describe("Анимации по таймеру"),
   frames: z.record(z.string(), z.array(SpriteOp)).refine((f) => Array.isArray(f.default), "нужен кадр default"),
+});
+
+const PartOp = z.union([
+  z.tuple([z.number().int(), z.number().int(), z.number().int().min(1), z.number().int().min(1), z.string().regex(/^(#[0-9a-f]{6}([0-9a-f]{2})?|\$[A-Za-z]+)$/)]),
+  z.tuple([z.number().int(), z.number().int(), z.number().int().min(1), z.number().int().min(1)]),
+]);
+
+/** Часть персонажа, нарисованная автором (причёска, деталь одежды…): рисунок 16×24, цвета — `#rrggbb[aa]` или роли внешности (`$hair`, `$top`…). */
+export const CustomPart = z.object({
+  key: z.string().regex(/^[a-z][a-z0-9_]*$/).describe("Ключ: латиница, цифры, _; не совпадает со встроенным в том же слоте"),
+  name: z.string().describe("Название в списке частей"),
+  slot: PartSlot.describe("Слот: причёска, деталь одежды, лицо, низ"),
+  bob: z.boolean().optional().describe("На позе «вдох» сдвигается на пиксель вниз вместе с телом"),
+  legs: z.string().optional().describe("Цвет ног под частью (роль или #цвет), например у юбки"),
+  frames: z.record(z.string(), z.array(PartOp)).refine((f) => Array.isArray(f.default), "нужен кадр default"),
 });
 
 export const LocationObject = z.object({
@@ -630,6 +648,7 @@ export const CaseMeta = z.object({
 
 export const CaseFile = z.object({
   sprites: z.array(CustomSprite).optional().describe("Спрайты, нарисованные в деле"),
+  parts: z.array(CustomPart).optional().describe("Части персонажей, нарисованные в деле: причёски, детали одежды, лицо, низ"),
   formatVersion: z.number().int().optional().describe("Версия формата файла дела (ставится само; нет поля = 1)"),
   id: z.string(),
   number: z.string(),
@@ -737,6 +756,8 @@ export type NpcDialogue = z.infer<typeof NpcDialogue>;
 export type SpriteKey = z.infer<typeof SpriteKey>;
 export type SpriteParam = z.infer<typeof SpriteParam>;
 export type CustomSprite = z.infer<typeof CustomSprite>;
+export type CustomPart = z.infer<typeof CustomPart>;
+export type PartSlot = z.infer<typeof PartSlot>;
 export type Appearance = z.infer<typeof Appearance>;
 export type CustomLook = z.infer<typeof CustomLook>;
 export type HairStyle = z.infer<typeof HairStyle>;

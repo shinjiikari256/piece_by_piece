@@ -5,7 +5,7 @@ import { isRangeOrdered, parseEventTime } from "../../../../shared/events";
 import { isEntryTrigger, isInteractive } from "../../../../shared/case";
 import { conditionParams } from "../../../../shared/sprite-bindings";
 import { parseCase } from "../../../../shared/migrate";
-import { FLOOR_TILES, SPRITES, SPRITE_GROUPS, registerCaseSprites, WALL_TILES, resolveLook, solidCells } from "../game/art";
+import { FLOOR_TILES, SPRITES, SPRITE_GROUPS, registerCaseArt, WALL_TILES, partOf, PART_ROLES, PART_SLOTS, BUILTIN_PARTS, CHAR_W, CHAR_H, resolveLook, solidCells } from "../game/art";
 import { zoneTargetCell } from "./case-utils";
 import { findPath } from "../game/scene/navigation";
 
@@ -19,7 +19,7 @@ const FLOOR = FLOOR_TILES;
 export function validateCase(raw: unknown): ValidationResult {
   const parsed = parseCase(raw);
   if (!parsed.success) return { ok: false, errors: parsed.errors };
-  registerCaseSprites(parsed.data.sprites);
+  registerCaseArt(parsed.data);
   const errors = checkIntegrity(parsed.data);
   return errors.length ? { ok: false, errors } : { ok: true, caseFile: parsed.data };
 }
@@ -41,6 +41,27 @@ function checkIntegrity(c: CaseFile): string[] {
       for (const [x, y, w, h] of ops) if (x < 0 || y < 0 || x + w > sp.w || y + h > sp.h) err(`${W}: кадр ${fr}: прямоугольник выходит за размер ${sp.w}×${sp.h}`);
     for (const cell of sp.cells ?? [])
       if (cell.dx < 0 || cell.dx >= sp.footprint.w || cell.dy < 0 || cell.dy >= sp.footprint.h) err(`${W}: клетка ${cell.dx},${cell.dy} вне опоры`);
+  }
+  // части персонажей дела
+  const builtinParts = new Set(PART_SLOTS.flatMap((slot) => BUILTIN_PARTS[slot].map((k) => `${slot}/${k}`)));
+  const seenParts = new Set<string>();
+  for (const p of c.parts ?? []) {
+    const W = `part ${p.slot}/${p.key}`;
+    if (builtinParts.has(`${p.slot}/${p.key}`)) err(`${W}: ключ совпадает со встроенной частью`);
+    if (seenParts.has(`${p.slot}/${p.key}`)) err(`${W}: повторяющийся ключ`);
+    seenParts.add(`${p.slot}/${p.key}`);
+    if (!p.name.trim()) err(`${W}: не задано название`);
+    for (const [fr, ops] of Object.entries(p.frames))
+      for (const [x, y, w, h, col] of ops) {
+        if (x < 0 || y < 0 || x + w > CHAR_W || y + h > CHAR_H) err(`${W}: кадр ${fr}: прямоугольник выходит за размер ${CHAR_W}×${CHAR_H}`);
+        if (col?.startsWith("$") && !(PART_ROLES as readonly string[]).includes(col)) err(`${W}: кадр ${fr}: неизвестная роль цвета «${col}»`);
+      }
+  }
+  for (const ch of c.characters) {
+    const a = ch.appearance;
+    if (!a) continue;
+    if (!partOf("hair", a.hairStyle)) err(`characters: у «${ch.id}» нет причёски «${a.hairStyle}»`);
+    if (!partOf("accent", a.accentStyle)) err(`characters: у «${ch.id}» нет детали одежды «${a.accentStyle}»`);
   }
   let badSprite = false;
   for (const l of c.locations)

@@ -10,6 +10,8 @@ let lastJson = "[]";
 
 /** Меняется при каждой замене набора спрайтов дела: по нему сбрасывают кэши текстур. */
 export const spriteVersion = () => version;
+/** Набор рисунков дела сменился (части персонажей тоже): кэши текстур сбрасываются по этой версии. */
+export const bumpArtVersion = () => void version++;
 
 export const specOf = (s: CustomSprite): SpriteSpec => {
   const { key: _k, name: _n, group: _g, ...rest } = s;

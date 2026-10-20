@@ -7,6 +7,7 @@ type Textures = Phaser.Textures.TextureManager;
 
 /** Текстуры предметов (по одной на вид). */
 const seenVersion = new WeakMap<Textures, number>();
+const seenCharVersion = new WeakMap<Textures, number>();
 
 export function ensureObjectTextures(textures: Textures) {
   // набор спрайтов дела сменился — старые текстуры (в т.ч. кадры «obj_ключ#кадр») убираем, чтобы перерисовались
@@ -39,6 +40,12 @@ export function ensureObjectFrameTexture(textures: Textures, sprite: string, fra
 
 /** Текстура на игрока и на каждого персонажа дела (у персонажа может быть своя внешность). */
 export function ensureCharacterTextures(textures: Textures, characters: PublicCase["characters"]) {
+  // части персонажей дела сменились — старые текстуры людей убираем, чтобы перерисовались
+  const v = spriteVersion();
+  if (seenCharVersion.get(textures) !== v) {
+    if (seenCharVersion.has(textures)) for (const k of textures.getTextureKeys()) if (k === "char_player" || k.startsWith("chr_")) textures.remove(k);
+    seenCharVersion.set(textures, v);
+  }
   const looks: [string, Look][] = [
     ["char_player", LOOKS.player],
     ...characters.map((c): [string, Look] => [`chr_${c.id}`, resolveLook(c)]),

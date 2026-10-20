@@ -4,7 +4,7 @@ import type { CaseFile } from "../../../../shared/case";
 import { parseCase } from "../../../../shared/migrate";
 import { validateCase } from "../content/validate";
 import { caseWarnings } from "../content/warnings";
-import { registerCaseSprites } from "../game/art";
+import { registerCaseArt } from "../game/art";
 import { saveDraft, savePlaytest } from "../content/drafts";
 import { blankCase } from "./template";
 
@@ -88,7 +88,7 @@ const warningsOf = (draft: CaseFile) => {
 };
 
 const initialDraft = loadCurrent();
-registerCaseSprites(initialDraft.sprites);
+registerCaseArt(initialDraft);
 let savedJson = readRaw(SAVED_KEY) ?? JSON.stringify(initialDraft);
 let state: EditorState = {
   screen: "home",
@@ -108,7 +108,7 @@ const listeners = new Set<() => void>();
 
 let validateTimer: ReturnType<typeof setTimeout> | undefined;
 function set(patch: Partial<EditorState>) {
-  if (patch.draft) registerCaseSprites(patch.draft.sprites);
+  if (patch.draft) registerCaseArt(patch.draft);
   if (patch.draft) patch = { ...patch, dirty: JSON.stringify(patch.draft) !== savedJson };
   state = { ...state, ...patch };
   listeners.forEach((l) => l());

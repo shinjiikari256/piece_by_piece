@@ -8,7 +8,7 @@ import { APP_NAME, FROM_EDITOR, GAME_VERSION } from "../env";
 import { currentRoute, navigate } from "../ui/router";
 import { createAutosave, pauseOnPageHide } from "./autosave";
 import { applyEffects, choiceKey, emptyProgress, meets, startProgress, type EffectOutcome, type Progress } from "../../../../shared/conditions";
-import { registerCaseSprites } from "../game/art";
+import { registerCaseArt } from "../game/art";
 import { allNpcs, findObject, startLocation, zoneTargetCell } from "../content/case-utils";
 import { gameBridge } from "../game/bridge";
 import type { ResultRecord } from "./result-record";
@@ -420,7 +420,7 @@ export const actions = {
   openCase(judge: CaseAuthority) {
     authority = judge;
     const caseFile = judge.caseFile;
-    registerCaseSprites(caseFile.sprites);
+    registerCaseArt(caseFile);
     set({ ...initialState(), screen: "intro", caseFile, locationId: startLocation(caseFile).id });
   },
 
@@ -444,7 +444,7 @@ export const actions = {
   async resume(judge = authority) {
     if (!judge) return;
     const caseFile = judge.caseFile;
-    registerCaseSprites(caseFile.sprites);
+    registerCaseArt(caseFile);
     const raw = await platform().saves.read(caseFile.id);
     // устаревшее сохранение не загружаем — экран дела покажет предупреждение
     if (!raw || isSaveOutdated(raw, caseFile)) return actions.openCase(judge);
