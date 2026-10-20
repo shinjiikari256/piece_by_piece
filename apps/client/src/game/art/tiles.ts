@@ -8,6 +8,8 @@ export const WALL_TILES = new Set(["#", "W", "B", "G", "P", "F"]);
 export const FLOOR_TILES = new Set([".", ",", "_", "D", "g", "a", "p", "m", "b", "k", "r", "w", "S", "Z"]);
 /** Названия предметов для конструктора. */
 export const SPRITE_NAMES: Record<string, string> = {
+  door_h: "Дверь ─ (в горизонтальной стене)",
+  door_v: "Дверь │ (в вертикальной стене)",
   desk: "Стол",
   computer_desk: "Стол с компьютером",
   board: "Доска объявлений",
