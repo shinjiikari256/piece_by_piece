@@ -35,6 +35,8 @@ function siteInfo(o: EffectOwner, who: (id: string) => string): { where: string;
       return { where: `Осмотр «${o.label}» — ${o.locationName}`, focus: { section: "locations", sub: o.locationId, kind: "object", id: o.objectId } };
     case "zone":
       return { where: `Область «${o.zoneName}» — ${o.locationName}`, focus: { section: "locations", sub: o.locationId, kind: "zone", id: o.zoneId } };
+    case "zoneFallback":
+      return { where: `Область «${o.zoneName}» (запасной ответ) — ${o.locationName}`, focus: { section: "locations", sub: o.locationId, kind: "zone", id: o.zoneId } };
   }
 }
 

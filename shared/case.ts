@@ -336,6 +336,13 @@ export const Zone = z
     name: z.string(),
     cells: z.array(Point),
     actions: z.array(ZoneAction).default([]),
+    fallback: z
+      .object({
+        text: z.string().optional().describe("Что сказать игроку"),
+        effects: z.array(Effect).default([]).describe("Что применить"),
+      })
+      .optional()
+      .describe("Запасной ответ: срабатывает при входе в область и по клавише взаимодействия, когда ни одно действие не подошло"),
     color: z.string().optional().describe("Цвет области в конструкторе (#rrggbb); без цвета — подбирается по ключу. В игре область не видна"),
   })
   .describe("Область на карте из клеток");

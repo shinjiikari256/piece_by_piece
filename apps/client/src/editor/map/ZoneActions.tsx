@@ -17,7 +17,7 @@ const spawnOf = (d: CaseFile, locationId: string) => {
 const KIND_LABEL: Record<ZoneAction["kind"], string> = { dialogue: "Диалог", object: "Предмет", effects: "Эффекты", exit: "Выход" };
 
 /** Первое подходящее по порядку действие срабатывает — порядок меняют стрелками. */
-export function ZoneActions({ zone, draft, onChange }: { zone: Zone; draft: CaseFile; onChange: (actions: ZoneAction[]) => void }) {
+export function ZoneActions({ zone, draft, onChange, onFallback }: { zone: Zone; draft: CaseFile; onChange: (actions: ZoneAction[]) => void; onFallback: (fallback: Zone["fallback"]) => void }) {
   const [picking, setPicking] = useState<number | null>(null); // чья точка появления выбирается на карте
   const set = (i: number, a: ZoneAction) => onChange(zone.actions.map((x, k) => (k === i ? a : x)));
   const dialogues = draft.dialogues.map((d) => ({ value: d.id, label: `${draft.characters.find((c) => c.id === d.characterId)?.name ?? d.characterId} · ${d.id}` }));
@@ -114,6 +114,24 @@ export function ZoneActions({ zone, draft, onChange }: { zone: Zone; draft: Case
         options={(["dialogue", "object", "effects", "exit"] as const).map((k) => ({ value: k, label: KIND_LABEL[k] }))}
         onChange={(k) => onChange([...zone.actions, blank(k as ZoneAction["kind"])])}
       />
+      {zone.fallback ? (
+        <div className="zact__item stack">
+          <div className="row">
+            <b title="Срабатывает при входе и по клавише взаимодействия, когда ни одно действие не подошло">Запасной ответ</b>
+            <button className="btn btn--sm btn--icon" onClick={() => onFallback(undefined)} title="Убрать" aria-label="Убрать запасной ответ">
+              ×
+            </button>
+          </div>
+          <input className="input" value={zone.fallback.text ?? ""} placeholder="Что сказать игроку (необязательно)" onChange={(ev) => onFallback({ ...zone.fallback!, text: ev.target.value || undefined })} />
+          <EffectsEditor value={zone.fallback.effects} ctx={{ draft }} onChange={(v) => onFallback({ ...zone.fallback!, effects: v as Effect[] })} />
+        </div>
+      ) : (
+        zone.actions.length > 0 && (
+          <button className="btn btn--sm" onClick={() => onFallback({ effects: [] })}>
+            + Запасной ответ
+          </button>
+        )
+      )}
       {picking !== null && zone.actions[picking]?.kind === "exit" && (
         <CellPicker
           draft={draft}

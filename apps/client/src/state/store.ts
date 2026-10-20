@@ -1,6 +1,6 @@
 import { editorPathOfPlaytest } from "../content/drafts";
 import { useSyncExternalStore } from "react";
-import { isInteractive, objectEvidenceIds, type Effect, type Solution, type ZoneAction } from "../../../../shared/case";
+import { isInteractive, objectEvidenceIds, type Effect, type Solution, type Zone, type ZoneAction } from "../../../../shared/case";
 import type { PublicCase, PublicDeduction } from "../../../../shared/public-case";
 import { RESULT_FORMAT_VERSION, type CaseAuthority, type DeductionVerdict, type FinishInput, type RevealedHint } from "../../../../shared/judge";
 import { APP_NAME, FROM_EDITOR, GAME_VERSION } from "../env";
@@ -316,6 +316,20 @@ function zoneLockedText(zoneId: string, mode: ZoneMode): string | undefined {
   return zoneCandidates(zoneId, mode).find((a) => a.lockedText && !meets(a.requires, state.progress, state.locationId))?.lockedText;
 }
 
+/** Запасной ответ области: есть, а ни одно действие «по клавише» сейчас не подходит (у области вообще есть действия). */
+function zoneFallback(zoneId: string): Zone["fallback"] {
+  const zone = state.caseFile?.locations.flatMap((l) => l.zones).find((z) => z.id === zoneId);
+  return zone?.fallback && zone.actions.length && !zoneAction(zoneId) ? zone.fallback : undefined;
+}
+
+function runZoneFallback(zoneId: string, f: NonNullable<Zone["fallback"]>) {
+  if (f.text) toast(f.text);
+  if (!f.effects.length) return;
+  const { progress, newEvidence, messages, removedEvidence, followUp } = applyEffects(withZoneTargets(f.effects), state.progress, fxCtx(`zone:${zoneId}#fallback`));
+  set({ progress });
+  announce(newEvidence, messages, removedEvidence, followUp);
+}
+
 /** Выполнить действие области: диалог, взаимодействие с предметом или выход. */
 function runZoneAction(zoneId: string, a: ZoneAction) {
   if (a.kind === "dialogue") {
@@ -411,7 +425,7 @@ export const actions = {
 
   /** Есть ли сейчас что делать в области (подсказка «Взаимодействие» показывается только тогда): подходящее действие или текст отказа. */
   hasZoneAction(zoneId: string) {
-    return !!zoneAction(zoneId) || !!zoneLockedText(zoneId, "use");
+    return !!zoneAction(zoneId) || !!zoneLockedText(zoneId, "use") || !!zoneFallback(zoneId);
   },
 
   /** Игрок вошёл в область: срабатывает первое подходящее действие «при входе» (разовое — один раз за прохождение); нет подходящего, но есть текст отказа — показываем его. */
@@ -420,7 +434,9 @@ export const actions = {
     const action = zoneAction(zoneId, "enter");
     if (!action) {
       const locked = zoneLockedText(zoneId, "enter");
+      const fallback = zoneFallback(zoneId);
       if (locked) toast(locked);
+      else if (fallback) runZoneFallback(zoneId, fallback);
       // область с действиями, из которых сейчас ничего не подходит: спутники постоят и уйдут по своим местам
       const zone = state.caseFile?.locations.flatMap((l) => l.zones).find((z) => z.id === zoneId);
       if (zone?.actions.length && !zoneAction(zoneId) && state.progress.followers.length) {
@@ -516,7 +532,9 @@ export const actions = {
       if (action) runZoneAction(zoneId, action);
       else {
         const locked = zoneLockedText(zoneId, "use");
+        const fallback = zoneFallback(zoneId);
         if (locked) toast(locked);
+        else if (fallback) runZoneFallback(zoneId, fallback);
       }
       return;
     }

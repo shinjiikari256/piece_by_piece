@@ -156,6 +156,7 @@ export function SelectedPanel({
           zone={zone}
           draft={draft}
           onChange={(actions) => updateLoc((l) => ({ ...l, zones: l.zones.map((z) => (z.id === zone.id ? { ...z, actions } : z)) }), `zone-actions:${zone.id}`)}
+          onFallback={(fallback) => updateLoc((l) => ({ ...l, zones: l.zones.map((z) => (z.id === zone.id ? { ...z, fallback } : z)) }), `zone-fallback:${zone.id}`)}
         />
         <button className="btn btn--sm btn--danger" onClick={onDelete}>
           Удалить (Delete)

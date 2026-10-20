@@ -162,6 +162,7 @@ function evidenceOrigins(d: CaseFile, id: string): string[] {
     else if (o.kind === "choice") out.push(`разговор с ${who(o.characterId)}, вариант «${o.text.slice(0, 40)}»`);
     else if (o.kind === "object") out.push(`осмотр «${o.label}» — ${o.locationName}`);
     else if (o.kind === "zone") out.push(`область «${o.zoneName}» — ${o.locationName}`);
+    else if (o.kind === "zoneFallback") out.push(`запасной ответ области «${o.zoneName}» — ${o.locationName}`);
     else if (o.kind === "enter") out.push(`вход в локацию «${o.locationName}»`);
     else if (o.kind === "deduction") out.push(`сопоставление «${o.title}»`);
     else if (o.kind === "deductionFail") out.push(`ошибка в сопоставлении «${o.title}»`);

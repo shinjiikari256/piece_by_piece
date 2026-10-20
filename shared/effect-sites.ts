@@ -9,7 +9,8 @@ export type EffectOwner =
   | { kind: "evidence"; evidenceId: string; title: string }
   | { kind: "enter"; locationId: string; locationName: string }
   | { kind: "object"; locationId: string; locationName: string; objectId: string; label: string }
-  | { kind: "zone"; locationId: string; locationName: string; zoneId: string; zoneName: string; actionIndex: number };
+  | { kind: "zone"; locationId: string; locationName: string; zoneId: string; zoneName: string; actionIndex: number }
+  | { kind: "zoneFallback"; locationId: string; locationName: string; zoneId: string; zoneName: string };
 
 export interface EffectSite {
   owner: EffectOwner;
@@ -75,6 +76,7 @@ function walkEffects<C extends EffectCase>(c: C, visit: (effects: Effect[], owne
             ? { ...a, effects: visit(a.effects, { kind: "zone", locationId: l.id, locationName: l.name, zoneId: z.id, zoneName: z.name, actionIndex: i }, `location ${l.id}/zone ${z.id}: действие №${i + 1}`) }
             : a,
         ),
+        ...(z.fallback ? { fallback: { ...z.fallback, effects: visit(z.fallback.effects, { kind: "zoneFallback", locationId: l.id, locationName: l.name, zoneId: z.id, zoneName: z.name }, `location ${l.id}/zone ${z.id}: запасной ответ`) } } : {}),
       })),
     })),
   };
