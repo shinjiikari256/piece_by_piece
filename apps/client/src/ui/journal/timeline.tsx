@@ -12,7 +12,7 @@ import "./timeline.css";
 // ---------- Хронология ----------
 
 const ZOOM = [1.5, 3, 6, 12];
-const MONTHS = ["января", "февраля", "марта", "апреля", "мая", "июня", "июля", "августа", "сентября", "октября", "ноября", "декабря"];
+const MONTHS = ["янв", "фев", "мар", "апр", "мая", "июн", "июл", "авг", "сен", "окт", "ноя", "дек"];
 const pad = (n: number) => String(n).padStart(2, "0");
 
 /** События, о которых игрок уже узнал, на шкале времени: моменты — метки, события, которые длились, — полосы. */
@@ -37,19 +37,18 @@ export function TimelineTab() {
   const shown = person === "all" ? known : known.filter((ev) => links.get(ev.id)?.people.includes(person));
 
   const year = useMemo(() => defaultEventYear(caseFile.events), [caseFile.events]);
-  const showYear = caseFile.events.some((e) => /^\d{4}-/.test(e.at));
   const layout = useMemo(() => layoutTimeline(shown.map((ev) => eventSpan(ev, year)), { pxPerMin: ZOOM[zoom] }), [shown, year, zoom]);
 
   if (!known.length) return <p className="empty">Пока ни одно событие не установлено. Находки и разговоры дополняют хронологию.</p>;
 
   const tickLabel = (minute: number) => {
     const d = new Date(minute * 60000);
-    return { day: `${d.getUTCDate()} ${MONTHS[d.getUTCMonth()]}${showYear ? ` ${d.getUTCFullYear()}` : ""}`, clock: `${pad(d.getUTCHours())}:${pad(d.getUTCMinutes())}` };
+    return { day: `${d.getUTCDate()} ${MONTHS[d.getUTCMonth()]}`, clock: `${pad(d.getUTCHours())}:${pad(d.getUTCMinutes())}` };
   };
   // подпись времени пропускаем, если она налезает на предыдущую
   let lastLabelX = -Infinity;
   const ticks = layout.ticks.map((t) => {
-    const show = t.x - lastLabelX >= 44;
+    const show = t.x - lastLabelX >= 56;
     if (show) lastLabelX = t.x;
     return { ...t, show, ...tickLabel(t.minute) };
   });
@@ -87,7 +86,7 @@ export function TimelineTab() {
             ))}
             {ticks.map((t) => (
               <div key={t.minute} className="timeline__tick" style={{ left: t.x }}>
-                {t.newDay && <span className="timeline__day">{t.day}</span>}
+                {t.show && t.newDay && <span className="timeline__day">{t.day}</span>}
                 {t.show && <span className="timeline__clock">{t.clock}</span>}
               </div>
             ))}

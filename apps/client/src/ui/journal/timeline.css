@@ -68,8 +68,8 @@
   align-items: flex-end;
   justify-content: center;
   padding-bottom: 0.3rem;
-  background: repeating-linear-gradient(135deg, transparent 0 6px, var(--border) 6px 7px);
-  border-inline: 1px solid var(--border-strong);
+  white-space: nowrap;
+  border-inline: 1px solid var(--border);
   font-size: var(--fs-sm);
   color: var(--text-muted);
 }
@@ -82,25 +82,18 @@
 /* полоса события: точка у момента, вытянутая — у того, что длилось */
 .timeline__span {
   position: absolute;
-  top: calc(var(--head) + var(--lane) * var(--lane-n));
-  height: 0.7rem;
-  min-width: 0.7rem;
-  margin-left: -0.35rem;
-  border-radius: 999px;
+  top: calc(var(--head) + var(--lane) * var(--lane-n) + 0.4rem);
+  height: 0.5rem;
+  min-width: 0.5rem;
   background: var(--accent);
-  box-shadow: 0 0 0 2px var(--bg-surface);
-}
-.timeline__span[data-range] {
-  background: var(--accent-soft);
-  border: 2px solid var(--accent);
-  box-sizing: border-box;
+  border-radius: 3px 3px 0 0;
 }
 .timeline__span[data-selected] {
-  box-shadow: 0 0 0 2px var(--bg-surface), 0 0 0 4px var(--accent-line);
+  background: var(--accent-strong);
 }
 .timeline__card {
   position: absolute;
-  top: calc(var(--head) + var(--lane) * var(--lane-n) + 1.1rem);
+  top: calc(var(--head) + var(--lane) * var(--lane-n) + 0.9rem);
   height: calc(var(--lane) - 1.5rem);
   display: flex;
   flex-direction: column;
@@ -111,7 +104,8 @@
   text-align: left;
   background: var(--bg-paper-dim);
   border: 1px solid var(--border);
-  border-radius: 6px;
+  border-top: 2px solid var(--accent);
+  border-radius: 0 6px 6px 6px;
 }
 .timeline__card[data-selected] {
   border-color: var(--accent);
