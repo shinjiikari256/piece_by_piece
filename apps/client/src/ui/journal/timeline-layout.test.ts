@@ -13,25 +13,23 @@ describe("дни хронологии", () => {
 
   it("момент без времени занимает весь день", () => {
     const [d] = buildDays([ev("a", "10-01")], 2026);
-    expect(d.entries[0].band).toEqual({ from: 0, to: DAY });
+    expect(d.entries[0].band).toEqual({ from: 0, to: DAY, openStart: true, openEnd: true });
   });
 
-  it("диапазон в один день — полоса с карточками начала и конца", () => {
+  it("диапазон в один день — одна карточка и полоса с отметками на обоих концах", () => {
     const [d] = buildDays([ev("a", "10-01T12:40", "10-01T17:15")], 2026);
-    const e = d.entries[0];
-    expect(e.band).toEqual({ from: 12 * 60 + 40, to: 17 * 60 + 15 });
-    expect(e.cards.map((c) => c.kind)).toEqual(["start", "end"]);
+    expect(d.entries).toHaveLength(1);
+    expect(d.entries[0].band).toEqual({ from: 12 * 60 + 40, to: 17 * 60 + 15, openStart: false, openEnd: false });
+    expect(d.entries[0].card.kind).toBe("range");
   });
 
-  it("диапазон на несколько дней: начало, конец и полоса в промежуточном дне, где есть другое событие", () => {
+  it("диапазон на несколько дней: по карточке в начале, конце и в промежуточном дне с другим событием", () => {
     const days = buildDays([ev("r", "10-01", "10-05"), ev("x", "10-03T10:00")], 2026);
     expect(days).toHaveLength(3);
-    const mid = days[1].entries.find((e) => e.ev.id === "r")!;
-    expect(mid.band).toEqual({ from: 0, to: DAY });
-    expect(mid.cards).toHaveLength(0);
-    expect(days[0].entries[0].cards.map((c) => c.kind)).toEqual(["start"]);
-    expect(days[2].entries[0].band).toEqual({ from: 0, to: DAY });
-    expect(days[2].entries[0].cards.map((c) => c.kind)).toEqual(["end"]);
+    const kinds = days.map((d) => d.entries.find((e) => e.ev.id === "r")!.card.kind);
+    expect(kinds).toEqual(["start", "through", "end"]);
+    expect(days[0].entries[0].band).toMatchObject({ openStart: false, openEnd: true });
+    expect(days[2].entries[0].band).toMatchObject({ from: 0, to: DAY, openStart: true, openEnd: false });
   });
 
   it("промежуточные дни без других событий не создаются", () => {
@@ -47,7 +45,7 @@ describe("дни хронологии", () => {
 
   it("карточка у края не выходит за шкалу", () => {
     const d = buildDays([ev("a", "10-01T23:50")], 2026)[0];
-    const [c] = layoutDay(d.entries, 600, 176).cards;
+    const [c] = layoutDay(d.entries, 600, 176).placed;
     expect(c.left + 176).toBeLessThanOrEqual(600);
   });
 });

@@ -79,13 +79,11 @@
 }
 .timeline__plot {
   --head: 1.6rem; /* ось с часами */
-  --band-h: 1.6rem;
-  --lane-h: 5.6rem;
-  --bands: 0; /* число полос и дорожек задаёт разметка */
-  --lanes: 1;
-  --band-n: 0;
+  --lane-h: 6.6rem;
+  --strip-h: 1rem; /* полоса или маркер над карточкой */
+  --lanes: 1; /* число дорожек задаёт разметка */
   --lane-n: 0;
-  --cards-top: calc(var(--head) + var(--bands) * var(--band-h) + 0.3rem);
+  --cards-top: calc(var(--head) + 0.3rem);
   position: relative;
   width: 100%;
   height: calc(var(--cards-top) + var(--lanes) * var(--lane-h));
@@ -116,42 +114,58 @@
   right: 0.25rem;
 }
 
-/* полоса: событие длилось или относится ко всему дню */
-.timeline__band {
+/* событие: сверху полоса (длилось / весь день) с отметками начала и конца или маркер момента, под ней карточка */
+.timeline__event {
+  --lane-top: calc(var(--cards-top) + var(--lane-n) * var(--lane-h));
+}
+.timeline__strip {
   position: absolute;
-  top: calc(var(--head) + var(--band-n) * var(--band-h));
-  height: calc(var(--band-h) - 0.25rem);
-  box-sizing: border-box;
-  display: flex;
-  align-items: center;
-  padding: 0 0.5rem;
-  text-align: left;
-  font-size: var(--fs-sm);
-  background: var(--accent-soft);
-  border: 1px solid var(--accent);
-  border-radius: 4px;
+  top: var(--lane-top);
+  height: var(--strip-h);
+  pointer-events: none;
 }
-.timeline__band[data-selected] {
-  background: var(--accent-line);
+.timeline__bar {
+  position: absolute;
+  inset: 0.3rem 0;
+  background: var(--accent);
 }
-
-/* маркер на оси и карточка под ним */
+.timeline__strip[data-open-end]:not([data-open-start]) .timeline__bar {
+  clip-path: polygon(0 0, calc(100% - 0.4rem) 0, 100% 50%, calc(100% - 0.4rem) 100%, 0 100%);
+}
+.timeline__strip[data-open-start]:not([data-open-end]) .timeline__bar {
+  clip-path: polygon(0.4rem 50%, 0 0, 100% 0, 100% 100%, 0 100%);
+}
+.timeline__strip[data-open-start][data-open-end] .timeline__bar {
+  clip-path: polygon(0.4rem 50%, 0 0, calc(100% - 0.4rem) 0, 100% 50%, calc(100% - 0.4rem) 100%, 0 100%);
+}
+/* отметка настоящего начала / конца: высокая засечка */
+.timeline__cap {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: var(--accent-strong);
+}
+.timeline__cap[data-side="start"] {
+  left: 0;
+}
+.timeline__cap[data-side="end"] {
+  right: 0;
+}
 .timeline__marker {
   position: absolute;
-  top: calc(var(--cards-top) + var(--lane-n) * var(--lane-h));
-  width: 0.5rem;
-  height: 0.5rem;
-  margin-left: -0.25rem;
-  background: var(--accent);
-  border-radius: 50% 50% 0 0;
+  top: var(--lane-top);
+  width: 0;
+  height: var(--strip-h);
+  border-left: 3px solid var(--accent-strong);
 }
-.timeline__marker[data-selected] {
+.timeline__event[data-selected] .timeline__bar {
   background: var(--accent-strong);
 }
 .timeline__card {
   position: absolute;
-  top: calc(var(--cards-top) + var(--lane-n) * var(--lane-h) + 0.5rem);
-  height: calc(var(--lane-h) - 1rem);
+  top: calc(var(--lane-top) + var(--strip-h));
+  height: calc(var(--lane-h) - var(--strip-h) - 0.5rem);
   box-sizing: border-box;
   display: flex;
   flex-direction: column;

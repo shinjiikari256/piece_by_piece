@@ -5,7 +5,7 @@ import { resolveLook } from "../../game/art";
 import { useGame } from "../../state/store";
 import { Portrait } from "../panels";
 import { Select } from "../Select";
-import { buildDays, DAY, layoutDay, type Day, type DayCard, type DayEntry } from "./timeline-layout";
+import { buildDays, DAY, layoutDay, type Day, type DayEntry } from "./timeline-layout";
 import { useCase } from "./index";
 import "./timeline.css";
 
@@ -130,11 +130,22 @@ function dayTitle(day: Day): string {
   return `${d.getUTCDate()} ${MONTHS[d.getUTCMonth()]}${explicit ? ` ${d.getUTCFullYear()}` : ""}`;
 }
 
-function cardWhen(e: DayEntry, c: DayCard): string {
-  const t = formatEventTime(c.kind === "end" ? e.ev.until! : e.ev.at).match(/\d{2}:\d{2}$/)?.[0];
-  if (c.kind === "end") return t ? `до ${t}` : "конец";
-  if (c.kind === "start") return t ? `с ${t}` : "начало";
-  return t ?? "весь день";
+function cardWhen(e: DayEntry): string {
+  const clock = (x: string) => formatEventTime(x).match(/\d{2}:\d{2}$/)?.[0];
+  const from = clock(e.ev.at);
+  const to = e.ev.until ? clock(e.ev.until) : undefined;
+  switch (e.card.kind) {
+    case "range":
+      return from || to ? `${from ?? "00:00"} – ${to ?? "24:00"}` : "весь день";
+    case "start":
+      return from ? `с ${from}` : "начало";
+    case "end":
+      return to ? `до ${to}` : "конец";
+    case "through":
+      return "весь день";
+    default:
+      return from ?? "весь день";
+  }
 }
 
 function DayCard({ day, selected, onSelect }: { day: Day; selected: string | null; onSelect: (id: string) => void }) {
@@ -146,29 +157,28 @@ function DayCard({ day, selected, onSelect }: { day: Day; selected: string | nul
   return (
     <section className="timeline__daycard">
       <h3 className="timeline__daytitle">{dayTitle(day)}</h3>
-      <div ref={ref} className="timeline__plot" style={{ ["--bands" as string]: layout.bandRows, ["--lanes" as string]: layout.lanes }}>
+      <div ref={ref} className="timeline__plot" style={{ ["--lanes" as string]: layout.lanes }}>
         {hours.map((h) => (
           <div key={h} className="timeline__tick" data-end={h === 24 || undefined} style={{ left: (h * 60 * width) / DAY }}>
             <span>{pad(h)}:00</span>
           </div>
         ))}
-        {layout.bands.map((b) => {
-          const e = day.entries[b.entry];
-          return (
-            <button key={`b${b.entry}`} className="timeline__band" data-selected={selected === e.ev.id || undefined} style={{ left: b.x0, width: Math.max(b.x1 - b.x0, 4), ["--band-n" as string]: b.row }} onClick={() => onSelect(e.ev.id)} title={e.ev.title}>
-              <span className="ellipsis">{e.ev.title}</span>
-            </button>
-          );
-        })}
-        {layout.cards.map((p) => {
+        {layout.placed.map((p) => {
           const e = day.entries[p.entry];
-          const c = e.cards[p.card];
           const sel = selected === e.ev.id || undefined;
           return (
-            <div key={`${p.entry}:${p.card}`}>
-              <span className="timeline__marker" data-selected={sel} style={{ left: p.marker, ["--lane-n" as string]: p.lane }} />
-              <button className="timeline__card" data-selected={sel} aria-pressed={!!sel} style={{ left: p.left, width: card, ["--lane-n" as string]: p.lane }} onClick={() => onSelect(e.ev.id)} title={e.ev.title}>
-                <span className="timeline__when">{cardWhen(e, c)}</span>
+            <div key={p.entry} className="timeline__event" data-selected={sel} style={{ ["--lane-n" as string]: p.lane }}>
+              {p.band && e.band ? (
+                <div className="timeline__strip" data-open-start={e.band.openStart || undefined} data-open-end={e.band.openEnd || undefined} style={{ left: p.band.x0, width: Math.max(p.band.x1 - p.band.x0, 4) }}>
+                  <span className="timeline__bar" />
+                  {!e.band.openStart && <span className="timeline__cap" data-side="start" />}
+                  {!e.band.openEnd && <span className="timeline__cap" data-side="end" />}
+                </div>
+              ) : (
+                <span className="timeline__marker" style={{ left: p.marker }} />
+              )}
+              <button className="timeline__card" data-selected={sel} aria-pressed={!!sel} style={{ left: p.left, width: card }} onClick={() => onSelect(e.ev.id)} title={e.ev.title}>
+                <span className="timeline__when">{cardWhen(e)}</span>
                 <span className="timeline__title">{e.ev.title}</span>
               </button>
             </div>

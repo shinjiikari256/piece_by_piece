@@ -21,6 +21,7 @@ export const LABELS: Record<string, string> = {
   type: "Тип",
   relatedCharacters: "Связанные персонажи",
   relatedEvents: "Связанные события",
+  showInTimeline: "Показывать в хронологии",
   relatedRights: "Связанные права",
   importance: "Важность",
   reliability: "Достоверность",
