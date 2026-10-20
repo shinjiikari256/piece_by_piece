@@ -38,6 +38,9 @@ TypeScript · Vite 7 (одна страница `apps/client/index.html`: сай
 
 Большие файлы (`OfficeScene.ts`, `EditorApp.tsx`, `SchemaForm.tsx`, `MapEditor.tsx`, `game/art/sprites.ts`) не читать целиком: `grep -n "^function\|^export\|^const [A-Z]"` → читать нужный диапазон.
 
+## Сборка дел по приговорам
+Любое новое дело (по приговору из `working/case_refs/`) собирать строго по `docs/CASE_AUTHORING.md`: порядок работы, состав дела (2 локации, 4–6 персонажей, 14–18 улик, 5–7 сопоставлений, 3 подсказки, 5 вопросов на 100 баллов, 5–7 событий), правила «ловушки», карты и диалогов, чек-лист. Карту и расстановку прошлого дела не копировать. Сборщик пишется скриптом `working/cases/build-case-NNN.cjs` (в `.gitignore`), образец — `build-case-004.cjs`; старт игрока задаётся только в одной локации на дело. `pnpm touch:cases` правит `updatedAt` у всех дел — после него откатить чужие (`git checkout`) и оставить только новое.
+
 ## Структура крупных модулей
 - `ui/journal/` (index + materials, match, characters, law), `ui/admin/` (index + users, groups, settings), `ui/verdict/` (final — окно решения, result, downloads), `ui/documents/` (common, certificate, result, pdf; публичный API — `index.ts`).
 - `editor/map/` — редактор карты: `types`, `canvases` (кэши холстов), `render` (`renderMap`), `helpers`, `panels`, `Palette`; сам `MapEditor.tsx` — состояние и мышь. `editor/labels.ts` — подписи и подсказки полей форм.

@@ -1,0 +1,3053 @@
+{
+  "formatVersion": 11,
+  "legend": {
+    "#": "wall",
+    "W": "window",
+    "B": "brick",
+    "G": "glass",
+    "P": "painted_wall",
+    "F": "fence",
+    ".": "tile",
+    ",": "carpet",
+    "_": "parquet",
+    "w": "dark_parquet",
+    "b": "linoleum",
+    "k": "ceramic",
+    "m": "marble",
+    "r": "runner",
+    "S": "stairs",
+    "Z": "stairs_side",
+    "D": "doorway",
+    "g": "grass",
+    "a": "asphalt",
+    "p": "sidewalk"
+  },
+  "id": "case-004",
+  "number": "004",
+  "title": "Программа без ключа",
+  "tagline": "Кто ответит за пиратскую программу в студии — и при чём тут файл techsys.dll?",
+  "introduction": "В студию дизайна «Контур» пришли с гласным обследованием: на двух компьютерах нашли учётную программу, которая работала без лицензии и без аппаратного ключа. Правообладатель подал заявление. Вы — дознаватель: изучите материалы в отделе, побывайте в студии, поговорите с людьми, сопоставьте документы и решите, нарушено ли чьё-то право и кто за это отвечает.",
+  "difficulty": "medium",
+  "timeBonus": {
+    "minutes": 20,
+    "points": 10
+  },
+  "published": true,
+  "updatedAt": "2026-10-20T20:02:45Z",
+  "locations": [
+    {
+      "id": "dept",
+      "name": "Отдел экономической безопасности",
+      "tiles": [
+        "###WW###WW###DD###WW###WW###",
+        "#..........................#",
+        "#,,,,,,,,,.................#",
+        "#,,,,,,,,,.................#",
+        "#,,,,,,,,,.................#",
+        "#####DD#############DD######",
+        "#____________#_____________#",
+        "#____________#_____________#",
+        "#____________#_____________#",
+        "#____________#_____________#",
+        "#____________#_____________#",
+        "#____________#_____________#",
+        "#____________#_____________#",
+        "#____________#_____________#",
+        "#____________#_____________#",
+        "####WW###WW#######WW###WW###"
+      ],
+      "areas": [
+        {
+          "name": "Холл и зона ожидания",
+          "x": 13,
+          "y": 3
+        },
+        {
+          "name": "Кабинет оперуполномоченного",
+          "x": 6,
+          "y": 9
+        },
+        {
+          "name": "Экспертная",
+          "x": 20,
+          "y": 9
+        }
+      ],
+      "playerStart": {
+        "x": 11,
+        "y": 3
+      },
+      "objects": [
+        {
+          "id": "door_cab",
+          "sprite": "door_h",
+          "x": 5,
+          "y": 5,
+          "label": "Дверь",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "door_expert",
+          "sprite": "door_h",
+          "x": 20,
+          "y": 5,
+          "label": "Дверь",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "door_street",
+          "sprite": "door_h",
+          "x": 13,
+          "y": 0,
+          "label": "Дверь",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "obj_orm",
+          "sprite": "cabinet",
+          "x": 9,
+          "y": 6,
+          "label": "Распоряжение об ОРМ",
+          "interaction": {
+            "title": "Папка с распоряжениями",
+            "description": "Подшито распоряжение о проведении гласного обследования помещений студии. Копия вручена владельцу под подпись."
+          },
+          "onInteract": [
+            {
+              "type": "addEvidence",
+              "evidenceId": "orm_order"
+            }
+          ]
+        },
+        {
+          "id": "obj_claim",
+          "sprite": "cabinet",
+          "x": 10,
+          "y": 6,
+          "label": "Заявления",
+          "interaction": {
+            "title": "Шкаф с заявлениями",
+            "description": "Входящие заявления правообладателей. Сверху — обращение о возможном использовании нелицензионного ПО в студии «Контур»."
+          },
+          "onInteract": [
+            {
+              "type": "addEvidence",
+              "evidenceId": "claim"
+            }
+          ]
+        },
+        {
+          "id": "obj_protocol",
+          "sprite": "desk",
+          "x": 6,
+          "y": 10,
+          "label": "Стол оперуполномоченного",
+          "interaction": {
+            "title": "Стол оперуполномоченного",
+            "description": "На столе протокол обследования и акт изъятия двух жёстких дисков, подписанные всеми участниками."
+          },
+          "onInteract": [
+            {
+              "type": "addEvidence",
+              "evidenceId": "orm_protocol"
+            }
+          ]
+        },
+        {
+          "id": "dec_cab_chair",
+          "sprite": "chair",
+          "x": 6,
+          "y": 9,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "obj_codes",
+          "sprite": "bookshelf",
+          "x": 15,
+          "y": 6,
+          "label": "Кодексы",
+          "interaction": {
+            "title": "Гражданский кодекс, часть четвёртая",
+            "description": "Раскрыта на статьях об исключительном праве на программы для ЭВМ и о защите от обхода технических средств защиты."
+          },
+          "onInteract": [
+            {
+              "type": "addEvidence",
+              "evidenceId": "civil_code"
+            }
+          ]
+        },
+        {
+          "id": "obj_plenum",
+          "sprite": "cabinet",
+          "x": 24,
+          "y": 6,
+          "label": "Разъяснения Пленума",
+          "interaction": {
+            "title": "Шкаф с постановлениями",
+            "description": "Постановление Пленума Верховного Суда о делах о нарушении авторских прав и примечание к ст. 146 УК РФ с закладкой."
+          },
+          "onInteract": [
+            {
+              "type": "addEvidence",
+              "evidenceId": "plenum_note"
+            }
+          ]
+        },
+        {
+          "id": "obj_hdd",
+          "sprite": "lab_table",
+          "x": 17,
+          "y": 10,
+          "label": "Изъятые жёсткие диски",
+          "interaction": {
+            "title": "Стол с изъятыми дисками",
+            "description": "В прозрачных пакетах два жёстких диска с бирками. Рядом протокол осмотра предметов с распечаткой каталога программы."
+          },
+          "onInteract": [
+            {
+              "type": "addEvidence",
+              "evidenceId": "disk_inspection"
+            }
+          ]
+        },
+        {
+          "id": "dec_hdd_chair",
+          "sprite": "chair",
+          "x": 18,
+          "y": 9,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "obj_expert_desk",
+          "sprite": "desk",
+          "x": 22,
+          "y": 10,
+          "label": "Стол эксперта",
+          "interaction": {
+            "title": "Стол эксперта",
+            "description": "Рабочее место эксперта: монитор, лупа и стопка бланков. Само заключение эксперт передаёт лично."
+          },
+          "onInteract": []
+        },
+        {
+          "id": "dec_expert_chair",
+          "sprite": "chair",
+          "x": 22,
+          "y": 9,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_dept_clock_1",
+          "sprite": "clock",
+          "x": 11,
+          "y": 0,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_dept_poster_1",
+          "sprite": "poster",
+          "x": 16,
+          "y": 0,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_dept_poster_2",
+          "sprite": "poster",
+          "x": 21,
+          "y": 0,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_dept_sofa_1",
+          "sprite": "sofa",
+          "x": 1,
+          "y": 4,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_dept_coffee_table_1",
+          "sprite": "coffee_table",
+          "x": 3,
+          "y": 4,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_dept_armchair_1",
+          "sprite": "armchair",
+          "x": 7,
+          "y": 4,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_dept_plant_1",
+          "sprite": "plant",
+          "x": 1,
+          "y": 1,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_dept_water_cooler_1",
+          "sprite": "water_cooler",
+          "x": 9,
+          "y": 1,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_dept_floor_lamp_1",
+          "sprite": "floor_lamp",
+          "x": 12,
+          "y": 2,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_dept_rug_1",
+          "sprite": "rug",
+          "x": 16,
+          "y": 3,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_dept_bench_1",
+          "sprite": "bench",
+          "x": 21,
+          "y": 1,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_dept_coat_rack_1",
+          "sprite": "coat_rack",
+          "x": 26,
+          "y": 1,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_dept_trash_bin_1",
+          "sprite": "trash_bin",
+          "x": 11,
+          "y": 4,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_dept_vending_1",
+          "sprite": "vending",
+          "x": 25,
+          "y": 1,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_dept_whiteboard_1",
+          "sprite": "whiteboard",
+          "x": 1,
+          "y": 6,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_dept_poster_3",
+          "sprite": "poster",
+          "x": 3,
+          "y": 6,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_dept_clock_2",
+          "sprite": "clock",
+          "x": 12,
+          "y": 6,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_dept_computer_desk_1",
+          "sprite": "computer_desk",
+          "x": 2,
+          "y": 12,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_dept_chair_1",
+          "sprite": "chair",
+          "x": 2,
+          "y": 11,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_dept_lockers_1",
+          "sprite": "lockers",
+          "x": 11,
+          "y": 14,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_dept_plant_2",
+          "sprite": "plant",
+          "x": 1,
+          "y": 14,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_dept_floor_lamp_2",
+          "sprite": "floor_lamp",
+          "x": 12,
+          "y": 9,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_dept_trash_bin_2",
+          "sprite": "trash_bin",
+          "x": 4,
+          "y": 13,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_dept_coat_rack_2",
+          "sprite": "coat_rack",
+          "x": 1,
+          "y": 8,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_dept_rug_2",
+          "sprite": "rug",
+          "x": 9,
+          "y": 12,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_dept_printer_1",
+          "sprite": "printer",
+          "x": 6,
+          "y": 14,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_dept_clock_3",
+          "sprite": "clock",
+          "x": 18,
+          "y": 6,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_dept_whiteboard_2",
+          "sprite": "whiteboard",
+          "x": 22,
+          "y": 6,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_dept_server_rack_1",
+          "sprite": "server_rack",
+          "x": 26,
+          "y": 8,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_dept_computer_desk_2",
+          "sprite": "computer_desk",
+          "x": 15,
+          "y": 13,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_dept_chair_2",
+          "sprite": "chair",
+          "x": 15,
+          "y": 12,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_dept_printer_2",
+          "sprite": "printer",
+          "x": 20,
+          "y": 13,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_dept_lockers_2",
+          "sprite": "lockers",
+          "x": 25,
+          "y": 14,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_dept_plant_3",
+          "sprite": "plant",
+          "x": 14,
+          "y": 14,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_dept_trash_bin_3",
+          "sprite": "trash_bin",
+          "x": 19,
+          "y": 14,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_dept_water_cooler_2",
+          "sprite": "water_cooler",
+          "x": 14,
+          "y": 7,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_dept_floor_lamp_3",
+          "sprite": "floor_lamp",
+          "x": 26,
+          "y": 10,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_dept_rug_3",
+          "sprite": "rug",
+          "x": 19,
+          "y": 12,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_dept_coffee_machine_1",
+          "sprite": "coffee_machine",
+          "x": 14,
+          "y": 8,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        }
+      ],
+      "npcs": [
+        {
+          "id": "npc_efimov",
+          "characterId": "efimov",
+          "dialogueId": "dlg_efimov",
+          "x": 8,
+          "y": 9,
+          "dialogues": []
+        },
+        {
+          "id": "npc_vorontsova",
+          "characterId": "vorontsova",
+          "dialogueId": "dlg_vorontsova",
+          "x": 24,
+          "y": 9,
+          "dialogues": []
+        },
+        {
+          "id": "npc_laptev",
+          "characterId": "laptev",
+          "dialogueId": "dlg_laptev",
+          "x": 5,
+          "y": 3,
+          "dialogues": []
+        },
+        {
+          "id": "npc_zubov",
+          "characterId": "zubov",
+          "dialogueId": "dlg_zubov",
+          "x": 22,
+          "y": 3,
+          "dialogues": []
+        }
+      ],
+      "zones": [
+        {
+          "id": "to_studio",
+          "name": "Выход на улицу",
+          "cells": [
+            {
+              "x": 13,
+              "y": 0
+            },
+            {
+              "x": 14,
+              "y": 0
+            }
+          ],
+          "actions": [
+            {
+              "kind": "exit",
+              "to": "studio",
+              "spawn": {
+                "x": 12,
+                "y": 12
+              }
+            }
+          ]
+        }
+      ],
+      "onEnter": []
+    },
+    {
+      "id": "studio",
+      "name": "Студия дизайна «Контур»",
+      "tiles": [
+        "###WW###WW###WW####WW#####",
+        "#wwwwwwwwwwwwwww#________#",
+        "#wwwwwwwwwwwwwww#________#",
+        "#wwwwwwwwwwwwwww#________#",
+        "#wwwwwwwwwwwwwww#________#",
+        "#wwwwwwwwwwwwwww#________#",
+        "#wwwwwwwwwwwwwww###DD#####",
+        "#wwwwwwwwwwwwwwwwwwwwwwww#",
+        "#wwwwwwwwwwwwwwwwwwwwwwww#",
+        "#wwwwwwwwwwwwwwwwwwwwwwww#",
+        "#wwwwwwwwwwwwwwwwwwwwwwww#",
+        "#wwwwwwww,,,,,,,,wwwwwwww#",
+        "#wwwwwwww,,,,,,,,wwwwwwww#",
+        "#wwwwwwww,,,,,,,,wwwwwwww#",
+        "####WW######DD######WW####"
+      ],
+      "areas": [
+        {
+          "name": "Рабочий зал",
+          "x": 8,
+          "y": 8
+        },
+        {
+          "name": "Кабинет владельца",
+          "x": 21,
+          "y": 3
+        },
+        {
+          "name": "Приёмная",
+          "x": 12,
+          "y": 12
+        }
+      ],
+      "objects": [
+        {
+          "id": "door_owner",
+          "sprite": "door_h",
+          "x": 19,
+          "y": 6,
+          "label": "Дверь",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "door_entry",
+          "sprite": "door_h",
+          "x": 12,
+          "y": 14,
+          "label": "Дверь",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "obj_order_buy",
+          "sprite": "cabinet",
+          "x": 22,
+          "y": 1,
+          "label": "Папка с распоряжениями",
+          "interaction": {
+            "title": "Папка с распоряжениями",
+            "description": "Служебная записка владельца: купить два системных блока и наладить учёт доходов и расходов студии. Про программное обеспечение — ни слова."
+          },
+          "onInteract": [
+            {
+              "type": "addEvidence",
+              "evidenceId": "order_buy"
+            }
+          ]
+        },
+        {
+          "id": "obj_owner_desk",
+          "sprite": "desk",
+          "x": 20,
+          "y": 3,
+          "label": "Стол владельца",
+          "interaction": {
+            "title": "Стол владельца",
+            "description": "Эскизы, договоры с заказчиками, ежедневник. К вопросу о программах ничего нет."
+          },
+          "onInteract": []
+        },
+        {
+          "id": "dec_owner_chair",
+          "sprite": "chair",
+          "x": 20,
+          "y": 2,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "obj_job_instr",
+          "sprite": "cabinet",
+          "x": 11,
+          "y": 1,
+          "label": "Папка инструкций",
+          "interaction": {
+            "title": "Должностные инструкции",
+            "description": "Папка с должностными инструкциями сотрудников. Инструкция администратора подписана Кравцом."
+          },
+          "onInteract": [
+            {
+              "type": "addEvidence",
+              "evidenceId": "job_instruction"
+            }
+          ]
+        },
+        {
+          "id": "obj_kravets_desk",
+          "sprite": "desk",
+          "x": 10,
+          "y": 9,
+          "label": "Стол администратора",
+          "interaction": {
+            "title": "Стол администратора",
+            "description": "Папка с договором на лицензионное программное обеспечение, подписанным уже после изъятия дисков."
+          },
+          "onInteract": [
+            {
+              "type": "addEvidence",
+              "evidenceId": "license_after"
+            }
+          ]
+        },
+        {
+          "id": "dec_kravets_chair",
+          "sprite": "chair",
+          "x": 10,
+          "y": 8,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "obj_pc_1",
+          "sprite": "computer_desk",
+          "x": 3,
+          "y": 3,
+          "label": "Системный блок №1",
+          "interaction": {
+            "title": "Рабочее место: системный блок №1",
+            "description": "Компьютер вернули после экспертизы с новыми дисками. Программа учёта теперь работает с аппаратным ключом в USB-порту."
+          },
+          "onInteract": []
+        },
+        {
+          "id": "dec_pc1_chair",
+          "sprite": "chair",
+          "x": 3,
+          "y": 2,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "obj_pc_2",
+          "sprite": "computer_desk",
+          "x": 7,
+          "y": 3,
+          "label": "Системный блок №2",
+          "interaction": {
+            "title": "Рабочее место: системный блок №2",
+            "description": "Второй компьютер, тоже с новым диском. В журнале учёта — записи только за последние дни."
+          },
+          "onInteract": []
+        },
+        {
+          "id": "dec_pc2_chair",
+          "sprite": "chair",
+          "x": 7,
+          "y": 2,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_studio_bookshelf_1",
+          "sprite": "bookshelf",
+          "x": 17,
+          "y": 1,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_studio_poster_1",
+          "sprite": "poster",
+          "x": 22,
+          "y": 0,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_studio_clock_1",
+          "sprite": "clock",
+          "x": 24,
+          "y": 0,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_studio_plant_1",
+          "sprite": "plant",
+          "x": 24,
+          "y": 5,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_studio_sofa_1",
+          "sprite": "sofa",
+          "x": 23,
+          "y": 4,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_studio_floor_lamp_1",
+          "sprite": "floor_lamp",
+          "x": 17,
+          "y": 5,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_studio_rug_1",
+          "sprite": "rug",
+          "x": 21,
+          "y": 4,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_studio_whiteboard_1",
+          "sprite": "whiteboard",
+          "x": 6,
+          "y": 0,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_studio_poster_2",
+          "sprite": "poster",
+          "x": 11,
+          "y": 0,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_studio_clock_2",
+          "sprite": "clock",
+          "x": 16,
+          "y": 0,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_studio_printer_1",
+          "sprite": "printer",
+          "x": 15,
+          "y": 1,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_studio_plant_2",
+          "sprite": "plant",
+          "x": 1,
+          "y": 1,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_studio_computer_desk_1",
+          "sprite": "computer_desk",
+          "x": 3,
+          "y": 7,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_studio_chair_1",
+          "sprite": "chair",
+          "x": 3,
+          "y": 6,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_studio_computer_desk_2",
+          "sprite": "computer_desk",
+          "x": 7,
+          "y": 7,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_studio_chair_2",
+          "sprite": "chair",
+          "x": 7,
+          "y": 6,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_studio_conference_table_4_1",
+          "sprite": "conference_table_4",
+          "x": 3,
+          "y": 11,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_studio_chair_3",
+          "sprite": "chair",
+          "x": 3,
+          "y": 10,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_studio_chair_4",
+          "sprite": "chair",
+          "x": 4,
+          "y": 10,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_studio_chair_5",
+          "sprite": "chair",
+          "x": 5,
+          "y": 10,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_studio_chair_6",
+          "sprite": "chair",
+          "x": 6,
+          "y": 10,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_studio_chair_7",
+          "sprite": "chair",
+          "x": 4,
+          "y": 12,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_studio_chair_8",
+          "sprite": "chair",
+          "x": 5,
+          "y": 12,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_studio_water_cooler_1",
+          "sprite": "water_cooler",
+          "x": 1,
+          "y": 13,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_studio_trash_bin_1",
+          "sprite": "trash_bin",
+          "x": 1,
+          "y": 8,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_studio_floor_lamp_2",
+          "sprite": "floor_lamp",
+          "x": 15,
+          "y": 7,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_studio_sofa_2",
+          "sprite": "sofa",
+          "x": 9,
+          "y": 13,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_studio_coffee_table_1",
+          "sprite": "coffee_table",
+          "x": 14,
+          "y": 13,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_studio_armchair_1",
+          "sprite": "armchair",
+          "x": 16,
+          "y": 12,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_studio_plant_3",
+          "sprite": "plant",
+          "x": 9,
+          "y": 11,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_studio_computer_desk_3",
+          "sprite": "computer_desk",
+          "x": 18,
+          "y": 9,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_studio_chair_9",
+          "sprite": "chair",
+          "x": 18,
+          "y": 8,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_studio_computer_desk_4",
+          "sprite": "computer_desk",
+          "x": 22,
+          "y": 9,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_studio_chair_10",
+          "sprite": "chair",
+          "x": 22,
+          "y": 8,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_studio_plant_4",
+          "sprite": "plant",
+          "x": 24,
+          "y": 7,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_studio_lockers_1",
+          "sprite": "lockers",
+          "x": 23,
+          "y": 13,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_studio_rug_2",
+          "sprite": "rug",
+          "x": 20,
+          "y": 11,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_studio_coffee_machine_1",
+          "sprite": "coffee_machine",
+          "x": 20,
+          "y": 13,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        }
+      ],
+      "npcs": [
+        {
+          "id": "npc_kravets",
+          "characterId": "kravets",
+          "dialogueId": "dlg_kravets",
+          "x": 13,
+          "y": 9,
+          "dialogues": []
+        },
+        {
+          "id": "npc_solovyov",
+          "characterId": "solovyov",
+          "dialogueId": "dlg_solovyov",
+          "x": 18,
+          "y": 4,
+          "dialogues": []
+        }
+      ],
+      "zones": [
+        {
+          "id": "to_dept",
+          "name": "Выход к отделу",
+          "cells": [
+            {
+              "x": 12,
+              "y": 14
+            },
+            {
+              "x": 13,
+              "y": 14
+            }
+          ],
+          "actions": [
+            {
+              "kind": "exit",
+              "to": "dept",
+              "spawn": {
+                "x": 13,
+                "y": 2
+              }
+            }
+          ]
+        }
+      ],
+      "onEnter": []
+    }
+  ],
+  "characters": [
+    {
+      "id": "kravets",
+      "name": "Денис Кравец",
+      "look": "it_m",
+      "position": "администратор студии «Контур»",
+      "description": "Отвечает за технику и хозяйственную часть студии. Сам купил компьютеры и настроил на них учёт."
+    },
+    {
+      "id": "solovyov",
+      "name": "Артём Соловьёв",
+      "look": "official_m",
+      "position": "владелец студии дизайна «Контур»",
+      "description": "Поручил администратору купить компьютеры и наладить учёт. Присутствовал при обследовании студии."
+    },
+    {
+      "id": "efimov",
+      "name": "Роман Ефимов",
+      "look": "guard_m",
+      "position": "оперуполномоченный отдела экономической безопасности",
+      "description": "Провёл гласное обследование студии и изъял жёсткие диски."
+    },
+    {
+      "id": "laptev",
+      "name": "Андрей Лаптев",
+      "look": "casual_m",
+      "position": "представитель правообладателя ООО «Меридиан-Софт»",
+      "description": "Защищает права компании на программное обеспечение. Подал заявление о возможном нарушении."
+    },
+    {
+      "id": "vorontsova",
+      "name": "Ирина Воронцова",
+      "look": "official_f",
+      "position": "эксперт-компьютерщик",
+      "description": "Исследовала изъятые диски и подготовила заключение о контрафактности программы."
+    },
+    {
+      "id": "zubov",
+      "name": "Павел Зубов",
+      "look": "student_m",
+      "position": "участвовал в обследовании как представитель общественности",
+      "description": "Прохожий, которого пригласили понятым. Видел весь ход обследования."
+    }
+  ],
+  "events": [
+    {
+      "id": "ev_order",
+      "title": "Владелец поручил администратору купить два компьютера и наладить учёт",
+      "at": "2024-07-12T10:00",
+      "showInTimeline": true
+    },
+    {
+      "id": "ev_install",
+      "title": "Кравец дома скачал программу, установил её и обошёл защиту",
+      "at": "2024-07-12T20:00",
+      "showInTimeline": true
+    },
+    {
+      "id": "ev_bring",
+      "title": "Кравец принёс компьютеры в студию, начался учёт доходов и расходов",
+      "at": "2024-07-13T09:00",
+      "showInTimeline": true
+    },
+    {
+      "id": "ev_claim",
+      "title": "Правообладатель подал заявление о возможном нарушении",
+      "at": "2025-03-18",
+      "showInTimeline": true
+    },
+    {
+      "id": "ev_orm",
+      "title": "Оперуполномоченный провёл обследование помещения студии",
+      "at": "2025-03-25T11:00",
+      "showInTimeline": true
+    },
+    {
+      "id": "ev_seize",
+      "title": "Изъяты два жёстких диска, составлен акт изъятия",
+      "at": "2025-03-25T11:40",
+      "showInTimeline": true
+    },
+    {
+      "id": "ev_license",
+      "title": "Кравец заключил договор на лицензионное программное обеспечение",
+      "at": "2025-03-27",
+      "showInTimeline": true
+    }
+  ],
+  "evidence": [
+    {
+      "id": "order_buy",
+      "title": "Служебная записка владельца студии",
+      "description": "Соловьёв поручил Кравцу купить два системных блока и наладить учёт. О покупке программ и об их источнике — ничего.",
+      "details": "СЛУЖЕБНАЯ ЗАПИСКА · студия дизайна «Контур» · 12.07.2024\n\nАдминистратору Кравцу Д.С.\n\nПрошу купить два системных блока для рабочих мест и наладить на них учёт доходов и расходов студии в учётной программе.\n\nВладелец студии Соловьёв А.Н. /подпись/\n\nПримечание: способ получения программы в записке не указан.",
+      "kind": "evidence",
+      "subtype": "Документ",
+      "relatedCharacters": [
+        "solovyov",
+        "kravets"
+      ],
+      "relatedEvents": [
+        "ev_order"
+      ],
+      "reliability": "high",
+      "onCollect": []
+    },
+    {
+      "id": "job_instruction",
+      "title": "Должностная инструкция администратора",
+      "description": "Администратор отвечает за технику и программы, обязан устанавливать только программное обеспечение, на которое есть права.",
+      "details": "ДОЛЖНОСТНАЯ ИНСТРУКЦИЯ администратора студии\n\n2.1 Отвечает за материально-техническую и хозяйственную часть студии.\n2.3 Следит за работоспособностью компьютерной техники, устанавливает и настраивает программное обеспечение.\n2.4 Использует только программное обеспечение, на которое у студии есть права (лицензии).\n4.2 Несёт ответственность за нарушения при установке программ.\n\nОзнакомлен: Кравец Д.С.",
+      "kind": "evidence",
+      "subtype": "Документ",
+      "relatedCharacters": [
+        "kravets"
+      ],
+      "relatedEvents": [
+        "ev_install"
+      ],
+      "reliability": "high",
+      "onCollect": []
+    },
+    {
+      "id": "claim",
+      "title": "Заявление правообладателя",
+      "description": "Представитель «Меридиан-Софт» просит проверить, не используется ли нелицензионное ПО в студии «Контур».",
+      "details": "ЗАЯВЛЕНИЕ · 18.03.2025\n\nВ управление экономической безопасности\n\nПрошу провести проверку: по имеющимся сведениям, в студии дизайна «Контур» на компьютерах используется программа «Меридиан.Учёт» без лицензии и договора с ООО «Меридиан-Софт».\n\nПредставитель правообладателя Лаптев А.В.",
+      "kind": "evidence",
+      "subtype": "Документ",
+      "relatedCharacters": [
+        "laptev"
+      ],
+      "relatedEvents": [
+        "ev_claim"
+      ],
+      "reliability": "high",
+      "onCollect": []
+    },
+    {
+      "id": "orm_order",
+      "title": "Распоряжение об обследовании помещения",
+      "description": "Гласное обследование помещений студии поручено оперуполномоченному; подписано заместителем руководителя органа.",
+      "details": "РАСПОРЯЖЕНИЕ № 112 · 24.03.2025\n\nПровести гласное оперативно-розыскное мероприятие «Обследование помещений, зданий, сооружений, участков местности и транспортных средств» в студии дизайна «Контур».\n\nИсполнитель: оперуполномоченный Ефимов Р.П.\n\nС распоряжением ознакомлен, копию получил: Соловьёв А.Н. /подпись/, 25.03.2025",
+      "kind": "evidence",
+      "subtype": "Документ",
+      "relatedCharacters": [
+        "efimov",
+        "solovyov"
+      ],
+      "relatedEvents": [
+        "ev_orm"
+      ],
+      "reliability": "high",
+      "onCollect": []
+    },
+    {
+      "id": "orm_protocol",
+      "title": "Протокол обследования и акт изъятия",
+      "description": "В студии обнаружены два компьютера с программой; изъяты два жёстких диска. Замечаний от участников нет.",
+      "details": "ПРОТОКОЛ обследования помещения · 25.03.2025, 11:00\n\nУчаствовали: оперуполномоченный Ефимов Р.П., представители общественности Зубов П.А. и ещё один человек, владелец студии Соловьёв А.Н., администратор Кравец Д.С.\n\nВ помещении студии обнаружены два компьютера, на которых ведётся учёт студии. На компьютерах установлена программа «Меридиан.Учёт». Договора с правообладателем нет.\n\nАКТ ИЗЪЯТИЯ · 11:40: изъяты два жёстких диска, упакованы и опечатаны. Замечаний и дополнений не поступило.",
+      "kind": "evidence",
+      "subtype": "Документ",
+      "relatedCharacters": [
+        "efimov",
+        "kravets",
+        "solovyov"
+      ],
+      "relatedEvents": [
+        "ev_orm",
+        "ev_seize"
+      ],
+      "reliability": "high",
+      "onCollect": []
+    },
+    {
+      "id": "disk_inspection",
+      "title": "Протокол осмотра изъятых дисков",
+      "description": "На дисках найдена программа «Меридиан.Учёт» и файл techsys.dll, которого нет в составе программы.",
+      "details": "ПРОТОКОЛ осмотра предметов\n\nОсмотрены два жёстких диска, изъятые в студии дизайна «Контур». На обоих установлены «Меридиан.Учёт 8.3» (технологическая платформа) и «Меридиан.Учёт ПРОФ» (клиентская лицензия на 20 рабочих мест).\n\nВ каталоге программы находится файл techsys.dll, подменяющий оригинальную библиотеку. Файл не входит в комплект поставки; обнаружены признаки вредоносности.\n\nАппаратного ключа защиты и записей о регистрации лицензии на дисках нет.",
+      "kind": "evidence",
+      "subtype": "Протокол осмотра",
+      "relatedCharacters": [
+        "efimov",
+        "kravets"
+      ],
+      "relatedEvents": [
+        "ev_seize"
+      ],
+      "reliability": "high",
+      "onCollect": []
+    },
+    {
+      "id": "expert_report",
+      "title": "Заключение эксперта",
+      "description": "Программа контрафактна; techsys.dll блокирует защиту от нелегального копирования; программа работает без ключа.",
+      "details": "ЗАКЛЮЧЕНИЕ ЭКСПЕРТА № 88\n\nВывод 1. Установленные на двух жёстких дисках программы «Меридиан.Учёт 8.3» и «Меридиан.Учёт ПРОФ» имеют признаки контрафактности.\n\nВывод 2. Файл techsys.dll — динамически подключаемая библиотека. Её исполнение вносит изменения в программные файлы платформы и блокирует подсистему защиты от нелегального копирования.\n\nВывод 3. Программа запускается и работает при отсутствии аппаратного ключа защиты.",
+      "kind": "evidence",
+      "subtype": "Заключение",
+      "relatedCharacters": [
+        "vorontsova",
+        "kravets"
+      ],
+      "relatedEvents": [
+        "ev_seize"
+      ],
+      "reliability": "high",
+      "onCollect": []
+    },
+    {
+      "id": "price_list",
+      "title": "Справка о стоимости лицензий",
+      "description": "Розничная стоимость лицензионных экземпляров обеих программ — 784 300 рублей.",
+      "details": "СПРАВКА ООО «Меридиан-Софт»\n\nРозничная стоимость лицензионных экземпляров на момент установки (июль 2024):\n— «Меридиан.Учёт 8.3», технологическая платформа: 312 800 руб.\n— «Меридиан.Учёт ПРОФ», клиентская лицензия на 20 рабочих мест: 471 500 руб.\n\nИтого: 784 300 руб. за один комплект.",
+      "kind": "evidence",
+      "subtype": "Документ",
+      "relatedCharacters": [
+        "laptev"
+      ],
+      "relatedEvents": [
+        "ev_install"
+      ],
+      "reliability": "high",
+      "onCollect": []
+    },
+    {
+      "id": "civil_code",
+      "title": "Гражданский кодекс: программы для ЭВМ",
+      "description": "Программы для ЭВМ — объекты авторского права; нельзя обходить технические средства защиты.",
+      "details": "ГК РФ\n\nст. 1261: программы для ЭВМ являются объектами авторских прав.\nст. 1270: использовать произведение можно только с согласия правообладателя.\nст. 1299, ч. 2: в отношении произведений не допускаются действия, направленные на то, чтобы устранить ограничения использования, установленные техническими средствами защиты.",
+      "kind": "evidence",
+      "subtype": "Нормативный акт",
+      "relatedCharacters": [],
+      "relatedEvents": [
+        "ev_install"
+      ],
+      "reliability": "high",
+      "onCollect": []
+    },
+    {
+      "id": "plenum_note",
+      "title": "Примечание к ст. 146 УК РФ и разъяснения Пленума",
+      "description": "Крупный размер — свыше 100 000 рублей; считается по розничной цене оригинальных экземпляров.",
+      "details": "Примечание к ст. 146 УК РФ: деяния признаются совершёнными в крупном размере, если стоимость экземпляров произведений или прав на их использование превышает сто тысяч рублей, в особо крупном — один миллион рублей.\n\nРазъяснения Пленума Верховного Суда РФ (п. 25 постановления от 26.04.2007 № 14): размер определяется по розничной стоимости оригинальных (лицензионных) экземпляров на момент совершения преступления, исходя из их количества.",
+      "kind": "evidence",
+      "subtype": "Нормативный акт",
+      "relatedCharacters": [],
+      "relatedEvents": [
+        "ev_install"
+      ],
+      "reliability": "high",
+      "onCollect": []
+    },
+    {
+      "id": "license_after",
+      "title": "Договор на лицензионное ПО от 27.03.2025",
+      "description": "Кравец заключил договор с правообладателем через два дня после изъятия дисков.",
+      "details": "ДОГОВОР на поставку и сопровождение программного обеспечения\n\nМежду ООО «Меридиан-Софт» и студией дизайна «Контур».\n\nДата: 27.03.2025. Предмет: лицензионные экземпляры «Меридиан.Учёт 8.3» и «Меридиан.Учёт ПРОФ» (20 рабочих мест).\n\nПодписано со стороны студии: Кравец Д.С.",
+      "kind": "evidence",
+      "subtype": "Документ",
+      "relatedCharacters": [
+        "kravets",
+        "laptev"
+      ],
+      "relatedEvents": [
+        "ev_license"
+      ],
+      "reliability": "medium",
+      "onCollect": []
+    },
+    {
+      "id": "t_kravets_lie",
+      "title": "Показания Кравца: «думал, что программа бесплатная»",
+      "description": "Кравец: установил то, что нашёл в сети, о взломе не думал; владелец, мол, знал.",
+      "details": "Кравец: «Я скачал программу и поставил, как все делают. Что она платная — не подумал. Файл какой-то в папке был, но я не разбирался. И хозяин знал, что я ставлю».",
+      "kind": "testimony",
+      "subtype": "Показания",
+      "relatedCharacters": [
+        "kravets"
+      ],
+      "relatedEvents": [
+        "ev_install"
+      ],
+      "reliability": "low",
+      "onCollect": []
+    },
+    {
+      "id": "t_kravets_admit",
+      "title": "Показания Кравца: признание",
+      "description": "Кравец признал: скачал пиратскую копию и сам поставил программу-взломщик; владельцу не говорил.",
+      "details": "Кравец: «Ключ стоит денег, а взять их было неоткуда. Я нашёл в интернете инструкцию, скачал установщик и библиотеку techsys.dll, которая отключает защиту. Знал, что это нелицензионная копия. Владельцу и сотрудникам ничего не сказал».",
+      "kind": "testimony",
+      "subtype": "Показания",
+      "relatedCharacters": [
+        "kravets"
+      ],
+      "relatedEvents": [
+        "ev_install",
+        "ev_bring"
+      ],
+      "reliability": "high",
+      "onCollect": []
+    },
+    {
+      "id": "t_solovyov",
+      "title": "Показания Соловьёва",
+      "description": "Он поручил купить компьютеры и наладить учёт; об установке пиратской копии не знал, сотрудники тоже.",
+      "details": "Соловьёв: «Я просил купить два компьютера и наладить учёт. Что именно ставить, не обсуждали. Кравец мне не говорил, что программа без лицензии, и я не спрашивал. Сотрудники работали на этих компьютерах и тоже не знали».",
+      "kind": "testimony",
+      "subtype": "Показания",
+      "relatedCharacters": [
+        "solovyov",
+        "kravets"
+      ],
+      "relatedEvents": [
+        "ev_order",
+        "ev_bring"
+      ],
+      "reliability": "high",
+      "onCollect": []
+    },
+    {
+      "id": "t_efimov",
+      "title": "Показания Ефимова",
+      "description": "Обследование гласное, участники ознакомлены, замечаний не было; Кравец сам рассказал, что установил программу.",
+      "details": "Ефимов: «Распоряжение объявил Соловьёву, он расписался. Понятых пригласил с улицы. На вопрос о договоре Кравец сказал, что ставил программу сам, дома, и принёс блоки в студию».",
+      "kind": "testimony",
+      "subtype": "Показания",
+      "relatedCharacters": [
+        "efimov",
+        "kravets"
+      ],
+      "relatedEvents": [
+        "ev_orm",
+        "ev_seize"
+      ],
+      "reliability": "high",
+      "onCollect": []
+    },
+    {
+      "id": "t_zubov",
+      "title": "Показания Зубова",
+      "description": "Права участникам разъяснили, ход обследования совпадает с протоколом; Кравец сказал, что скачал и взломщик.",
+      "details": "Зубов: «Нам разъяснили права и порядок. Хозяин студии про договор не знал, отвечал администратор. Администратор сам сказал, что скачал программу и ещё какую-то программу-взломщик. Замечаний никто не высказывал».",
+      "kind": "testimony",
+      "subtype": "Показания",
+      "relatedCharacters": [
+        "zubov",
+        "kravets"
+      ],
+      "relatedEvents": [
+        "ev_orm"
+      ],
+      "reliability": "medium",
+      "onCollect": []
+    },
+    {
+      "id": "t_laptev",
+      "title": "Показания Лаптева",
+      "description": "Лицензионная программа работает с аппаратным ключом; без него она запускается только после обхода защиты.",
+      "details": "Лаптев: «Лицензионный комплект включает аппаратный ключ защиты — без него программа не работает. Если она запускается без ключа, значит, защиту обошли специальными программами. Обновления получают только зарегистрированные пользователи. Ущерб считаем по цене лицензий. Кравец потом извинился и купил лицензии, претензий у нас больше нет».",
+      "kind": "testimony",
+      "subtype": "Показания",
+      "relatedCharacters": [
+        "laptev",
+        "kravets"
+      ],
+      "relatedEvents": [
+        "ev_claim",
+        "ev_license"
+      ],
+      "reliability": "high",
+      "onCollect": []
+    }
+  ],
+  "dialogues": [
+    {
+      "id": "dlg_kravets",
+      "characterId": "kravets",
+      "startNodeId": "start",
+      "nodes": [
+        {
+          "id": "start",
+          "text": "Вы из полиции? Компьютеры нам уже вернули, всё работает. Что ещё нужно?",
+          "mood": "nervous",
+          "effects": [],
+          "choices": [
+            {
+              "id": "role",
+              "text": "Чем вы занимаетесь в студии?",
+              "next": "role",
+              "effects": []
+            },
+            {
+              "id": "who",
+              "text": "Кто установил программу «Меридиан.Учёт»?",
+              "next": "lie",
+              "requires": {
+                "notFlags": [
+                  "kravets_admitted",
+                  "kravets_closed"
+                ]
+              },
+              "effects": []
+            },
+            {
+              "id": "press",
+              "text": "Заключение эксперта, протокол осмотра дисков и ваша инструкция: вы сами обошли защиту. Расскажите, как было.",
+              "next": "admit",
+              "requires": {
+                "evidence": [
+                  "expert_report",
+                  "disk_inspection",
+                  "job_instruction"
+                ],
+                "flags": [
+                  "kravets_lied"
+                ],
+                "notFlags": [
+                  "kravets_admitted",
+                  "kravets_closed"
+                ]
+              },
+              "effects": []
+            },
+            {
+              "id": "rude",
+              "text": "Вы просто пожалели денег на лицензии и подставили студию.",
+              "next": "closed",
+              "requires": {
+                "flags": [
+                  "kravets_lied"
+                ],
+                "notFlags": [
+                  "kravets_admitted",
+                  "kravets_closed"
+                ]
+              },
+              "effects": []
+            },
+            {
+              "id": "bye",
+              "text": "Разберёмся. Я ещё вернусь.",
+              "next": null,
+              "effects": []
+            }
+          ]
+        },
+        {
+          "id": "role",
+          "text": "Я администратор: техника, мебель, программы. Скажете «принтер не печатает» — иду чинить. Владелец поручил мне наладить учёт — этим я и занимался.",
+          "mood": "neutral",
+          "effects": [],
+          "choices": [
+            {
+              "id": "back",
+              "text": "Понятно.",
+              "next": "start",
+              "effects": []
+            }
+          ]
+        },
+        {
+          "id": "lie",
+          "text": "Я установил, да. Скачал в интернете, поставил, как все делают. Я не знал, что она платная. Какой-то файл в папке был, но я не разбирался. Хозяин знал, что я ставлю.",
+          "mood": "nervous",
+          "effects": [
+            {
+              "type": "changeVariable",
+              "variableId": "kravets_lied",
+              "action": "on"
+            },
+            {
+              "type": "addEvidence",
+              "evidenceId": "t_kravets_lie"
+            },
+            {
+              "type": "addCharacterNote",
+              "characterId": "kravets",
+              "text": "Сначала сказал, что не знал о лицензии, и сослался на владельца."
+            }
+          ],
+          "choices": [
+            {
+              "id": "back",
+              "text": "Запишу.",
+              "next": "start",
+              "effects": []
+            }
+          ]
+        },
+        {
+          "id": "admit",
+          "text": "…Ладно. Лицензия стоит дорого, а денег на неё не было. Я нашёл инструкцию, скачал установщик и файл techsys.dll, который отключает защиту. Знал, что это пиратская копия. Хозяину и сотрудникам не говорил: решил, что обойдётся. Потом извинился и купил лицензии.",
+          "mood": "sad",
+          "effects": [
+            {
+              "type": "changeVariable",
+              "variableId": "kravets_admitted",
+              "action": "on"
+            },
+            {
+              "type": "addEvidence",
+              "evidenceId": "t_kravets_admit"
+            },
+            {
+              "type": "addCharacterNote",
+              "characterId": "kravets",
+              "text": "Признал, что скачал контрафактную копию и сам отключил защиту библиотекой techsys.dll."
+            }
+          ],
+          "choices": [
+            {
+              "id": "back",
+              "text": "Спасибо, что сказали честно.",
+              "next": "start",
+              "effects": []
+            }
+          ]
+        },
+        {
+          "id": "closed",
+          "text": "Понятно. Дальше только с адвокатом.",
+          "mood": "angry",
+          "effects": [
+            {
+              "type": "changeVariable",
+              "variableId": "kravets_closed",
+              "action": "on"
+            }
+          ],
+          "choices": [
+            {
+              "id": "back",
+              "text": "Извините.",
+              "next": null,
+              "effects": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "dlg_solovyov",
+      "characterId": "solovyov",
+      "startNodeId": "start",
+      "nodes": [
+        {
+          "id": "start",
+          "text": "Я владелец студии. Всё это, честно говоря, неожиданно. Спрашивайте.",
+          "mood": "nervous",
+          "effects": [],
+          "choices": [
+            {
+              "id": "task",
+              "text": "Что вы поручили Кравцу?",
+              "next": "task",
+              "effects": []
+            },
+            {
+              "id": "know",
+              "text": "Вы знали, что программа без лицензии?",
+              "next": "know",
+              "effects": []
+            },
+            {
+              "id": "staff",
+              "text": "Что знали сотрудники?",
+              "next": "staff",
+              "effects": []
+            },
+            {
+              "id": "orm",
+              "text": "Как прошло обследование?",
+              "next": "orm",
+              "effects": []
+            },
+            {
+              "id": "bye",
+              "text": "Спасибо, пока всё.",
+              "next": null,
+              "effects": []
+            }
+          ]
+        },
+        {
+          "id": "task",
+          "text": "В июле я попросил купить два компьютера и наладить учёт доходов и расходов. Записку оставил в папке. Что именно ставить, не обсуждали: я не специалист.",
+          "mood": "neutral",
+          "effects": [
+            {
+              "type": "addEvidence",
+              "evidenceId": "t_solovyov"
+            }
+          ],
+          "choices": [
+            {
+              "id": "back",
+              "text": "Понятно.",
+              "next": "start",
+              "effects": []
+            }
+          ]
+        },
+        {
+          "id": "know",
+          "text": "Нет. Кравец сказал только, что программу поставил. Я не спрашивал, откуда она. Если бы знал, заплатил бы за лицензию.",
+          "mood": "sad",
+          "effects": [],
+          "choices": [
+            {
+              "id": "back",
+              "text": "Понятно.",
+              "next": "start",
+              "effects": []
+            }
+          ]
+        },
+        {
+          "id": "staff",
+          "text": "Они просто работали в программе. Откуда она взялась, никто не знал. Кравец ни с кем не делился.",
+          "mood": "neutral",
+          "effects": [],
+          "choices": [
+            {
+              "id": "back",
+              "text": "Понятно.",
+              "next": "start",
+              "effects": []
+            }
+          ]
+        },
+        {
+          "id": "orm",
+          "text": "Пришли трое, показали удостоверение и распоряжение. Я расписался, мне дали копию. Диски забрали при мне, упаковали и опечатали.",
+          "mood": "neutral",
+          "effects": [],
+          "choices": [
+            {
+              "id": "back",
+              "text": "Понятно.",
+              "next": "start",
+              "effects": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "dlg_efimov",
+      "characterId": "efimov",
+      "startNodeId": "start",
+      "nodes": [
+        {
+          "id": "start",
+          "text": "Оперуполномоченный Ефимов. Материалы по студии «Контур» у меня на столе. Что вас интересует?",
+          "mood": "neutral",
+          "effects": [],
+          "choices": [
+            {
+              "id": "how",
+              "text": "Как проходило обследование?",
+              "next": "how",
+              "effects": []
+            },
+            {
+              "id": "court",
+              "text": "Нужно ли было разрешение суда?",
+              "next": "court",
+              "effects": []
+            },
+            {
+              "id": "seized",
+              "text": "Что именно изъяли?",
+              "next": "seized",
+              "effects": []
+            },
+            {
+              "id": "peace",
+              "text": "Кравец извинился и купил лицензии. Это что-то меняет?",
+              "next": "peace",
+              "effects": []
+            },
+            {
+              "id": "bye",
+              "text": "Спасибо, пока всё.",
+              "next": null,
+              "effects": []
+            }
+          ]
+        },
+        {
+          "id": "how",
+          "text": "Прибыл в студию утром, представился. Владельцу объявил распоряжение, он расписался и получил копию. Понятых пригласил с улицы, разъяснил права. Спросил про договор — Кравец сказал, что ставил программу сам, дома, и принёс блоки в студию.",
+          "mood": "neutral",
+          "effects": [
+            {
+              "type": "addEvidence",
+              "evidenceId": "t_efimov"
+            }
+          ],
+          "choices": [
+            {
+              "id": "back",
+              "text": "Понятно.",
+              "next": "start",
+              "effects": []
+            }
+          ]
+        },
+        {
+          "id": "court",
+          "text": "Студия — не жилище. Обследование проведено гласно, по распоряжению руководства органа; владельцу вручена копия.",
+          "mood": "neutral",
+          "effects": [],
+          "choices": [
+            {
+              "id": "back",
+              "text": "Понятно.",
+              "next": "start",
+              "effects": []
+            }
+          ]
+        },
+        {
+          "id": "seized",
+          "text": "Два жёстких диска от системных блоков. Упаковали в пакет, опечатали, составили акт. Замечаний от участников не было.",
+          "mood": "neutral",
+          "effects": [],
+          "choices": [
+            {
+              "id": "back",
+              "text": "Понятно.",
+              "next": "start",
+              "effects": []
+            }
+          ]
+        },
+        {
+          "id": "peace",
+          "text": "Мирное урегулирование с правообладателем и раскаяние суд учитывает как смягчающие обстоятельства. Но факт использования программы без лицензии от этого не исчезает.",
+          "mood": "neutral",
+          "effects": [
+            {
+              "type": "changeVariable",
+              "variableId": "peace_explained",
+              "action": "on"
+            }
+          ],
+          "choices": [
+            {
+              "id": "back",
+              "text": "Понятно.",
+              "next": "start",
+              "effects": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "dlg_laptev",
+      "characterId": "laptev",
+      "startNodeId": "start",
+      "nodes": [
+        {
+          "id": "start",
+          "text": "Лаптев, представляю «Меридиан-Софт». Мы подали заявление и готовы всё пояснить.",
+          "mood": "neutral",
+          "effects": [],
+          "choices": [
+            {
+              "id": "why",
+              "text": "Почему вы считаете программу контрафактной?",
+              "next": "why",
+              "effects": []
+            },
+            {
+              "id": "price",
+              "text": "Сколько стоят лицензии на эти программы?",
+              "next": "price",
+              "requires": {
+                "flags": [
+                  "laptev_explained"
+                ],
+                "notFlags": [
+                  "price_given"
+                ]
+              },
+              "effects": []
+            },
+            {
+              "id": "upd",
+              "text": "Могли ли сотрудники студии заметить нарушение при обновлении?",
+              "next": "upd",
+              "requires": {
+                "flags": [
+                  "laptev_explained"
+                ]
+              },
+              "effects": []
+            },
+            {
+              "id": "bye",
+              "text": "Спасибо, пока всё.",
+              "next": null,
+              "effects": []
+            }
+          ]
+        },
+        {
+          "id": "why",
+          "text": "Лицензионный комплект включает аппаратный ключ защиты. Без него программа не запустится. Если она работает без ключа, значит, защиту обошли — ломающими программами. Ущерб мы считаем по цене лицензий. Кравец потом извинился и купил лицензии, претензий у нас больше нет.",
+          "mood": "neutral",
+          "effects": [
+            {
+              "type": "addEvidence",
+              "evidenceId": "t_laptev"
+            },
+            {
+              "type": "changeVariable",
+              "variableId": "laptev_explained",
+              "action": "on"
+            },
+            {
+              "type": "addCharacterNote",
+              "characterId": "laptev",
+              "text": "Объяснил, что без ключа лицензионная программа не работает; претензий после покупки лицензий нет."
+            }
+          ],
+          "choices": [
+            {
+              "id": "back",
+              "text": "Понятно.",
+              "next": "start",
+              "effects": []
+            }
+          ]
+        },
+        {
+          "id": "price",
+          "text": "Платформа — 312 800 рублей, клиентская лицензия на 20 рабочих мест — 471 500. Вот справка.",
+          "mood": "neutral",
+          "effects": [
+            {
+              "type": "addEvidence",
+              "evidenceId": "price_list"
+            },
+            {
+              "type": "changeVariable",
+              "variableId": "price_given",
+              "action": "on"
+            }
+          ],
+          "choices": [
+            {
+              "id": "back",
+              "text": "Спасибо.",
+              "next": "start",
+              "effects": []
+            }
+          ]
+        },
+        {
+          "id": "upd",
+          "text": "Обновления получают только зарегистрированные пользователи. Специалист партнёра без специальной просьбы легитимность не проверяет, поэтому внешне всё могло выглядеть обычно.",
+          "mood": "neutral",
+          "effects": [],
+          "choices": [
+            {
+              "id": "back",
+              "text": "Понятно.",
+              "next": "start",
+              "effects": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "dlg_vorontsova",
+      "characterId": "vorontsova",
+      "startNodeId": "start",
+      "nodes": [
+        {
+          "id": "start",
+          "text": "Воронцова, эксперт. Диски исследованы, заключение готово. Что нужно?",
+          "mood": "neutral",
+          "effects": [],
+          "choices": [
+            {
+              "id": "found",
+              "text": "Что вы обнаружили на дисках?",
+              "next": "found",
+              "effects": []
+            },
+            {
+              "id": "dll",
+              "text": "Что за файл techsys.dll?",
+              "next": "dll",
+              "effects": []
+            },
+            {
+              "id": "report",
+              "text": "Передайте, пожалуйста, заключение.",
+              "next": "report",
+              "requires": {
+                "evidence": [
+                  "disk_inspection"
+                ],
+                "notFlags": [
+                  "report_given"
+                ]
+              },
+              "effects": []
+            },
+            {
+              "id": "bye",
+              "text": "Спасибо, пока всё.",
+              "next": null,
+              "effects": []
+            }
+          ]
+        },
+        {
+          "id": "found",
+          "text": "На обоих дисках стоят «Меридиан.Учёт 8.3» и «ПРОФ». Признаки контрафактности есть, регистрации лицензий нет. И один посторонний файл в каталоге программы.",
+          "mood": "neutral",
+          "effects": [],
+          "choices": [
+            {
+              "id": "back",
+              "text": "Понятно.",
+              "next": "start",
+              "effects": []
+            }
+          ]
+        },
+        {
+          "id": "dll",
+          "text": "Динамическая библиотека. Она подменяет оригинал и вносит изменения в файлы платформы — отключает подсистему защиты от нелегального копирования. В комплект поставки её нет.",
+          "mood": "neutral",
+          "effects": [],
+          "choices": [
+            {
+              "id": "back",
+              "text": "Понятно.",
+              "next": "start",
+              "effects": []
+            }
+          ]
+        },
+        {
+          "id": "report",
+          "text": "Вот заключение. Выводы: контрафактность, подмена библиотеки, работа без аппаратного ключа.",
+          "mood": "neutral",
+          "effects": [
+            {
+              "type": "addEvidence",
+              "evidenceId": "expert_report"
+            },
+            {
+              "type": "changeVariable",
+              "variableId": "report_given",
+              "action": "on"
+            }
+          ],
+          "choices": [
+            {
+              "id": "back",
+              "text": "Спасибо.",
+              "next": "start",
+              "effects": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "dlg_zubov",
+      "characterId": "zubov",
+      "startNodeId": "start",
+      "nodes": [
+        {
+          "id": "start",
+          "text": "Здравствуйте. Меня пригласили понятым — стало интересно. Спрашивайте.",
+          "mood": "neutral",
+          "effects": [],
+          "choices": [
+            {
+              "id": "saw",
+              "text": "Что вы видели в студии?",
+              "next": "saw",
+              "effects": []
+            },
+            {
+              "id": "rights",
+              "text": "Вам разъяснили права?",
+              "next": "rights",
+              "effects": []
+            },
+            {
+              "id": "bye",
+              "text": "Спасибо, пока всё.",
+              "next": null,
+              "effects": []
+            }
+          ]
+        },
+        {
+          "id": "saw",
+          "text": "Оперуполномоченный объявил распоряжение владельцу, тот расписался. Потом открыли компьютеры, нашли программу. Хозяин сказал, что про договор не знает, отвечал администратор. Администратор сам признался, что скачал программу и ещё «взломщик».",
+          "mood": "neutral",
+          "effects": [
+            {
+              "type": "addEvidence",
+              "evidenceId": "t_zubov"
+            }
+          ],
+          "choices": [
+            {
+              "id": "back",
+              "text": "Понятно.",
+              "next": "start",
+              "effects": []
+            }
+          ]
+        },
+        {
+          "id": "rights",
+          "text": "Да, перед входом. Рассказали про права понятого и порядок проведения. Потом все расписались в протоколе, замечаний не было.",
+          "mood": "neutral",
+          "effects": [],
+          "choices": [
+            {
+              "id": "back",
+              "text": "Понятно.",
+              "next": "start",
+              "effects": []
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "deductions": [
+    {
+      "id": "d_object",
+      "title": "Что нарушено",
+      "evidenceIds": [
+        "civil_code",
+        "expert_report"
+      ],
+      "question": "Что в этой истории является охраняемым объектом, права на который нарушены?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Оборудование студии: компьютеры",
+          "correct": false,
+          "feedback": "Компьютеры принадлежат студии, и они не пострадали."
+        },
+        {
+          "id": "b",
+          "text": "Программа «Меридиан.Учёт»: объект авторского права, использованный без согласия правообладателя",
+          "correct": true,
+          "feedback": "ГК относит программы к объектам авторских прав, эксперт подтвердил контрафактность."
+        },
+        {
+          "id": "c",
+          "text": "Коммерческая тайна студии",
+          "correct": false,
+          "feedback": "Тайна студии не раскрывалась."
+        }
+      ],
+      "conclusion": "Нарушено исключительное право ООО «Меридиан-Софт» на программу для ЭВМ.",
+      "effects": [
+        {
+          "type": "changeVariable",
+          "variableId": "d_object",
+          "action": "on"
+        }
+      ],
+      "failEffects": []
+    },
+    {
+      "id": "d_protect",
+      "title": "Защита обойдена",
+      "evidenceIds": [
+        "disk_inspection",
+        "t_laptev"
+      ],
+      "question": "Что говорит файл techsys.dll и работа программы без ключа?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Программа просто устарела",
+          "correct": false,
+          "feedback": "Лицензионная версия без ключа не работает: защита отключена."
+        },
+        {
+          "id": "b",
+          "text": "Защита программы нейтрализована специальной библиотекой",
+          "correct": true,
+          "feedback": "Эксперт и правообладатель сходятся: techsys.dll подменяет оригинал и отключает защиту."
+        },
+        {
+          "id": "c",
+          "text": "Ключ защиты потерян, а файл безвреден",
+          "correct": false,
+          "feedback": "В протоколе и заключении этот файл назван вредоносным, ключа на дисках нет."
+        }
+      ],
+      "conclusion": "Защиту от нелегального копирования отключили специальной программой.",
+      "effects": [
+        {
+          "type": "changeVariable",
+          "variableId": "d_protect",
+          "action": "on"
+        }
+      ],
+      "failEffects": []
+    },
+    {
+      "id": "d_who",
+      "title": "Кто принял решение",
+      "evidenceIds": [
+        "job_instruction",
+        "t_solovyov"
+      ],
+      "question": "Кто решил установить именно такую копию программы?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Владелец студии, давший прямое указание",
+          "correct": false,
+          "feedback": "Владелец лишь поручил купить компьютеры и наладить учёт."
+        },
+        {
+          "id": "b",
+          "text": "Администратор Кравец: по инструкции отвечал за программы и сам принял решение",
+          "correct": true,
+          "feedback": "Инструкция возлагает на него установку программ, а владелец о происхождении ПО не знал."
+        },
+        {
+          "id": "c",
+          "text": "Сотрудники студии, работавшие в программе",
+          "correct": false,
+          "feedback": "Они не знали, откуда взялась программа."
+        }
+      ],
+      "conclusion": "Решение установить контрафактную копию принял и выполнил Кравец.",
+      "effects": [
+        {
+          "type": "changeVariable",
+          "variableId": "d_who",
+          "action": "on"
+        }
+      ],
+      "failEffects": []
+    },
+    {
+      "id": "d_size",
+      "title": "Размер",
+      "evidenceIds": [
+        "price_list",
+        "plenum_note"
+      ],
+      "question": "Каков размер нарушения по закону?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Небольшой: он не определяется стоимостью лицензий",
+          "correct": false,
+          "feedback": "Размер считают именно по розничной стоимости оригинальных экземпляров."
+        },
+        {
+          "id": "b",
+          "text": "Крупный: 784 300 руб. превышают 100 000 руб., но меньше 1 млн",
+          "correct": true,
+          "feedback": "Так определяется размер по примечанию к ст. 146 и разъяснениям Пленума."
+        },
+        {
+          "id": "c",
+          "text": "Особо крупный: значит, действует ч. 3 ст. 146",
+          "correct": false,
+          "feedback": "Особо крупный размер начинается с одного миллиона рублей."
+        }
+      ],
+      "conclusion": "Незаконно использованы права на программы стоимостью 784 300 руб.: это крупный размер.",
+      "effects": [
+        {
+          "type": "changeVariable",
+          "variableId": "d_size",
+          "action": "on"
+        }
+      ],
+      "failEffects": []
+    },
+    {
+      "id": "d_use",
+      "title": "Использование в деле",
+      "evidenceIds": [
+        "d_object",
+        "orm_protocol"
+      ],
+      "question": "Как программа использовалась?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Лежала на диске и не запускалась",
+          "correct": false,
+          "feedback": "В студии на компьютерах ведут учёт доходов и расходов."
+        },
+        {
+          "id": "b",
+          "text": "Использовалась в деятельности студии, а не для личных нужд",
+          "correct": true,
+          "feedback": "Компьютеры стояли в студии, и сотрудники работали в программе."
+        },
+        {
+          "id": "c",
+          "text": "Использовалась дома у администратора для проверки",
+          "correct": false,
+          "feedback": "Дома её только установили; работали уже в студии."
+        }
+      ],
+      "conclusion": "Контрафактную программу использовали в предпринимательской деятельности студии.",
+      "effects": [
+        {
+          "type": "changeVariable",
+          "variableId": "d_use",
+          "action": "on"
+        }
+      ],
+      "failEffects": []
+    },
+    {
+      "id": "d_intent",
+      "title": "Форма вины",
+      "evidenceIds": [
+        "d_protect",
+        "d_who"
+      ],
+      "question": "Какая форма вины у Кравца?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Неосторожность: не подумал о последствиях",
+          "correct": false,
+          "feedback": "Он сознательно скачал взломщик, чтобы отключить защиту."
+        },
+        {
+          "id": "b",
+          "text": "Прямой умысел: знал, что копия нелицензионная, и сам обошёл защиту",
+          "correct": true,
+          "feedback": "Установка и подмена библиотеки показывают осознанное решение."
+        },
+        {
+          "id": "c",
+          "text": "Невиновное причинение",
+          "correct": false,
+          "feedback": "Преднамеренное отключение защиты исключает случай."
+        }
+      ],
+      "conclusion": "Кравец действовал умышленно.",
+      "effects": [
+        {
+          "type": "changeVariable",
+          "variableId": "d_intent",
+          "action": "on"
+        }
+      ],
+      "failEffects": []
+    },
+    {
+      "id": "d_pardon",
+      "title": "Лицензия после изъятия",
+      "evidenceIds": [
+        "t_laptev",
+        "license_after"
+      ],
+      "question": "Меняют ли купленные после изъятия лицензии и отсутствие претензий оценку произошедшего?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Да, нарушения не было, раз претензий нет",
+          "correct": false,
+          "feedback": "Использование контрафактной программы уже состоялось до договора."
+        },
+        {
+          "id": "b",
+          "text": "Нет: нарушение совершено; примирение и раскаяние суд учитывает лишь при назначении наказания",
+          "correct": true,
+          "feedback": "Договор заключён через два дня после изъятия дисков, а раскаяние — смягчающее обстоятельство."
+        },
+        {
+          "id": "c",
+          "text": "Нет, потому что правообладатель вправе требовать только компенсацию",
+          "correct": false,
+          "feedback": "Гражданская ответственность не отменяет уголовно-правовую оценку."
+        }
+      ],
+      "conclusion": "Покупка лицензий и извинения не отменяют уже совершённое нарушение.",
+      "effects": [
+        {
+          "type": "changeVariable",
+          "variableId": "d_pardon",
+          "action": "on"
+        }
+      ],
+      "failEffects": []
+    }
+  ],
+  "hints": [
+    {
+      "level": 1,
+      "text": "Посмотрите, что обнаружили на дисках, кроме самой программы, и работала ли она без аппаратного ключа.",
+      "penalty": 5
+    },
+    {
+      "level": 2,
+      "text": "Сопоставьте обязанности администратора, поручение владельца и показания: кто на самом деле решил, какую копию ставить.",
+      "penalty": 7
+    },
+    {
+      "level": 3,
+      "text": "Интеллектуальная собственность охраняется ч. 1 ст. 44 Конституции. Крупный размер по примечанию к ст. 146 считают по розничной цене лицензий.",
+      "penalty": 10
+    }
+  ],
+  "questions": [
+    {
+      "id": "q_right",
+      "category": "right",
+      "prompt": "Какое право затронуто?",
+      "kind": "single",
+      "source": "inline",
+      "maxPoints": 30,
+      "options": [
+        {
+          "id": "ip",
+          "label": "Право на результаты интеллектуальной деятельности (интеллектуальную собственность)",
+          "mark": "ч. 1 ст. 44 Конституции РФ; ст. 1229, 1261 ГК РФ",
+          "points": 30,
+          "feedback": "Верно: программа — результат интеллектуальной деятельности, исключительное право на неё принадлежит правообладателю."
+        },
+        {
+          "id": "property",
+          "label": "Право частной собственности",
+          "mark": "ст. 35 Конституции РФ",
+          "points": 10,
+          "feedback": "Близко: но защищается не вещь, а исключительное право на программу."
+        },
+        {
+          "id": "enterprise",
+          "label": "Свобода предпринимательской деятельности",
+          "mark": "ст. 34 Конституции РФ",
+          "points": 0,
+          "feedback": "Предпринимательство студии здесь не ограничивалось."
+        },
+        {
+          "id": "privacy",
+          "label": "Неприкосновенность частной жизни",
+          "mark": "ст. 23 Конституции РФ",
+          "points": 0,
+          "feedback": "Обследование студии не касалось частной жизни."
+        },
+        {
+          "id": "labor",
+          "label": "Право на труд",
+          "mark": "ст. 37 Конституции РФ",
+          "points": 0,
+          "feedback": "Трудовые права не затронуты."
+        }
+      ]
+    },
+    {
+      "id": "q_violation",
+      "category": "violation",
+      "prompt": "Было ли нарушение?",
+      "kind": "single",
+      "source": "inline",
+      "maxPoints": 15,
+      "options": [
+        {
+          "id": "yes",
+          "label": "Да",
+          "mark": "",
+          "points": 15,
+          "feedback": "Верно: программу использовали без согласия правообладателя и с отключённой защитой."
+        },
+        {
+          "id": "no",
+          "label": "Нет",
+          "mark": "",
+          "points": 0,
+          "feedback": "Нарушение есть: контрафактность и отключение защиты подтверждены экспертом."
+        },
+        {
+          "id": "insufficient",
+          "label": "Данных недостаточно",
+          "mark": "",
+          "points": 4,
+          "feedback": "Данных достаточно: протокол, заключение эксперта и показания совпадают."
+        }
+      ]
+    },
+    {
+      "id": "q_qualification",
+      "category": "qualification",
+      "prompt": "Как можно квалифицировать действия виновного?",
+      "kind": "single",
+      "source": "inline",
+      "maxPoints": 15,
+      "options": [
+        {
+          "id": "criminal_146_273",
+          "label": "Признаки преступлений: незаконное использование объектов авторского права в крупном размере (ч. 2 ст. 146 УК РФ) и использование программы, нейтрализующей защиту компьютерной информации (ч. 2 ст. 273 УК РФ)",
+          "mark": "",
+          "points": 15,
+          "feedback": "Верно как возможная квалификация. Окончательную оценку дают следствие и суд."
+        },
+        {
+          "id": "criminal_146",
+          "label": "Признаки преступления: ч. 2 ст. 146 УК РФ",
+          "mark": "",
+          "points": 9,
+          "feedback": "Часть верна, но вы не учли отдельное деяние: использование программы для отключения защиты (ч. 2 ст. 273)."
+        },
+        {
+          "id": "criminal_146_3",
+          "label": "Признаки преступления: ч. 3 ст. 146 УК РФ (особо крупный размер)",
+          "mark": "",
+          "points": 4,
+          "feedback": "Стоимость 784 300 руб. — это крупный размер; особо крупный начинается с 1 млн."
+        },
+        {
+          "id": "administrative",
+          "label": "Административное правонарушение (ст. 7.12 КоАП РФ)",
+          "mark": "",
+          "points": 3,
+          "feedback": "КоАП — про нарушения, не достигающие крупного размера. Здесь размер крупный."
+        },
+        {
+          "id": "civil",
+          "label": "Только гражданско-правовой спор",
+          "mark": "",
+          "points": 1,
+          "feedback": "Правообладатель вправе требовать компенсацию, но это не исключает уголовную оценку."
+        },
+        {
+          "id": "none",
+          "label": "Нарушения нет: претензий не осталось",
+          "mark": "",
+          "points": 0,
+          "feedback": "Лицензии куплены после изъятия, и это не отменяет прошлое использование."
+        }
+      ]
+    },
+    {
+      "id": "q_responsible",
+      "category": "responsible",
+      "prompt": "Кто несёт ответственность?",
+      "kind": "single",
+      "source": "characters",
+      "maxPoints": 20,
+      "options": [
+        {
+          "id": "kravets",
+          "label": "",
+          "mark": "",
+          "points": 20,
+          "feedback": "Верно: он скачал контрафактную копию, отключил защиту и принёс компьютеры в студию. Владелец о происхождении программы не знал."
+        },
+        {
+          "id": "solovyov",
+          "label": "",
+          "mark": "",
+          "points": 3,
+          "feedback": "Владелец поручил купить компьютеры и наладить учёт, но о нелицензионной копии не знал."
+        },
+        {
+          "id": "efimov",
+          "label": "",
+          "mark": "",
+          "points": 0,
+          "feedback": "Оперуполномоченный проводил обследование."
+        },
+        {
+          "id": "laptev",
+          "label": "",
+          "mark": "",
+          "points": 0,
+          "feedback": "Представитель правообладателя — сторона, чьи права нарушены."
+        },
+        {
+          "id": "vorontsova",
+          "label": "",
+          "mark": "",
+          "points": 0,
+          "feedback": "Эксперт исследовала диски."
+        },
+        {
+          "id": "zubov",
+          "label": "",
+          "mark": "",
+          "points": 0,
+          "feedback": "Понятой наблюдал за обследованием."
+        }
+      ]
+    },
+    {
+      "id": "q_evidence",
+      "category": "evidence",
+      "prompt": "Какие доказательства это подтверждают?",
+      "kind": "multi",
+      "source": "evidence",
+      "maxPoints": 20,
+      "options": [
+        {
+          "id": "expert_report",
+          "label": "",
+          "mark": "",
+          "points": 3,
+          "feedback": "Контрафактность и отключение защиты."
+        },
+        {
+          "id": "disk_inspection",
+          "label": "",
+          "mark": "",
+          "points": 3,
+          "feedback": "Файл techsys.dll и отсутствие ключа на дисках."
+        },
+        {
+          "id": "price_list",
+          "label": "",
+          "mark": "",
+          "points": 3,
+          "feedback": "Стоимость лицензий для определения размера."
+        },
+        {
+          "id": "t_kravets_admit",
+          "label": "",
+          "mark": "",
+          "points": 3,
+          "feedback": "Признание: знал о контрафактности и сам отключил защиту."
+        },
+        {
+          "id": "job_instruction",
+          "label": "",
+          "mark": "",
+          "points": 2,
+          "feedback": "Закрепляет обязанность отвечать за программы."
+        },
+        {
+          "id": "civil_code",
+          "label": "",
+          "mark": "",
+          "points": 2,
+          "feedback": "Программа — объект авторского права, защиту нельзя обходить."
+        },
+        {
+          "id": "plenum_note",
+          "label": "",
+          "mark": "",
+          "points": 2,
+          "feedback": "Правила расчёта и порог крупного размера."
+        },
+        {
+          "id": "orm_protocol",
+          "label": "",
+          "mark": "",
+          "points": 1,
+          "feedback": "Фиксирует обнаружение программы и изъятие дисков."
+        },
+        {
+          "id": "t_laptev",
+          "label": "",
+          "mark": "",
+          "points": 1,
+          "feedback": "Объясняет, как работает защита."
+        },
+        {
+          "id": "t_kravets_lie",
+          "label": "",
+          "mark": "",
+          "points": -3,
+          "feedback": "Ложная версия: опровергнута заключением и протоколом."
+        },
+        {
+          "id": "license_after",
+          "label": "",
+          "mark": "",
+          "points": 0,
+          "feedback": "Договор заключён после изъятия — на прошлое использование не влияет."
+        },
+        {
+          "id": "order_buy",
+          "label": "",
+          "mark": "",
+          "points": 0,
+          "feedback": "Владелец поручил лишь купить компьютеры и наладить учёт."
+        },
+        {
+          "id": "claim",
+          "label": "",
+          "mark": "",
+          "points": 0,
+          "feedback": "Повод для проверки, но не доказательство нарушения."
+        },
+        {
+          "id": "orm_order",
+          "label": "",
+          "mark": "",
+          "points": 0,
+          "feedback": "Основание обследования, не доказывает вину."
+        },
+        {
+          "id": "t_solovyov",
+          "label": "",
+          "mark": "",
+          "points": 0,
+          "feedback": "Показывает, что владелец не знал об установке."
+        },
+        {
+          "id": "t_efimov",
+          "label": "",
+          "mark": "",
+          "points": 0,
+          "feedback": "Подтверждает порядок обследования."
+        },
+        {
+          "id": "t_zubov",
+          "label": "",
+          "mark": "",
+          "points": 0,
+          "feedback": "Подтверждает порядок обследования."
+        }
+      ]
+    }
+  ],
+  "solution": {
+    "right": "ip",
+    "rightText": "Право на результаты интеллектуальной деятельности (ч. 1 ст. 44 Конституции РФ; ст. 1229, 1261, 1270 ГК РФ).",
+    "violation": true,
+    "responsibleCharacter": "kravets",
+    "correctAnswer": "Нарушено исключительное право правообладателя на программу для ЭВМ. Администратор Кравец скачал контрафактную копию, установил библиотеку, отключающую защиту, и принёс компьютеры в студию, где в программе вели учёт. Размер — крупный (784 300 руб.). Возможная квалификация — ч. 2 ст. 146 и ч. 2 ст. 273 УК РФ.",
+    "whatHappened": "12 июля 2024 года владелец студии Соловьёв поручил администратору Кравцу купить два компьютера и наладить учёт. Кравец дома скачал нелицензионную учётную программу и библиотеку techsys.dll, отключающую защиту, установил их и на следующий день принёс компьютеры в студию. Владельцу и сотрудникам он ничего не сказал. 18 марта 2025 года правообладатель подал заявление. 25 марта оперуполномоченный провёл обследование студии и изъял два жёстких диска. Эксперт подтвердил контрафактность и подмену библиотеки. Через два дня Кравец заключил лицензионный договор.",
+    "explanation": "Программы для ЭВМ — объекты авторских прав (ст. 1261 ГК РФ). Использовать их можно только с согласия правообладателя, а обходить технические средства защиты нельзя (ст. 1299 ГК РФ). Кравец знал, что копия нелицензионная, и сознательно отключил защиту, а компьютеры использовались в деятельности студии. По примечанию к ст. 146 УК РФ размер считается по розничной стоимости лицензионных экземпляров; 784 300 руб. — это крупный размер. Владелец поручил только купить компьютеры и о происхождении программы не знал. Покупка лицензий после изъятия и отсутствие претензий у правообладателя не отменяют совершённое нарушение: раскаяние и признание вины суд учитывает как смягчающие обстоятельства. В реальном деле суд назначил по ч. 2 ст. 146 УК РФ обязательные работы на 240 часов, по ч. 2 ст. 273 УК РФ — ограничение свободы на 1 год 6 месяцев, окончательно — 1 год 7 месяцев ограничения свободы.",
+    "legalQualification": "Действия Кравца содержат признаки преступлений, предусмотренных ч. 2 ст. 146 УК РФ (незаконное использование объектов авторского права в крупном размере) и ч. 2 ст. 273 УК РФ (использование компьютерных программ, заведомо предназначенных для нейтрализации средств защиты компьютерной информации, причинившее крупный ущерб). Виновность определяет только суд.",
+    "qualificationNotes": [
+      {
+        "kind": "right",
+        "applies": "yes",
+        "text": "Затронуто право на результаты интеллектуальной деятельности (ч. 1 ст. 44 Конституции РФ)."
+      },
+      {
+        "kind": "violation",
+        "applies": "yes",
+        "text": "Программу использовали без согласия правообладателя, защита была отключена."
+      },
+      {
+        "kind": "criminal",
+        "applies": "possible",
+        "text": "Признаки ч. 2 ст. 146 и ч. 2 ст. 273 УК РФ. Вывод о виновности делает суд."
+      },
+      {
+        "kind": "administrative",
+        "applies": "no",
+        "text": "Крупный размер выводит дело за рамки ст. 7.12 КоАП РФ."
+      },
+      {
+        "kind": "civil",
+        "applies": "possible",
+        "text": "Правообладатель вправе требовать компенсацию за нарушение исключительного права (ст. 1301 ГК РФ)."
+      },
+      {
+        "kind": "disciplinary",
+        "applies": "possible",
+        "text": "Работодатель может применить к администратору взыскание (ст. 192 ТК РФ), но это не исключает уголовную ответственность."
+      }
+    ],
+    "keyEvidence": [
+      {
+        "evidenceId": "expert_report",
+        "why": "Подтверждает контрафактность и отключение защиты."
+      },
+      {
+        "evidenceId": "disk_inspection",
+        "why": "Показывает файл techsys.dll и отсутствие ключа защиты."
+      },
+      {
+        "evidenceId": "job_instruction",
+        "why": "Возлагает на Кравца ответственность за установку программ."
+      },
+      {
+        "evidenceId": "price_list",
+        "why": "Определяет стоимость лицензий для расчёта размера."
+      },
+      {
+        "evidenceId": "t_kravets_admit",
+        "why": "Признание в умышленной установке контрафактной копии."
+      }
+    ],
+    "sources": [
+      "Конституция РФ, ч. 1 ст. 44",
+      "УК РФ, ст. 146 и ст. 273",
+      "ГК РФ, ст. 1229, 1261, 1270, 1299, 1301",
+      "Постановление Пленума Верховного Суда РФ от 26.04.2007 № 14, п. 25",
+      "Организации, должности и люди в деле вымышлены; фабула и стоимость лицензий изменены, основа — обстоятельства судебной практики"
+    ]
+  },
+  "flags": [
+    {
+      "id": "kravets_lied",
+      "name": "Кравец заявил, что не знал о лицензии"
+    },
+    {
+      "id": "kravets_admitted",
+      "name": "Кравец признал, что сам отключил защиту"
+    },
+    {
+      "id": "kravets_closed",
+      "name": "Кравец закрылся и отказался говорить"
+    },
+    {
+      "id": "laptev_explained",
+      "name": "Лаптев объяснил работу защиты"
+    },
+    {
+      "id": "price_given",
+      "name": "Лаптев передал справку о стоимости"
+    },
+    {
+      "id": "report_given",
+      "name": "Воронцова передала заключение"
+    },
+    {
+      "id": "peace_explained",
+      "name": "Ефимов объяснил значение примирения"
+    },
+    {
+      "id": "d_object",
+      "name": "Решено: Что нарушено"
+    },
+    {
+      "id": "d_protect",
+      "name": "Решено: Защита обойдена"
+    },
+    {
+      "id": "d_who",
+      "name": "Решено: Кто принял решение"
+    },
+    {
+      "id": "d_size",
+      "name": "Решено: Размер"
+    },
+    {
+      "id": "d_use",
+      "name": "Решено: Использование в деле"
+    },
+    {
+      "id": "d_intent",
+      "name": "Решено: Форма вины"
+    },
+    {
+      "id": "d_pardon",
+      "name": "Решено: Лицензия после изъятия"
+    }
+  ],
+  "lawReference": {
+    "basis": [
+      {
+        "article": "ч. 1 ст. 44 Конституции РФ",
+        "title": "Интеллектуальная собственность",
+        "text": "Интеллектуальная собственность охраняется законом.",
+        "url": "http://www.consultant.ru/document/cons_doc_LAW_28399/"
+      },
+      {
+        "article": "ст. 1261 ГК РФ",
+        "title": "Программы для ЭВМ",
+        "text": "Программы для ЭВМ являются объектами авторских прав."
+      },
+      {
+        "article": "ст. 1270 ГК РФ",
+        "title": "Исключительное право на произведение",
+        "text": "Использовать произведение можно только с согласия правообладателя."
+      },
+      {
+        "article": "ч. 2 ст. 1299 ГК РФ",
+        "title": "Технические средства защиты",
+        "text": "В отношении произведений не допускается действий, направленных на то, чтобы устранить ограничения использования, установленные техническими средствами защиты."
+      },
+      {
+        "article": "ч. 2 ст. 146 УК РФ",
+        "title": "Нарушение авторских и смежных прав",
+        "text": "Незаконное использование объектов авторского права, если деяние совершено в крупном размере.",
+        "url": "http://www.consultant.ru/document/cons_doc_LAW_10699/"
+      },
+      {
+        "article": "ч. 2 ст. 273 УК РФ",
+        "title": "Вредоносные компьютерные программы",
+        "text": "Использование компьютерных программ, заведомо предназначенных для нейтрализации средств защиты компьютерной информации, причинившее крупный ущерб.",
+        "url": "http://www.consultant.ru/document/cons_doc_LAW_10699/"
+      },
+      {
+        "article": "Примечание к ст. 146 УК РФ",
+        "title": "Крупный и особо крупный размер",
+        "text": "Крупный размер — свыше 100 000 рублей; особо крупный — свыше 1 000 000 рублей."
+      }
+    ],
+    "notes": [
+      {
+        "title": "Лицензия после изъятия",
+        "text": "Покупка лицензий и отсутствие претензий у правообладателя не отменяют ранее совершённого использования контрафактной программы; раскаяние и заглаживание вреда учитываются судом как смягчающие обстоятельства."
+      },
+      {
+        "title": "Незнание владельца",
+        "text": "Владелец поручил лишь купить компьютеры и наладить учёт. Ответственность несёт тот, кто сознательно выбрал контрафактную копию и отключил защиту."
+      }
+    ]
+  }
+}
