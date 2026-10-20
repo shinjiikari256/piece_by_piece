@@ -1,0 +1,38 @@
+{
+  "slot": "face",
+  "label": "Лицо",
+  "parts": {
+    "glasses": {
+      "name": "Очки", "bob": true,
+      "frames": {
+        "default": [
+          [5,5,1,2,"#c8e6ffbf"],
+          [7,5,2,2,"#c8e6ffbf"],
+          [10,5,1,2,"#c8e6ffbf"],
+          [5,4,6,1,"$glassesColor"]
+        ]
+      }
+    },
+    "mustache": {
+      "name": "Усы", "bob": true,
+      "frames": {
+        "default": [
+          [6,7,4,1,"$hair"]
+        ]
+      }
+    },
+    "beard": {
+      "name": "Борода", "bob": true,
+      "frames": {
+        "default": [
+          [4,7,8,3,"$hair"],
+          [7,8,2,1,"#7a4a3a"]
+        ],
+        "talk": [
+          [4,7,8,3,"$hair"],
+          [7,8,2,1,"#8a3b3b"]
+        ]
+      }
+    }
+  }
+}

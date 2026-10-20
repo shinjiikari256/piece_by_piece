@@ -1,0 +1,54 @@
+{
+  "slot": "accent",
+  "label": "Детали одежды",
+  "parts": {
+    "collar": {
+      "name": "Воротник", "bob": true,
+      "frames": {
+        "default": [
+          [6,10,4,1,"$accent"]
+        ]
+      }
+    },
+    "tie": {
+      "name": "Галстук", "bob": true,
+      "frames": {
+        "default": [
+          [6,10,4,2,"#f4f4f4"],
+          [7,11,2,4,"$accent"]
+        ]
+      }
+    },
+    "scarf": {
+      "name": "Шарф", "bob": true,
+      "frames": {
+        "default": [
+          [4,10,8,2,"$accent"],
+          [9,12,2,3,"$accent"]
+        ]
+      }
+    },
+    "badge": {
+      "name": "Бейдж", "bob": true,
+      "frames": {
+        "default": [
+          [9,11,2,2,"$accent"],
+          [5,10,6,1,"$topShade"]
+        ]
+      }
+    },
+    "apron": {
+      "name": "Фартук", "bob": true,
+      "frames": {
+        "default": [
+          [5,11,6,5,"$accent"],
+          [6,10,4,1,"$accent"]
+        ],
+        "idle2": [
+          [5,12,6,4,"$accent"],
+          [6,11,4,1,"$accent"]
+        ]
+      }
+    }
+  }
+}
