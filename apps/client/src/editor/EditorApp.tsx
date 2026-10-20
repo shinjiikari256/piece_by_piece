@@ -78,7 +78,7 @@ const SECTIONS: { id: SectionId; label: string; hint: string }[] = [
   { id: "solution", label: "Решение", hint: "Разбор и источники" },
   { id: "flags", label: "Переменные", hint: "Флаги («произошло или нет») счётчики (числа) и перечисления (одно значение из списка)" },
   { id: "law", label: "Закон", hint: "Что игрок видит во вкладке «Закон»" },
-  { id: "settings", label: "Настройки", hint: "Хронология и бонус за время" },
+  { id: "settings", label: "Настройки", hint: "Базовый год событий и бонус за время" },
   { id: "authorship", label: "Авторство", hint: "Автор, почта, лицензия" },
   { id: "json", label: "JSON", hint: "Исходник целиком" },
 ];

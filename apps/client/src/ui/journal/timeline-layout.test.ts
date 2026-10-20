@@ -53,10 +53,10 @@ describe("дни хронологии", () => {
 });
 
 describe("настройки хронологии", () => {
-  it("включена, когда есть события и автор не выключил", () => {
+  it("хронология есть, когда хотя бы одно событие отмечено «Показывать в хронологии»", () => {
     expect(timelineEnabled({ events: [] })).toBe(false);
-    expect(timelineEnabled({ events: [1] })).toBe(true);
-    expect(timelineEnabled({ events: [1], settings: { timeline: false } })).toBe(false);
+    expect(timelineEnabled({ events: [{}] })).toBe(false);
+    expect(timelineEnabled({ events: [{}, { showInTimeline: true }] })).toBe(true);
   });
 
   it("базовый год из настроек важнее самого раннего года в деле", () => {

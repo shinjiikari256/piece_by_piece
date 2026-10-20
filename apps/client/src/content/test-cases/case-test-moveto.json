@@ -1216,37 +1216,44 @@
     {
       "id": "ev_memo",
       "title": "Коменданту поручено к 5 октября подать список нарушителей Правил проживания",
-      "at": "10-01"
+      "at": "10-01",
+      "showInTimeline": true
     },
     {
       "id": "ev_left",
       "title": "Тимур ушёл на тренировку",
-      "at": "10-03T12:40"
+      "at": "10-03T12:40",
+      "showInTimeline": true
     },
     {
       "id": "ev_key",
       "title": "Коменданту выдан дубликат ключа от комнаты 412",
-      "at": "10-03T14:05"
+      "at": "10-03T14:05",
+      "showInTimeline": true
     },
     {
       "id": "ev_entry",
       "title": "Комендант вошёл в комнату 412 и фотографировал вещи",
-      "at": "10-03T14:10"
+      "at": "10-03T14:10",
+      "showInTimeline": true
     },
     {
       "id": "ev_key_back",
       "title": "Дубликат ключа возвращён на вахту",
-      "at": "10-03T14:35"
+      "at": "10-03T14:35",
+      "showInTimeline": true
     },
     {
       "id": "ev_back",
       "title": "Тимур вернулся и обнаружил записку",
-      "at": "10-03T17:15"
+      "at": "10-03T17:15",
+      "showInTimeline": true
     },
     {
       "id": "ev_test_open",
       "title": "[ТЕСТ] Событие без улик и условия — видно с начала (в хронологии с годом)",
-      "at": "2026-10-01"
+      "at": "2026-10-01",
+      "showInTimeline": true
     },
     {
       "id": "ev_test_range",
@@ -1257,7 +1264,8 @@
         "flags": [
           "zuev_admitted"
         ]
-      }
+      },
+      "showInTimeline": true
     },
     {
       "id": "ev_test_clock",
@@ -1275,7 +1283,8 @@
             ]
           }
         ]
-      }
+      },
+      "showInTimeline": true
     }
   ],
   "evidence": [

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { eventYear, formatEventTime, knownEvents } from "../../../../../shared/events";
+import { eventYear, formatEventTime, knownEvents, timelineEvents } from "../../../../../shared/events";
 import { resolveLook } from "../../game/art";
 import { useGame } from "../../state/store";
 import { Portrait } from "../panels";
@@ -22,7 +22,7 @@ export function TimelineTab() {
   const [person, setPerson] = useState("all");
   const [selected, setSelected] = useState<string | null>(null);
 
-  const known = useMemo(() => knownEvents(caseFile, progress, locationId), [caseFile, progress, locationId]);
+  const known = useMemo(() => timelineEvents(knownEvents(caseFile, progress, locationId)), [caseFile, progress, locationId]);
   /** Кто связан с событием — по найденным уликам (ненайденные не раскрываются). */
   const links = useMemo(() => {
     const found = caseFile.evidence.filter((e) => progress.collected.includes(e.id));

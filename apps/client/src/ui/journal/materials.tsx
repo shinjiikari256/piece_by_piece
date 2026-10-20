@@ -3,7 +3,7 @@ import { useWindowKey } from "../hooks";
 import { sourceOf } from "../../content/case-utils";
 import { resolveLook } from "../../game/art";
 import { actions, useGame, type Mark } from "../../state/store";
-import { formatEventTime, timelineEnabled } from "../../../../../shared/events";
+import { formatEventTime } from "../../../../../shared/events";
 import type { Evidence } from "../../../../../shared/case";
 import type { PublicDeduction as Deduction } from "../../../../../shared/public-case";
 import { EvidenceCard, FactCard, INTERACTIVE, KIND_ICON, KIND_LABEL, LEVEL, MarkButtons, Reliability, kindTitle, type MaterialKind } from "../common";
@@ -221,7 +221,7 @@ export function EvidenceDetail({ evidence: e, mark, hideMarks }: { evidence: Evi
           <b>{src.text}</b>
         </p>
       )}
-      {events.length > 0 && timelineEnabled(caseFile) && (
+      {events.length > 0 && (
         <div className="detail__events">
           {events.map((ev) => (
             <span key={ev.id} className="event-chip">

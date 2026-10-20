@@ -145,7 +145,7 @@ export function ListSection({ field }: { field: keyof CaseFile }) {
               until={(list[index] as CaseEvent).until}
               onChange={(w) => update(list.map((x, i) => (i === index ? withWhen(x as CaseEvent, w) : x)))}
             />
-            <ObjectFields schema={itemSchema} value={list[index]} ctx={{ draft }} only={["requires"]} onChange={(v) => update(list.map((x, i) => (i === index ? v : x)))} />
+            <ObjectFields schema={itemSchema} value={list[index]} ctx={{ draft }} only={["showInTimeline", "requires"]} onChange={(v) => update(list.map((x, i) => (i === index ? v : x)))} />
           </>
         ) : (
           <Field

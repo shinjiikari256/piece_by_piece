@@ -126,7 +126,12 @@ export function eventSpan(ev: Pick<CaseEvent, "at" | "until">, year: number): Ev
   return { start, end: Math.max(start, end), dateOnly: dateOnly && endTime?.hour === undefined, range: true };
 }
 
-/** Показывается ли игроку хронология: в деле есть события, и автор её не выключил. */
-export function timelineEnabled(c: { events: unknown[]; settings?: { timeline?: boolean } }): boolean {
-  return c.events.length > 0 && c.settings?.timeline !== false;
+/** События для хронологии: только те, что автор отметил «Показывать в хронологии». */
+export function timelineEvents(events: CaseEvent[]): CaseEvent[] {
+  return events.filter((e) => e.showInTimeline);
+}
+
+/** Есть ли у дела хронология: хотя бы одно событие показывается в ней. */
+export function timelineEnabled(c: { events: { showInTimeline?: boolean }[] }): boolean {
+  return c.events.some((e) => e.showInTimeline);
 }

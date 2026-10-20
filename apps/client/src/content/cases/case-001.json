@@ -12,7 +12,7 @@
     "points": 10
   },
   "published": true,
-  "updatedAt": "2026-10-20T11:49:16Z",
+  "updatedAt": "2026-10-20T12:53:22Z",
   "locations": [
     {
       "id": "admin_building",
@@ -559,37 +559,44 @@
     {
       "id": "ev_complaint",
       "title": "На форуме университета появилась анонимная жалоба на работу деканата",
-      "at": "03-10"
+      "at": "03-10",
+      "showInTimeline": true
     },
     {
       "id": "ev_key",
       "title": "Ключ от кабинета 214 выдан Крылову",
-      "at": "03-14T21:30"
+      "at": "03-14T21:30",
+      "showInTimeline": true
     },
     {
       "id": "ev_reset",
       "title": "Пароль почты Алины сброшен через панель администратора",
-      "at": "03-14T21:43"
+      "at": "03-14T21:43",
+      "showInTimeline": true
     },
     {
       "id": "ev_access",
       "title": "Вход в почту Алины с компьютера кабинета 214",
-      "at": "03-14T21:47"
+      "at": "03-14T21:47",
+      "showInTimeline": true
     },
     {
       "id": "ev_print",
       "title": "Письмо Алины отправлено на печать",
-      "at": "03-14T21:52"
+      "at": "03-14T21:52",
+      "showInTimeline": true
     },
     {
       "id": "ev_shown",
       "title": "Распечатку показали куратору группы",
-      "at": "03-15"
+      "at": "03-15",
+      "showInTimeline": true
     },
     {
       "id": "ev_quote",
       "title": "Куратор процитировала Алине фразу из письма",
-      "at": "03-16"
+      "at": "03-16",
+      "showInTimeline": true
     }
   ],
   "evidence": [

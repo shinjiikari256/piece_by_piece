@@ -177,6 +177,7 @@ export const CaseEvent = z.object({
   title: z.string(),
   at: EventTime.describe("Когда произошло (начало, если задан «до»)"),
   until: EventTime.optional().describe("Конец, если событие длилось (диапазон «с … по …»)"),
+  showInTimeline: z.boolean().optional().meta({ always: true }).describe("Показывать в хронологии. Выключено — событие остаётся в деле (например, как подпись у улики), но на шкале его нет"),
   requires: Condition.optional().describe("Когда игрок узнаёт о событии: в хронологию оно попадает, только если условие выполнено"),
 });
 
@@ -584,7 +585,6 @@ export const CaseFile = z.object({
   settings: z
     .object({
       timelineYear: z.number().int().min(1).max(9999).optional().describe("Год для событий без года: на хронологии не показывается"),
-      timeline: z.boolean().optional().describe("Показывать игроку вкладку «Хронология». Пусто — показывать, если в деле есть события"),
     })
     .optional()
     .describe("Настройки: какие возможности дела включены"),

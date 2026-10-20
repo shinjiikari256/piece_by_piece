@@ -1,6 +1,5 @@
 import type { CaseFile, Condition, Effect } from "../../../../shared/case";
 import { flagOfEffect, initialEnums } from "../../../../shared/conditions";
-import { timelineEnabled } from "../../../../shared/events";
 import { effectSites } from "../../../../shared/effect-sites";
 
 /**
@@ -87,7 +86,7 @@ export function caseWarnings(c: CaseFile): string[] {
   }
   c.hints.forEach((h) => positive(h.requires));
   c.events.forEach((ev) => positive(ev.requires));
-  if (timelineEnabled(c) && c.settings?.timelineYear === undefined && c.events.some((ev) => !/^\d{4}-/.test(ev.at) || (ev.until && !/^\d{4}-/.test(ev.until))))
+  if (c.settings?.timelineYear === undefined && c.events.some((ev) => ev.showInTimeline && (!/^\d{4}-/.test(ev.at) || (ev.until && !/^\d{4}-/.test(ev.until)))))
     out.push("settings: у части событий нет года — задайте базовый год в «Настройках», иначе он подберётся сам по самому раннему событию");
   c.deductions.forEach((x) => positive(x.requires));
   for (const l of c.locations) {

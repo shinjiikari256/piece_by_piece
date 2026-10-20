@@ -1,24 +1,13 @@
 import type { CaseFile } from "../../../../../shared/case";
-import { timelineEnabled } from "../../../../../shared/events";
 import { editor, useEditor } from "../state";
 
 export function SettingsSection() {
   const draft = useEditor((s) => s.draft);
-  const on = draft.settings?.timeline !== false;
   return (
     <section className="ed__panel ed__panel--narrow">
       <h2>Настройки</h2>
-      <p className="muted">Возможности дела: хронология и бонус за время. События остаются в деле, даже когда хронология выключена.</p>
-      <label className="ef ef--bool">
-        <input
-          type="checkbox"
-          checked={on}
-          onChange={(e) => editor.update((d) => ({ ...d, settings: { ...d.settings, timeline: e.target.checked } }), "settings")}
-        />
-        Хронология в журнале
-      </label>
-      {on && (
-        <label className="labeled">
+      <p className="muted">Базовый год событий и бонус за время. Что показывать в хронологии, отмечается у каждого события.</p>
+      <label className="labeled">
           <span>Базовый год событий</span>
           <input
             type="number"
@@ -33,10 +22,8 @@ export function SettingsSection() {
             }}
           />
           <span className="ef__hint">Год для событий, у которых он не указан. На хронологии не показывается.</span>
-        </label>
-      )}
+      </label>
       <TimeBonus draft={draft} />
-      {on && !timelineEnabled(draft) && <p className="muted">Вкладка появится, когда в деле будет хотя бы одно событие.</p>}
     </section>
   );
 }
