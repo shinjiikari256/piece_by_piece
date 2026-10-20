@@ -1,0 +1,2657 @@
+{
+  "formatVersion": 11,
+  "legend": {
+    "#": "wall",
+    "W": "window",
+    "B": "brick",
+    "G": "glass",
+    "P": "painted_wall",
+    "F": "fence",
+    ".": "tile",
+    ",": "carpet",
+    "_": "parquet",
+    "w": "dark_parquet",
+    "b": "linoleum",
+    "k": "ceramic",
+    "m": "marble",
+    "r": "runner",
+    "S": "stairs",
+    "Z": "stairs_side",
+    "D": "doorway",
+    "g": "grass",
+    "a": "asphalt",
+    "p": "sidewalk"
+  },
+  "id": "case-007",
+  "number": "007",
+  "title": "Люк без допуска",
+  "tagline": "Можно ли отправить в септик человека без договора и защиты — и кто отвечает, если за ним спустился спасатель?",
+  "introduction": "На базе отдыха в септике погибли двое: слесарь, оформленный только на словах, и сторож, спустившийся ему на помощь. Вы — дознаватель: изучите документы в административном здании, осмотрите территорию, поговорите с сотрудниками и выясните, кто отвечал за безопасность работ.",
+  "difficulty": "medium",
+  "timeBonus": {
+    "minutes": 20,
+    "points": 10
+  },
+  "published": true,
+  "updatedAt": "2026-10-20T20:40:53Z",
+  "locations": [
+    {
+      "id": "admin",
+      "name": "Административное здание базы",
+      "tiles": [
+        "###WW####WW#####WW####WW####",
+        "#____________#wwwwwwwwwwwww#",
+        "#____________#wwwwwwwwwwwww#",
+        "#____________#wwwwwwwwwwwww#",
+        "#____________#wwwwwwwwwwwww#",
+        "#____________#wwwwwwwwwwwww#",
+        "#____________#wwwwwwwwwwwww#",
+        "#____________#wwwwwwwwwwwww#",
+        "######D#############D#######",
+        "#........,,,,,,,,,,........#",
+        "#........,,,,,,,,,,........#",
+        "#........,,,,,,,,,,........#",
+        "#........,,,,,,,,,,........#",
+        "#........,,,,,,,,,,........#",
+        "#........,,,,,,,,,,........#",
+        "####WW#######DD######WW#####"
+      ],
+      "areas": [
+        {
+          "name": "Кабинет директора",
+          "x": 6,
+          "y": 5
+        },
+        {
+          "name": "Кабинет администратора",
+          "x": 20,
+          "y": 5
+        },
+        {
+          "name": "Холл",
+          "x": 13,
+          "y": 11
+        }
+      ],
+      "playerStart": {
+        "x": 14,
+        "y": 13
+      },
+      "objects": [
+        {
+          "id": "door_dir",
+          "sprite": "door_h",
+          "x": 6,
+          "y": 8,
+          "label": "Дверь",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "door_adm",
+          "sprite": "door_h",
+          "x": 20,
+          "y": 8,
+          "label": "Дверь",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "door_main",
+          "sprite": "door_h",
+          "x": 13,
+          "y": 15,
+          "label": "Дверь",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "obj_instr",
+          "sprite": "desk_papers",
+          "x": 4,
+          "y": 3,
+          "label": "Должностная инструкция",
+          "interaction": {
+            "title": "Должностная инструкция директора",
+            "description": "Приказ о назначении, решения учредителя и должностная инструкция генерального директора, утверждённая в январе 2024 года."
+          },
+          "onInteract": [
+            {
+              "type": "addEvidence",
+              "evidenceId": "job_instruction"
+            }
+          ]
+        },
+        {
+          "id": "obj_suot",
+          "sprite": "cabinet",
+          "x": 2,
+          "y": 1,
+          "label": "Положение об охране труда",
+          "interaction": {
+            "title": "Положение о системе управления охраной труда",
+            "description": "Положение разработано и утверждено самой директором 6 мая 2024 года."
+          },
+          "onInteract": [
+            {
+              "type": "addEvidence",
+              "evidenceId": "suot"
+            }
+          ]
+        },
+        {
+          "id": "obj_lease",
+          "sprite": "cabinet",
+          "x": 11,
+          "y": 1,
+          "label": "Договор аренды",
+          "interaction": {
+            "title": "Папка с договором аренды",
+            "description": "Договор аренды участка и сети автономной канализации. Закладки у разделов об обязанностях арендатора."
+          },
+          "onInteract": [
+            {
+              "type": "addEvidence",
+              "evidenceId": "lease"
+            }
+          ]
+        },
+        {
+          "id": "obj_timesheet",
+          "sprite": "desk_papers",
+          "x": 9,
+          "y": 3,
+          "label": "Табель за июнь",
+          "interaction": {
+            "title": "Табель учёта рабочего времени",
+            "description": "Табель за июнь 2024 года, утверждённый директором."
+          },
+          "onInteract": [
+            {
+              "type": "addEvidence",
+              "evidenceId": "timesheet"
+            }
+          ]
+        },
+        {
+          "id": "obj_dir_desk",
+          "sprite": "desk",
+          "x": 7,
+          "y": 3,
+          "label": "Стол директора",
+          "interaction": {
+            "title": "Стол директора",
+            "description": "Печать, ежедневник и телефон. На столе открыта папка с договорами подряда без подписей."
+          },
+          "onInteract": []
+        },
+        {
+          "id": "dec_dir_chair",
+          "sprite": "chair",
+          "x": 7,
+          "y": 2,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "obj_journal",
+          "sprite": "desk_papers",
+          "x": 16,
+          "y": 3,
+          "label": "Журналы инструктажей",
+          "interaction": {
+            "title": "Журналы регистрации инструктажей",
+            "description": "Старый журнал за 2019 год и новые, начатые в мае 2024 года, лежат стопкой."
+          },
+          "onInteract": [
+            {
+              "type": "addEvidence",
+              "evidenceId": "instr_journal"
+            }
+          ]
+        },
+        {
+          "id": "obj_adm_desk",
+          "sprite": "desk",
+          "x": 22,
+          "y": 3,
+          "label": "Стол администратора",
+          "interaction": {
+            "title": "Стол администратора",
+            "description": "Ведомость на оплату, чековая книжка, графики смен поваров и охраны."
+          },
+          "onInteract": []
+        },
+        {
+          "id": "dec_adm_chair",
+          "sprite": "chair",
+          "x": 22,
+          "y": 2,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "obj_forensic",
+          "sprite": "desk_papers",
+          "x": 3,
+          "y": 10,
+          "label": "Заключение судебно-медицинского эксперта",
+          "interaction": {
+            "title": "Заключение эксперта № 442",
+            "description": "Заключение о причине смерти Артёма Лыкова."
+          },
+          "onInteract": [
+            {
+              "type": "addEvidence",
+              "evidenceId": "forensic"
+            }
+          ]
+        },
+        {
+          "id": "obj_phone",
+          "sprite": "desk_papers",
+          "x": 7,
+          "y": 10,
+          "label": "Протокол осмотра телефона",
+          "interaction": {
+            "title": "Протокол осмотра телефона Лыкова",
+            "description": "Переписка, банковская выписка и заметки в телефоне погибшего. Телефон изъят у матери."
+          },
+          "onInteract": [
+            {
+              "type": "addEvidence",
+              "evidenceId": "phone_lykov"
+            }
+          ]
+        },
+        {
+          "id": "obj_eng_desk",
+          "sprite": "desk",
+          "x": 5,
+          "y": 11,
+          "label": "Стол инженера",
+          "interaction": {
+            "title": "Стол инженера по охране труда",
+            "description": "Копии правил, образцы нарядов-допусков и памятки по работе в колодцах."
+          },
+          "onInteract": []
+        },
+        {
+          "id": "obj_rules",
+          "sprite": "bookshelf",
+          "x": 24,
+          "y": 9,
+          "label": "Нормативные акты",
+          "interaction": {
+            "title": "Правила по охране труда",
+            "description": "Тома Трудового кодекса и две книги правил: по работе в ограниченных и замкнутых пространствах и по работе на высоте."
+          },
+          "onInteract": [
+            {
+              "type": "addEvidence",
+              "evidenceId": "rules_ozp"
+            }
+          ]
+        },
+        {
+          "id": "f_admin_clock_1",
+          "sprite": "clock",
+          "x": 6,
+          "y": 0,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_admin_poster_1",
+          "sprite": "poster",
+          "x": 12,
+          "y": 0,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_admin_bookshelf_1",
+          "sprite": "bookshelf",
+          "x": 9,
+          "y": 1,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_admin_plant_1",
+          "sprite": "plant",
+          "x": 1,
+          "y": 6,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_admin_floor_lamp_1",
+          "sprite": "floor_lamp",
+          "x": 12,
+          "y": 6,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_admin_sofa_1",
+          "sprite": "sofa",
+          "x": 4,
+          "y": 6,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_admin_coffee_table_1",
+          "sprite": "coffee_table",
+          "x": 6,
+          "y": 6,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_admin_trash_bin_1",
+          "sprite": "trash_bin",
+          "x": 12,
+          "y": 3,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_admin_flag_1",
+          "sprite": "flag",
+          "x": 1,
+          "y": 1,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_admin_clock_2",
+          "sprite": "clock",
+          "x": 19,
+          "y": 0,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_admin_poster_2",
+          "sprite": "poster",
+          "x": 25,
+          "y": 0,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_admin_cabinet_1",
+          "sprite": "cabinet",
+          "x": 14,
+          "y": 1,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_admin_bookshelf_2",
+          "sprite": "bookshelf",
+          "x": 20,
+          "y": 1,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_admin_printer_1",
+          "sprite": "printer",
+          "x": 25,
+          "y": 3,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_admin_plant_2",
+          "sprite": "plant",
+          "x": 26,
+          "y": 6,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_admin_water_cooler_1",
+          "sprite": "water_cooler",
+          "x": 14,
+          "y": 6,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_admin_trash_bin_2",
+          "sprite": "trash_bin",
+          "x": 26,
+          "y": 1,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_admin_floor_lamp_2",
+          "sprite": "floor_lamp",
+          "x": 14,
+          "y": 4,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_admin_chair_1",
+          "sprite": "chair",
+          "x": 16,
+          "y": 4,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_admin_clock_3",
+          "sprite": "clock",
+          "x": 10,
+          "y": 8,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_admin_poster_3",
+          "sprite": "poster",
+          "x": 16,
+          "y": 8,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_admin_coffee_table_2",
+          "sprite": "coffee_table",
+          "x": 13,
+          "y": 12,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_admin_armchair_1",
+          "sprite": "armchair",
+          "x": 11,
+          "y": 13,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_admin_sofa_2",
+          "sprite": "sofa",
+          "x": 16,
+          "y": 13,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_admin_plant_3",
+          "sprite": "plant",
+          "x": 9,
+          "y": 9,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_admin_plant_4",
+          "sprite": "plant",
+          "x": 18,
+          "y": 9,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_admin_water_cooler_2",
+          "sprite": "water_cooler",
+          "x": 1,
+          "y": 9,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_admin_coat_rack_1",
+          "sprite": "coat_rack",
+          "x": 26,
+          "y": 13,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_admin_vending_1",
+          "sprite": "vending",
+          "x": 26,
+          "y": 10,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_admin_trash_bin_3",
+          "sprite": "trash_bin",
+          "x": 8,
+          "y": 14,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_admin_floor_lamp_3",
+          "sprite": "floor_lamp",
+          "x": 1,
+          "y": 14,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_admin_fire_extinguisher_1",
+          "sprite": "fire_extinguisher",
+          "x": 26,
+          "y": 12,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_admin_bench_1",
+          "sprite": "bench",
+          "x": 1,
+          "y": 12,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_admin_chair_2",
+          "sprite": "chair",
+          "x": 4,
+          "y": 11,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        }
+      ],
+      "npcs": [
+        {
+          "id": "npc_kolesnikova",
+          "characterId": "kolesnikova",
+          "dialogueId": "dlg_kolesnikova",
+          "x": 9,
+          "y": 5,
+          "dialogues": []
+        },
+        {
+          "id": "npc_yakovleva",
+          "characterId": "yakovleva",
+          "dialogueId": "dlg_yakovleva",
+          "x": 21,
+          "y": 5,
+          "dialogues": []
+        },
+        {
+          "id": "npc_ryabov",
+          "characterId": "ryabov",
+          "dialogueId": "dlg_ryabov",
+          "x": 5,
+          "y": 12,
+          "dialogues": []
+        },
+        {
+          "id": "npc_gavrilova",
+          "characterId": "gavrilova",
+          "dialogueId": "dlg_gavrilova",
+          "x": 22,
+          "y": 12,
+          "dialogues": []
+        }
+      ],
+      "zones": [
+        {
+          "id": "to_yard",
+          "name": "Выход на территорию базы",
+          "cells": [
+            {
+              "x": 13,
+              "y": 15
+            },
+            {
+              "x": 14,
+              "y": 15
+            }
+          ],
+          "actions": [
+            {
+              "kind": "exit",
+              "to": "yard",
+              "spawn": {
+                "x": 13,
+                "y": 2
+              }
+            }
+          ]
+        }
+      ],
+      "onEnter": []
+    },
+    {
+      "id": "yard",
+      "name": "Территория базы отдыха",
+      "tiles": [
+        "BBBWWBBBWWBBBDDBBBWWBBBWWBBB",
+        "FgggggggggggaaaagggggggggggF",
+        "Fgggggggggggaaaaggg##W#W##gF",
+        "Fgggggggggggaaaaggg#kkkkk#gF",
+        "Fgggggggggggaaaaggg#kkkkk#gF",
+        "Fgggggggggggaaaaggg#kkkkk#gF",
+        "Fgggggggggggaaaaggg###D###gF",
+        "FgggggggggggaaaaggggggpggggF",
+        "FggggaaaaaaaaaaaggggggpggggF",
+        "FggggaaaaaaapppppppppppggggF",
+        "FggggaaaaaaagggggggggggggggF",
+        "FggggaaaaaaagggggggggggggggF",
+        "FggggaaaaaaagggggggggggggggF",
+        "FggggggggggggggggggggggggggF",
+        "FggggggggggggggggggggggggggF",
+        "FFFFFFFFFFFFFFFFFFFFFFFFFFFF"
+      ],
+      "areas": [
+        {
+          "name": "Площадка у септика",
+          "x": 8,
+          "y": 10
+        },
+        {
+          "name": "Дорожка",
+          "x": 13,
+          "y": 5
+        },
+        {
+          "name": "Кухня",
+          "x": 22,
+          "y": 4
+        }
+      ],
+      "objects": [
+        {
+          "id": "door_back",
+          "sprite": "door_h",
+          "x": 13,
+          "y": 0,
+          "label": "Дверь",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "door_kitchen",
+          "sprite": "door_h",
+          "x": 22,
+          "y": 6,
+          "label": "Дверь",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "obj_hatch",
+          "sprite": "crate",
+          "x": 7,
+          "y": 10,
+          "label": "Люк септика",
+          "interaction": {
+            "title": "Люк септика",
+            "description": "Бетонные кольца уходят вниз. Крышка сдвинута, у края деревянная лестница. Из шахты тянет тяжёлым запахом."
+          },
+          "onInteract": []
+        },
+        {
+          "id": "obj_scene",
+          "sprite": "evidence_tag",
+          "x": 8,
+          "y": 10,
+          "label": "Метка следственной группы",
+          "interaction": {
+            "title": "Место происшествия",
+            "description": "Протокол осмотра места происшествия от 12 июня составлен здесь."
+          },
+          "onInteract": [
+            {
+              "type": "addEvidence",
+              "evidenceId": "scene_protocol"
+            }
+          ]
+        },
+        {
+          "id": "obj_gas",
+          "sprite": "documents",
+          "x": 6,
+          "y": 9,
+          "label": "Протоколы замеров",
+          "interaction": {
+            "title": "Протоколы замеров газа и проб воздуха",
+            "description": "Результаты замеров газоанализатором и испытаний проб воздуха из септика."
+          },
+          "onInteract": [
+            {
+              "type": "addEvidence",
+              "evidenceId": "gas_protocol"
+            }
+          ]
+        },
+        {
+          "id": "obj_kitchen_table",
+          "sprite": "kitchen_table",
+          "x": 22,
+          "y": 4,
+          "label": "Кухонный стол",
+          "interaction": {
+            "title": "Кухонный стол",
+            "description": "Здесь у поваров обед. Раковина в углу, из неё вода уходит плохо."
+          },
+          "onInteract": []
+        },
+        {
+          "id": "f_yard_tree_1",
+          "sprite": "tree",
+          "x": 2,
+          "y": 3,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_yard_tree_2",
+          "sprite": "tree",
+          "x": 5,
+          "y": 2,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_yard_tree_3",
+          "sprite": "tree",
+          "x": 9,
+          "y": 3,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_yard_tree_4",
+          "sprite": "tree",
+          "x": 2,
+          "y": 8,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_yard_tree_5",
+          "sprite": "tree",
+          "x": 25,
+          "y": 9,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_yard_tree_6",
+          "sprite": "tree",
+          "x": 25,
+          "y": 12,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_yard_street_lamp_1",
+          "sprite": "street_lamp",
+          "x": 11,
+          "y": 2,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_yard_street_lamp_2",
+          "sprite": "street_lamp",
+          "x": 16,
+          "y": 2,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_yard_street_lamp_3",
+          "sprite": "street_lamp",
+          "x": 12,
+          "y": 8,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_yard_bench_1",
+          "sprite": "bench",
+          "x": 3,
+          "y": 13,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_yard_mailbox_1",
+          "sprite": "mailbox",
+          "x": 17,
+          "y": 5,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_yard_crate_1",
+          "sprite": "crate",
+          "x": 24,
+          "y": 10,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_yard_boxes_1",
+          "sprite": "boxes",
+          "x": 23,
+          "y": 8,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_yard_trash_bin_1",
+          "sprite": "trash_bin",
+          "x": 18,
+          "y": 3,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_yard_car_1",
+          "sprite": "car",
+          "x": 21,
+          "y": 12,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_yard_tree_7",
+          "sprite": "tree",
+          "x": 15,
+          "y": 12,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_yard_stove_1",
+          "sprite": "stove",
+          "x": 20,
+          "y": 3,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_yard_kitchen_counter_1",
+          "sprite": "kitchen_counter",
+          "x": 21,
+          "y": 3,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_yard_sink_1",
+          "sprite": "sink",
+          "x": 23,
+          "y": 3,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_yard_fridge_1",
+          "sprite": "fridge",
+          "x": 24,
+          "y": 3,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_yard_chair_1",
+          "sprite": "chair",
+          "x": 24,
+          "y": 5,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_yard_trash_bin_2",
+          "sprite": "trash_bin",
+          "x": 20,
+          "y": 4,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        }
+      ],
+      "npcs": [
+        {
+          "id": "npc_popova",
+          "characterId": "popova",
+          "dialogueId": "dlg_popova",
+          "x": 20,
+          "y": 5,
+          "dialogues": []
+        },
+        {
+          "id": "npc_lykova",
+          "characterId": "lykova",
+          "dialogueId": "dlg_lykova",
+          "x": 4,
+          "y": 12,
+          "dialogues": []
+        }
+      ],
+      "zones": [
+        {
+          "id": "to_admin",
+          "name": "Возвращение в здание",
+          "cells": [
+            {
+              "x": 13,
+              "y": 0
+            },
+            {
+              "x": 14,
+              "y": 0
+            }
+          ],
+          "actions": [
+            {
+              "kind": "exit",
+              "to": "admin",
+              "spawn": {
+                "x": 13,
+                "y": 13
+              }
+            }
+          ]
+        }
+      ],
+      "onEnter": []
+    }
+  ],
+  "characters": [
+    {
+      "id": "kolesnikova",
+      "name": "Тамара Колесникова",
+      "look": "official_f",
+      "position": "генеральный директор базы отдыха «Тихая протока»",
+      "description": "Руководила базой с 2009 года и сама давала указания всем работникам. Вызвана на допрос."
+    },
+    {
+      "id": "yakovleva",
+      "name": "Раиса Яковлева",
+      "look": "elder_f",
+      "position": "администратор базы",
+      "description": "Привела на базу Артёма, передавала ему деньги и знает, как он там работал."
+    },
+    {
+      "id": "ryabov",
+      "name": "Виктор Рябов",
+      "look": "official_m_senior",
+      "position": "инженер по охране труда, эксперт",
+      "description": "Проводил инженерно-техническую экспертизу. Объяснит, как нужно работать в колодцах и септиках."
+    },
+    {
+      "id": "gavrilova",
+      "name": "Елена Гаврилова",
+      "look": "doctor_f",
+      "position": "медицинская сестра районной больницы",
+      "description": "Выезжала на базу 6 июня и осматривала Артёма после спуска в колодец."
+    },
+    {
+      "id": "popova",
+      "name": "Людмила Попова",
+      "look": "casual_f",
+      "position": "повар базы, свидетель",
+      "description": "12 июня первой заметила засор и сообщила директору."
+    },
+    {
+      "id": "lykova",
+      "name": "Надежда Лыкова",
+      "look": "cleaner_f",
+      "position": "мать погибшего, потерпевшая",
+      "description": "Знала о работе сына со слов самого Артёма и его девушки."
+    }
+  ],
+  "events": [
+    {
+      "id": "ev_hired",
+      "title": "Артём Лыков начинает работать на базе без трудового договора",
+      "at": "2024-04-29",
+      "showInTimeline": true
+    },
+    {
+      "id": "ev_suot",
+      "title": "Колесникова утверждает Положение о системе управления охраной труда",
+      "at": "2024-05-06",
+      "showInTimeline": true
+    },
+    {
+      "id": "ev_instr",
+      "title": "Лыков проходит первичный инструктаж как слесарь-сантехник",
+      "at": "2024-05-15",
+      "showInTimeline": true
+    },
+    {
+      "id": "ev_first",
+      "title": "Лыков спускается в септик, ему становится плохо",
+      "at": "2024-05-28",
+      "showInTimeline": true
+    },
+    {
+      "id": "ev_nurse",
+      "title": "Медсестра на базе измеряет Лыкову давление: кружится голова",
+      "at": "2024-06-06",
+      "showInTimeline": true
+    },
+    {
+      "id": "ev_clog",
+      "title": "Засорилась канализация, директор поручает Лыкову прочистить трубу",
+      "at": "2024-06-12T12:00",
+      "until": "2024-06-12T13:40",
+      "showInTimeline": true
+    },
+    {
+      "id": "ev_death",
+      "title": "Лыков и сторож Соболев гибнут в септике",
+      "at": "2024-06-12T13:40",
+      "showInTimeline": true
+    }
+  ],
+  "evidence": [
+    {
+      "id": "job_instruction",
+      "title": "Приказ и должностная инструкция генерального директора",
+      "description": "Колесникова назначена директором с 2009 года; инструкция возлагает на неё безопасные условия труда.",
+      "details": "ПРИКАЗ № 1/К от 06.03.2009: Колесникова Т.П. принята на должность генерального директора. Решением единственного учредителя от 31.01.2022 её полномочия продлены на 3 года.\n\nДОЛЖНОСТНАЯ ИНСТРУКЦИЯ генерального директора (утверждена учредителем 15.01.2024; Колесникова ознакомлена под роспись).\nП. 1.5: директор должен знать трудовое законодательство, правила и нормы охраны труда и техники безопасности.\nП. 2.5: директор принимает меры по обеспечению общества квалифицированными кадрами и созданию безопасных и благоприятных для жизни и здоровья условий труда.",
+      "kind": "evidence",
+      "subtype": "Документ",
+      "relatedCharacters": [
+        "kolesnikova"
+      ],
+      "relatedEvents": [],
+      "reliability": "high",
+      "onCollect": []
+    },
+    {
+      "id": "suot",
+      "title": "Положение о системе управления охраной труда",
+      "description": "Директор сама утвердила положение, по которому лично отвечает за охрану труда в организации.",
+      "details": "ПОЛОЖЕНИЕ О СИСТЕМЕ УПРАВЛЕНИЯ ОХРАНОЙ ТРУДА, 06.05.2024. Разработано и утверждено генеральным директором Колесниковой Т.П.\n\nП. 4.5. Руководитель организации осуществляет общее управление охраной труда; гарантирует права работников на условия труда, соответствующие требованиям охраны труда; обеспечивает безопасную эксплуатацию зданий, сооружений и инженерно-технических коммуникаций; обеспечивает обучение и профессиональную подготовку работников, в том числе по охране труда; организует ресурсное обеспечение мероприятий по охране труда и управление профессиональными рисками; организует и проводит контроль за состоянием условий и охраны труда.",
+      "kind": "evidence",
+      "subtype": "Документ",
+      "relatedCharacters": [
+        "kolesnikova"
+      ],
+      "relatedEvents": [
+        "ev_suot"
+      ],
+      "reliability": "high",
+      "onCollect": []
+    },
+    {
+      "id": "lease",
+      "title": "Договор аренды участка и сети канализации",
+      "description": "Участок и канализационная сеть арендованы; арендатор обязан содержать их и соблюдать технику безопасности.",
+      "details": "ДОГОВОР АРЕНДЫ от 01.06.2023 (срок до 01.06.2028). Арендодатель — другая организация. Арендатор — ООО «Тихая протока» в лице генерального директора Колесниковой Т.П.\n\nПередано: земельный участок 13 645 кв. м; нежилое сооружение — сеть автономной канализации, 364 м; сеть водоснабжения, 418 м.\n\nП. 2.3.3: арендатор поддерживает имущество в надлежащем техническом и эксплуатационном состоянии, за свой счёт делает текущий ремонт.\nП. 2.3.5: арендатор при использовании имущества соблюдает требования о пожарной безопасности, технике безопасности и об охране окружающей среды.\nОтветственность за вред третьим лицам, вызванный действиями или бездействием арендатора, на территории всего имущественного комплекса полностью лежит на арендаторе.",
+      "kind": "evidence",
+      "subtype": "Документ",
+      "relatedCharacters": [
+        "kolesnikova"
+      ],
+      "relatedEvents": [],
+      "reliability": "high",
+      "onCollect": []
+    },
+    {
+      "id": "timesheet",
+      "title": "Табель учёта рабочего времени за июнь 2024 года",
+      "description": "12 июня — рабочий день директора и сторожа Соболева; Лыкова в табеле нет.",
+      "details": "ТАБЕЛЬ учёта использования рабочего времени, июнь 2024 г., утверждён генеральным директором.\n\n12.06.2024 — рабочий день: Колесникова Т.П. (генеральный директор), Соболев И.А. (сторож), повара, администраторы.\n\nСлесарь-сантехник в табеле и штатном расписании не значится.",
+      "kind": "evidence",
+      "subtype": "Документ",
+      "relatedCharacters": [
+        "kolesnikova"
+      ],
+      "relatedEvents": [
+        "ev_clog"
+      ],
+      "reliability": "high",
+      "onCollect": []
+    },
+    {
+      "id": "instr_journal",
+      "title": "Журналы регистрации инструктажей на рабочем месте",
+      "description": "Лыков прошёл только первичный инструктаж; журналы с мая 2024 года заведены уже после гибели.",
+      "details": "ЖУРНАЛ регистрации инструктажей на рабочем месте (начат 01.05.2019):\nстрока № 25 — Лыков А., слесарь-сантехник, первичный инструктаж 15.05.2024.\nЗаписей об обучении безопасным методам работы в ограниченных и замкнутых пространствах, о стажировке и проверке знаний нет.\n\nНОВЫЕ ЖУРНАЛЫ, начатые 06.05.2024: подписей Лыкова и Соболева в них нет. Следователь пришёл к выводу, что журналы заведены уже после их смерти.",
+      "kind": "evidence",
+      "subtype": "Документ",
+      "relatedCharacters": [
+        "kolesnikova",
+        "yakovleva"
+      ],
+      "relatedEvents": [
+        "ev_instr"
+      ],
+      "reliability": "high",
+      "onCollect": []
+    },
+    {
+      "id": "phone_lykov",
+      "title": "Протокол осмотра телефона Лыкова",
+      "description": "Переписка, заметки и банковская выписка показывают, что Лыков постоянно работал на базе за деньги.",
+      "details": "ПРОТОКОЛ осмотра телефона, принадлежавшего Лыкову А., изъятого у его матери.\n\nПереписка с девушкой и матерью: 28.05.2024 Лыков спускался в канализационный колодец прочищать септик; зарплата 15 000 рублей в месяц; должность — слесарь-сантехник.\n\nБАНКОВСКАЯ ВЫПИСКА (01.04–21.06.2024): 04.06.2024 Лыкову перечислена заработная плата от Яковлевой Р.В., администратора базы.\n\nПРИЛОЖЕНИЕ «Заметки»: списки задач, которые Лыков должен был выполнить на базе.\n\nНа листе контактов сотрудников базы в графе «охрана» значится телефон Лыкова.",
+      "kind": "evidence",
+      "subtype": "Протокол осмотра",
+      "relatedCharacters": [
+        "yakovleva",
+        "lykova",
+        "kolesnikova"
+      ],
+      "relatedEvents": [
+        "ev_hired",
+        "ev_first"
+      ],
+      "reliability": "high",
+      "onCollect": []
+    },
+    {
+      "id": "scene_protocol",
+      "title": "Протокол осмотра места происшествия",
+      "description": "Септик — цилиндр глубиной 4,5 метра; рядом тела двух погибших.",
+      "details": "ПРОТОКОЛ осмотра места происшествия, 12.06.2024.\n\nСептик на территории базы рядом с административным зданием: цилиндрическая шахта глубиной 4,5 м, диаметр 1,3 м, бетонные кольца. Люк открыт, внутри деревянная лестница. Рядом с септиком обнаружены тела Лыкова А. и Соболева И. Видимых телесных повреждений нет.",
+      "kind": "evidence",
+      "subtype": "Протокол осмотра",
+      "relatedCharacters": [
+        "popova"
+      ],
+      "relatedEvents": [
+        "ev_death"
+      ],
+      "reliability": "high",
+      "onCollect": []
+    },
+    {
+      "id": "gas_protocol",
+      "title": "Замеры газа и пробы воздуха из септика",
+      "description": "Газоанализатор показал метан в концентрации, опасной для жизни.",
+      "details": "ПРОТОКОЛ осмотра места, 18.06.2024: газоанализатор Dräger X-am 2500 после спуска в септик показал метан (CH4) — 5 %, кислород — 20,9 %, угарный газ — 22 мг/куб. м. Зафиксировано превышение допустимых значений метана и CO.\n\nПРОТОКОЛ осмотра места несчастного случая, 19.06.2024: показатель метана — 17, превышение допустимых пределов.\n\nПРОТОКОЛ испытаний проб воздуха от 11.09.2024: в септике обнаружены метан и аммиак.\n\nСПЕЦИАЛИСТ-врач (допрос): при таком содержании метана и дефиците кислорода человек теряет сознание, а при наличии воды — тонет; после потери сознания активные действия исключены.",
+      "kind": "evidence",
+      "subtype": "Протокол осмотра",
+      "relatedCharacters": [
+        "ryabov"
+      ],
+      "relatedEvents": [
+        "ev_death"
+      ],
+      "reliability": "high",
+      "onCollect": []
+    },
+    {
+      "id": "forensic",
+      "title": "Заключение судебно-медицинского эксперта № 442",
+      "description": "Лыков умер от механической асфиксии при утоплении; вред квалифицирован как тяжкий, повлёкший смерть.",
+      "details": "ЗАКЛЮЧЕНИЕ эксперта № 442 от 05.07.2024 по трупу Лыкова А.\n\nПричина смерти — механическая асфиксия в результате закрытия просвета дыхательных путей жидкостью при утоплении: острое вздутие лёгких, кровоизлияния под плевру, жидкость в трахее, пазухе основной кости и желудке, признаки быстро наступившей смерти.\n\nПо правилам определения степени тяжести вреда здоровью — тяжкий вред по признаку угрожающего для жизни состояния, повлёкший смерть.",
+      "kind": "evidence",
+      "subtype": "Экспертиза",
+      "relatedCharacters": [
+        "ryabov"
+      ],
+      "relatedEvents": [
+        "ev_death"
+      ],
+      "reliability": "high",
+      "onCollect": []
+    },
+    {
+      "id": "eng_expert",
+      "title": "Заключение инженерно-технической экспертизы",
+      "description": "Причина смерти — отравление метаном и утопление; организационная причина — плохая организация работ директором.",
+      "details": "ЗАКЛЮЧЕНИЕ эксперта № 0307/Э (инженерно-техническая экспертиза материалов дела).\n\n1. Непосредственная причина — отравление метаном с последующим утоплением при спуске в септик без средств индивидуальной защиты органов дыхания.\n2. Технических причин нет.\n3. Организационные причины — неудовлетворительная организация директором работ в ограниченном и замкнутом пространстве: привлекла к работе Лыкова, не являющегося сотрудником организации; направила его, не прошедшего обучение безопасным методам работ в ОЗП; допустила его к спуску без СИЗ органов дыхания при газоопасной среде; допустила самовольный спуск Соболева.\nНарушены ст. 214 и 221 ТК РФ; пп. 18, 37, 160 Правил по охране труда в ОЗП (приказ № 902н); пп. 13 и 301 Правил по охране труда при работе на высоте (приказ № 782н); п. 4.5 Положения об охране труда; п. 2.5 должностной инструкции.\nНарушения со стороны сторожа Соболева: самовольный спуск без СИЗ органов дыхания.\nНарушений техники безопасности со стороны Лыкова, выполнявшего прямые указания директора, не выявлено.\n\nСпуск людей в септик на базе не был разрешён: в организации не было обученного персонала; удалять осадок и воду безопаснее ассенизационной машиной.",
+      "kind": "evidence",
+      "subtype": "Экспертиза",
+      "relatedCharacters": [
+        "ryabov",
+        "kolesnikova"
+      ],
+      "relatedEvents": [
+        "ev_death"
+      ],
+      "reliability": "high",
+      "onCollect": []
+    },
+    {
+      "id": "rules_ozp",
+      "title": "Правила по охране труда в ограниченных и замкнутых пространствах и ТК РФ",
+      "description": "Колодцы и закрытые резервуары отнесены к ОЗП; до спуска нужны обучение, допуск, анализ среды и СИЗ.",
+      "details": "ТК РФ, ст. 214: обязанности по обеспечению безопасных условий и охраны труда возлагаются на работодателя. Ст. 221: работникам бесплатно выдаются средства индивидуальной защиты.\n\nПРАВИЛА № 902н (ОЗП). П. 5: работодатель утверждает перечень объектов, относящихся к ОЗП; в перечень включаются, в числе прочего, колодцы, отстойники, коллекторы сточных вод, ёмкости. П. 18: до начала работ работодатель организует обучение безопасным методам и приёмам работ в ОЗП. П. 37: до работ назначаются ответственные, оформляется наряд-допуск, составляется план спасения; проводятся анализ среды, контроль параметров, ограждение, вентиляция, выдача средств защиты. П. 160: при газоопасной среде — изолирующие костюмы и (или) изолирующие противогазы.\n\nПРАВИЛА № 782н (работа на высоте). П. 301: работы в колодце и ёмкости относятся к работам на высоте в ОЗП. П. 13: работник должен иметь квалификацию, подтверждённую документом об образовании или обучении.",
+      "kind": "evidence",
+      "subtype": "Нормативный акт",
+      "relatedCharacters": [],
+      "relatedEvents": [],
+      "reliability": "high",
+      "onCollect": []
+    },
+    {
+      "id": "t_kol_lie",
+      "title": "Показания Колесниковой: «он полез сам»",
+      "description": "Директор говорит, что Лыков сам взял лестницу и спустился в септик по просьбе поваров.",
+      "details": "Колесникова: «Я его в септик не посылала. Повара пожаловались на засор, он сам взял лестницу и полез. Прочищать септик в его обязанности не входило. Инструктаж ему проводили, подпись в журнале есть. Он ведь неофициально у нас подрабатывал, я за него не отвечаю».",
+      "kind": "testimony",
+      "subtype": "Показания",
+      "relatedCharacters": [
+        "kolesnikova"
+      ],
+      "relatedEvents": [
+        "ev_clog"
+      ],
+      "reliability": "low",
+      "onCollect": []
+    },
+    {
+      "id": "t_kol_admit",
+      "title": "Показания Колесниковой: признание",
+      "description": "Директор признала, что сама поручила спуск, не дала СИЗ и не объяснила требований безопасности.",
+      "details": "Колесникова: «Задание ему дала я. Хотела решить засор быстро и недорого, машину ассенизаторов вызывать не стала. Договорились с ним, что он прочищает засоры, в том числе в септике. Деньги платила наличными, 10–15 тысяч в месяц, договор не оформляла. Про безопасность сказала лишь “соблюдай технику безопасности”, как именно — не объясняла. Обучения для работы в колодцах он не проходил, наряда-допуска не было, защитных средств я не выдала. В мае ему после септика уже становилось плохо. Я думала, что обойдётся. Вину признаю».",
+      "kind": "testimony",
+      "subtype": "Показания",
+      "relatedCharacters": [
+        "kolesnikova"
+      ],
+      "relatedEvents": [
+        "ev_clog",
+        "ev_first"
+      ],
+      "reliability": "high",
+      "onCollect": []
+    },
+    {
+      "id": "t_yakovleva",
+      "title": "Показания Яковлевой",
+      "description": "Лыкова устроили слесарем без договора; платили деньги, задания давала директор.",
+      "details": "Яковлева: «Мою дочь Артём знал по переписке. В конце апреля я попросила Тамару Петровну взять его на работу, она сказала, что можно слесарем-сантехником и разнорабочим. Договор не оформляли: он боялся, что заберут в армию. Платили ему 12–15 тысяч наличными и переводом, переводила я по указанию директора. Задания ему давала в основном сама Колесникова».",
+      "kind": "testimony",
+      "subtype": "Показания",
+      "relatedCharacters": [
+        "yakovleva",
+        "kolesnikova"
+      ],
+      "relatedEvents": [
+        "ev_hired"
+      ],
+      "reliability": "high",
+      "onCollect": []
+    },
+    {
+      "id": "t_popova",
+      "title": "Показания Поповой",
+      "description": "Директор лично послала Лыкова чистить трубу; через полчаса крики из септика.",
+      "details": "Попова: «В обед мы с напарницей увидели, что из раковин вода не уходит. Я сказала директору. Тамара Петровна позвала Артёма и велела устранить засор. Минут через тридцать я услышала крик, выбежала: люк открыт, в нём деревянная лестница. Артём стоял на лестнице, у него кружилась голова. Я побежала к директору, мы вернулись, а в яме уже был Иван (сторож), он держал Артёма за одежду. Потом оба упали в воду».",
+      "kind": "testimony",
+      "subtype": "Показания",
+      "relatedCharacters": [
+        "popova",
+        "kolesnikova"
+      ],
+      "relatedEvents": [
+        "ev_clog",
+        "ev_death"
+      ],
+      "reliability": "high",
+      "onCollect": []
+    },
+    {
+      "id": "t_gavrilova",
+      "title": "Показания Гавриловой",
+      "description": "6 июня Лыкову стало плохо после септика; директор в это время руководила базой.",
+      "details": "Гаврилова: «6 июня меня вызвали на базу констатировать смерть клиента. Ко мне подошёл Артём в грязной рабочей одежде, пожаловался на головокружение. Давление у него было повышенное, я дала каптоприл и сказала, что сегодня работать не нужно. Причину головокружения он не назвал. Руководила базой в то время Колесникова».",
+      "kind": "testimony",
+      "subtype": "Показания",
+      "relatedCharacters": [
+        "gavrilova",
+        "kolesnikova"
+      ],
+      "relatedEvents": [
+        "ev_nurse"
+      ],
+      "reliability": "medium",
+      "onCollect": []
+    },
+    {
+      "id": "t_lykova",
+      "title": "Показания Лыковой",
+      "description": "Сын говорил, что не должен был лезть в колодец, и ссорился об этом с директором.",
+      "details": "Лыкова: «Артём работал на базе слесарем, делал и другое: мебель, телевизоры, домики. Спускаться в колодец он не должен был и не хотел, из-за этого на базе поскандалил с начальством. Ему сказали выполнять обязанности, иначе его никто не держит. 28 мая ему стало плохо после спуска. Все поручения ему давала Колесникова. После трагедии она дала нам 200 тысяч на похороны».",
+      "kind": "testimony",
+      "subtype": "Показания",
+      "relatedCharacters": [
+        "lykova",
+        "kolesnikova"
+      ],
+      "relatedEvents": [
+        "ev_first"
+      ],
+      "reliability": "medium",
+      "onCollect": []
+    }
+  ],
+  "dialogues": [
+    {
+      "id": "dlg_kolesnikova",
+      "characterId": "kolesnikova",
+      "startNodeId": "start",
+      "nodes": [
+        {
+          "id": "start",
+          "text": "Слушаю вас. Давайте быстрее, на базе люди.",
+          "mood": "nervous",
+          "effects": [],
+          "choices": [
+            {
+              "id": "post",
+              "text": "Кто на базе отвечает за охрану труда?",
+              "next": "post",
+              "effects": []
+            },
+            {
+              "id": "lykov",
+              "text": "Как Лыков оказался на базе?",
+              "next": "lykov",
+              "effects": []
+            },
+            {
+              "id": "how",
+              "text": "Как Лыков оказался в септике 12 июня?",
+              "next": "lie",
+              "requires": {
+                "notFlags": [
+                  "kol_admitted",
+                  "kol_closed"
+                ]
+              },
+              "effects": []
+            },
+            {
+              "id": "press",
+              "text": "Табель, журнал, телефон Лыкова и экспертиза: задание ему дали вы.",
+              "next": "admit",
+              "requires": {
+                "evidence": [
+                  "phone_lykov",
+                  "instr_journal",
+                  "eng_expert"
+                ],
+                "flags": [
+                  "kol_lied"
+                ],
+                "notFlags": [
+                  "kol_admitted",
+                  "kol_closed"
+                ]
+              },
+              "effects": []
+            },
+            {
+              "id": "rude",
+              "text": "Вы послали человека на смерть и теперь лжёте.",
+              "next": "closed",
+              "requires": {
+                "flags": [
+                  "kol_lied"
+                ],
+                "notFlags": [
+                  "kol_admitted",
+                  "kol_closed"
+                ]
+              },
+              "effects": []
+            },
+            {
+              "id": "bye",
+              "text": "Вернусь позже.",
+              "next": null,
+              "effects": []
+            }
+          ]
+        },
+        {
+          "id": "post",
+          "text": "Я директор с 2009 года. Решения принимаю сама, указания людям даю лично или через администраторов. Положение об охране труда утвердила я. Но эти бумаги — формальность, работаем как умеем.",
+          "mood": "neutral",
+          "effects": [
+            {
+              "type": "changeVariable",
+              "variableId": "duties_explained",
+              "action": "on"
+            }
+          ],
+          "choices": [
+            {
+              "id": "back",
+              "text": "Понятно.",
+              "next": "start",
+              "effects": []
+            }
+          ]
+        },
+        {
+          "id": "lykov",
+          "text": "Привели знакомые, нужна была пара рук. Подрабатывал: мебель, техника, мелкий ремонт. Договор не оформляли: не хотел, да и сезон на носу.",
+          "mood": "neutral",
+          "effects": [],
+          "choices": [
+            {
+              "id": "back",
+              "text": "Понятно.",
+              "next": "start",
+              "effects": []
+            }
+          ]
+        },
+        {
+          "id": "lie",
+          "text": "Я его в септик не посылала. Повара пожаловались на засор, он сам взял лестницу и полез. Не его это дело. Инструктаж проходил, подпись в журнале есть. Да и вообще он у нас неофициально.",
+          "mood": "nervous",
+          "effects": [
+            {
+              "type": "changeVariable",
+              "variableId": "kol_lied",
+              "action": "on"
+            },
+            {
+              "type": "addEvidence",
+              "evidenceId": "t_kol_lie"
+            },
+            {
+              "type": "addCharacterNote",
+              "characterId": "kolesnikova",
+              "text": "Утверждает, что Лыков полез в септик сам, без её указания."
+            }
+          ],
+          "choices": [
+            {
+              "id": "back",
+              "text": "Запишу.",
+              "next": "start",
+              "effects": []
+            }
+          ]
+        },
+        {
+          "id": "admit",
+          "text": "…Хорошо. Задание дала я. Засор в обед, хотела побыстрее и подешевле: машину ассенизаторов вызывать не стала. Про безопасность сказала общими словами, СИЗ не выдала, наряда не было, обучения он не проходил. В мае ему уже становилось плохо там. Я думала, обойдётся. Никто не должен был погибнуть.",
+          "mood": "sad",
+          "effects": [
+            {
+              "type": "changeVariable",
+              "variableId": "kol_admitted",
+              "action": "on"
+            },
+            {
+              "type": "addEvidence",
+              "evidenceId": "t_kol_admit"
+            },
+            {
+              "type": "addCharacterNote",
+              "characterId": "kolesnikova",
+              "text": "Призналась, что сама поручила спуск, не дала СИЗ и не организовала безопасные условия."
+            }
+          ],
+          "choices": [
+            {
+              "id": "back",
+              "text": "Спасибо, что сказали.",
+              "next": "start",
+              "effects": []
+            }
+          ]
+        },
+        {
+          "id": "closed",
+          "text": "Дальше только с защитником.",
+          "mood": "angry",
+          "effects": [
+            {
+              "type": "changeVariable",
+              "variableId": "kol_closed",
+              "action": "on"
+            }
+          ],
+          "choices": [
+            {
+              "id": "back",
+              "text": "Как хотите.",
+              "next": null,
+              "effects": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "dlg_yakovleva",
+      "characterId": "yakovleva",
+      "startNodeId": "start",
+      "nodes": [
+        {
+          "id": "start",
+          "text": "Я администратор. Что вы хотели узнать?",
+          "mood": "sad",
+          "effects": [],
+          "choices": [
+            {
+              "id": "hire",
+              "text": "Как Лыков попал на работу?",
+              "next": "hire",
+              "effects": []
+            },
+            {
+              "id": "pay",
+              "text": "Кто ему платил и что поручал?",
+              "next": "pay",
+              "effects": []
+            },
+            {
+              "id": "bye",
+              "text": "Спасибо, пока всё.",
+              "next": null,
+              "effects": []
+            }
+          ]
+        },
+        {
+          "id": "hire",
+          "text": "Он жил у нас, встречался с моей дочерью. Я попросила директора найти ему дело. Она сказала: пусть будет слесарем. Хотели оформить официально, но он боялся армии, и мы так и тянули.",
+          "mood": "sad",
+          "effects": [
+            {
+              "type": "addEvidence",
+              "evidenceId": "t_yakovleva"
+            }
+          ],
+          "choices": [
+            {
+              "id": "back",
+              "text": "Понятно.",
+              "next": "start",
+              "effects": []
+            }
+          ]
+        },
+        {
+          "id": "pay",
+          "text": "Деньги я переводила, как скажет директор: от десяти до пятнадцати тысяч. Задания он получал от неё самой. Про септик не знаю, кто конкретно говорил, но решения у нас принимает только Тамара Петровна.",
+          "mood": "neutral",
+          "effects": [],
+          "choices": [
+            {
+              "id": "back",
+              "text": "Понятно.",
+              "next": "start",
+              "effects": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "dlg_ryabov",
+      "characterId": "ryabov",
+      "startNodeId": "start",
+      "nodes": [
+        {
+          "id": "start",
+          "text": "Я эксперт по охране труда. Что разъяснить?",
+          "mood": "neutral",
+          "effects": [],
+          "choices": [
+            {
+              "id": "ozp",
+              "text": "Септик — это ограниченное и замкнутое пространство?",
+              "next": "ozp",
+              "effects": []
+            },
+            {
+              "id": "rules",
+              "text": "Что нужно было сделать до спуска?",
+              "next": "rules",
+              "effects": []
+            },
+            {
+              "id": "verdict",
+              "text": "К каким выводам пришла экспертиза?",
+              "next": "verdict",
+              "effects": []
+            },
+            {
+              "id": "bye",
+              "text": "Спасибо, пока всё.",
+              "next": null,
+              "effects": []
+            }
+          ]
+        },
+        {
+          "id": "ozp",
+          "text": "Да. Правила прямо относят к таким объектам колодцы, отстойники, коллекторы сточных вод, закрытые ёмкости. Работодатель должен был утвердить перечень таких мест. Спуск в шахту глубиной 4,5 метра, где скапливается метан, — работа в ОЗП, а доступ через люк — ещё и работа на высоте.",
+          "mood": "neutral",
+          "effects": [
+            {
+              "type": "changeVariable",
+              "variableId": "ozp_explained",
+              "action": "on"
+            }
+          ],
+          "choices": [
+            {
+              "id": "back",
+              "text": "Понятно.",
+              "next": "start",
+              "effects": []
+            }
+          ]
+        },
+        {
+          "id": "rules",
+          "text": "Обучить работника безопасным приёмам, назначить ответственных, оформить наряд-допуск, проверить воздух газоанализатором, обеспечить вентиляцию, ограждение и связь, выдать изолирующий противогаз. И подготовить план спасения. Ничего этого на базе не было.",
+          "mood": "neutral",
+          "effects": [],
+          "choices": [
+            {
+              "id": "back",
+              "text": "Понятно.",
+              "next": "start",
+              "effects": []
+            }
+          ]
+        },
+        {
+          "id": "verdict",
+          "text": "Технических причин нет. Люди погибли из-за отравления метаном и утопления. Организационная причина — плохая организация работ директором. Нарушений со стороны Лыкова мы не выявили: он выполнял её прямое указание. А безопаснее было вызвать ассенизационную машину.",
+          "mood": "neutral",
+          "effects": [
+            {
+              "type": "addEvidence",
+              "evidenceId": "eng_expert"
+            },
+            {
+              "type": "changeVariable",
+              "variableId": "expert_told",
+              "action": "on"
+            }
+          ],
+          "choices": [
+            {
+              "id": "back",
+              "text": "Понятно.",
+              "next": "start",
+              "effects": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "dlg_gavrilova",
+      "characterId": "gavrilova",
+      "startNodeId": "start",
+      "nodes": [
+        {
+          "id": "start",
+          "text": "Я медсестра из районной больницы. Спрашивайте.",
+          "mood": "neutral",
+          "effects": [],
+          "choices": [
+            {
+              "id": "june6",
+              "text": "Что было 6 июня на базе?",
+              "next": "june6",
+              "effects": []
+            },
+            {
+              "id": "bye",
+              "text": "Спасибо, пока всё.",
+              "next": null,
+              "effects": []
+            }
+          ]
+        },
+        {
+          "id": "june6",
+          "text": "Я приехала констатировать смерть клиента. Артём подошёл сам: голова кружится, измерьте давление. Давление было высокое. Он был грязный, видно, что из колодца. Я посоветовала не работать в тот день. Он ответил, что отпросится у начальницы.",
+          "mood": "sad",
+          "effects": [
+            {
+              "type": "addEvidence",
+              "evidenceId": "t_gavrilova"
+            }
+          ],
+          "choices": [
+            {
+              "id": "back",
+              "text": "Понятно.",
+              "next": "start",
+              "effects": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "dlg_popova",
+      "characterId": "popova",
+      "startNodeId": "start",
+      "nodes": [
+        {
+          "id": "start",
+          "text": "Я повар. Что вам нужно?",
+          "mood": "sad",
+          "effects": [],
+          "choices": [
+            {
+              "id": "day",
+              "text": "Что случилось 12 июня?",
+              "next": "day",
+              "effects": []
+            },
+            {
+              "id": "bye",
+              "text": "Спасибо, пока всё.",
+              "next": null,
+              "effects": []
+            }
+          ]
+        },
+        {
+          "id": "day",
+          "text": "В обед вода из раковин перестала уходить. Я сказала директору, она позвала Артёма и велела прочистить. Минут через тридцать крик. Люк открыт, лестница стоит, Артём на ней, голова у него кружилась. Дальше Иван полез его вытаскивать, и оба упали.",
+          "mood": "sad",
+          "effects": [
+            {
+              "type": "addEvidence",
+              "evidenceId": "t_popova"
+            }
+          ],
+          "choices": [
+            {
+              "id": "back",
+              "text": "Понятно.",
+              "next": "start",
+              "effects": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "dlg_lykova",
+      "characterId": "lykova",
+      "startNodeId": "start",
+      "nodes": [
+        {
+          "id": "start",
+          "text": "Я мать Артёма. Спрашивайте, что нужно.",
+          "mood": "sad",
+          "effects": [],
+          "choices": [
+            {
+              "id": "work",
+              "text": "Что вам сын рассказывал о работе?",
+              "next": "work",
+              "effects": []
+            },
+            {
+              "id": "bye",
+              "text": "Спасибо, пока всё.",
+              "next": null,
+              "effects": []
+            }
+          ]
+        },
+        {
+          "id": "work",
+          "text": "Говорил, что делает всё подряд, платят немного. В колодец лезть не хотел, ссорился с начальницей, а ему сказали: не нравится — никто не держит. Двадцать восьмого мая ему стало плохо после колодца. Все поручения давала директор.",
+          "mood": "sad",
+          "effects": [
+            {
+              "type": "addEvidence",
+              "evidenceId": "t_lykova"
+            }
+          ],
+          "choices": [
+            {
+              "id": "back",
+              "text": "Понятно.",
+              "next": "start",
+              "effects": []
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "deductions": [
+    {
+      "id": "d_duty",
+      "title": "На ком охрана труда",
+      "evidenceIds": [
+        "job_instruction",
+        "suot"
+      ],
+      "question": "Кто на базе отвечает за безопасные условия труда?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Каждый работник за себя",
+          "correct": false,
+          "feedback": "Закон возлагает обязанности по охране труда на работодателя."
+        },
+        {
+          "id": "b",
+          "text": "Генеральный директор Колесникова: это следует из инструкции и из её собственного положения",
+          "correct": true,
+          "feedback": "П. 2.5 инструкции и п. 4.5 положения: директор обеспечивает безопасные условия и обучение, организует контроль."
+        },
+        {
+          "id": "c",
+          "text": "Администратор Яковлева",
+          "correct": false,
+          "feedback": "Администратор передавала указания и деньги, но обязанности по охране труда на неё не возложены."
+        }
+      ],
+      "conclusion": "Охрана труда на базе лежала на директоре Колесниковой.",
+      "effects": [
+        {
+          "type": "changeVariable",
+          "variableId": "d_duty",
+          "action": "on"
+        }
+      ],
+      "failEffects": []
+    },
+    {
+      "id": "d_lease",
+      "title": "Чужая земля",
+      "evidenceIds": [
+        "lease",
+        "d_duty"
+      ],
+      "question": "Снимает ли ответственность то, что участок и канализация арендованы?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Да: за сеть отвечает собственник",
+          "correct": false,
+          "feedback": "Договор возлагает содержание и технику безопасности на арендатора."
+        },
+        {
+          "id": "b",
+          "text": "Нет: арендатор отвечает за безопасность на всём комплексе, а им руководила Колесникова",
+          "correct": true,
+          "feedback": "П. 2.3.3 и 2.3.5 договора: арендатор содержит имущество и соблюдает технику безопасности; ответственность за вред лежит на нём."
+        },
+        {
+          "id": "c",
+          "text": "Да, если на участке нет своих работников",
+          "correct": false,
+          "feedback": "Работники на базе были, и Лыков выполнял работу для организации."
+        }
+      ],
+      "conclusion": "Аренда сети не освобождала директора от обязанностей по безопасности работ.",
+      "effects": [
+        {
+          "type": "changeVariable",
+          "variableId": "d_lease",
+          "action": "on"
+        }
+      ],
+      "failEffects": []
+    },
+    {
+      "id": "d_status",
+      "title": "Работник без договора",
+      "evidenceIds": [
+        "phone_lykov",
+        "instr_journal"
+      ],
+      "question": "Мог ли Лыков считаться работником, если договор не оформлен?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Нет, без договора он посторонний",
+          "correct": false,
+          "feedback": "Его допустили к работе, провели инструктаж, платили деньги и ставили задачи."
+        },
+        {
+          "id": "b",
+          "text": "Фактически он был допущен к работе как слесарь-сантехник, поэтому требования охраны труда на него распространялись",
+          "correct": true,
+          "feedback": "Инструктаж, постоянная зарплата, заметки с задачами и телефон в списке сотрудников подтверждают трудовую деятельность."
+        },
+        {
+          "id": "c",
+          "text": "Он был клиентом базы",
+          "correct": false,
+          "feedback": "Ничто не указывает на отдых; он жил у знакомых и работал."
+        }
+      ],
+      "conclusion": "Отсутствие договора не снимает обязанностей по охране его труда.",
+      "effects": [
+        {
+          "type": "changeVariable",
+          "variableId": "d_status",
+          "action": "on"
+        }
+      ],
+      "failEffects": []
+    },
+    {
+      "id": "d_ozp",
+      "title": "Особо опасная работа",
+      "evidenceIds": [
+        "scene_protocol",
+        "rules_ozp"
+      ],
+      "question": "К какой работе относился спуск в септик?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Обычная бытовая уборка",
+          "correct": false,
+          "feedback": "Септик — глубокая шахта с газоопасной средой, не бытовой участок."
+        },
+        {
+          "id": "b",
+          "text": "Работа в ограниченном и замкнутом пространстве, требующая обучения, допуска, анализа воздуха и СИЗ",
+          "correct": true,
+          "feedback": "Колодцы, отстойники и коллекторы сточных вод включены в ОЗП; доступ через люк — ещё и работа на высоте."
+        },
+        {
+          "id": "c",
+          "text": "Работа допустима без подготовки, если спускается опытный человек",
+          "correct": false,
+          "feedback": "Правила требуют обучения и допуска всех, кто работает в ОЗП."
+        }
+      ],
+      "conclusion": "Спуск в септик — работа в ОЗП со строгими требованиями безопасности.",
+      "effects": [
+        {
+          "type": "changeVariable",
+          "variableId": "d_ozp",
+          "action": "on"
+        }
+      ],
+      "failEffects": []
+    },
+    {
+      "id": "d_unsafe",
+      "title": "Что не сделано",
+      "evidenceIds": [
+        "d_ozp",
+        "eng_expert"
+      ],
+      "question": "Выполнила ли Колесникова требования правил перед спуском?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Да, был первичный инструктаж",
+          "correct": false,
+          "feedback": "Первичный инструктаж не заменяет обучение работам в ОЗП, наряд-допуск и средства защиты."
+        },
+        {
+          "id": "b",
+          "text": "Нет: работник не обучен, наряда-допуска нет, СИЗ органов дыхания не выданы, об опасности не предупреждён",
+          "correct": true,
+          "feedback": "Это нарушения пп. 18, 37, 160 правил № 902н и ст. 214, 221 ТК РФ, как указала экспертиза."
+        },
+        {
+          "id": "c",
+          "text": "Требования выполнены частично, и этого достаточно",
+          "correct": false,
+          "feedback": "Для ОЗП требования обязательны в полном объёме."
+        }
+      ],
+      "conclusion": "Колесникова не организовала безопасные условия работы в септике.",
+      "effects": [
+        {
+          "type": "changeVariable",
+          "variableId": "d_unsafe",
+          "action": "on"
+        }
+      ],
+      "failEffects": []
+    },
+    {
+      "id": "d_knew",
+      "title": "Знала об опасности",
+      "evidenceIds": [
+        "t_gavrilova",
+        "gas_protocol"
+      ],
+      "question": "Знала ли директора о том, что спуск опасен?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Нет: до 12 июня ничего подобного не случалось",
+          "correct": false,
+          "feedback": "28 мая и 6 июня Лыкову после спуска становилось плохо, а в септике скапливается метан."
+        },
+        {
+          "id": "b",
+          "text": "Да: она знала об опасности и о недавних отравлениях, но самонадеянно рассчитывала, что обойдётся",
+          "correct": true,
+          "feedback": "Это неосторожность в виде легкомыслия: возможность смерти предвидела, но без оснований надеялась её избежать."
+        },
+        {
+          "id": "c",
+          "text": "Она хотела убить работника",
+          "correct": false,
+          "feedback": "Умысла на смерть нет: она рассчитывала, что всё обойдётся."
+        }
+      ],
+      "conclusion": "Колесникова предвидела опасность, но легкомысленно надеялась её избежать.",
+      "effects": [
+        {
+          "type": "changeVariable",
+          "variableId": "d_knew",
+          "action": "on"
+        }
+      ],
+      "failEffects": []
+    },
+    {
+      "id": "d_cause",
+      "title": "Связь со смертью",
+      "evidenceIds": [
+        "d_unsafe",
+        "forensic"
+      ],
+      "question": "Освобождает ли директора самовольный спуск сторожа Соболева?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Да: человека погубил поступок сторожа",
+          "correct": false,
+          "feedback": "Соболев полез спасать Лыкова. Нарушение с его стороны не отменяет нарушений директора."
+        },
+        {
+          "id": "b",
+          "text": "Нет: нарушения директора находятся в прямой причинной связи со смертью Лыкова",
+          "correct": true,
+          "feedback": "Лыков погиб потому, что был направлен в септик без обучения, допуска и защиты; нарушений с его стороны экспертиза не нашла."
+        },
+        {
+          "id": "c",
+          "text": "Да: Лыков сам виноват, ведь он не отказался",
+          "correct": false,
+          "feedback": "Он выполнял прямое указание директора; его возражения она оборвала."
+        }
+      ],
+      "conclusion": "Смерть Лыкова — следствие нарушений требований охраны труда директором.",
+      "effects": [
+        {
+          "type": "changeVariable",
+          "variableId": "d_cause",
+          "action": "on"
+        }
+      ],
+      "failEffects": []
+    }
+  ],
+  "hints": [
+    {
+      "level": 1,
+      "text": "Выясните, кто на базе отвечал за охрану труда и кто дал Лыкову задание прочистить трубу.",
+      "penalty": 5
+    },
+    {
+      "level": 2,
+      "text": "Сопоставьте правила по работе в ограниченных и замкнутых пространствах и документы об обучении Лыкова. Что из требуемого не было сделано?",
+      "penalty": 7
+    },
+    {
+      "level": 3,
+      "text": "Отсутствие трудового договора, аренда и самовольный спуск сторожа не снимают ответственности с директора. Форма вины — неосторожность (легкомыслие): опасность была известна, но директор надеялась, что обойдётся.",
+      "penalty": 10
+    }
+  ],
+  "questions": [
+    {
+      "id": "q_right",
+      "category": "right",
+      "prompt": "Какое право затронуто?",
+      "kind": "single",
+      "source": "inline",
+      "maxPoints": 30,
+      "options": [
+        {
+          "id": "safe_labor",
+          "label": "Право на труд в условиях, отвечающих требованиям безопасности и гигиены",
+          "mark": "ч. 3 ст. 37 Конституции РФ",
+          "points": 30,
+          "feedback": "Верно: работник вправе трудиться в безопасных условиях."
+        },
+        {
+          "id": "life",
+          "label": "Право на жизнь",
+          "mark": "ст. 20 Конституции РФ",
+          "points": 14,
+          "feedback": "Работник погиб, но дело прежде всего о нарушении условий труда."
+        },
+        {
+          "id": "health",
+          "label": "Право на охрану здоровья",
+          "mark": "ст. 41 Конституции РФ",
+          "points": 10,
+          "feedback": "Здоровье пострадало, но центральная норма дела — о безопасном труде."
+        },
+        {
+          "id": "property",
+          "label": "Право собственности",
+          "mark": "ст. 35 Конституции РФ",
+          "points": 0,
+          "feedback": "Имущественные права не затронуты."
+        },
+        {
+          "id": "privacy",
+          "label": "Неприкосновенность частной жизни",
+          "mark": "ст. 23 Конституции РФ",
+          "points": 0,
+          "feedback": "Частная жизнь не нарушалась."
+        }
+      ]
+    },
+    {
+      "id": "q_violation",
+      "category": "violation",
+      "prompt": "Было ли нарушение?",
+      "kind": "single",
+      "source": "inline",
+      "maxPoints": 15,
+      "options": [
+        {
+          "id": "yes",
+          "label": "Да",
+          "mark": "",
+          "points": 15,
+          "feedback": "Верно: безопасные условия труда не обеспечены, работник погиб."
+        },
+        {
+          "id": "no",
+          "label": "Нет",
+          "mark": "",
+          "points": 0,
+          "feedback": "Нарушение есть: обучение, допуск и защита отсутствовали."
+        },
+        {
+          "id": "insufficient",
+          "label": "Данных недостаточно",
+          "mark": "",
+          "points": 4,
+          "feedback": "Данных достаточно: экспертиза, протоколы, документы и показания."
+        }
+      ]
+    },
+    {
+      "id": "q_qualification",
+      "category": "qualification",
+      "prompt": "Как можно квалифицировать действия виновного?",
+      "kind": "single",
+      "source": "inline",
+      "maxPoints": 15,
+      "options": [
+        {
+          "id": "art143_2",
+          "label": "Признаки преступления: ч. 2 ст. 143 УК РФ",
+          "mark": "",
+          "points": 15,
+          "feedback": "Верно как возможная квалификация. Окончательную оценку дают следствие и суд."
+        },
+        {
+          "id": "art143_1",
+          "label": "Признаки преступления: ч. 1 ст. 143 УК РФ",
+          "mark": "",
+          "points": 8,
+          "feedback": "Часть 1 предусматривает тяжкий вред здоровью, а здесь наступила смерть."
+        },
+        {
+          "id": "art143_3",
+          "label": "Признаки преступления: ч. 3 ст. 143 УК РФ",
+          "mark": "",
+          "points": 5,
+          "feedback": "В вину директору вменена смерть Лыкова; суд применил ч. 2."
+        },
+        {
+          "id": "art109_2",
+          "label": "Причинение смерти по неосторожности (ч. 2 ст. 109 УК РФ)",
+          "mark": "",
+          "points": 4,
+          "feedback": "Специальная норма — ст. 143: нарушены именно требования охраны труда."
+        },
+        {
+          "id": "admin",
+          "label": "Административное правонарушение (ст. 5.27.1 КоАП РФ)",
+          "mark": "",
+          "points": 2,
+          "feedback": "КоАП применяется, если нет признаков преступления; здесь наступила смерть."
+        },
+        {
+          "id": "none",
+          "label": "Состава нет: работник не был оформлен",
+          "mark": "",
+          "points": 0,
+          "feedback": "Отсутствие договора не снимает обязанностей по охране труда."
+        }
+      ]
+    },
+    {
+      "id": "q_responsible",
+      "category": "responsible",
+      "prompt": "Кто несёт ответственность в рамках этого дела?",
+      "kind": "single",
+      "source": "characters",
+      "maxPoints": 20,
+      "options": [
+        {
+          "id": "kolesnikova",
+          "label": "",
+          "mark": "",
+          "points": 20,
+          "feedback": "Верно: директор отвечала за охрану труда и лично поручила спуск."
+        },
+        {
+          "id": "yakovleva",
+          "label": "",
+          "mark": "",
+          "points": 3,
+          "feedback": "Администратор передавала указания и деньги, но обязанности по охране труда на ней не лежали."
+        },
+        {
+          "id": "popova",
+          "label": "",
+          "mark": "",
+          "points": 0,
+          "feedback": "Повар сообщила о засоре; обязанностей по охране труда у неё нет."
+        },
+        {
+          "id": "ryabov",
+          "label": "",
+          "mark": "",
+          "points": 0,
+          "feedback": "Эксперт."
+        },
+        {
+          "id": "gavrilova",
+          "label": "",
+          "mark": "",
+          "points": 0,
+          "feedback": "Медсестра, оказавшая помощь."
+        },
+        {
+          "id": "lykova",
+          "label": "",
+          "mark": "",
+          "points": 0,
+          "feedback": "Мать погибшего."
+        }
+      ]
+    },
+    {
+      "id": "q_evidence",
+      "category": "evidence",
+      "prompt": "Какие доказательства это подтверждают?",
+      "kind": "multi",
+      "source": "evidence",
+      "maxPoints": 20,
+      "options": [
+        {
+          "id": "eng_expert",
+          "label": "",
+          "mark": "",
+          "points": 3,
+          "feedback": "Причины гибели и перечень нарушений директора."
+        },
+        {
+          "id": "rules_ozp",
+          "label": "",
+          "mark": "",
+          "points": 3,
+          "feedback": "Требования правил к работе в ОЗП."
+        },
+        {
+          "id": "t_kol_admit",
+          "label": "",
+          "mark": "",
+          "points": 3,
+          "feedback": "Директор признала, что сама поручила спуск без допуска и защиты."
+        },
+        {
+          "id": "job_instruction",
+          "label": "",
+          "mark": "",
+          "points": 2,
+          "feedback": "Обязанность директора обеспечивать безопасные условия труда."
+        },
+        {
+          "id": "suot",
+          "label": "",
+          "mark": "",
+          "points": 2,
+          "feedback": "Положение, по которому директор лично отвечает за охрану труда."
+        },
+        {
+          "id": "instr_journal",
+          "label": "",
+          "mark": "",
+          "points": 2,
+          "feedback": "Только первичный инструктаж, обучения в ОЗП нет."
+        },
+        {
+          "id": "phone_lykov",
+          "label": "",
+          "mark": "",
+          "points": 2,
+          "feedback": "Лыков работал за деньги, выполняя задания, и ранее спускался в колодец."
+        },
+        {
+          "id": "gas_protocol",
+          "label": "",
+          "mark": "",
+          "points": 2,
+          "feedback": "В септике опасная концентрация метана."
+        },
+        {
+          "id": "t_gavrilova",
+          "label": "",
+          "mark": "",
+          "points": 1,
+          "feedback": "Показывает, что отравления были и раньше."
+        },
+        {
+          "id": "lease",
+          "label": "",
+          "mark": "",
+          "points": 0,
+          "feedback": "Арендатор отвечает за безопасность, но прямо на гибель это не указывает."
+        },
+        {
+          "id": "timesheet",
+          "label": "",
+          "mark": "",
+          "points": 0,
+          "feedback": "Лыкова нет в табеле, но он работал фактически."
+        },
+        {
+          "id": "scene_protocol",
+          "label": "",
+          "mark": "",
+          "points": 0,
+          "feedback": "Описывает место, но не нарушения."
+        },
+        {
+          "id": "forensic",
+          "label": "",
+          "mark": "",
+          "points": 0,
+          "feedback": "Причина смерти, но не вина директора."
+        },
+        {
+          "id": "t_yakovleva",
+          "label": "",
+          "mark": "",
+          "points": 0,
+          "feedback": "Приём без договора, но главное — задание директора."
+        },
+        {
+          "id": "t_popova",
+          "label": "",
+          "mark": "",
+          "points": 0,
+          "feedback": "Подтверждает, что директор дала поручение."
+        },
+        {
+          "id": "t_lykova",
+          "label": "",
+          "mark": "",
+          "points": 0,
+          "feedback": "Со слов сына; прямого значения не имеет."
+        },
+        {
+          "id": "t_kol_lie",
+          "label": "",
+          "mark": "",
+          "points": -3,
+          "feedback": "Ложная версия: опровергнута показаниями поваров, экспертизой и признанием."
+        }
+      ]
+    }
+  ],
+  "solution": {
+    "right": "safe_labor",
+    "rightText": "Право на труд в условиях, отвечающих требованиям безопасности и гигиены (ч. 3 ст. 37 Конституции РФ); также затронуты жизнь (ст. 20) и охрана здоровья (ст. 41).",
+    "violation": true,
+    "responsibleCharacter": "kolesnikova",
+    "correctAnswer": "Колесникова, генеральный директор базы отдыха, была обязана обеспечить безопасные условия труда (п. 2.5 должностной инструкции, п. 4.5 положения об охране труда, ст. 214 и 221 ТК РФ). 12 июня она поручила Лыкову, фактически работавшему слесарем без трудового договора, прочистить трубу, соединённую с септиком. Лыков не прошёл обучения работам в ограниченных и замкнутых пространствах, наряд-допуск не оформлялся, средства защиты органов дыхания не выдавались, об опасности его не предупредили. В септике был метан, Лыков потерял сознание и утонул. Сторож Соболев, спустившийся его спасать, погиб тоже. Возможная квалификация — ч. 2 ст. 143 УК РФ.",
+    "whatHappened": "Лыков с конца апреля работал на базе без договора: чинил технику, собирал мебель, прочищал канализацию. Директор Колесникова давала ему задания лично. В мае и в начале июня после спусков в септик ему становилось плохо. 12 июня в обед засорилась канализация. Колесникова, желая быстро и недорого решить вопрос, не стала вызывать ассенизационную машину и поручила Лыкову спуститься в септик глубиной 4,5 метра. Лыков потерял сознание от метана и упал в воду. Сторож Соболев, спустившийся ему помочь, погиб тоже.",
+    "explanation": "Ч. 2 ст. 143 УК РФ наказывает нарушение требований охраны труда лицом, на которое возложены обязанности по их соблюдению, если оно по неосторожности повлекло смерть человека. Колесникова была таким лицом: инструкция, положение об охране труда и договор аренды возлагали на неё безопасность работ. Она нарушила ст. 214 и 221 ТК РФ, пп. 18, 37 и 160 правил № 902н (обучение, организационные и технико-технологические мероприятия, изолирующие средства защиты) и пп. 13 и 301 правил № 782н. Отсутствие трудового договора, аренда участка и самовольный спуск сторожа ответственности не снимают: нарушений со стороны Лыкова экспертиза не нашла, а директор знала об опасности (отравления в мае и июне) и самонадеянно рассчитывала на благополучный исход. Суд назначил принудительные работы на 1 год с удержанием 5 % заработка и дополнительно лишил права заниматься деятельностью, связанной с обеспечением и контролем безопасных условий труда работников, на 1 год 6 месяцев. Смягчающими признаны малолетний ребёнок, активное способствование расследованию, признание вины, раскаяние и частичное возмещение вреда (200 000 рублей на похороны, 100 000 рублей компенсации). Иск матери о компенсации морального вреда удовлетворён частично: 900 000 рублей взыскано с организации-работодателя.",
+    "legalQualification": "Действия Колесниковой содержат признаки преступления, предусмотренного ч. 2 ст. 143 УК РФ (нарушение требований охраны труда лицом, на которое возложены обязанности по их соблюдению, повлёкшее по неосторожности смерть человека). Виновность определяет только суд.",
+    "qualificationNotes": [
+      {
+        "kind": "right",
+        "applies": "yes",
+        "text": "Нарушено право работника на безопасные условия труда (ч. 3 ст. 37 Конституции РФ); затронуты жизнь и здоровье."
+      },
+      {
+        "kind": "violation",
+        "applies": "yes",
+        "text": "Работник направлен в септик без обучения, допуска и защиты органов дыхания."
+      },
+      {
+        "kind": "criminal",
+        "applies": "possible",
+        "text": "Признаки ч. 2 ст. 143 УК РФ. Вывод о виновности делает суд."
+      },
+      {
+        "kind": "administrative",
+        "applies": "no",
+        "text": "Ст. 5.27.1 КоАП РФ применяется, если нет признаков преступления; здесь наступила смерть."
+      },
+      {
+        "kind": "civil",
+        "applies": "yes",
+        "text": "Мать погибшего вправе требовать компенсации морального вреда; в приговоре она взыскана с организации-работодателя."
+      },
+      {
+        "kind": "disciplinary",
+        "applies": "possible",
+        "text": "Возможны меры по линии органов труда в отношении организации; но главное здесь — уголовная ответственность."
+      }
+    ],
+    "keyEvidence": [
+      {
+        "evidenceId": "eng_expert",
+        "why": "Называет организационные причины гибели и нарушения директора."
+      },
+      {
+        "evidenceId": "rules_ozp",
+        "why": "Показывает, чего требовали правила перед спуском."
+      },
+      {
+        "evidenceId": "instr_journal",
+        "why": "Было лишь первичное инструктирование, обучения ОЗП не было."
+      },
+      {
+        "evidenceId": "phone_lykov",
+        "why": "Подтверждает, что Лыков постоянно работал на базе и раньше спускался в колодец."
+      },
+      {
+        "evidenceId": "t_kol_admit",
+        "why": "Колесникова признала, что сама поручила спуск без допуска и защиты."
+      }
+    ],
+    "sources": [
+      "Конституция РФ, ст. 20, 41, ч. 3 ст. 37",
+      "Трудовой кодекс РФ, ст. 214, 221",
+      "Приказ Минтруда России от 15.12.2020 № 902н (правила по охране труда в ОЗП), пп. 5, 18, 37, 160",
+      "Приказ Минтруда России от 16.11.2020 № 782н (правила по охране труда при работе на высоте), пп. 13, 301",
+      "УК РФ, ч. 2 ст. 143, ч. 3 ст. 47, ст. 53.1",
+      "Организации, места и люди в деле вымышлены; основа — обстоятельства судебной практики"
+    ]
+  },
+  "flags": [
+    {
+      "id": "duties_explained",
+      "name": "Директор объяснила свою роль в охране труда"
+    },
+    {
+      "id": "ozp_explained",
+      "name": "Эксперт объяснила, что септик — ОЗП"
+    },
+    {
+      "id": "expert_told",
+      "name": "Эксперт изложил выводы экспертизы"
+    },
+    {
+      "id": "kol_lied",
+      "name": "Колесникова утверждала, что Лыков полез сам"
+    },
+    {
+      "id": "kol_admitted",
+      "name": "Колесникова признала, что поручила спуск"
+    },
+    {
+      "id": "kol_closed",
+      "name": "Колесникова отказалась говорить"
+    },
+    {
+      "id": "d_duty",
+      "name": "Решено: На ком охрана труда"
+    },
+    {
+      "id": "d_lease",
+      "name": "Решено: Чужая земля"
+    },
+    {
+      "id": "d_status",
+      "name": "Решено: Работник без договора"
+    },
+    {
+      "id": "d_ozp",
+      "name": "Решено: Особо опасная работа"
+    },
+    {
+      "id": "d_unsafe",
+      "name": "Решено: Что не сделано"
+    },
+    {
+      "id": "d_knew",
+      "name": "Решено: Знала об опасности"
+    },
+    {
+      "id": "d_cause",
+      "name": "Решено: Связь со смертью"
+    }
+  ],
+  "lawReference": {
+    "basis": [
+      {
+        "article": "ч. 3 ст. 37 Конституции РФ",
+        "title": "Безопасный труд",
+        "text": "Каждый имеет право на труд в условиях, отвечающих требованиям безопасности и гигиены.",
+        "url": "http://www.consultant.ru/document/cons_doc_LAW_28399/"
+      },
+      {
+        "article": "ст. 214 ТК РФ",
+        "title": "Обязанности работодателя",
+        "text": "Обязанности по обеспечению безопасных условий и охраны труда возлагаются на работодателя.",
+        "url": "http://www.consultant.ru/document/cons_doc_LAW_34683/"
+      },
+      {
+        "article": "ст. 221 ТК РФ",
+        "title": "Средства индивидуальной защиты",
+        "text": "Работникам бесплатно выдаются средства индивидуальной защиты, прошедшие подтверждение соответствия.",
+        "url": "http://www.consultant.ru/document/cons_doc_LAW_34683/"
+      },
+      {
+        "article": "ч. 2 ст. 143 УК РФ",
+        "title": "Нарушение требований охраны труда",
+        "text": "Нарушение требований охраны труда лицом, на которое возложены обязанности по их соблюдению, если оно по неосторожности повлекло смерть человека.",
+        "url": "http://www.consultant.ru/document/cons_doc_LAW_10699/"
+      }
+    ],
+    "notes": [
+      {
+        "title": "Работник без договора",
+        "text": "Отсутствие оформленного трудового договора не снимает обязанностей по охране труда: Лыкова фактически допустили к работе, провели инструктаж, платили и ставили задачи."
+      },
+      {
+        "title": "Аренда участка",
+        "text": "Если сеть канализации арендована, арендатор обязан содержать её и соблюдать технику безопасности; ответственность не перекладывается на собственника."
+      },
+      {
+        "title": "Самовольный спуск сторожа",
+        "text": "Нарушение со стороны Соболева, полезшего на помощь, не освобождает директора: смерть Лыкова — следствие её собственных нарушений."
+      },
+      {
+        "title": "Неосторожность",
+        "text": "Это не умышленное преступление: директор предвидела возможность отравления, но без достаточных оснований надеялась, что обойдётся."
+      }
+    ]
+  }
+}
