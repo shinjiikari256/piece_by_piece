@@ -3,7 +3,7 @@ import { isInteractive, type Location, type LocationObject } from "../../../../s
 import type { PublicCase as CaseFile } from "../../../../shared/public-case";
 import { meets } from "../../../../shared/conditions";
 import type { ClipStep, ObjectState } from "../../../../shared/case";
-import { DEFAULT_STATE, clipFrameAt, findTransition, loopFrameAt } from "../../../../shared/object-anim";
+import { DEFAULT_STATE, clipFrameAt, findAction, findTransition, loopFrameAt, timerActive, timerDelay } from "../../../../shared/object-anim";
 import { objectView } from "../../../../shared/object-state";
 import { firstFloorCell, getLocation } from "../content/case-utils";
 import {
@@ -45,6 +45,11 @@ interface ObjEntry {
   baseFrame?: string;
   loop?: ObjectState["loop"];
   trans?: ClipStep[];
+  /** Разовый клип поверх состояния (действие или таймер) и его время, мс. */
+  overlay?: ClipStep[];
+  overlayT: number;
+  /** Когда (по часам сцены) в следующий раз сработает каждый таймер. */
+  timerAt: number[];
   /** Время с начала текущего перехода или цикла, мс. */
   animT: number;
 }
@@ -179,7 +184,7 @@ export class OfficeScene extends Phaser.Scene {
     const detachBridge = gameBridge.attach({
       interactNearest: () => {
         // нечего трогать, а за игроком идут спутники — то же действие отпускает их
-        if (this.focused) this.host.onInteract(this.focused.id);
+        if (this.focused) this.interactWith(this.focused.id);
         else if (!this.host.isBlocked()) this.host.releaseFollowers();
       },
       whereIs: (characterId) => {
@@ -262,9 +267,9 @@ export class OfficeScene extends Phaser.Scene {
         .setScale(SCALE)
         .setDepth(spec.flat ? 0 : bottom);
       const footprint = footprintCells(o.x, o.y, spec.footprint);
-      const entry: ObjEntry = { o, img, footprint, item: null, animT: 0 };
+      const entry: ObjEntry = { o, img, footprint, item: null, animT: 0, overlayT: 0, timerAt: (o.timers ?? []).map((t) => timerDelay(t, Math.random())) };
       if (spec.mirrorRight && o.x >= this.location.tiles[0].length / 2) img.setFlipX(true);
-      if (o.states?.length || spec.opensNear) this.stateful.push(entry);
+      if (o.states?.length || spec.opensNear || o.actions?.length || o.timers?.length) this.stateful.push(entry);
       else {
         solidCells(o.x, o.y, spec).forEach((t) => this.setSolid(t.x, t.y));
         if (isInteractive(o)) this.addObjectItem(entry, o.label);
@@ -354,6 +359,10 @@ export class OfficeScene extends Phaser.Scene {
       frame = clipFrameAt(e.trans, e.animT);
       if (frame === null) e.trans = undefined;
     }
+    if (frame === null && e.overlay) {
+      frame = clipFrameAt(e.overlay, e.overlayT);
+      if (frame === null) e.overlay = undefined;
+    }
     if (frame === null && e.loop) frame = loopFrameAt(e.loop, e.animT);
     const tex = ensureObjectFrameTexture(this.textures, e.o.sprite, frame ?? e.baseFrame);
     if (e.img.texture.key !== tex) e.img.setTexture(tex);
@@ -362,15 +371,35 @@ export class OfficeScene extends Phaser.Scene {
   /** Время сцены: идёт всегда (цикл Phaser не засыпает), на паузе дела сцена не обновляется. */
   private tickObjectAnims(deltaMs: number) {
     for (const e of this.stateful) {
-      if (!e.trans && !e.loop) continue;
+      e.o.timers?.forEach((t, i) => {
+        if (this.animClock < e.timerAt[i]) return;
+        e.timerAt[i] = this.animClock + timerDelay(t, Math.random());
+        if (!e.trans && !e.overlay && timerActive(t, e.stateId ?? DEFAULT_STATE)) this.playOverlay(e, t.clip);
+      });
+      if (!e.trans && !e.loop && !e.overlay) continue;
       const wasTrans = !!e.trans;
       e.animT += deltaMs;
+      e.overlayT += deltaMs;
       this.showObjectFrame(e);
       if (wasTrans && !e.trans) {
         e.animT = 0; // цикл состояния начинается после перехода
         this.showObjectFrame(e);
       }
     }
+  }
+
+  private playOverlay(e: ObjEntry, clip: ClipStep[]) {
+    e.overlay = clip;
+    e.overlayT = 0;
+    this.showObjectFrame(e);
+  }
+
+  /** Взаимодействие с предметом или областью: анимация действия предмета (если есть) и передача событию игры. */
+  private interactWith(id: string) {
+    const e = this.stateful.find((s) => s.o.id === id);
+    const clip = e && !e.trans ? findAction(e.o, e.stateId ?? DEFAULT_STATE) : null;
+    if (e && clip) this.playOverlay(e, clip);
+    this.host.onInteract(id);
   }
 
   /** Где должен быть каждый персонаж сейчас: на месте, рядом с игроком или в другой локации. Смена места — ход пешком (`moveTo`). */
@@ -773,7 +802,7 @@ export class OfficeScene extends Phaser.Scene {
       if (this.host.isBlocked() || this.time.now - this.overlayClosedAt < 250) return;
       if (this.distanceTo(item) <= INTERACT_RANGE && this.canUse(item)) {
         this.path = [];
-        this.host.onInteract(item.id);
+        this.interactWith(item.id);
         return;
       }
       // Подойти к объекту и взаимодействовать по прибытии (к висящему на стене — только спереди)
@@ -895,7 +924,7 @@ export class OfficeScene extends Phaser.Scene {
         if (!this.path.length && this.pendingInteraction) {
           const id = this.pendingInteraction;
           this.pendingInteraction = null;
-          this.host.onInteract(id);
+          this.interactWith(id);
         }
       } else {
         this.player.x += (dx / dist) * step;
@@ -995,7 +1024,7 @@ export class OfficeScene extends Phaser.Scene {
     event.preventDefault();
     event.stopImmediatePropagation();
     this.path = [];
-    if (this.focused) this.host.onInteract(this.focused.id);
+    if (this.focused) this.interactWith(this.focused.id);
     else this.host.releaseFollowers();
   }
 

@@ -492,6 +492,35 @@
                 }
               ]
             }
+          ],
+          "actions": [
+            {
+              "on": "interact",
+              "state": "open",
+              "clip": [
+                {
+                  "frame": "default",
+                  "ms": 120
+                },
+                {
+                  "frame": "open",
+                  "ms": 120
+                }
+              ]
+            }
+          ],
+          "timers": [
+            {
+              "everyMs": 6000,
+              "jitterMs": 4000,
+              "state": "default",
+              "clip": [
+                {
+                  "frame": "open",
+                  "ms": 150
+                }
+              ]
+            }
           ]
         },
         {

@@ -128,3 +128,22 @@ describe("анимации предмета: валидатор и тестов�
     expect(text).toContain("нет кадра ghost");
   });
 });
+
+describe("действия и таймеры предмета", () => {
+  it("сейф в тестовом деле: действие при осмотре открытого и таймер в закрытом состоянии", () => {
+    expect(safe().actions?.[0]).toMatchObject({ on: "interact", state: "open" });
+    expect(safe().timers?.[0]).toMatchObject({ everyMs: 6000, state: "default" });
+  });
+
+  it("валидатор: действие и таймер с неизвестным состоянием или кадром", () => {
+    const c = structuredClone(base);
+    const o = c.locations.flatMap((l) => l.objects).find((x) => x.id === "dec_safe")!;
+    o.actions = [{ on: "interact", state: "нет", clip: [{ frame: "ghost", ms: 100 }] }];
+    o.timers = [{ everyMs: 1000, state: "тоже_нет", clip: [{ frame: "default", ms: 100 }] }];
+    const r = validateCase(c);
+    const text = r.ok ? "" : r.errors.join("\n");
+    expect(text).toContain("действие №1: нет состояния «нет»");
+    expect(text).toContain("действие №1: нет кадра ghost");
+    expect(text).toContain("таймер №1: нет состояния «тоже_нет»");
+  });
+});

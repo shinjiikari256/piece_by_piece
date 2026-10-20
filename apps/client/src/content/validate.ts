@@ -208,6 +208,18 @@ function checkIntegrity(c: CaseFile): string[] {
         }
       }
       const stateIds = new Set(["*", "default", ...(o.states ?? []).map((st) => st.id)]);
+      const clipCheck = (clip: { frame: string }[], what: string) =>
+        clip.forEach((step) => {
+          if (!spec.frames[step.frame]) err(`${L}/object ${o.id}: ${what}: нет кадра ${step.frame} у спрайта ${o.sprite}`);
+        });
+      o.actions?.forEach((a, i) => {
+        if (a.state !== undefined && !stateIds.has(a.state)) err(`${L}/object ${o.id}: действие №${i + 1}: нет состояния «${a.state}»`);
+        clipCheck(a.clip, `действие №${i + 1}`);
+      });
+      o.timers?.forEach((t, i) => {
+        if (t.state !== undefined && !stateIds.has(t.state)) err(`${L}/object ${o.id}: таймер №${i + 1}: нет состояния «${t.state}»`);
+        clipCheck(t.clip, `таймер №${i + 1}`);
+      });
       o.transitions?.forEach((t, i) => {
         for (const side of [t.from, t.to]) if (!stateIds.has(side)) err(`${L}/object ${o.id}: переход №${i + 1}: нет состояния «${side}»`);
         if (t.from === t.to && t.from !== "*") err(`${L}/object ${o.id}: переход №${i + 1}: «из» и «в» совпадают`);

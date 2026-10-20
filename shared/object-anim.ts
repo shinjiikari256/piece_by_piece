@@ -28,3 +28,16 @@ export function loopFrameAt(loop: NonNullable<ObjectState["loop"]>, t: number): 
   const cycle = total + (loop.pauseMs ?? 0);
   return cycle <= 0 ? null : clipFrameAt(loop.clip, t % cycle);
 }
+
+const inState = (only: string | undefined, id: string) => only === undefined || only === id;
+
+/** Клип действия на событие `interact` в состоянии `stateId`: первое подходящее по порядку. */
+export function findAction(o: Pick<LocationObject, "actions">, stateId: string): ClipStep[] | null {
+  return o.actions?.find((a) => a.on === "interact" && inState(a.state, stateId))?.clip ?? null;
+}
+
+/** Работает ли таймер в состоянии `stateId`. */
+export const timerActive = (t: { state?: string }, stateId: string) => inState(t.state, stateId);
+
+/** Через сколько мс следующий запуск таймера; `rand` — число в [0, 1). */
+export const timerDelay = (t: { everyMs: number; jitterMs?: number }, rand: number): number => t.everyMs + Math.floor(rand * ((t.jitterMs ?? 0) + 1));

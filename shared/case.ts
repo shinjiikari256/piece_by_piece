@@ -280,6 +280,21 @@ export const ObjectTransition = z.object({
   clip: z.array(ClipStep).min(1),
 });
 
+/** Разовая анимация на событие предмета, без смены состояния (ящик дрогнул при осмотре). */
+export const ObjectAction = z.object({
+  on: z.enum(["interact"]).default("interact").describe("Событие: осмотр предмета"),
+  state: z.string().optional().describe("Только в этом состоянии (id или `default`); без значения — в любом"),
+  clip: z.array(ClipStep).min(1),
+});
+
+/** Таймерная анимация: раз в `everyMs` (плюс случайная добавка) проигрывается клип поверх состояния. */
+export const ObjectTimer = z.object({
+  everyMs: z.number().int().min(200).max(600000).describe("Период, мс"),
+  jitterMs: z.number().int().min(0).max(600000).optional().describe("Случайная добавка к периоду, мс (от 0 до значения)"),
+  state: z.string().optional().describe("Только в этом состоянии (id или `default`); без значения — в любом"),
+  clip: z.array(ClipStep).min(1),
+});
+
 /** Вид и поведение предмета при условии. Состояние — производная переменных дела: сменить его можно только сменив переменную обычным эффектом. */
 export const ObjectState = z.object({
   id: z.string(),
@@ -302,6 +317,8 @@ export const LocationObject = z.object({
   label: z.string().describe("Подпись над объектом"),
   interaction: ObjectInteraction.nullable().describe("Окно осмотра; null — без окна (декорация или предмет только с эффектами)"),
   transitions: z.array(ObjectTransition).optional().describe("Анимации перехода между состояниями (открытие двери); нет подходящей — кадр меняется сразу"),
+  actions: z.array(ObjectAction).optional().describe("Разовые анимации на осмотр предмета (без смены состояния)"),
+  timers: z.array(ObjectTimer).optional().describe("Анимации по таймеру: раз в период проигрывается клип (кот повернул голову)"),
   states: z.array(ObjectState).optional().describe("Состояния по условиям: действует первое подходящее по порядку; нет подходящего — вид по умолчанию"),
   onInteract: z.array(Effect).default([]).meta({ always: true }).describe("Эффекты осмотра предмета (при каждом осмотре; «только один раз» — у самого эффекта); выдача улики — в окне осмотра"),
 });
