@@ -523,10 +523,11 @@ describe("игра в браузере", () => {
     await page.mouse.click(at(5, 5).x, at(5, 5).y);
     await page.locator(".zact .sel--add").click();
     await page.locator('[role="option"]', { hasText: "Выход" }).click();
-    await page.getByLabel(/Автоматически/).check();
+    await page.locator(".zact .sel", { hasText: "по клавише взаимодействия" }).click();
+    await page.locator('[role="option"]', { hasText: "при входе (один раз)" }).click();
     const zone = await page.evaluate(() => (window as any).__editor.editorStore.get().draft.locations[0].zones[0]);
     expect(zone.actions).toHaveLength(1);
-    expect(zone.actions[0]).toMatchObject({ kind: "exit", auto: true });
+    expect(zone.actions[0]).toMatchObject({ kind: "exit", trigger: "enter" });
     await page.close();
   });
 
@@ -581,7 +582,7 @@ describe("игра в браузере", () => {
     await page.getByRole("button", { name: "Создать", exact: true }).click();
     await expect.poll(() => page.locator(".ed__item-note", { hasText: "не подключён" }).count()).toBe(0);
     expect(await page.locator(".ed__item-note", { hasText: "▦ Проход" }).count()).toBe(1);
-    await expect.poll(() => page.locator(".ed__nav-item--warnings").count()).toBe(0); // предупреждение ушло
+    await expect.poll(() => page.evaluate(() => (window as any).__editor.editorStore.get().warnings.filter((w: string) => w.includes("никто не запускает")).length)).toBe(0); // предупреждение про диалог ушло (другие, например про год событий, остаются)
     await page.close();
   });
 
@@ -814,7 +815,9 @@ describe("игра в браузере", () => {
     const page = await h.page();
     await page.goto(`${BASE}/editor/case-001/deductions`);
     await page.waitForFunction(() => (window as any).__editor?.editorStore.get().screen === "case");
-    await page.locator(".fx .sel--add").first().click(); // «+ эффект» (а не «+ условие»)
+    const add = page.locator(".fx .sel--add", { hasText: "+ эффект" }).first(); // «+ эффект» (а не «+ условие»)
+    await add.evaluate((e) => e.scrollIntoView({ block: "center" })); // выпадающий список закрывается от прокрутки страницы
+    await add.click();
     await page.locator('[role="option"]', { hasText: "идёт на клетку" }).click();
     await page.getByRole("button", { name: /Выбрать клетку на карте/ }).click();
     const canvas = page.locator(".cell-picker__canvas");
