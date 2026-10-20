@@ -22,6 +22,16 @@
       "h": 16,
       "footprint": { "w": 1, "h": 1 },
       "solid": true,
+      "params": [
+        { "id": "lit", "name": "Горит", "kind": "flag" },
+        { "id": "power", "name": "Мощность", "kind": "counter" },
+        { "id": "mode", "name": "Режим", "kind": "enum", "values": [{ "id": "closed", "name": "Закрыт" }, { "id": "open", "name": "Открыт" }] }
+      ],
+      "states": [
+        { "id": "lit", "when": { "flags": ["lit"] }, "frame": "on" },
+        { "id": "open", "when": { "enums": [{ "enumId": "mode", "in": ["open"] }] }, "frame": "on" },
+        { "id": "strong", "when": { "counters": [{ "counterId": "power", "min": 2 }] }, "frame": "on" }
+      ],
       "frames": {
         "default": [[5, 12, 6, 3, "#444444"], [7, 4, 2, 8, "#888888"], [6, 2, 4, 3, "#aa2222"]],
         "on": [[5, 12, 6, 3, "#444444"], [7, 4, 2, 8, "#888888"], [6, 2, 4, 3, "#ffdd33"]]
@@ -655,6 +665,7 @@
           "y": 14,
           "label": "[ТЕСТ] Маяк (спрайт дела)",
           "interaction": null,
+          "bindings": { "lit": "test_fridge_seen", "power": "test_trust", "mode": "test_safe" },
           "onInteract": []
         }
       ],

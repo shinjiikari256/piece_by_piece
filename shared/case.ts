@@ -270,28 +270,6 @@ export const SpriteKey = z.enum([
   "door_v",
 ]);
 
-const SpriteOp = z.union([
-  z.tuple([z.number().int(), z.number().int(), z.number().int().min(1), z.number().int().min(1), z.string().regex(/^#[0-9a-f]{6}([0-9a-f]{2})?$/i)]),
-  z.tuple([z.number().int(), z.number().int(), z.number().int().min(1), z.number().int().min(1)]),
-]);
-
-/** Спрайт, нарисованный автором дела (встроенные хранятся только ключом): те же поля, что у встроенного, плюс название и группа. */
-export const CustomSprite = z.object({
-  key: z.string().regex(/^[a-z][a-z0-9_]*$/).describe("Ключ: латиница, цифры, _; не совпадает со встроенным"),
-  name: z.string().describe("Название в палитре"),
-  group: z.string().optional().describe("Группа палитры; без значения — «Свои»"),
-  w: z.number().int().min(1).max(256).describe("Ширина в пикселях (16 px = тайл)"),
-  h: z.number().int().min(1).max(256).describe("Высота в пикселях"),
-  footprint: z.object({ w: z.number().int().min(1).max(16), h: z.number().int().min(1).max(16) }).describe("Опора в клетках: вправо и вверх от точки предмета"),
-  solid: z.boolean().describe("Мешает ли проходу"),
-  cells: z.array(z.object({ dx: z.number().int(), dy: z.number().int(), solid: z.boolean() })).optional().describe("Исключения из solid по клеткам опоры"),
-  flat: z.boolean().optional(),
-  mount: z.number().int().optional(),
-  opensNear: z.boolean().optional(),
-  mirrorRight: z.boolean().optional(),
-  frames: z.record(z.string(), z.array(SpriteOp)).refine((f) => Array.isArray(f.default), "нужен кадр default"),
-});
-
 /** Цикл состояния: клип идёт по кругу, пока состояние действует. */
 export const ObjectLoop = z.object({
   clip: z.array(ClipStep).min(1),
@@ -334,6 +312,44 @@ export const ObjectState = z.object({
   loop: ObjectLoop.optional().describe("Анимация по кругу, пока состояние действует (мигающая лампа)"),
 });
 
+/** Своя переменная спрайта: флаг, число или перечисление; условия состояний спрайта ссылаются на неё по `id`. */
+export const SpriteParam = z.object({
+  id: z.string().regex(/^[a-z][a-z0-9_]*$/),
+  name: z.string().describe("Название для автора"),
+  kind: z.enum(["flag", "counter", "enum"]).describe("Флаг, число или перечисление"),
+  values: z.array(z.object({ id: z.string(), name: z.string() })).optional().describe("Значения перечисления"),
+});
+
+/** Состояние спрайта: только вид (кадр, проходимость, цикл); условие — над переменными спрайта (`flags`, `notFlags`, `counters`, `enums`, `allOf`, `anyOf`). */
+export const SpriteState = ObjectState.pick({ id: true, when: true, frame: true, solid: true, loop: true });
+
+const SpriteOp = z.union([
+  z.tuple([z.number().int(), z.number().int(), z.number().int().min(1), z.number().int().min(1), z.string().regex(/^#[0-9a-f]{6}([0-9a-f]{2})?$/i)]),
+  z.tuple([z.number().int(), z.number().int(), z.number().int().min(1), z.number().int().min(1)]),
+]);
+
+/** Спрайт, нарисованный автором дела (встроенные хранятся только ключом): те же поля, что у встроенного, плюс название и группа. */
+export const CustomSprite = z.object({
+  key: z.string().regex(/^[a-z][a-z0-9_]*$/).describe("Ключ: латиница, цифры, _; не совпадает со встроенным"),
+  name: z.string().describe("Название в палитре"),
+  group: z.string().optional().describe("Группа палитры; без значения — «Свои»"),
+  w: z.number().int().min(1).max(256).describe("Ширина в пикселях (16 px = тайл)"),
+  h: z.number().int().min(1).max(256).describe("Высота в пикселях"),
+  footprint: z.object({ w: z.number().int().min(1).max(16), h: z.number().int().min(1).max(16) }).describe("Опора в клетках: вправо и вверх от точки предмета"),
+  solid: z.boolean().describe("Мешает ли проходу"),
+  cells: z.array(z.object({ dx: z.number().int(), dy: z.number().int(), solid: z.boolean() })).optional().describe("Исключения из solid по клеткам опоры"),
+  flat: z.boolean().optional(),
+  mount: z.number().int().optional(),
+  opensNear: z.boolean().optional(),
+  mirrorRight: z.boolean().optional(),
+  params: z.array(SpriteParam).optional().describe("Свои переменные спрайта: состояния зависят от них, а предмет на карте привязывает их к переменным дела"),
+  states: z.array(SpriteState).optional().describe("Состояния по переменным спрайта: действует первое подходящее"),
+  transitions: z.array(ObjectTransition).optional().describe("Анимации перехода между состояниями спрайта"),
+  actions: z.array(ObjectAction).optional().describe("Анимации на осмотр"),
+  timers: z.array(ObjectTimer).optional().describe("Анимации по таймеру"),
+  frames: z.record(z.string(), z.array(SpriteOp)).refine((f) => Array.isArray(f.default), "нужен кадр default"),
+});
+
 export const LocationObject = z.object({
   id: z.string(),
   sprite: z.string().describe("Ключ спрайта: встроенный или из спрайтов дела"),
@@ -345,6 +361,7 @@ export const LocationObject = z.object({
   actions: z.array(ObjectAction).optional().describe("Разовые анимации на осмотр предмета (без смены состояния)"),
   timers: z.array(ObjectTimer).optional().describe("Анимации по таймеру: раз в период проигрывается клип (кот повернул голову)"),
   states: z.array(ObjectState).optional().describe("Состояния по условиям: действует первое подходящее по порядку; нет подходящего — вид по умолчанию"),
+  bindings: z.record(z.string(), z.string()).optional().describe("Привязка переменных спрайта к переменным дела: переменная спрайта → переменная дела; действует, если у предмета нет своих состояний"),
   onInteract: z.array(Effect).default([]).meta({ always: true }).describe("Эффекты осмотра предмета (при каждом осмотре; «только один раз» — у самого эффекта); выдача улики — в окне осмотра"),
 });
 
@@ -694,6 +711,7 @@ export type Zone = z.infer<typeof Zone>;
 export type ZoneAction = z.infer<typeof ZoneAction>;
 export type NpcDialogue = z.infer<typeof NpcDialogue>;
 export type SpriteKey = z.infer<typeof SpriteKey>;
+export type SpriteParam = z.infer<typeof SpriteParam>;
 export type CustomSprite = z.infer<typeof CustomSprite>;
 export type Appearance = z.infer<typeof Appearance>;
 export type CustomLook = z.infer<typeof CustomLook>;

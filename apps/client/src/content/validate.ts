@@ -3,6 +3,7 @@ import { flagOfEffect, isFlagAction } from "../../../../shared/conditions";
 import { effectSites } from "../../../../shared/effect-sites";
 import { isRangeOrdered, parseEventTime } from "../../../../shared/events";
 import { isEntryTrigger, isInteractive } from "../../../../shared/case";
+import { conditionParams } from "../../../../shared/sprite-bindings";
 import { parseCase } from "../../../../shared/migrate";
 import { FLOOR_TILES, SPRITES, SPRITE_GROUPS, registerCaseSprites, WALL_TILES, resolveLook, solidCells } from "../game/art";
 import { zoneTargetCell } from "./case-utils";
@@ -49,6 +50,69 @@ function checkIntegrity(c: CaseFile): string[] {
         badSprite = true;
       }
   if (badSprite) return errors;
+
+  // переменные и состояния спрайтов дела
+  for (const sp of c.sprites ?? []) {
+    const W = `sprite ${sp.key}`;
+    const params = new Map((sp.params ?? []).map((q) => [q.id, q]));
+    if (params.size !== (sp.params ?? []).length) err(`${W}: повторяющийся id переменной`);
+    for (const q of sp.params ?? []) if (q.kind === "enum" && !q.values?.length) err(`${W}: переменная ${q.id} — у перечисления нет значений`);
+    const hasFrame = (f: string | undefined) => f === undefined || f in sp.frames;
+    const ids = new Set(["*", "default", ...(sp.states ?? []).map((st) => st.id)]);
+    if (new Set((sp.states ?? []).map((st) => st.id)).size !== (sp.states ?? []).length) err(`${W}: повторяющийся id состояния`);
+    for (const st of sp.states ?? []) {
+      const u = conditionParams(st.when);
+      for (const k of u.foreign) err(`${W}: состояние ${st.id}: в условии допустимы только переменные спрайта (строка «${k}» нельзя)`);
+      for (const id of u.flags) if (params.get(id)?.kind !== "flag") err(`${W}: состояние ${st.id}: «${id}» — не флаг спрайта`);
+      for (const id of u.counters) if (params.get(id)?.kind !== "counter") err(`${W}: состояние ${st.id}: «${id}» — не число спрайта`);
+      for (const e of u.enums) {
+        const q = params.get(e.id);
+        if (q?.kind !== "enum") err(`${W}: состояние ${st.id}: «${e.id}» — не перечисление спрайта`);
+        else for (const v of e.values) if (!q.values?.some((x) => x.id === v)) err(`${W}: состояние ${st.id}: у «${e.id}» нет значения «${v}»`);
+      }
+      if (!hasFrame(st.frame)) err(`${W}: состояние ${st.id}: нет кадра ${st.frame}`);
+      st.loop?.clip.forEach((x) => hasFrame(x.frame) || err(`${W}: состояние ${st.id}: в цикле нет кадра ${x.frame}`));
+    }
+    const clips: [string, { frame: string }[]][] = [
+      ...(sp.transitions ?? []).map((t, i): [string, { frame: string }[]] => [`переход №${i + 1}`, t.clip]),
+      ...(sp.actions ?? []).map((t, i): [string, { frame: string }[]] => [`действие №${i + 1}`, t.clip]),
+      ...(sp.timers ?? []).map((t, i): [string, { frame: string }[]] => [`таймер №${i + 1}`, t.clip]),
+    ];
+    for (const [what, clip] of clips) clip.forEach((x) => hasFrame(x.frame) || err(`${W}: ${what}: нет кадра ${x.frame}`));
+    for (const t of sp.transitions ?? []) for (const side of [t.from, t.to]) if (!ids.has(side)) err(`${W}: переход: нет состояния «${side}»`);
+  }
+  // привязки предметов: переменная спрайта → переменная дела того же вида
+  const spriteByKey = new Map((c.sprites ?? []).map((s) => [s.key, s]));
+  for (const l of c.locations)
+    for (const o of l.objects) {
+      const sp = spriteByKey.get(o.sprite);
+      const W = `location ${l.id}/object ${o.id}`;
+      if (!sp) {
+        if (o.bindings && Object.keys(o.bindings).length) err(`${W}: привязки есть, а у спрайта нет переменных`);
+        continue;
+      }
+      const params = new Map((sp.params ?? []).map((q) => [q.id, q]));
+      for (const [pid, target] of Object.entries(o.bindings ?? {})) {
+        const q = params.get(pid);
+        if (!q) {
+          err(`${W}: привязка — у спрайта нет переменной «${pid}»`);
+          continue;
+        }
+        const kindOk = q.kind === "flag" ? (c.flags ?? []).some((x) => x.id === target) : q.kind === "counter" ? (c.counters ?? []).some((x) => x.id === target) : (c.enums ?? []).some((x) => x.id === target);
+        if (!kindOk) err(`${W}: привязка «${pid}» → «${target}»: нет такой переменной нужного вида`);
+        else if (q.kind === "enum") {
+          const en = (c.enums ?? []).find((x) => x.id === target)!;
+          for (const v of q.values ?? []) if (!en.values.some((x) => x.id === v.id)) err(`${W}: привязка «${pid}» → «${target}»: у перечисления нет значения «${v.id}»`);
+        }
+      }
+      if (!o.states?.length) {
+        const used = new Set((sp.states ?? []).flatMap((st) => {
+          const u = conditionParams(st.when);
+          return [...u.flags, ...u.counters, ...u.enums.map((e) => e.id)];
+        }));
+        for (const pid of used) if (params.has(pid) && !o.bindings?.[pid]) err(`${W}: переменная спрайта «${pid}» не привязана к переменной дела`);
+      }
+    }
 
   const unique = (label: string, ids: string[]) => {
     const seen = new Set<string>();

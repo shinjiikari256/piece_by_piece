@@ -1,3 +1,4 @@
+import { bindSprites } from "../../../../shared/sprite-bindings";
 import type { CaseFile } from "../../../../shared/case";
 import { toPublicCase, type PublicCase } from "../../../../shared/public-case";
 import * as judge from "../../../../shared/judge";
@@ -8,7 +9,7 @@ export class LocalAuthority implements CaseAuthority {
   readonly caseFile: PublicCase;
 
   constructor(private readonly full: CaseFile) {
-    this.caseFile = toPublicCase(full);
+    this.caseFile = toPublicCase(bindSprites(full));
   }
 
   async checkDeduction(deductionId: string, optionId: string) {
