@@ -12,7 +12,7 @@ const cellOf = (l: Parameters<typeof firstFloorCell>[0] | undefined) => (l ? l.p
 
 // ---------- эффекты ----------
 
-const EFFECT_TYPES: Effect["type"][] = ["addEvidence", "changeVariable", "message", "follow", "stay", "returnHome", "moveTo", "addCharacterNote"];
+const EFFECT_TYPES: Effect["type"][] = ["addEvidence", "removeEvidence", "changeVariable", "message", "startDialogue", "travel", "follow", "stay", "returnHome", "moveTo", "addCharacterNote"];
 
 const blankEffect = (type: Effect["type"], d: FormCtx["draft"]): Effect => {
   const ch = d.characters[0]?.id ?? "";
@@ -23,6 +23,14 @@ const blankEffect = (type: Effect["type"], d: FormCtx["draft"]): Effect => {
       return { type, variableId: "", action: "on" };
     case "message":
       return { type, text: "" };
+    case "removeEvidence":
+      return { type, evidenceId: "" };
+    case "startDialogue":
+      return { type, dialogueId: d.dialogues[0]?.id ?? "" };
+    case "travel": {
+      const loc = d.locations[0];
+      return { type, locationId: loc?.id ?? "", ...cellOf(loc) };
+    }
     case "addCharacterNote":
       return { type, characterId: ch, text: "" };
     case "moveTo":
@@ -104,6 +112,33 @@ export function EffectsEditor({ value, onChange, ctx }: { value: Effect[]; onCha
             {e.type === "addEvidence" && (
               <Select value={e.evidenceId} placeholder="какую улику" options={evidence} onChange={(v) => set(i, { ...e, evidenceId: v })} />
             )}
+            {e.type === "removeEvidence" && (
+              <Select value={e.evidenceId} placeholder="какую улику убрать" options={evidence} onChange={(v) => set(i, { ...e, evidenceId: v })} />
+            )}
+            {e.type === "startDialogue" && (
+              <Select
+                value={e.dialogueId}
+                placeholder="какой диалог"
+                options={d.dialogues.map((x) => ({ value: x.id, label: `${d.characters.find((c) => c.id === x.characterId)?.name ?? x.characterId} · ${x.id}` }))}
+                onChange={(v) => set(i, { ...e, dialogueId: v })}
+              />
+            )}
+            {e.type === "travel" && (
+              <>
+                <Select
+                  value={e.locationId}
+                  placeholder="в какую локацию"
+                  options={locations}
+                  onChange={(v) => set(i, { ...e, locationId: v, ...cellOf(d.locations.find((l) => l.id === v)) })}
+                />
+                <div className="row">
+                  <button className="btn btn--sm" onClick={() => setPicking(i)}>
+                    Где появится игрок…
+                  </button>
+                  <span className="muted">клетка {e.x}, {e.y}</span>
+                </div>
+              </>
+            )}
             {e.type === "changeVariable" && <VariableEffect effect={e} ctx={ctx} onChange={(v) => set(i, v)} />}
             {"characterId" in e && (
               <Select value={e.characterId} placeholder="кто" options={chars} onChange={(v) => set(i, { ...e, characterId: v } as Effect)} />
@@ -183,6 +218,19 @@ export function EffectsEditor({ value, onChange, ctx }: { value: Effect[]; onCha
         options={EFFECT_TYPES.map((t) => ({ value: t, label: ENUM_LABELS[t] }))}
         onChange={(t) => onChange([...value, blankEffect(t as Effect["type"], d)])}
       />
+      {picking !== null && value[picking]?.type === "travel" && (
+        <CellPicker
+          draft={d}
+          loc={d.locations.find((l) => l.id === (value[picking] as Extract<Effect, { type: "travel" }>).locationId) ?? d.locations[0]}
+          characterId=""
+          value={value[picking] as Extract<Effect, { type: "travel" }>}
+          onClose={() => setPicking(null)}
+          onPick={(cell) => {
+            set(picking, { ...(value[picking] as Extract<Effect, { type: "travel" }>), ...cell });
+            setPicking(null);
+          }}
+        />
+      )}
       {picking !== null && value[picking]?.type === "moveTo" && (
         <CellPicker
           draft={d}

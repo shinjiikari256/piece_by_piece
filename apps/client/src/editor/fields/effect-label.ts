@@ -9,6 +9,12 @@ export function effectLabel(e: Effect): string {
         return `улика ${e.evidenceId}`;
       case "changeVariable":
         return e.action === "assign" ? `${e.variableId} = ${e.valueId ?? "?"}` : `${e.variableId}: ${ENUM_LABELS[e.action]}${e.value === undefined ? "" : ` ${e.value}`}`;
+      case "removeEvidence":
+        return `убрать улику ${e.evidenceId}`;
+      case "startDialogue":
+        return `диалог ${e.dialogueId}`;
+      case "travel":
+        return `игрок → ${e.locationId} (${e.x}, ${e.y})`;
       case "message":
         return `сообщение «${e.text.slice(0, 30)}${e.text.length > 30 ? "…" : ""}»`;
       case "addCharacterNote":

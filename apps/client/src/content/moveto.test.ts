@@ -542,3 +542,41 @@ describe("миграция 6 → 7: trigger области", () => {
     expect((r.data.locations as any[])[0].zones[0].actions).toEqual([{ kind: "effects", effects: [], trigger: "enter" }, { kind: "effects", effects: [] }]); // eslint-disable-line @typescript-eslint/no-explicit-any
   });
 });
+
+describe("эффекты removeEvidence, startDialogue, travel", () => {
+  it("removeEvidence убирает улику и сообщает об этом; повторно — нет", () => {
+    const p = { ...emptyProgress(), collected: ["a", "b"] };
+    const out = applyEffects([{ type: "removeEvidence", evidenceId: "a" }, { type: "removeEvidence", evidenceId: "a" }], p);
+    expect(out.progress.collected).toEqual(["b"]);
+    expect(out.removedEvidence).toEqual(["a"]);
+  });
+  it("startDialogue и travel отдаются вызывающему, побеждает последний", () => {
+    const out = applyEffects(
+      [
+        { type: "startDialogue", dialogueId: "d1" },
+        { type: "startDialogue", dialogueId: "d2" },
+        { type: "travel", locationId: "l1", x: 3, y: 4 },
+      ],
+      emptyProgress(),
+    );
+    expect(out.followUp).toEqual({ dialogueId: "d2", travel: { to: "l1", spawn: { x: 3, y: 4 } } });
+  });
+  it("валидатор: ссылки, клетка travel, улика из сопоставления не убирается", () => {
+    const c = structuredClone(case001) as unknown as CaseFile;
+    const used = c.deductions[0].evidenceIds[0];
+    c.dialogues[0].nodes[0].effects.push(
+      { type: "removeEvidence", evidenceId: used },
+      { type: "startDialogue", dialogueId: "нет_диалога" },
+      { type: "travel", locationId: "нет_локации", x: 0, y: 0 },
+      { type: "travel", locationId: c.locations[0].id, x: 0, y: 0 }, // клетка 0,0 — стена
+    );
+    const text = (() => {
+      const r = validateCase(c);
+      return r.ok ? "" : r.errors.join("\n");
+    })();
+    expect(text).toContain("нельзя убрать");
+    expect(text).toContain("нет_диалога");
+    expect(text).toContain("travel — неизвестная локация");
+    expect(text).toContain("не пол");
+  });
+});

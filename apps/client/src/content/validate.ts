@@ -100,6 +100,17 @@ function checkIntegrity(c: CaseFile): string[] {
   const checkEffects = (effects: Effect[], where: string) => {
     for (const e of effects) {
       checkCondition(e.requires, `${where}: условие эффекта`);
+      if (e.type === "removeEvidence") {
+        ref(evidence, e.evidenceId, where);
+        // улика, на которой строится сопоставление, из дела не убирается: его нельзя было бы решить
+        const used = c.deductions.find((d) => d.evidenceIds.includes(e.evidenceId));
+        if (used) err(`${where}: улику «${e.evidenceId}» нельзя убрать — на ней строится сопоставление «${used.id}»`);
+      }
+      if (e.type === "startDialogue") ref(dialogues, e.dialogueId, where);
+      if (e.type === "travel") {
+        if (!locationIds.has(e.locationId)) err(`${where}: travel — неизвестная локация «${e.locationId}»`);
+        else if (!floorOf.get(e.locationId)?.(e.x, e.y)) err(`${where}: travel — клетка ${e.x},${e.y} в «${e.locationId}» не пол`);
+      }
       if (e.type === "message" && !e.text.trim()) err(`${where}: у сообщения нет текста`);
       if (e.type === "addEvidence") ref(evidence, e.evidenceId, where);
       if (e.type === "changeVariable") {

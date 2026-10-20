@@ -18,6 +18,7 @@ export function caseWarnings(c: CaseFile): string[] {
     }
     for (const z of l.zones) z.actions.forEach((a) => a.kind === "dialogue" && launched.add(a.dialogueId));
   }
+  effectSites(c).forEach((site) => site.effects.forEach((e) => e.type === "startDialogue" && launched.add(e.dialogueId)));
   for (const d of c.dialogues) if (!launched.has(d.id)) out.push(`dialogue ${d.id}: никто не запускает — подключите диалог к человеку на карте или к области`);
 
   // область без действий

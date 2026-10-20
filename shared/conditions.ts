@@ -107,6 +107,10 @@ export interface EffectOutcome {
   newEvidence: string[];
   /** Тексты эффектов `message` по порядку — показывает вызывающий. */
   messages: string[];
+  /** Улики, убранные эффектами `removeEvidence` (были в деле). */
+  removedEvidence: string[];
+  /** Что вызывающий должен сделать после применения: перенести игрока, запустить диалог (побеждает последний такой эффект). */
+  followUp: { dialogueId?: string; travel?: { to: string; spawn: { x: number; y: number } } };
 }
 
 /**
@@ -148,6 +152,8 @@ export function applyEffects(effects: Effect[], p: Progress, ctx: EffectContext 
   };
   const newEvidence: string[] = [];
   const messages: string[] = [];
+  const removedEvidence: string[] = [];
+  const followUp: EffectOutcome["followUp"] = {};
   // очередь: эффекты улики встают сразу за выдавшим её эффектом; предел страхует от зацикливания
   const queue = [...effects];
   // ключи «один раз»: у исходных эффектов — по месту и номеру, у эффектов улики — по улике и номеру
@@ -189,6 +195,18 @@ export function applyEffects(effects: Effect[], p: Progress, ctx: EffectContext 
         }
         break;
       }
+      case "removeEvidence":
+        if (next.collected.includes(e.evidenceId)) {
+          next.collected = next.collected.filter((id) => id !== e.evidenceId);
+          removedEvidence.push(e.evidenceId);
+        }
+        break;
+      case "startDialogue":
+        followUp.dialogueId = e.dialogueId;
+        break;
+      case "travel":
+        followUp.travel = { to: e.locationId, spawn: { x: e.x, y: e.y } };
+        break;
       case "message":
         if (e.text.trim()) messages.push(e.text);
         break;
@@ -217,5 +235,5 @@ export function applyEffects(effects: Effect[], p: Progress, ctx: EffectContext 
         break;
     }
   }
-  return { progress: next, newEvidence, messages };
+  return { progress: next, newEvidence, messages, removedEvidence, followUp };
 }

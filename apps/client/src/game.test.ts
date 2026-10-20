@@ -905,3 +905,55 @@ describe("области: режимы запуска и текст отказа
     expect(r.ok ? "" : r.errors.join("\n")).toContain("не может срабатывать при выходе");
   });
 });
+
+describe("эффекты: startDialogue, travel, removeEvidence в игре", () => {
+  const start = (mutate: (c: CaseFile) => void) => {
+    const raw = load("case-001.json") as unknown as CaseFile;
+    mutate(raw);
+    const c = validateCase(raw);
+    if (!c.ok) throw new Error(c.errors.join("; "));
+    setPlatform(createMemoryPlatform());
+    actions.openCase(new LocalAuthority(c.caseFile));
+    actions.beginInvestigation();
+  };
+
+  it("эффект варианта запускает другой диалог вместо обычного перехода", () => {
+    start((c) => {
+      const alina = c.dialogues.find((d) => d.id === "dlg_alina")!;
+      const other = c.dialogues.find((d) => d.id !== "dlg_alina")!;
+      alina.nodes.find((n) => n.id === "start")!.choices.find((ch) => ch.id === "pass")!.effects = [{ type: "startDialogue", dialogueId: other.id }];
+    });
+    actions.interact("npc_alina");
+    actions.choose("pass");
+    const o = store.get().overlay;
+    expect(o?.kind === "dialogue" && o.dialogueId).not.toBe("dlg_alina");
+  });
+
+  it("removeEvidence убирает улику из дела и показывает сообщение", () => {
+    start((c) => {
+      const ev = c.locations.flatMap((l) => l.objects).find((o) => o.id === "obj_computer")!.interaction!.evidenceId!;
+      c.dialogues.find((d) => d.id === "dlg_alina")!.nodes.find((n) => n.id === "start")!.choices.find((ch) => ch.id === "pass")!.effects = [{ type: "removeEvidence", evidenceId: ev }];
+      // сопоставление на этой улике запретило бы убирать её — берём улику, которой нет в сопоставлениях
+      c.deductions.forEach((d) => (d.evidenceIds = d.evidenceIds.map((id) => (id === ev ? c.evidence.find((e) => e.id !== ev && !d.evidenceIds.includes(e.id))!.id : id))));
+    });
+    actions.interact("obj_computer");
+    actions.close();
+    const ev = store.get().progress.collected.find((id) => id === "mail_log") ?? store.get().progress.collected[0];
+    expect(store.get().progress.collected).toContain(ev);
+    actions.interact("npc_alina");
+    actions.choose("pass");
+    expect(store.get().progress.collected).not.toContain(ev);
+    expect(store.get().toasts.some((t) => t.text.startsWith("Из дела убрано"))).toBe(true);
+  });
+
+  it("travel переносит игрока и запускает вход в локацию", () => {
+    start((c) => {
+      c.dialogues.find((d) => d.id === "dlg_alina")!.nodes.find((n) => n.id === "start")!.choices.find((ch) => ch.id === "pass")!.effects = [
+        { type: "travel", locationId: "admin_building", x: 5, y: 5 },
+      ];
+    });
+    actions.interact("npc_alina");
+    actions.choose("pass");
+    expect(store.get().spawn).toEqual({ x: 5, y: 5 });
+  });
+});

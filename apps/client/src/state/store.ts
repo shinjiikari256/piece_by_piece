@@ -6,7 +6,7 @@ import { RESULT_FORMAT_VERSION, type CaseAuthority, type DeductionVerdict, type 
 import { APP_NAME, FROM_EDITOR, GAME_VERSION } from "../env";
 import { currentRoute, navigate } from "../ui/router";
 import { createAutosave, pauseOnPageHide } from "./autosave";
-import { applyEffects, emptyProgress, meets, startProgress, type Progress } from "../../../../shared/conditions";
+import { applyEffects, emptyProgress, meets, startProgress, type EffectOutcome, type Progress } from "../../../../shared/conditions";
 import { allNpcs, findObject, startLocation, zoneTargetCell } from "../content/case-utils";
 import { gameBridge } from "../game/bridge";
 import type { ResultRecord } from "./result-record";
@@ -171,10 +171,31 @@ function evidenceTitle(id: string) {
   return state.caseFile?.evidence.find((e) => e.id === id)?.title ?? id;
 }
 
-/** Итог эффектов для игрока: новые улики и сообщения автора (длинный текст висит дольше). */
-function announce(newEvidence: string[], messages: string[]) {
+/** Итог эффектов для игрока: новые и убранные улики, сообщения автора (длинный текст висит дольше), затем перенос игрока и запуск диалога. */
+function announce(newEvidence: string[], messages: string[], removedEvidence: string[] = [], followUp: EffectOutcome["followUp"] = {}) {
   newEvidence.forEach((id) => toast(`В дело добавлено: ${evidenceTitle(id)}`));
+  removedEvidence.forEach((id) => toast(`Из дела убрано: ${evidenceTitle(id)}`));
   messages.forEach((text) => toast(text, Math.min(9000, 2500 + text.length * 50)));
+  runFollowUp(followUp);
+}
+
+let followDepth = 0;
+/** Перенос игрока и запуск диалога, которые потребовали эффекты. Глубина ограничена: локации с взаимным переносом не зациклят игру. */
+function runFollowUp(f: EffectOutcome["followUp"]) {
+  if ((!f.travel && !f.dialogueId) || followDepth >= 5) return;
+  followDepth++;
+  try {
+    if (f.travel) moveToLocation(f.travel.to, f.travel.spawn);
+    const dialogue = f.dialogueId ? state.caseFile?.dialogues.find((d) => d.id === f.dialogueId) : undefined;
+    if (dialogue) enterNode(`effect:${dialogue.id}`, dialogue.id, dialogue.startNodeId);
+  } finally {
+    followDepth--;
+  }
+}
+
+function moveToLocation(to: string, spawn: { x: number; y: number }) {
+  set({ locationId: to, spawn });
+  enterLocation(to);
 }
 
 const whereIs = (characterId: string) => gameBridge.whereIs?.(characterId);
@@ -192,9 +213,9 @@ const fxCtx = (site?: string) => ({
 function enterLocation(locationId: string) {
   const loc = state.caseFile?.locations.find((l) => l.id === locationId);
   if (!loc?.onEnter?.length) return;
-  const { progress, newEvidence, messages } = applyEffects(withZoneTargets(loc.onEnter), state.progress, fxCtx(`enter:${loc.id}`));
+  const { progress, newEvidence, messages, removedEvidence, followUp } = applyEffects(withZoneTargets(loc.onEnter), state.progress, fxCtx(`enter:${loc.id}`));
   set({ progress });
-  announce(newEvidence, messages);
+  announce(newEvidence, messages, removedEvidence, followUp);
 }
 
 /**
@@ -222,9 +243,9 @@ function enterNode(npcId: string, dialogueId: string, nodeId: string) {
   const dialogue = state.caseFile?.dialogues.find((d) => d.id === dialogueId);
   const node = dialogue?.nodes.find((n) => n.id === nodeId);
   if (!node) return;
-  const { progress, newEvidence, messages } = applyEffects(withZoneTargets(node.effects), state.progress, fxCtx(`node:${dialogueId}/${nodeId}`));
+  const { progress, newEvidence, messages, removedEvidence, followUp } = applyEffects(withZoneTargets(node.effects), state.progress, fxCtx(`node:${dialogueId}/${nodeId}`));
   set({ progress, overlay: { kind: "dialogue", npcId, dialogueId, nodeId } });
-  announce(newEvidence, messages);
+  announce(newEvidence, messages, removedEvidence, followUp);
 }
 
 /**
@@ -282,9 +303,9 @@ function runZoneAction(zoneId: string, a: ZoneAction) {
     if (dialogue) enterNode(`zone:${zoneId}`, dialogue.id, dialogue.startNodeId);
   } else if (a.kind === "object") actions.interact(a.objectId);
   else if (a.kind === "effects") {
-    const { progress, newEvidence, messages } = applyEffects(withZoneTargets(a.effects), state.progress, fxCtx(`zone:${zoneId}#${state.caseFile?.locations.flatMap((l) => l.zones).find((z) => z.id === zoneId)?.actions.indexOf(a)}`));
+    const { progress, newEvidence, messages, removedEvidence, followUp } = applyEffects(withZoneTargets(a.effects), state.progress, fxCtx(`zone:${zoneId}#${state.caseFile?.locations.flatMap((l) => l.zones).find((z) => z.id === zoneId)?.actions.indexOf(a)}`));
     set({ progress });
-    announce(newEvidence, messages);
+    announce(newEvidence, messages, removedEvidence, followUp);
   } else actions.travel({ to: a.to, spawn: a.spawn });
 }
 
@@ -423,8 +444,7 @@ export const actions = {
   /** Переход через дверь в другую локацию; сцену перестраивает OfficeScene. */
   travel(exit: { to: string; spawn: { x: number; y: number } }) {
     if (isWorldBlocked(state)) return;
-    set({ locationId: exit.to, spawn: exit.spawn });
-    enterLocation(exit.to);
+    moveToLocation(exit.to, exit.spawn);
   },
 
   /** Сцена запомнила позицию игрока (без перерисовки: меняется каждую секунду движения). */
@@ -490,14 +510,14 @@ export const actions = {
     if (obj && isInteractive(obj)) {
       // улика из окна осмотра выдаётся всегда; эффекты `onInteract` — при каждом осмотре (разово — настройкой `once` у эффекта)
       const evidenceId = obj.interaction?.evidenceId;
-      const first = evidenceId ? applyEffects([{ type: "addEvidence", evidenceId }], s.progress, fxCtx()) : { progress: s.progress, newEvidence: [] as string[], messages: [] as string[] };
+      const first = evidenceId ? applyEffects([{ type: "addEvidence", evidenceId }], s.progress, fxCtx()) : { progress: s.progress, newEvidence: [] as string[], messages: [] as string[], removedEvidence: [] as string[], followUp: {} };
       const own = applyEffects(withZoneTargets(obj.onInteract ?? []), first.progress, fxCtx(`object:${obj.id}`));
       set({
         progress: own.progress,
         // окно осмотра — только у предмета с `interaction`; без него эффекты срабатывают молча (или сообщением)
         ...(obj.interaction ? { overlay: { kind: "object" as const, objectId: obj.id }, examined: s.examined.includes(obj.id) ? s.examined : [...s.examined, obj.id] } : {}),
       });
-      announce([...first.newEvidence, ...own.newEvidence], [...first.messages, ...own.messages]);
+      announce([...first.newEvidence, ...own.newEvidence], [...first.messages, ...own.messages], [...first.removedEvidence, ...own.removedEvidence], own.followUp);
     }
   },
 
@@ -506,9 +526,9 @@ export const actions = {
     const obj = state.caseFile && findObject(state.caseFile, objectId);
     const evidenceId = obj?.interaction?.evidenceId;
     if (!evidenceId) return;
-    const { progress, newEvidence, messages } = applyEffects([{ type: "addEvidence", evidenceId }], state.progress, fxCtx());
+    const { progress, newEvidence, messages, removedEvidence, followUp } = applyEffects([{ type: "addEvidence", evidenceId }], state.progress, fxCtx());
     set({ progress });
-    announce(newEvidence, messages);
+    announce(newEvidence, messages, removedEvidence, followUp);
   },
 
   /** Пометить материал важным/неважным; повторная пометка тем же — снимает. */
@@ -552,9 +572,11 @@ export const actions = {
     if (!state.usedChoices.includes(key)) set((s) => ({ usedChoices: [...s.usedChoices, key] }));
     // эффекты варианта — при каждом выборе, до ответа персонажа
     if (choice.effects?.length) {
-      const { progress, newEvidence, messages } = applyEffects(withZoneTargets(choice.effects), state.progress, fxCtx(`choice:${o.dialogueId}/${o.nodeId}/${choice.id}`));
+      const { progress, newEvidence, messages, removedEvidence, followUp } = applyEffects(withZoneTargets(choice.effects), state.progress, fxCtx(`choice:${o.dialogueId}/${o.nodeId}/${choice.id}`));
       set({ progress });
-      announce(newEvidence, messages);
+      announce(newEvidence, messages, removedEvidence, followUp);
+      // эффект запустил другой диалог — обычный переход по варианту не нужен
+      if (followUp.dialogueId && state.caseFile?.dialogues.some((d) => d.id === followUp.dialogueId)) return;
     }
     if (choice.next === null) set({ overlay: null });
     else enterNode(o.npcId, o.dialogueId, choice.next);
@@ -587,18 +609,18 @@ export const actions = {
     if (!verdict.correct) {
       set((s) => ({ wrongDeductions: s.wrongDeductions + 1 }));
       if (d.failEffects?.length) {
-        const { progress, newEvidence, messages } = applyEffects(withZoneTargets(d.failEffects), state.progress, fxCtx(`deductionFail:${d.id}`));
+        const { progress, newEvidence, messages, removedEvidence, followUp } = applyEffects(withZoneTargets(d.failEffects), state.progress, fxCtx(`deductionFail:${d.id}`));
         set({ progress });
-        announce(newEvidence, messages);
+        announce(newEvidence, messages, removedEvidence, followUp);
       }
       return verdict;
     }
     if (!state.progress.deductions.includes(d.id)) {
       const base = { ...state.progress, deductions: [...state.progress.deductions, d.id] };
-      const { progress, newEvidence, messages } = applyEffects(d.effects, base, fxCtx(`deduction:${d.id}`));
+      const { progress, newEvidence, messages, removedEvidence, followUp } = applyEffects(d.effects, base, fxCtx(`deduction:${d.id}`));
       set((s) => ({ progress, conclusions: { ...s.conclusions, [d.id]: verdict.conclusion ?? "" } }));
       toast(`Установлен вывод: ${d.title}`);
-      announce(newEvidence, messages);
+      announce(newEvidence, messages, removedEvidence, followUp);
     }
     return verdict;
   },
