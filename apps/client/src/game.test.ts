@@ -1031,6 +1031,45 @@ describe("осмотр предмета с несколькими уликами
   });
 });
 
+describe("события состояний предмета (сейф в тестовом деле)", () => {
+  const start = (initialSafe?: string) => {
+    const raw = structuredClone(testCaseJson) as unknown as CaseFile;
+    if (initialSafe) raw.enums!.find((e) => e.id === "test_safe")!.initial = initialSafe;
+    const c = validateCase(raw);
+    if (!c.ok) throw new Error(c.errors.join("; "));
+    setPlatform(createMemoryPlatform());
+    actions.openCase(new LocalAuthority(c.caseFile));
+    actions.beginInvestigation();
+  };
+  const toasts = () => store.get().toasts.map((t) => t.text);
+
+  it("вход в состояние срабатывает при живой смене, выход — при уходе из него", () => {
+    start();
+    actions.interact("npc_timur");
+    actions.choose("n_menu");
+    expect(store.get().progress.flags).not.toContain("test_safe_opened");
+    actions.choose("n2a"); // закрыт → открыт
+    expect(store.get().progress.flags).toContain("test_safe_opened");
+    expect(toasts()).not.toContain("Дверца сейфа захлопнулась.");
+    actions.choose("n2c"); // открыт → закрыт
+    expect(toasts()).toContain("Дверца сейфа захлопнулась.");
+  });
+
+  it("сейф «сломан» — переход без эффектов: флаг не ставится", () => {
+    start();
+    actions.interact("npc_timur");
+    actions.choose("n_menu");
+    actions.choose("n2b");
+    expect(store.get().progress.flags).not.toContain("test_safe_opened");
+  });
+
+  it("начальное состояние (старт дела, загрузка) эффектов не запускает", () => {
+    start("open");
+    expect(store.get().progress.enums.test_safe).toBe("open");
+    expect(store.get().progress.flags).not.toContain("test_safe_opened");
+  });
+});
+
 describe("тестовое дело: ветка «Новые возможности»", () => {
   it("сценарии 1–4 и 7 проходятся: эффекты варианта, сейф, ключ, составное условие, провал", () => {
     const c = validateCase(structuredClone(testCaseJson) as unknown as CaseFile);

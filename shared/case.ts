@@ -265,6 +265,8 @@ export const ObjectState = z.object({
   frame: z.string().optional().describe("Кадр спрайта; без значения — кадр по умолчанию"),
   solid: z.boolean().optional().describe("Мешает ли проходу в этом состоянии; без значения — как у спрайта"),
   interaction: ObjectInteraction.nullable().optional().describe("Окно осмотра в этом состоянии; без значения — как у предмета, null — без окна"),
+  onEnter: z.array(Effect).optional().describe("Эффекты в момент, когда предмет перешёл в это состояние (только при смене во время игры, не при загрузке сохранения)"),
+  onExit: z.array(Effect).optional().describe("Эффекты в момент, когда предмет вышел из этого состояния"),
 });
 
 export const LocationObject = z.object({

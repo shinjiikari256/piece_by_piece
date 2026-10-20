@@ -428,7 +428,20 @@
               "interaction": {
                 "title": "Сейф открыт",
                 "description": "Дверца распахнута, внутри пусто."
-              }
+              },
+              "onEnter": [
+                {
+                  "type": "changeVariable",
+                  "variableId": "test_safe_opened",
+                  "action": "on"
+                }
+              ],
+              "onExit": [
+                {
+                  "type": "message",
+                  "text": "Дверца сейфа захлопнулась."
+                }
+              ]
             },
             {
               "id": "broken",
@@ -4094,6 +4107,10 @@
     {
       "id": "test_flag_bonus",
       "name": "Тест: бонус получен"
+    },
+    {
+      "id": "test_safe_opened",
+      "name": "Тест: сейф был вскрыт"
     }
   ],
   "lawReference": {

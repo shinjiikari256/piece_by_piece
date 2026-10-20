@@ -4,6 +4,8 @@ import { isInteractive } from "../../../../shared/case";
 import { startProgress } from "../../../../shared/conditions";
 import { activeState, currentInteraction } from "../../../../shared/object-state";
 import testCase from "./test-cases/case-test-moveto.json";
+import { effectSites } from "../../../../shared/effect-sites";
+import { flagUsage, deleteFlag } from "../editor/fields/Conditions";
 import { validateCase } from "./validate";
 
 const base = testCase as unknown as CaseFile;
@@ -58,5 +60,14 @@ describe("состояния предметов", () => {
     expect(errors).toContain("нет кадра нет_такого");
     expect(errors).toContain("dec_safe");
     expect(errors).toContain("нет_улики");
+  });
+
+  it("эффекты входа и выхода — места эффектов: попадают в «где используется» и чистятся при удалении флага", () => {
+    const owners = effectSites(base).flatMap((s) => (s.owner.kind === "objectState" ? [`${s.owner.stateId}:${s.owner.phase}`] : []));
+    expect(owners).toEqual(expect.arrayContaining(["open:enter", "open:exit"]));
+    expect((flagUsage(base).get("test_safe_opened") ?? []).some((u) => u.where.includes("Сейф"))).toBe(true);
+    const cleaned = deleteFlag(base, "test_safe_opened");
+    const open = cleaned.locations.flatMap((l) => l.objects).find((o) => o.id === "dec_safe")!.states![0];
+    expect(open.onEnter).toEqual([]);
   });
 });

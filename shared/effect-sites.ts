@@ -9,6 +9,7 @@ export type EffectOwner =
   | { kind: "evidence"; evidenceId: string; title: string }
   | { kind: "enter"; locationId: string; locationName: string }
   | { kind: "object"; locationId: string; locationName: string; objectId: string; label: string }
+  | { kind: "objectState"; locationId: string; locationName: string; objectId: string; label: string; stateId: string; phase: "enter" | "exit" }
   | { kind: "zone"; locationId: string; locationName: string; zoneId: string; zoneName: string; actionIndex: number }
   | { kind: "zoneFallback"; locationId: string; locationName: string; zoneId: string; zoneName: string };
 
@@ -68,6 +69,19 @@ function walkEffects<C extends EffectCase>(c: C, visit: (effects: Effect[], owne
       objects: l.objects.map((o) => ({
         ...o,
         onInteract: visit(o.onInteract ?? [], { kind: "object", locationId: l.id, locationName: l.name, objectId: o.id, label: o.label || o.id }, `location ${l.id}/object ${o.id}: эффекты осмотра`),
+        ...(o.states
+          ? {
+              states: o.states.map((st) => {
+                const owner = { kind: "objectState" as const, locationId: l.id, locationName: l.name, objectId: o.id, label: o.label || o.id, stateId: st.id };
+                const where = `location ${l.id}/object ${o.id}: состояние ${st.id}`;
+                return {
+                  ...st,
+                  onEnter: visit(st.onEnter ?? [], { ...owner, phase: "enter" }, `${where}, вход`),
+                  onExit: visit(st.onExit ?? [], { ...owner, phase: "exit" }, `${where}, выход`),
+                };
+              }),
+            }
+          : {}),
       })),
       zones: l.zones.map((z) => ({
         ...z,

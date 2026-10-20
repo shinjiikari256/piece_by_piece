@@ -1,6 +1,6 @@
 import { editorPathOfPlaytest } from "../content/drafts";
 import { useSyncExternalStore } from "react";
-import { currentInteraction } from "../../../../shared/object-state";
+import { activeState, currentInteraction } from "../../../../shared/object-state";
 import { isInteractive, objectEvidenceIds, type Effect, type Solution, type Zone, type ZoneAction } from "../../../../shared/case";
 import type { PublicCase, PublicDeduction } from "../../../../shared/public-case";
 import { RESULT_FORMAT_VERSION, type CaseAuthority, type DeductionVerdict, type FinishInput, type RevealedHint } from "../../../../shared/judge";
@@ -127,6 +127,44 @@ function set(patch: Partial<GameState> | ((s: GameState) => Partial<GameState>))
     } catch (e) {
       console.error(`[${APP_NAME}] ошибка подписчика стора:`, e);
     }
+  }
+  watchObjectStates();
+}
+
+/** Состояния предметов на прошлой проверке (`null` — игра не идёт; первая проверка только запоминает, эффекты не срабатывают). */
+let objectStateMemo: Map<string, string | null> | null = null;
+let stateDepth = 0;
+/** Живая смена состояния предмета: эффекты выхода из прежнего и входа в новое (при загрузке сохранения не срабатывают). */
+function watchObjectStates() {
+  const c = state.caseFile;
+  if (!c || state.screen !== "play") {
+    objectStateMemo = null;
+    return;
+  }
+  const now = new Map<string, string | null>();
+  for (const l of c.locations) for (const o of l.objects) if (o.states?.length) now.set(`${l.id}/${o.id}`, activeState(o, state.progress, state.locationId)?.id ?? null);
+  const prev = objectStateMemo;
+  objectStateMemo = now;
+  if (!prev || stateDepth >= 5) return;
+  const run: { site: string; effects: Effect[] }[] = [];
+  for (const l of c.locations)
+    for (const o of l.objects) {
+      const key = `${l.id}/${o.id}`;
+      const [was, is] = [prev.get(key) ?? null, now.get(key) ?? null];
+      if (was === is) continue;
+      const fx = (id: string | null, phase: "onExit" | "onEnter") => (id ? o.states?.find((st) => st.id === id)?.[phase] ?? [] : []);
+      run.push({ site: `state:${o.id}/${was}>exit`, effects: fx(was, "onExit") }, { site: `state:${o.id}/${is}>enter`, effects: fx(is, "onEnter") });
+    }
+  stateDepth++;
+  try {
+    for (const { site, effects } of run) {
+      if (!effects.length) continue;
+      const out = applyEffects(withZoneTargets(effects), state.progress, fxCtx(site));
+      set({ progress: out.progress });
+      announce(out.newEvidence, out.messages, out.removedEvidence, out.followUp);
+    }
+  } finally {
+    stateDepth--;
   }
 }
 
