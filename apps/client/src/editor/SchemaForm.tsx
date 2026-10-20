@@ -14,7 +14,7 @@ import { RefMulti, StringList } from "./fields/RefChips";
 import { Condition, ConditionEditor, FlagPicker } from "./fields/Conditions";
 
 /** Поля-списки эффектов: рисуются редактором эффектов. */
-const EFFECT_FIELDS = new Set(["effects", "onCollect", "failEffects", "onEnter"]);
+const EFFECT_FIELDS = new Set(["effects", "onCollect", "failEffects", "onEnter", "onInteract"]);
 import { EffectsEditor } from "./fields/Effects";
 import { AttachmentSource } from "./fields/Attachment";
 export { FlagDialog, deleteFlag, flagUsage, type FlagUse } from "./fields/Conditions";

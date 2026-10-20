@@ -1,5 +1,5 @@
 import { useState } from "react";
-import type { CaseFile, Condition, Effect, Zone, ZoneAction } from "../../../../../shared/case";
+import { isInteractive, type CaseFile, type Condition, type Effect, type Zone, type ZoneAction } from "../../../../../shared/case";
 import { EffectsEditor } from "../fields/Effects";
 import { Select } from "../../ui/Select";
 import { moveItem } from "../../util/lists";
@@ -20,7 +20,7 @@ export function ZoneActions({ zone, draft, onChange }: { zone: Zone; draft: Case
   const [picking, setPicking] = useState<number | null>(null); // чья точка появления выбирается на карте
   const set = (i: number, a: ZoneAction) => onChange(zone.actions.map((x, k) => (k === i ? a : x)));
   const dialogues = draft.dialogues.map((d) => ({ value: d.id, label: `${draft.characters.find((c) => c.id === d.characterId)?.name ?? d.characterId} · ${d.id}` }));
-  const objects = draft.locations.flatMap((l) => l.objects.filter((o) => o.interaction).map((o) => ({ value: o.id, label: `${o.label || o.sprite} · ${l.name}` })));
+  const objects = draft.locations.flatMap((l) => l.objects.filter(isInteractive).map((o) => ({ value: o.id, label: `${o.label || o.sprite} · ${l.name}` })));
   const locations = draft.locations.map((l) => ({ value: l.id, label: l.name }));
   const blank = (kind: ZoneAction["kind"]): ZoneAction => {
     if (kind === "dialogue") return { kind, dialogueId: draft.dialogues[0]?.id ?? "" };

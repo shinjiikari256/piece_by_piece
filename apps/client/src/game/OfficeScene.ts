@@ -1,5 +1,5 @@
 import Phaser from "phaser";
-import type { Door, Location } from "../../../../shared/case";
+import { isInteractive, type Door, type Location } from "../../../../shared/case";
 import type { PublicCase as CaseFile } from "../../../../shared/public-case";
 import { meets } from "../../../../shared/conditions";
 import { firstFloorCell, getLocation } from "../content/case-utils";
@@ -246,7 +246,7 @@ export class OfficeScene extends Phaser.Scene {
         .setDepth(spec.flat ? 0 : bottom);
       const footprint = Array.from({ length: spec.footprint }, (_, i) => ({ x: o.x + i, y: o.y }));
       if (spec.solid) footprint.forEach((t) => this.setSolid(t.x, t.y));
-      if (!o.interaction) continue;
+      if (!isInteractive(o)) continue;
 
       const top = bottom - spec.h * SCALE;
       const item: Interactable = {

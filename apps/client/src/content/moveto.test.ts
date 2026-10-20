@@ -488,3 +488,45 @@ describe("переименование ключа переменной", () => {
     expect(countRefs(c as unknown as Record<string, unknown>, "hp")).toBeGreaterThan(0);
   });
 });
+
+describe("настройка once у эффекта", () => {
+  const inc: Effect = { type: "changeVariable", variableId: "n", action: "add", value: 1, once: true };
+  it("срабатывает один раз по ключу места и номера; без site — каждый раз", () => {
+    const run = (p: ReturnType<typeof emptyProgress>, site?: string) => applyEffects([inc, { ...inc, once: undefined }], p, { site }).progress;
+    const once = run(run(emptyProgress(), "x"), "x");
+    expect(once.counters.n).toBe(3); // 1-й вызов: 2, 2-й: только эффект без once
+    expect(once.fired).toContain("once:x#0");
+    expect(run(run(emptyProgress()), undefined).counters.n).toBe(4); // без site once не отслеживается
+    expect(run(run(emptyProgress(), "x"), "y").counters.n).toBe(4); // другое место — свой ключ
+  });
+  it("эффект с невыполненным requires не тратит once", () => {
+    const e: Effect = { ...inc, requires: { flags: ["go"] } };
+    const p1 = applyEffects([e], emptyProgress(), { site: "z" }).progress;
+    expect(p1.counters.n).toBeUndefined();
+    const p2 = applyEffects([e], { ...p1, flags: ["go"] }, { site: "z" }).progress;
+    expect(p2.counters.n).toBe(1);
+  });
+  it("эффекты улики (onCollect) тоже учитывают once", () => {
+    const fx: Effect[] = [{ type: "addEvidence", evidenceId: "a" }];
+    const out = applyEffects(fx, emptyProgress(), { onCollect: () => [inc] });
+    expect(out.progress.counters.n).toBe(1);
+    expect(out.progress.fired).toContain("once:collect:a#0");
+  });
+});
+
+describe("миграция 5 → 6: onInteract", () => {
+  it("interaction.effects переезжают в onInteract объекта", () => {
+    const old = structuredClone(case001) as unknown as Record<string, any>; // eslint-disable-line @typescript-eslint/no-explicit-any
+    old.formatVersion = 5;
+    const obj = old.locations.flatMap((l: any) => l.objects).find((o: any) => o.interaction); // eslint-disable-line @typescript-eslint/no-explicit-any
+    delete obj.onInteract;
+    obj.interaction.effects = [{ type: "changeVariable", variableId: "a", action: "on" }];
+    const r = migrateCase(old);
+    expect(r.ok).toBe(true);
+    if (!r.ok) return;
+    const moved = (r.data.locations as any[]).flatMap((l) => l.objects).find((o) => o.id === obj.id); // eslint-disable-line @typescript-eslint/no-explicit-any
+    expect(moved.interaction.effects).toBeUndefined();
+    // «только первый осмотр» стало настройкой эффекта
+    expect(moved.onInteract).toEqual([{ type: "changeVariable", variableId: "a", action: "on", once: true }]);
+  });
+});

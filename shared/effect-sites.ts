@@ -64,17 +64,10 @@ function walkEffects<C extends EffectCase>(c: C, visit: (effects: Effect[], owne
     locations: c.locations.map((l) => ({
       ...l,
       onEnter: visit(l.onEnter ?? [], { kind: "enter", locationId: l.id, locationName: l.name }, `location ${l.id}: эффекты входа`),
-      objects: l.objects.map((o) =>
-        o.interaction
-          ? {
-              ...o,
-              interaction: {
-                ...o.interaction,
-                effects: visit(o.interaction.effects ?? [], { kind: "object", locationId: l.id, locationName: l.name, objectId: o.id, label: o.label || o.id }, `location ${l.id}/object ${o.id}: эффекты осмотра`),
-              },
-            }
-          : o,
-      ),
+      objects: l.objects.map((o) => ({
+        ...o,
+        onInteract: visit(o.onInteract ?? [], { kind: "object", locationId: l.id, locationName: l.name, objectId: o.id, label: o.label || o.id }, `location ${l.id}/object ${o.id}: эффекты осмотра`),
+      })),
       zones: l.zones.map((z) => ({
         ...z,
         actions: z.actions.map((a, i) =>

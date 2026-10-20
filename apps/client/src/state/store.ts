@@ -1,6 +1,6 @@
 import { editorPathOfPlaytest } from "../content/drafts";
 import { useSyncExternalStore } from "react";
-import type { Effect, Solution, ZoneAction } from "../../../../shared/case";
+import { isInteractive, type Effect, type Solution, type ZoneAction } from "../../../../shared/case";
 import type { PublicCase, PublicDeduction } from "../../../../shared/public-case";
 import { RESULT_FORMAT_VERSION, type CaseAuthority, type DeductionVerdict, type FinishInput, type RevealedHint } from "../../../../shared/judge";
 import { APP_NAME, FROM_EDITOR, GAME_VERSION } from "../env";
@@ -179,7 +179,8 @@ function announce(newEvidence: string[], messages: string[]) {
 
 const whereIs = (characterId: string) => gameBridge.whereIs?.(characterId);
 /** Окружение эффектов: где стоят персонажи, границы счётчиков, где игрок (для условий эффектов). */
-const fxCtx = () => ({
+const fxCtx = (site?: string) => ({
+  site,
   whereIs,
   counters: state.caseFile?.counters ?? [],
   locationId: state.locationId,
@@ -187,15 +188,11 @@ const fxCtx = () => ({
   onCollect: (id: string) => withZoneTargets(state.caseFile?.evidence.find((e) => e.id === id)?.onCollect ?? []),
 });
 
-/** Игрок вошёл в локацию: эффекты входа — один раз за прохождение или каждый раз (`onEnterRepeat`). */
+/** Игрок вошёл в локацию: эффекты входа при каждом входе (один раз — настройкой `once` у самого эффекта). */
 function enterLocation(locationId: string) {
   const loc = state.caseFile?.locations.find((l) => l.id === locationId);
   if (!loc?.onEnter?.length) return;
-  const key = `enter:${loc.id}`;
-  const seen = state.progress.fired.includes(key);
-  if (seen && !loc.onEnterRepeat) return;
-  const base = seen ? state.progress : { ...state.progress, fired: [...state.progress.fired, key] };
-  const { progress, newEvidence, messages } = applyEffects(withZoneTargets(loc.onEnter), base, fxCtx());
+  const { progress, newEvidence, messages } = applyEffects(withZoneTargets(loc.onEnter), state.progress, fxCtx(`enter:${loc.id}`));
   set({ progress });
   announce(newEvidence, messages);
 }
@@ -225,7 +222,7 @@ function enterNode(npcId: string, dialogueId: string, nodeId: string) {
   const dialogue = state.caseFile?.dialogues.find((d) => d.id === dialogueId);
   const node = dialogue?.nodes.find((n) => n.id === nodeId);
   if (!node) return;
-  const { progress, newEvidence, messages } = applyEffects(withZoneTargets(node.effects), state.progress, fxCtx());
+  const { progress, newEvidence, messages } = applyEffects(withZoneTargets(node.effects), state.progress, fxCtx(`node:${dialogueId}/${nodeId}`));
   set({ progress, overlay: { kind: "dialogue", npcId, dialogueId, nodeId } });
   announce(newEvidence, messages);
 }
@@ -274,7 +271,7 @@ function runZoneAction(zoneId: string, a: ZoneAction) {
     if (dialogue) enterNode(`zone:${zoneId}`, dialogue.id, dialogue.startNodeId);
   } else if (a.kind === "object") actions.interact(a.objectId);
   else if (a.kind === "effects") {
-    const { progress, newEvidence, messages } = applyEffects(withZoneTargets(a.effects), state.progress, fxCtx());
+    const { progress, newEvidence, messages } = applyEffects(withZoneTargets(a.effects), state.progress, fxCtx(`zone:${zoneId}#${state.caseFile?.locations.flatMap((l) => l.zones).find((z) => z.id === zoneId)?.actions.indexOf(a)}`));
     set({ progress });
     announce(newEvidence, messages);
   } else actions.travel({ to: a.to, spawn: a.spawn });
@@ -468,28 +465,26 @@ export const actions = {
     }
     // осмотренное сразу попадает в дело
     const obj = findObject(s.caseFile, targetId);
-    if (obj?.interaction) {
-      const first = !s.examined.includes(obj.id);
-      // эффекты — только при первом осмотре
-      const { progress, newEvidence, messages } = applyEffects(
-        [{ type: "addEvidence", evidenceId: obj.interaction.evidenceId }, ...(first ? withZoneTargets(obj.interaction.effects ?? []) : [])],
-        s.progress,
-        fxCtx(),
-      );
+    if (obj && isInteractive(obj)) {
+      // улика из окна осмотра выдаётся всегда; эффекты `onInteract` — при каждом осмотре (разово — настройкой `once` у эффекта)
+      const evidenceId = obj.interaction?.evidenceId;
+      const first = evidenceId ? applyEffects([{ type: "addEvidence", evidenceId }], s.progress, fxCtx()) : { progress: s.progress, newEvidence: [] as string[], messages: [] as string[] };
+      const own = applyEffects(withZoneTargets(obj.onInteract ?? []), first.progress, fxCtx(`object:${obj.id}`));
       set({
-        progress,
-        overlay: { kind: "object", objectId: obj.id },
-        examined: s.examined.includes(obj.id) ? s.examined : [...s.examined, obj.id],
+        progress: own.progress,
+        // окно осмотра — только у предмета с `interaction`; без него эффекты срабатывают молча (или сообщением)
+        ...(obj.interaction ? { overlay: { kind: "object" as const, objectId: obj.id }, examined: s.examined.includes(obj.id) ? s.examined : [...s.examined, obj.id] } : {}),
       });
-      announce(newEvidence, messages);
+      announce([...first.newEvidence, ...own.newEvidence], [...first.messages, ...own.messages]);
     }
   },
 
   /** Совместимость: осмотр и так добавляет материал в дело. */
   addObjectToJournal(objectId: string) {
     const obj = state.caseFile && findObject(state.caseFile, objectId);
-    if (!obj?.interaction) return;
-    const { progress, newEvidence, messages } = applyEffects([{ type: "addEvidence", evidenceId: obj.interaction.evidenceId }], state.progress, fxCtx());
+    const evidenceId = obj?.interaction?.evidenceId;
+    if (!evidenceId) return;
+    const { progress, newEvidence, messages } = applyEffects([{ type: "addEvidence", evidenceId }], state.progress, fxCtx());
     set({ progress });
     announce(newEvidence, messages);
   },
@@ -535,7 +530,7 @@ export const actions = {
     if (!state.usedChoices.includes(key)) set((s) => ({ usedChoices: [...s.usedChoices, key] }));
     // эффекты варианта — при каждом выборе, до ответа персонажа
     if (choice.effects?.length) {
-      const { progress, newEvidence, messages } = applyEffects(withZoneTargets(choice.effects), state.progress, fxCtx());
+      const { progress, newEvidence, messages } = applyEffects(withZoneTargets(choice.effects), state.progress, fxCtx(`choice:${o.dialogueId}/${o.nodeId}/${choice.id}`));
       set({ progress });
       announce(newEvidence, messages);
     }
@@ -570,7 +565,7 @@ export const actions = {
     if (!verdict.correct) {
       set((s) => ({ wrongDeductions: s.wrongDeductions + 1 }));
       if (d.failEffects?.length) {
-        const { progress, newEvidence, messages } = applyEffects(withZoneTargets(d.failEffects), state.progress, fxCtx());
+        const { progress, newEvidence, messages } = applyEffects(withZoneTargets(d.failEffects), state.progress, fxCtx(`deductionFail:${d.id}`));
         set({ progress });
         announce(newEvidence, messages);
       }
@@ -578,7 +573,7 @@ export const actions = {
     }
     if (!state.progress.deductions.includes(d.id)) {
       const base = { ...state.progress, deductions: [...state.progress.deductions, d.id] };
-      const { progress, newEvidence, messages } = applyEffects(d.effects, base, fxCtx());
+      const { progress, newEvidence, messages } = applyEffects(d.effects, base, fxCtx(`deduction:${d.id}`));
       set((s) => ({ progress, conclusions: { ...s.conclusions, [d.id]: verdict.conclusion ?? "" } }));
       toast(`Установлен вывод: ${d.title}`);
       announce(newEvidence, messages);

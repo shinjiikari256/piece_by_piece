@@ -121,6 +121,11 @@ export interface EffectContext {
   locationId?: string;
   /** Эффекты улики в момент попадания в дело (`Evidence.onCollect`); срабатывают сразу после выдавшего эффекта. */
   onCollect?: (evidenceId: string) => Effect[];
+  /**
+   * Где лежит список (например, `node:dlg/start`): по нему и номеру эффекта строится ключ «один раз» (`once:<site>#<номер>`) в `Progress.fired`.
+   * Без `site` эффекты с `once` срабатывают каждый раз.
+   */
+  site?: string;
 }
 
 /**
@@ -145,16 +150,26 @@ export function applyEffects(effects: Effect[], p: Progress, ctx: EffectContext 
   const messages: string[] = [];
   // очередь: эффекты улики встают сразу за выдавшим её эффектом; предел страхует от зацикливания
   const queue = [...effects];
+  // ключи «один раз»: у исходных эффектов — по месту и номеру, у эффектов улики — по улике и номеру
+  const keys: (string | undefined)[] = effects.map((_, i) => (ctx.site ? `once:${ctx.site}#${i}` : undefined));
   for (let i = 0; i < queue.length && i < 1000; i++) {
     const e = queue[i];
     if (e.requires && !meets(e.requires, next, ctx.locationId)) continue;
+    const onceKey = e.once ? keys[i] : undefined;
+    if (onceKey) {
+      if (next.fired.includes(onceKey)) continue;
+      next.fired.push(onceKey);
+    }
     switch (e.type) {
       case "addEvidence":
         if (!next.collected.includes(e.evidenceId)) {
           next.collected.push(e.evidenceId);
           newEvidence.push(e.evidenceId);
           const extra = ctx.onCollect?.(e.evidenceId) ?? [];
-          if (extra.length) queue.splice(i + 1, 0, ...extra);
+          if (extra.length) {
+            queue.splice(i + 1, 0, ...extra);
+            keys.splice(i + 1, 0, ...extra.map((_, j) => `once:collect:${e.evidenceId}#${j}`));
+          }
         }
         break;
       case "changeVariable": {

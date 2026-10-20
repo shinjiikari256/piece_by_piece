@@ -43,37 +43,42 @@ export function ObjectPanel({ objectId }: { objectId: string }) {
   const obj = findObject(caseFile, objectId);
   if (!obj?.interaction) return null;
   const it = obj.interaction;
-  const evidence = caseFile.evidence.find((e) => e.id === it.evidenceId)!;
-  const mark = marks[evidence.id];
+  // осмотр без материала: только текст
+  const evidence = it.evidenceId ? caseFile.evidence.find((e) => e.id === it.evidenceId) : undefined;
+  const mark = evidence ? marks[evidence.id] : undefined;
   return (
     <TabbedModal tabs={[{ id: "inspect", label: "Осмотр", icon: "search" }]} size="narrow" className="inspect">
       <h2 className="modal__title">{it.title}</h2>
       {it.description && <Md className="lead" text={it.description} />}
-      <EvidenceDetail evidence={evidence} mark={mark} hideMarks />
+      {evidence && <EvidenceDetail evidence={evidence} mark={mark} hideMarks />}
       <div className="modal__actions inspect__actions">
-        <span className="muted inspect__note">
-          <Icon name="check" size={14} /> Добавлено в материалы дела
-        </span>
-        <button
-          className="btn mark-close mark-close--important" aria-pressed={mark === "important"}
-          onClick={() => {
-            actions.setMark(evidence.id, "important");
-            actions.close();
-          }}
-          title="Пометить важным и закрыть"
-        >
-          <Icon name="star" size={15} /> Важно
-        </button>
-        <button
-          className="btn mark-close" aria-pressed={mark === "unimportant"}
-          onClick={() => {
-            actions.setMark(evidence.id, "unimportant");
-            actions.close();
-          }}
-          title="Пометить неважным и закрыть"
-        >
-          <Icon name="dim" size={15} /> Неважно
-        </button>
+        {evidence && (
+          <>
+            <span className="muted inspect__note">
+              <Icon name="check" size={14} /> Добавлено в материалы дела
+            </span>
+            <button
+              className="btn mark-close mark-close--important" aria-pressed={mark === "important"}
+              onClick={() => {
+                actions.setMark(evidence.id, "important");
+                actions.close();
+              }}
+              title="Пометить важным и закрыть"
+            >
+              <Icon name="star" size={15} /> Важно
+            </button>
+            <button
+              className="btn mark-close" aria-pressed={mark === "unimportant"}
+              onClick={() => {
+                actions.setMark(evidence.id, "unimportant");
+                actions.close();
+              }}
+              title="Пометить неважным и закрыть"
+            >
+              <Icon name="dim" size={15} /> Неважно
+            </button>
+          </>
+        )}
         <button className="btn btn--primary" onClick={actions.close}>
           Закрыть
         </button>

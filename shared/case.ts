@@ -75,7 +75,10 @@ export const Condition = BaseCondition.extend({
 });
 
 /** Необязательное условие эффекта: проверяется в момент применения, по состоянию после предыдущих эффектов списка. */
-const effectWhen = { requires: Condition.optional().describe("Применять, только если условие выполнено (проверяется в момент применения)") };
+const effectWhen = {
+  requires: Condition.optional().describe("Применять, только если условие выполнено (проверяется в момент применения)"),
+  once: z.boolean().optional().describe("Только один раз за прохождение: после первого срабатывания эффект больше не применяется"),
+};
 
 export const Effect = z.discriminatedUnion("type", [
   z.object({ type: z.literal("addEvidence"), evidenceId: z.string(), ...effectWhen }),
@@ -165,12 +168,11 @@ export const Evidence = z.object({
   onCollect: z.array(Effect).default([]).describe("Эффекты в момент, когда улика попала в дело (один раз)"),
 });
 
-/** Осматриваемый предмет: при осмотре его материал сразу попадает в дело. */
+/** Окно осмотра предмета: что видит игрок. Эффекты осмотра — отдельно, `LocationObject.onInteract`. */
 export const ObjectInteraction = z.object({
   title: z.string(),
   description: z.string().describe("Что видно при осмотре"),
-  evidenceId: z.string(),
-  effects: z.array(Effect).default([]).meta({ always: true }).describe("Эффекты первого осмотра: флаги, счётчики, перемещения людей и т. д. (выдача улики — отдельно, полем выше)"),
+  evidenceId: z.string().optional().describe("Материал дела, который попадает в журнал при осмотре; без него — только текст"),
 });
 
 export const SpriteKey = z.enum([
@@ -236,8 +238,12 @@ export const LocationObject = z.object({
   x: z.number().int().describe("Колонка тайла"),
   y: z.number().int().describe("Строка тайла"),
   label: z.string().describe("Подпись над объектом"),
-  interaction: ObjectInteraction.nullable().describe("null — декорация"),
+  interaction: ObjectInteraction.nullable().describe("Окно осмотра; null — без окна (декорация или предмет только с эффектами)"),
+  onInteract: z.array(Effect).default([]).meta({ always: true }).describe("Эффекты осмотра предмета (при каждом осмотре; «только один раз» — у самого эффекта); выдача улики — в окне осмотра"),
 });
+
+/** Предмет, с которым можно взаимодействовать: есть окно осмотра или эффекты. */
+export const isInteractive = (o: { interaction?: unknown; onInteract?: unknown[] }): boolean => !!o.interaction || !!o.onInteract?.length;
 
 /** Диалог персонажа, доступный при условии (например, очная ставка: другой персонаж идёт за игроком). */
 export const NpcDialogue = z.object({
@@ -318,8 +324,7 @@ export const Location = z.object({
   npcs: z.array(NpcPlacement),
   doors: z.array(Door),
   zones: z.array(Zone).default([]).describe("Именованные области с действиями: диалог, предмет, выход в другую локацию"),
-  onEnter: z.array(Effect).default([]).describe("Эффекты при входе игрока в локацию (по умолчанию — только при первом входе)"),
-  onEnterRepeat: z.boolean().optional().describe("Применять эффекты входа при каждом входе в локацию, а не только при первом"),
+  onEnter: z.array(Effect).default([]).describe("Эффекты при входе игрока в локацию (при каждом входе; «только один раз» — у самого эффекта)"),
 });
 
 export const DialogueChoice = z.object({

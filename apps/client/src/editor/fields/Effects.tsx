@@ -150,6 +150,17 @@ export function EffectsEditor({ value, onChange, ctx }: { value: Effect[]; onCha
             {e.type === "addCharacterNote" && (
               <textarea rows={2} value={e.text} placeholder="Что запишется в карточку персонажа" onChange={(ev) => set(i, { ...e, text: ev.target.value })} />
             )}
+            <label className="ef ef--bool">
+              <input
+                type="checkbox"
+                checked={!!e.once}
+                onChange={(ev) => {
+                  const { once: _old, ...rest } = e;
+                  set(i, (ev.target.checked ? { ...rest, once: true } : rest) as Effect);
+                }}
+              />{" "}
+              Только один раз за прохождение
+            </label>
             <ConditionEditor
               value={e.requires ?? {}}
               ctx={ctx}

@@ -3,7 +3,7 @@ import { z } from "zod";
 import {
   drawTile,
 } from "../../game/art";
-import { Door, Location, LocationObject, NpcPlacement } from "../../../../../shared/case";
+import { Door, Location, LocationObject, NpcPlacement, isInteractive } from "../../../../../shared/case";
 import type { CaseFile as CaseFileT, Location as LocationT, LocationObject as LocationObjectT, NpcDialogue, Zone } from "../../../../../shared/case";
 import { Icon } from "../../ui/icons";
 import { tell } from "../../ui/dialog";
@@ -190,7 +190,7 @@ export function SelectedPanel({
         ) : (
           <>
             <Field name={key} schema={schema} value={item} ctx={{ draft }} bare onChange={onChange} />
-            {sel.kind === "object" && (item as unknown as LocationObjectT).interaction && <ObjectZones draft={draft} object={item as unknown as LocationObjectT} locationId={loc.id} />}
+            {sel.kind === "object" && isInteractive(item as unknown as LocationObjectT) && <ObjectZones draft={draft} object={item as unknown as LocationObjectT} locationId={loc.id} />}
           </>
         );
       })()}

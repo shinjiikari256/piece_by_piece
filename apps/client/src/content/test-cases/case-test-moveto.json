@@ -1,5 +1,5 @@
 {
-  "formatVersion": 5,
+  "formatVersion": 6,
   "id": "case-test-moveto",
   "number": "T01",
   "title": "Тест: перемещения персонажей",
@@ -172,21 +172,23 @@
           "interaction": {
             "title": "Общий холодильник",
             "description": "",
-            "evidenceId": "doc_fridge",
-            "effects": [
-              {
-                "type": "changeVariable",
-                "variableId": "test_fridge_seen",
-                "action": "on"
-              },
-              {
-                "type": "changeVariable",
-                "variableId": "test_trust",
-                "action": "add",
-                "value": 1
-              }
-            ]
-          }
+            "evidenceId": "doc_fridge"
+          },
+          "onInteract": [
+            {
+              "type": "changeVariable",
+              "variableId": "test_fridge_seen",
+              "action": "on",
+              "once": true
+            },
+            {
+              "type": "changeVariable",
+              "variableId": "test_trust",
+              "action": "add",
+              "value": 1,
+              "once": true
+            }
+          ]
         },
         {
           "id": "dec_kitchen_table",

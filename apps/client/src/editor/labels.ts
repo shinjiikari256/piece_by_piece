@@ -36,7 +36,7 @@ export const LABELS: Record<string, string> = {
   onCollect: "Эффекты при получении",
   failEffects: "Эффекты ошибки",
   onEnter: "Эффекты при входе",
-  onEnterRepeat: "Каждый раз при входе",
+  onInteract: "Эффекты осмотра",
   choices: "Варианты ответа",
   next: "Следующий узел",
   requires: "Условие показа",

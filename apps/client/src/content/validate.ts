@@ -1,6 +1,7 @@
 import { type CaseFile, type Condition, type Effect } from "../../../../shared/case";
 import { flagOfEffect, isFlagAction } from "../../../../shared/conditions";
 import { effectSites } from "../../../../shared/effect-sites";
+import { isInteractive } from "../../../../shared/case";
 import { parseCase } from "../../../../shared/migrate";
 import { FLOOR_TILES, SPRITES, WALL_TILES, resolveLook } from "../game/art";
 import { zoneTargetCell } from "./case-utils";
@@ -164,7 +165,7 @@ function checkIntegrity(c: CaseFile): string[] {
 
     for (const o of loc.objects) {
       if (!inBounds(o.x, o.y)) err(`${L}/object ${o.id}: вне карты`);
-      if (o.interaction) {
+      if (o.interaction?.evidenceId) {
         ref(evidence, o.interaction.evidenceId, `object ${o.id}`);
         obtainable.add(o.interaction.evidenceId);
       }
@@ -211,7 +212,7 @@ function checkIntegrity(c: CaseFile): string[] {
         if (a.kind === "object") {
           const o = c.locations.flatMap((l) => l.objects).find((x) => x.id === a.objectId);
           if (!o) err(`${where} (предмет): неизвестная ссылка «${a.objectId}»`);
-          else if (!o.interaction) err(`${where} (предмет): у «${a.objectId}» нет взаимодействия — это декорация`);
+          else if (!isInteractive(o)) err(`${where} (предмет): у «${a.objectId}» нет ни окна осмотра, ни эффектов — это декорация`);
         }
       });
     }

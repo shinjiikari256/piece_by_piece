@@ -66,7 +66,7 @@ export function sanitizeSave(save: SaveData, c: PublicCase): SaveData {
         }),
       ),
       followers: (save.progress.followers ?? []).filter((id) => characters.has(id)),
-      fired: (save.progress.fired ?? []).filter((key) => c.locations.some((l) => key === `enter:${l.id}` || l.zones.some((z) => key.startsWith(`${z.id}:`)))),
+      fired: (save.progress.fired ?? []).filter((key) => c.locations.some((l) => key.startsWith("once:") || l.zones.some((z) => key.startsWith(`${z.id}:`)))),
       npcPlaces: Object.fromEntries(
         Object.entries(save.progress.npcPlaces ?? {}).filter(([id, p]) => characters.has(id) && locations.has(p.locationId)),
       ),

@@ -17,5 +17,5 @@ export function effectLabel(e: Effect): string {
         return `${ENUM_LABELS[e.type]} (${e.characterId})`;
     }
   })();
-  return e.requires ? `${text} (если…)` : text;
+  return `${text}${e.requires ? " (если…)" : ""}${e.once ? " (1 раз)" : ""}`;
 }

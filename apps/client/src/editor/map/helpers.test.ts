@@ -15,7 +15,7 @@ const loc = (objects: Location["objects"]): Location => ({
   zones: [],
   onEnter: [],
 });
-const obj = (id: string, sprite: Location["objects"][number]["sprite"], x: number, y: number) => ({ id, sprite, x, y, label: "", interaction: null });
+const obj = (id: string, sprite: Location["objects"][number]["sprite"], x: number, y: number) => ({ id, sprite, x, y, label: "", interaction: null, onInteract: [] });
 
 describe("выбор на карте редактора", () => {
   it("высокий предмет выбирается за любую точку картинки, а не только за клетку под ногами", () => {

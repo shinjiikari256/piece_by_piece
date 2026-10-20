@@ -84,7 +84,7 @@ export function renderMap(cv: HTMLCanvasElement, s: MapRenderState) {
   if (hover && !rect) {
     ctx.save();
     ctx.globalAlpha = 0.55;
-    if (tool.kind === "object") drawObject(ctx, { id: "", sprite: tool.sprite, x: hover.x, y: hover.y, label: "", interaction: null });
+    if (tool.kind === "object") drawObject(ctx, { id: "", sprite: tool.sprite, x: hover.x, y: hover.y, label: "", interaction: null, onInteract: [] });
     if (tool.kind === "npc") drawNpc(ctx, { id: "", characterId: npcCharacter, dialogueId: "", dialogues: [], x: hover.x, y: hover.y });
     if (tool.kind === "tile") drawTile(ctx, tool.ch, hover.x * T, hover.y * T, {});
     if (tool.kind === "door") drawDoorAt(ctx, { id: "", x: hover.x, y: hover.y, orientation: tool.orientation });

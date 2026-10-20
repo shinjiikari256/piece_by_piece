@@ -691,15 +691,15 @@ describe("начальные флаги и счётчики в игре", () => 
   });
 });
 
-describe("эффекты осмотра предмета", () => {
+describe("эффекты осмотра предмета (onInteract)", () => {
   it("срабатывают при первом осмотре, повторно — нет", () => {
     const raw = load("case-001.json") as unknown as CaseFile;
     raw.flags = [...(raw.flags ?? []), { id: "seen_pc", name: "Компьютер осмотрен" }];
     raw.counters = [{ id: "looks", name: "Осмотры" }];
     const obj = raw.locations.flatMap((l) => l.objects).find((o) => o.id === "obj_computer")!;
-    obj.interaction!.effects = [
+    obj.onInteract = [
       { type: "changeVariable", variableId: "seen_pc", action: "on" },
-      { type: "changeVariable", variableId: "looks", action: "add", value: 1 },
+      { type: "changeVariable", variableId: "looks", action: "add", value: 1, once: true },
     ];
     const c = validateCase(raw);
     if (!c.ok) throw new Error(c.errors.join("; "));
@@ -768,18 +768,16 @@ describe("события: вход в локацию, получение ули�
   };
   const inc: Effect = { type: "changeVariable", variableId: "n", action: "add", value: 1 };
 
-  it("onEnter: по умолчанию только первый вход, с onEnterRepeat — каждый", () => {
+  it("onEnter: срабатывает при каждом входе, эффект с once — только при первом", () => {
     start((c) => (c.locations[0].onEnter = [inc]));
     expect(store.get().progress.counters.n).toBe(1); // старт — тоже вход
     actions.travel({ to: "admin_building", spawn: { x: 1, y: 1 } });
-    expect(store.get().progress.counters.n).toBe(1);
-
-    start((c) => {
-      c.locations[0].onEnter = [inc];
-      c.locations[0].onEnterRepeat = true;
-    });
-    actions.travel({ to: "admin_building", spawn: { x: 1, y: 1 } });
     expect(store.get().progress.counters.n).toBe(2);
+
+    start((c) => (c.locations[0].onEnter = [{ ...inc, once: true }, inc]));
+    actions.travel({ to: "admin_building", spawn: { x: 1, y: 1 } });
+    // вход при старте: оба; повторный вход: только эффект без once
+    expect(store.get().progress.counters.n).toBe(3);
   });
 
   it("onCollect: эффекты улики срабатывают сразу после её выдачи, один раз", () => {
@@ -803,5 +801,57 @@ describe("события: вход в локацию, получение ули�
     expect(store.get().progress.counters.n).toBe(2);
     await actions.answerDeduction("d_access", "b");
     expect(store.get().progress.counters.n).toBe(2);
+  });
+});
+
+describe("осмотр без окна и повторные эффекты", () => {
+  const start = (mutate: (c: CaseFile) => void) => {
+    const raw = load("case-001.json") as unknown as CaseFile;
+    raw.counters = [{ id: "n", name: "Счёт" }];
+    mutate(raw);
+    const c = validateCase(raw);
+    if (!c.ok) throw new Error(c.errors.join("; "));
+    setPlatform(createMemoryPlatform());
+    actions.openCase(new LocalAuthority(c.caseFile));
+    actions.beginInvestigation();
+  };
+  const inc: Effect = { type: "changeVariable", variableId: "n", action: "add", value: 1 };
+  const computer = (c: CaseFile) => c.locations.flatMap((l) => l.objects).find((o) => o.id === "obj_computer")!;
+
+  it("эффекты осмотра срабатывают при каждом осмотре, once — только при первом", () => {
+    start((c) => (computer(c).onInteract = [inc, { ...inc, once: true }]));
+    for (let i = 0; i < 3; i++) {
+      actions.interact("obj_computer");
+      actions.close();
+    }
+    expect(store.get().progress.counters.n).toBe(4); // 3 раза обычный + 1 раз once
+  });
+
+  it("предмет без окна осмотра (interaction: null) срабатывает молча, один раз", () => {
+    start((c) => {
+      const ev = computer(c).interaction!.evidenceId!;
+      computer(c).interaction = null;
+      // улика теперь выдаётся эффектом, иначе она недостижима
+      computer(c).onInteract = [{ type: "addEvidence", evidenceId: ev }, { ...inc, once: true }, { type: "message", text: "Щёлк", once: true }];
+    });
+    actions.interact("obj_computer");
+    expect(store.get().overlay).toBeNull();
+    expect(store.get().progress.counters.n).toBe(1);
+    expect(store.get().toasts.map((t) => t.text)).toContain("Щёлк");
+    actions.interact("obj_computer");
+    expect(store.get().progress.counters.n).toBe(1);
+  });
+
+  it("осмотр без улики: окно с текстом, материал в дело не попадает", () => {
+    start((c) => {
+      const ev = computer(c).interaction!.evidenceId!;
+      computer(c).interaction = { title: "Экран", description: "Просто экран" };
+      // улику выдаёт другой источник — эффект предмета с условием «никогда»
+      computer(c).onInteract = [{ type: "addEvidence", evidenceId: ev, requires: { flags: ["never"] } }];
+      c.flags = [...(c.flags ?? []), { id: "never", name: "Никогда" }];
+    });
+    actions.interact("obj_computer");
+    expect(store.get().overlay).toMatchObject({ kind: "object" });
+    expect(store.get().progress.collected).not.toContain("mail_log");
   });
 });

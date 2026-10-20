@@ -35,7 +35,7 @@ export function runMigrations(
 
 // ——— Дело ———
 
-export const CASE_FORMAT_VERSION = 5;
+export const CASE_FORMAT_VERSION = 6;
 
 const WALL_CHARS = new Set(["#", "W", "B", "G", "P", "F"]);
 
@@ -161,8 +161,32 @@ function caseV4toV5(data: Raw): Raw {
   return { ...moved, locations };
 }
 
+/**
+ * 5 → 6: эффекты осмотра предмета вынесены из `interaction.effects` в `LocationObject.onInteract`, а «один раз» стало
+ * настройкой самого эффекта (`once`): прежние «только первый осмотр» и «только первый вход» (без `onEnterRepeat`) превращаются в `once: true`
+ * у каждого эффекта списка; флаг `onEnterRepeat` исчезает.
+ */
+function caseV5toV6(data: Raw): Raw {
+  const once = (list: unknown): unknown[] => (Array.isArray(list) ? list.map((e) => ({ ...(e as Raw), once: true })) : []);
+  const locations = ((data.locations as Raw[] | undefined) ?? []).map((raw) => {
+    const { onEnterRepeat, ...loc } = raw;
+    const enter = Array.isArray(loc.onEnter) ? (loc.onEnter as unknown[]) : [];
+    return {
+      ...loc,
+      ...(enter.length ? { onEnter: onEnterRepeat ? enter : once(enter) } : {}),
+      objects: ((loc.objects as Raw[] | undefined) ?? []).map((obj) => {
+        if (!obj.interaction || typeof obj.interaction !== "object") return obj;
+        const { effects, ...interaction } = obj.interaction as Raw;
+        const moved = once(effects);
+        return { ...obj, interaction, ...(moved.length && !obj.onInteract ? { onInteract: moved } : {}) };
+      }),
+    };
+  });
+  return { ...data, locations };
+}
+
 /** Звенья цепочки: `caseMigrations[v]` переводит дело версии v в v + 1. */
-export const caseMigrations: Record<number, Migration> = { 1: caseV1toV2, 2: caseV2toV3, 3: caseV3toV4, 4: caseV4toV5 };
+export const caseMigrations: Record<number, Migration> = { 1: caseV1toV2, 2: caseV2toV3, 3: caseV3toV4, 4: caseV4toV5, 5: caseV5toV6 };
 
 export const migrateCase = (raw: unknown, chain = caseMigrations, current = CASE_FORMAT_VERSION): Migrated =>
   runMigrations(raw, "formatVersion", chain, current, "дело");

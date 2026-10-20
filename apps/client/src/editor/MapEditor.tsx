@@ -157,7 +157,7 @@ export function MapEditor() {
         break;
       case "object": {
         const oid = uniqueId(`obj_${tool.sprite}_`, allIds());
-        updateLoc((l) => ({ ...l, objects: [...l.objects, { id: oid, sprite: tool.sprite, x: t.x, y: t.y, label: "", interaction: null }] }));
+        updateLoc((l) => ({ ...l, objects: [...l.objects, { id: oid, sprite: tool.sprite, x: t.x, y: t.y, label: "", interaction: null, onInteract: [] }] }));
         setSel({ kind: "object", id: oid });
         setTool({ kind: "select" });
         break;
@@ -321,8 +321,9 @@ export function MapEditor() {
     }
     const o = loc.objects.find((x) => x.id === h.id)!;
     const name = o.label || SPRITE_NAMES[o.sprite] || o.sprite;
-    if (!o.interaction) return `${name} · декорация`;
+    if (!o.interaction) return o.onInteract?.length ? `${name} · только эффекты, без окна осмотра` : `${name} · декорация`;
     const evId = o.interaction.evidenceId;
+    if (!evId) return `${name} → только текст осмотра`;
     return `${name} → материал «${draft.evidence.find((e) => e.id === evId)?.title ?? evId}»`;
   })();
 
@@ -479,7 +480,7 @@ export function MapEditor() {
                   schema={LOCATION_SCHEMA}
                   value={loc}
                   ctx={{ draft }}
-                  only={["onEnter", "onEnterRepeat"]}
+                  only={["onEnter"]}
                   onChange={(v) => updateLoc(() => v as LocationT, `loc:${li}`)}
                 />
                 {draft.locations.length > 1 && (
