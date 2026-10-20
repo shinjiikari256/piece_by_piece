@@ -33,7 +33,7 @@
     "points": 10
   },
   "published": true,
-  "updatedAt": "2026-10-20T20:51:56Z",
+  "updatedAt": "2026-10-20T20:57:03Z",
   "locations": [
     {
       "id": "center",
@@ -726,8 +726,8 @@
         "#_______#kkkkkkkkkk#.......#",
         "####D########D######.......#",
         "#..................D.......#",
+        "#..................#.......#",
         "#############D######.......#",
-        "#wwwwwwwwwwwwwwwwww#.......#",
         "#wwwwwwwwwwwwwwwwww#.......#",
         "#wwwwwwwwwwwwwwwwww#.......#",
         "#wwwwwwwwwwwwwwwwww#.......#",
@@ -785,7 +785,7 @@
           "id": "door_family",
           "sprite": "door_h",
           "x": 13,
-          "y": 8,
+          "y": 9,
           "label": "Дверь",
           "interaction": null,
           "onInteract": []
@@ -1053,7 +1053,7 @@
           "id": "f_flat_coat_rack_1",
           "sprite": "coat_rack",
           "x": 17,
-          "y": 7,
+          "y": 8,
           "label": "",
           "interaction": null,
           "onInteract": []
@@ -1098,7 +1098,7 @@
           "id": "f_flat_floor_lamp_2",
           "sprite": "floor_lamp",
           "x": 17,
-          "y": 9,
+          "y": 10,
           "label": "",
           "interaction": null,
           "onInteract": []
@@ -1115,7 +1115,7 @@
         {
           "id": "f_flat_boxes_1",
           "sprite": "boxes",
-          "x": 16,
+          "x": 15,
           "y": 10,
           "label": "",
           "interaction": null,
@@ -1144,6 +1144,33 @@
           "sprite": "nightstand",
           "x": 6,
           "y": 14,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_flat_bed_2",
+          "sprite": "bed",
+          "x": 2,
+          "y": 14,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_flat_bed_3",
+          "sprite": "bed",
+          "x": 2,
+          "y": 11,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_flat_bed_4",
+          "sprite": "bed",
+          "x": 4,
+          "y": 11,
           "label": "",
           "interaction": null,
           "onInteract": []
