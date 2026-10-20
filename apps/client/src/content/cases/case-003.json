@@ -33,61 +33,61 @@
     "points": 10
   },
   "published": true,
-  "updatedAt": "2026-10-20T19:43:59Z",
+  "updatedAt": "2026-10-20T19:48:47Z",
   "locations": [
     {
       "id": "admin",
       "name": "Административный корпус",
       "tiles": [
-        "###WW##WW####WW#WW####WW######",
-        "#_________#kkkkkkkk#bbbbbbbbb#",
-        "#_________#kkkkkkkk#bbbbbbbbb#",
-        "#_________#kkkkkkkk#bbbbbbbbb#",
-        "#_________#kkkkkkkk#bbbbbbbbb#",
-        "#_________#kkkkkkkk#bbbbbbbbb#",
-        "#_________#kkkkkkkk#bbbbbbbbb#",
-        "#_________#kkkkkkkk#bbbbbbbbb#",
-        "#_________#kkkkkkkk#bbbbbbbbb#",
-        "#####DD#######DD########DD####",
-        "#............................#",
-        "#............................#",
-        "#............................#",
-        "#............................#",
-        "#............................#",
-        "#............................#",
-        "######WW######DD####WW########"
+        "###WW####WW#####WW######WW####",
+        "#____________#_______#_______#",
+        "#____________#_______#_______#",
+        "#____________#_______#_______#",
+        "#____________#_______#_______#",
+        "#____________#_______#_______#",
+        "#____________#_______#_______#",
+        "#____________#_______#_______#",
+        "#____________#_______#_______#",
+        "######DD########DD######DD####",
+        "#kkkkkkk.....................#",
+        "#kkkkkkk.....................#",
+        "#kkkkkkk.....................#",
+        "#kkkkkkk.....................#",
+        "#kkkkkkk.....................#",
+        "#kkkkkkk.....................#",
+        "###WW###DD########WW####WW####"
       ],
       "areas": [
         {
           "name": "Кабинет начальника производства",
-          "x": 5,
+          "x": 6,
           "y": 7
         },
         {
           "name": "Служба охраны труда",
-          "x": 14,
+          "x": 17,
           "y": 7
         },
         {
           "name": "Кабинет сборочного участка",
-          "x": 24,
+          "x": 25,
           "y": 7
         },
         {
-          "name": "Коридор",
+          "name": "Холл и коридор",
           "x": 14,
-          "y": 14
+          "y": 13
         }
       ],
       "playerStart": {
-        "x": 14,
+        "x": 12,
         "y": 13
       },
       "objects": [
         {
           "id": "door_prod",
           "sprite": "door_h",
-          "x": 5,
+          "x": 6,
           "y": 9,
           "label": "Дверь",
           "interaction": null,
@@ -96,7 +96,7 @@
         {
           "id": "door_ot",
           "sprite": "door_h",
-          "x": 14,
+          "x": 16,
           "y": 9,
           "label": "Дверь",
           "interaction": null,
@@ -114,7 +114,7 @@
         {
           "id": "door_yard",
           "sprite": "door_h",
-          "x": 14,
+          "x": 8,
           "y": 16,
           "label": "Дверь",
           "interaction": null,
@@ -123,7 +123,7 @@
         {
           "id": "obj_briefing",
           "sprite": "cabinet",
-          "x": 9,
+          "x": 12,
           "y": 1,
           "label": "Журналы инструктажей",
           "interaction": {
@@ -140,7 +140,7 @@
         {
           "id": "obj_kuz_desk",
           "sprite": "desk",
-          "x": 4,
+          "x": 8,
           "y": 3,
           "label": "Стол начальника производства",
           "interaction": {
@@ -152,7 +152,7 @@
         {
           "id": "dec_kuz_chair",
           "sprite": "chair",
-          "x": 4,
+          "x": 8,
           "y": 2,
           "label": "",
           "interaction": null,
@@ -170,7 +170,7 @@
         {
           "id": "obj_rules",
           "sprite": "bookshelf",
-          "x": 12,
+          "x": 14,
           "y": 1,
           "label": "Нормативные акты",
           "interaction": {
@@ -187,7 +187,7 @@
         {
           "id": "obj_acts",
           "sprite": "cabinet",
-          "x": 17,
+          "x": 20,
           "y": 1,
           "label": "Шкаф с актами",
           "interaction": {
@@ -204,8 +204,8 @@
         {
           "id": "obj_ot_desk",
           "sprite": "desk",
-          "x": 14,
-          "y": 3,
+          "x": 15,
+          "y": 4,
           "label": "Стол специалиста по охране труда",
           "interaction": {
             "title": "Стол специалиста по охране труда",
@@ -221,8 +221,8 @@
         {
           "id": "dec_ot_chair",
           "sprite": "chair",
-          "x": 14,
-          "y": 2,
+          "x": 15,
+          "y": 3,
           "label": "",
           "interaction": null,
           "onInteract": []
@@ -230,7 +230,7 @@
         {
           "id": "obj_stand",
           "sprite": "board",
-          "x": 11,
+          "x": 10,
           "y": 9,
           "label": "Стенд по охране труда",
           "interaction": {
@@ -248,7 +248,7 @@
           "id": "obj_asm_desk",
           "sprite": "desk",
           "x": 23,
-          "y": 3,
+          "y": 4,
           "label": "Стол начальника участка",
           "interaction": {
             "title": "Стол начальника сборочного участка",
@@ -265,7 +265,7 @@
           "id": "dec_asm_chair",
           "sprite": "chair",
           "x": 23,
-          "y": 2,
+          "y": 3,
           "label": "",
           "interaction": null,
           "onInteract": []
@@ -273,7 +273,7 @@
         {
           "id": "obj_orders",
           "sprite": "cabinet",
-          "x": 28,
+          "x": 25,
           "y": 1,
           "label": "Шкаф с приказами",
           "interaction": {
@@ -290,7 +290,7 @@
         {
           "id": "obj_instructions",
           "sprite": "bookshelf",
-          "x": 26,
+          "x": 22,
           "y": 1,
           "label": "Должностные инструкции",
           "interaction": {
@@ -307,8 +307,8 @@
         {
           "id": "obj_asm_pc",
           "sprite": "computer_desk",
-          "x": 21,
-          "y": 6,
+          "x": 27,
+          "y": 3,
           "label": "Компьютер участка",
           "interaction": {
             "title": "Рабочий компьютер",
@@ -317,9 +317,18 @@
           "onInteract": []
         },
         {
+          "id": "dec_asm_pc_chair",
+          "sprite": "chair",
+          "x": 27,
+          "y": 2,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
           "id": "dec_clock",
           "sprite": "clock",
-          "x": 21,
+          "x": 26,
           "y": 0,
           "label": "",
           "interaction": null,
@@ -345,7 +354,7 @@
         {
           "id": "dec_ext",
           "sprite": "fire_extinguisher",
-          "x": 11,
+          "x": 12,
           "y": 10,
           "label": "",
           "interaction": null,
@@ -354,7 +363,7 @@
         {
           "id": "dec_poster",
           "sprite": "poster",
-          "x": 17,
+          "x": 20,
           "y": 9,
           "label": "Объявление",
           "interaction": null,
@@ -363,7 +372,7 @@
         {
           "id": "f_admin_clock_1",
           "sprite": "clock",
-          "x": 1,
+          "x": 11,
           "y": 0,
           "label": "",
           "interaction": null,
@@ -372,7 +381,7 @@
         {
           "id": "f_admin_whiteboard_1",
           "sprite": "whiteboard",
-          "x": 5,
+          "x": 6,
           "y": 0,
           "label": "",
           "interaction": null,
@@ -381,7 +390,7 @@
         {
           "id": "f_admin_bookshelf_1",
           "sprite": "bookshelf",
-          "x": 6,
+          "x": 2,
           "y": 1,
           "label": "",
           "interaction": null,
@@ -390,26 +399,62 @@
         {
           "id": "f_admin_printer_1",
           "sprite": "printer",
-          "x": 8,
+          "x": 11,
           "y": 1,
           "label": "",
           "interaction": null,
           "onInteract": []
         },
         {
-          "id": "f_admin_sofa_1",
-          "sprite": "sofa",
-          "x": 1,
+          "id": "f_admin_conference_table_3_1",
+          "sprite": "conference_table_3",
+          "x": 2,
           "y": 5,
           "label": "",
           "interaction": null,
           "onInteract": []
         },
         {
-          "id": "f_admin_coat_rack_1",
-          "sprite": "coat_rack",
-          "x": 1,
-          "y": 7,
+          "id": "f_admin_chair_1",
+          "sprite": "chair",
+          "x": 2,
+          "y": 4,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_admin_chair_2",
+          "sprite": "chair",
+          "x": 3,
+          "y": 4,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_admin_chair_3",
+          "sprite": "chair",
+          "x": 4,
+          "y": 4,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_admin_chair_4",
+          "sprite": "chair",
+          "x": 2,
+          "y": 6,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_admin_chair_5",
+          "sprite": "chair",
+          "x": 4,
+          "y": 6,
           "label": "",
           "interaction": null,
           "onInteract": []
@@ -417,7 +462,34 @@
         {
           "id": "f_admin_floor_lamp_1",
           "sprite": "floor_lamp",
-          "x": 7,
+          "x": 12,
+          "y": 4,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_admin_armchair_1",
+          "sprite": "armchair",
+          "x": 12,
+          "y": 6,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_admin_rug_1",
+          "sprite": "rug",
+          "x": 8,
+          "y": 6,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_admin_trash_bin_1",
+          "sprite": "trash_bin",
+          "x": 10,
           "y": 3,
           "label": "",
           "interaction": null,
@@ -426,44 +498,17 @@
         {
           "id": "f_admin_water_cooler_1",
           "sprite": "water_cooler",
-          "x": 9,
-          "y": 4,
-          "label": "",
-          "interaction": null,
-          "onInteract": []
-        },
-        {
-          "id": "f_admin_rug_1",
-          "sprite": "rug",
-          "x": 7,
-          "y": 4,
-          "label": "",
-          "interaction": null,
-          "onInteract": []
-        },
-        {
-          "id": "f_admin_trash_bin_1",
-          "sprite": "trash_bin",
-          "x": 9,
-          "y": 7,
-          "label": "",
-          "interaction": null,
-          "onInteract": []
-        },
-        {
-          "id": "f_admin_coffee_table_1",
-          "sprite": "coffee_table",
           "x": 1,
-          "y": 6,
+          "y": 8,
           "label": "",
           "interaction": null,
           "onInteract": []
         },
         {
-          "id": "f_admin_poster_1",
-          "sprite": "poster",
-          "x": 15,
-          "y": 0,
+          "id": "f_admin_coat_rack_1",
+          "sprite": "coat_rack",
+          "x": 12,
+          "y": 8,
           "label": "",
           "interaction": null,
           "onInteract": []
@@ -471,44 +516,26 @@
         {
           "id": "f_admin_clock_2",
           "sprite": "clock",
-          "x": 11,
+          "x": 14,
           "y": 0,
           "label": "",
           "interaction": null,
           "onInteract": []
         },
         {
-          "id": "f_admin_plant_1",
-          "sprite": "plant",
-          "x": 11,
-          "y": 1,
+          "id": "f_admin_poster_1",
+          "sprite": "poster",
+          "x": 19,
+          "y": 0,
           "label": "",
           "interaction": null,
           "onInteract": []
         },
         {
-          "id": "f_admin_printer_2",
-          "sprite": "printer",
+          "id": "f_admin_lockers_1",
+          "sprite": "lockers",
           "x": 18,
           "y": 1,
-          "label": "",
-          "interaction": null,
-          "onInteract": []
-        },
-        {
-          "id": "f_admin_floor_lamp_2",
-          "sprite": "floor_lamp",
-          "x": 11,
-          "y": 5,
-          "label": "",
-          "interaction": null,
-          "onInteract": []
-        },
-        {
-          "id": "f_admin_rug_2",
-          "sprite": "rug",
-          "x": 12,
-          "y": 6,
           "label": "",
           "interaction": null,
           "onInteract": []
@@ -516,17 +543,44 @@
         {
           "id": "f_admin_computer_desk_1",
           "sprite": "computer_desk",
-          "x": 17,
+          "x": 19,
+          "y": 4,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_admin_chair_6",
+          "sprite": "chair",
+          "x": 19,
+          "y": 3,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_admin_plant_1",
+          "sprite": "plant",
+          "x": 14,
           "y": 6,
           "label": "",
           "interaction": null,
           "onInteract": []
         },
         {
-          "id": "f_admin_chair_1",
-          "sprite": "chair",
+          "id": "f_admin_rug_2",
+          "sprite": "rug",
+          "x": 16,
+          "y": 6,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_admin_water_cooler_2",
+          "sprite": "water_cooler",
           "x": 18,
-          "y": 5,
+          "y": 7,
           "label": "",
           "interaction": null,
           "onInteract": []
@@ -534,7 +588,7 @@
         {
           "id": "f_admin_coffee_machine_1",
           "sprite": "coffee_machine",
-          "x": 11,
+          "x": 20,
           "y": 7,
           "label": "",
           "interaction": null,
@@ -543,8 +597,17 @@
         {
           "id": "f_admin_trash_bin_2",
           "sprite": "trash_bin",
-          "x": 18,
-          "y": 7,
+          "x": 20,
+          "y": 8,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_admin_fire_extinguisher_1",
+          "sprite": "fire_extinguisher",
+          "x": 20,
+          "y": 5,
           "label": "",
           "interaction": null,
           "onInteract": []
@@ -552,7 +615,7 @@
         {
           "id": "f_admin_poster_2",
           "sprite": "poster",
-          "x": 25,
+          "x": 22,
           "y": 0,
           "label": "",
           "interaction": null,
@@ -568,73 +631,19 @@
           "onInteract": []
         },
         {
-          "id": "f_admin_printer_3",
-          "sprite": "printer",
-          "x": 25,
+          "id": "f_admin_cabinet_1",
+          "sprite": "cabinet",
+          "x": 26,
           "y": 1,
           "label": "",
           "interaction": null,
           "onInteract": []
         },
         {
-          "id": "f_admin_sofa_2",
-          "sprite": "sofa",
-          "x": 21,
-          "y": 3,
-          "label": "",
-          "interaction": null,
-          "onInteract": []
-        },
-        {
-          "id": "f_admin_floor_lamp_3",
-          "sprite": "floor_lamp",
-          "x": 22,
-          "y": 5,
-          "label": "",
-          "interaction": null,
-          "onInteract": []
-        },
-        {
-          "id": "f_admin_rug_3",
-          "sprite": "rug",
-          "x": 26,
-          "y": 5,
-          "label": "",
-          "interaction": null,
-          "onInteract": []
-        },
-        {
-          "id": "f_admin_lockers_1",
-          "sprite": "lockers",
-          "x": 26,
-          "y": 7,
-          "label": "",
-          "interaction": null,
-          "onInteract": []
-        },
-        {
-          "id": "f_admin_coat_rack_2",
-          "sprite": "coat_rack",
-          "x": 21,
-          "y": 8,
-          "label": "",
-          "interaction": null,
-          "onInteract": []
-        },
-        {
-          "id": "f_admin_water_cooler_2",
-          "sprite": "water_cooler",
-          "x": 28,
-          "y": 5,
-          "label": "",
-          "interaction": null,
-          "onInteract": []
-        },
-        {
-          "id": "f_admin_trash_bin_3",
-          "sprite": "trash_bin",
-          "x": 28,
-          "y": 3,
+          "id": "f_admin_printer_2",
+          "sprite": "printer",
+          "x": 24,
+          "y": 1,
           "label": "",
           "interaction": null,
           "onInteract": []
@@ -643,7 +652,70 @@
           "id": "f_admin_plant_2",
           "sprite": "plant",
           "x": 28,
+          "y": 1,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_admin_rug_3",
+          "sprite": "rug",
+          "x": 22,
+          "y": 5,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_admin_floor_lamp_2",
+          "sprite": "floor_lamp",
+          "x": 26,
+          "y": 5,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_admin_sofa_1",
+          "sprite": "sofa",
+          "x": 22,
           "y": 7,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_admin_lockers_2",
+          "sprite": "lockers",
+          "x": 27,
+          "y": 7,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_admin_coat_rack_2",
+          "sprite": "coat_rack",
+          "x": 28,
+          "y": 6,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_admin_water_cooler_3",
+          "sprite": "water_cooler",
+          "x": 26,
+          "y": 7,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_admin_trash_bin_3",
+          "sprite": "trash_bin",
+          "x": 27,
+          "y": 8,
           "label": "",
           "interaction": null,
           "onInteract": []
@@ -652,6 +724,96 @@
           "id": "f_admin_plant_3",
           "sprite": "plant",
           "x": 1,
+          "y": 10,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_admin_water_cooler_4",
+          "sprite": "water_cooler",
+          "x": 1,
+          "y": 12,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_admin_sofa_2",
+          "sprite": "sofa",
+          "x": 1,
+          "y": 14,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_admin_coffee_table_1",
+          "sprite": "coffee_table",
+          "x": 3,
+          "y": 14,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_admin_armchair_2",
+          "sprite": "armchair",
+          "x": 5,
+          "y": 14,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_admin_vending_1",
+          "sprite": "vending",
+          "x": 7,
+          "y": 12,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_admin_trash_bin_4",
+          "sprite": "trash_bin",
+          "x": 7,
+          "y": 14,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_admin_bench_1",
+          "sprite": "bench",
+          "x": 14,
+          "y": 10,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_admin_floor_lamp_3",
+          "sprite": "floor_lamp",
+          "x": 18,
+          "y": 10,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_admin_trash_bin_5",
+          "sprite": "trash_bin",
+          "x": 22,
+          "y": 10,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_admin_vending_2",
+          "sprite": "vending",
+          "x": 26,
           "y": 10,
           "label": "",
           "interaction": null,
@@ -669,15 +831,6 @@
         {
           "id": "f_admin_plant_5",
           "sprite": "plant",
-          "x": 1,
-          "y": 15,
-          "label": "",
-          "interaction": null,
-          "onInteract": []
-        },
-        {
-          "id": "f_admin_plant_6",
-          "sprite": "plant",
           "x": 28,
           "y": 15,
           "label": "",
@@ -685,82 +838,10 @@
           "onInteract": []
         },
         {
-          "id": "f_admin_bench_1",
-          "sprite": "bench",
-          "x": 8,
-          "y": 11,
-          "label": "",
-          "interaction": null,
-          "onInteract": []
-        },
-        {
           "id": "f_admin_bench_2",
           "sprite": "bench",
-          "x": 20,
-          "y": 15,
-          "label": "",
-          "interaction": null,
-          "onInteract": []
-        },
-        {
-          "id": "f_admin_water_cooler_3",
-          "sprite": "water_cooler",
-          "x": 20,
-          "y": 10,
-          "label": "",
-          "interaction": null,
-          "onInteract": []
-        },
-        {
-          "id": "f_admin_trash_bin_4",
-          "sprite": "trash_bin",
-          "x": 21,
-          "y": 10,
-          "label": "",
-          "interaction": null,
-          "onInteract": []
-        },
-        {
-          "id": "f_admin_vending_1",
-          "sprite": "vending",
-          "x": 22,
-          "y": 10,
-          "label": "",
-          "interaction": null,
-          "onInteract": []
-        },
-        {
-          "id": "f_admin_coat_rack_3",
-          "sprite": "coat_rack",
-          "x": 27,
-          "y": 10,
-          "label": "",
-          "interaction": null,
-          "onInteract": []
-        },
-        {
-          "id": "f_admin_rug_4",
-          "sprite": "rug",
           "x": 12,
-          "y": 13,
-          "label": "",
-          "interaction": null,
-          "onInteract": []
-        },
-        {
-          "id": "f_admin_armchair_1",
-          "sprite": "armchair",
-          "x": 5,
-          "y": 14,
-          "label": "",
-          "interaction": null,
-          "onInteract": []
-        },
-        {
-          "id": "f_admin_armchair_2",
-          "sprite": "armchair",
-          "x": 7,
-          "y": 14,
+          "y": 15,
           "label": "",
           "interaction": null,
           "onInteract": []
@@ -768,8 +849,26 @@
         {
           "id": "f_admin_bench_3",
           "sprite": "bench",
-          "x": 8,
+          "x": 20,
           "y": 15,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_admin_rug_4",
+          "sprite": "rug",
+          "x": 14,
+          "y": 12,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_admin_rug_5",
+          "sprite": "rug",
+          "x": 22,
+          "y": 13,
           "label": "",
           "interaction": null,
           "onInteract": []
@@ -780,23 +879,23 @@
           "id": "npc_belyaev",
           "characterId": "belyaev",
           "dialogueId": "dlg_belyaev",
-          "x": 24,
-          "y": 5,
+          "x": 25,
+          "y": 6,
           "dialogues": []
         },
         {
           "id": "npc_kuznetsov",
           "characterId": "kuznetsov",
           "dialogueId": "dlg_kuznetsov",
-          "x": 6,
-          "y": 6,
+          "x": 9,
+          "y": 5,
           "dialogues": []
         },
         {
           "id": "npc_savelyeva",
           "characterId": "savelyeva",
           "dialogueId": "dlg_savelyeva",
-          "x": 15,
+          "x": 17,
           "y": 5,
           "dialogues": []
         },
@@ -815,11 +914,11 @@
           "name": "Выход на стоянку",
           "cells": [
             {
-              "x": 14,
+              "x": 8,
               "y": 16
             },
             {
-              "x": 15,
+              "x": 9,
               "y": 16
             }
           ],
@@ -1188,7 +1287,7 @@
               "kind": "exit",
               "to": "admin",
               "spawn": {
-                "x": 14,
+                "x": 8,
                 "y": 15
               }
             }

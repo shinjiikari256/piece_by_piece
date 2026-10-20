@@ -34,7 +34,7 @@
     "points": 10
   },
   "published": true,
-  "updatedAt": "2026-10-20T18:18:10Z",
+  "updatedAt": "2026-10-20T19:48:47Z",
   "locations": [
     {
       "id": "dorm_floor",
@@ -174,7 +174,7 @@
           "id": "dec_bed",
           "sprite": "bed",
           "x": 1,
-          "y": 1,
+          "y": 3,
           "label": "",
           "interaction": null
         },
@@ -182,7 +182,7 @@
           "id": "dec_bed2",
           "sprite": "bed",
           "x": 3,
-          "y": 1,
+          "y": 3,
           "label": "",
           "interaction": null
         },
