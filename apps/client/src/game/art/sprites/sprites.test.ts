@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { SpriteKey } from "../../../../../../shared/case";
 import { SPRITE_NAMES } from "../tiles";
-import { SPRITES, SPRITE_GROUPS, drawSprite } from "./index";
+import { SPRITES, SPRITE_GROUPS, SPRITE_COLOR, drawSprite } from "./index";
 
 /** Прогнать `draw` по записывающему холсту: список прямоугольников. */
 function record(draw: (ctx: never) => void) {
@@ -14,6 +14,7 @@ function record(draw: (ctx: never) => void) {
     fillRect(x: number, y: number, w: number, h: number) {
       rects.push({ x, y, w, h, color });
     },
+    clearRect() {},
   };
   draw(ctx as never);
   return rects;
@@ -47,13 +48,32 @@ describe("спрайты предметов", () => {
     expect(Array.isArray(spec.frames.default), `${key} кадр default`).toBe(true);
     for (const [frame, ops] of Object.entries(spec.frames)) {
       for (const op of ops) {
-        expect(op, `${key}/${frame}`).toHaveLength(5);
+        expect([4, 5], `${key}/${frame}`).toContain(op.length);
         expect(op.slice(0, 4).every((n) => Number.isInteger(n)), `${key}/${frame} числа`).toBe(true);
-        expect(typeof op[4], `${key}/${frame} цвет`).toBe("string");
+        if (op.length === 5) expect(op[4], `${key}/${frame} цвет`).toMatch(SPRITE_COLOR);
       }
     }
     expect(spec.footprint.w).toBeGreaterThanOrEqual(1);
     expect(spec.footprint.h).toBeGreaterThanOrEqual(1);
     expect(spec.w).toBeLessThanOrEqual(spec.footprint.w * 16 + 16); // картинка не шире занимаемых клеток более чем на клетку
+  });
+});
+
+describe("drawSprite", () => {
+  it("заливает с прозрачностью и стирает областью без цвета", () => {
+    const calls: string[] = [];
+    const ctx = {
+      set fillStyle(v: string) {
+        calls.push(`fill ${v}`);
+      },
+      fillRect: (...a: number[]) => calls.push(`rect ${a}`),
+      clearRect: (...a: number[]) => calls.push(`clear ${a}`),
+    };
+    const spec = { w: 4, h: 4, footprint: { w: 1, h: 1 }, solid: false, frames: { default: [[0, 0, 4, 4, "#ff000080"], [1, 1, 2, 2]], open: [[0, 0, 1, 1, "#00ff00"]] } };
+    drawSprite(ctx as never, spec as never);
+    expect(calls).toEqual(["fill #ff000080", "rect 0,0,4,4", "clear 1,1,2,2"]);
+    calls.length = 0;
+    drawSprite(ctx as never, spec as never, "open");
+    expect(calls).toEqual(["fill #00ff00", "rect 0,0,1,1"]);
   });
 });

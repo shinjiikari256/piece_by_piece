@@ -9,7 +9,7 @@ import medical from "./data/medical.json";
 import street from "./data/street.json";
 import type { SpriteGroup, SpriteSpec } from "./types";
 
-export { drawSprite, type SpriteFrames, type SpriteGroup, type SpriteOp, type SpriteSpec } from "./types";
+export { SPRITE_COLOR, drawSprite, type SpriteFrames, type SpriteGroup, type SpriteOp, type SpriteSpec } from "./types";
 export { footprintCells, footprintHas, type Footprint } from "./cells";
 
 /** Группы предметов в порядке показа в палитре редактора карты. */
