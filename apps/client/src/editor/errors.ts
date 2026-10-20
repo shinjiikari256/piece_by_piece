@@ -92,7 +92,7 @@ const WORDS: Record<string, string> = {
   dialogue: "диалог", dialogues: "диалоги", evidence: "улика", deduction: "сопоставление", deductions: "сопоставления",
   question: "вопрос", questions: "вопросы", flag: "флаг", counter: "счётчик", flags: "флаги", counters: "счётчики", enum: "перечисление", enums: "перечисления",
   location: "локация", locations: "локации", characters: "персонажи", events: "события", settings: "настройки", hints: "подсказки", solution: "решение",
-  lawReference: "закон", timeBonus: "бонус за время", object: "предмет", zone: "область", door: "дверь", npc: "человек",
+  lawReference: "закон", timeBonus: "бонус за время", object: "предмет", zone: "область", npc: "человек",
   moveTo: "перемещение", addEvidence: "выдача улики", spawn: "точка появления", playerStart: "старт игрока", startNodeId: "первая реплика", speaker: "говорящий", requires: "условие", choices: "варианты ответа",
 };
 
