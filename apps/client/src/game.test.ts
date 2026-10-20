@@ -1091,3 +1091,70 @@ describe("человек, скрытый условием", () => {
     actions.close();
   });
 });
+
+describe("узел-переход (auto)", () => {
+  const start = (mutate: (c: CaseFile) => void) => {
+    const raw = load("case-001.json") as unknown as CaseFile;
+    raw.flags = [...(raw.flags ?? []), { id: "warm", name: "Тёплый приём" }];
+    raw.counters = [{ id: "n", name: "Счёт" }];
+    mutate(raw);
+    const c = validateCase(raw);
+    if (!c.ok) throw new Error(c.errors.join("; "));
+    setPlatform(createMemoryPlatform());
+    actions.openCase(new LocalAuthority(c.caseFile));
+    actions.beginInvestigation();
+  };
+  const inc: Effect = { type: "changeVariable", variableId: "n", action: "add", value: 1 };
+
+  it("разговор начинается с узла-перехода: игрок видит выбранный по условию узел, эффекты варианта применены", () => {
+    start((c) => {
+      const dlg = c.dialogues.find((d) => d.id === "dlg_alina")!;
+      const orig = dlg.startNodeId;
+      dlg.nodes.push(
+        { id: "router", mood: "neutral", text: "", effects: [], auto: true, choices: [
+          { id: "to_warm", text: "если тёплый приём", next: "warm_start", effects: [inc], requires: { flags: ["warm"] } },
+          { id: "to_normal", text: "иначе", next: orig, effects: [] },
+        ] },
+        { id: "warm_start", mood: "friendly", text: "Рада вас видеть!", effects: [], choices: [{ id: "ok", text: "Хорошо.", next: null, effects: [] }] },
+      );
+      dlg.startNodeId = "router";
+    });
+    actions.interact("npc_alina");
+    expect(store.get().overlay).toMatchObject({ kind: "dialogue", nodeId: "start" }); // флага нет — обычное начало
+    expect(store.get().progress.counters.n).toBeUndefined();
+    actions.close();
+  });
+
+  it("при выполненном условии срабатывает первый подходящий вариант; без подходящих разговор закрывается; цикл не вешает игру", () => {
+    start((c) => {
+      const dlg = c.dialogues.find((d) => d.id === "dlg_alina")!;
+      dlg.nodes.push(
+        { id: "router", mood: "neutral", text: "", effects: [], auto: true, choices: [{ id: "to_warm", text: "тёплый", next: "warm_start", effects: [inc], requires: { flags: ["warm"] } }] },
+        { id: "warm_start", mood: "friendly", text: "Рада вас видеть!", effects: [], choices: [{ id: "ok", text: "Хорошо.", next: null, effects: [] }] },
+        { id: "loop_a", mood: "neutral", text: "", effects: [], auto: true, choices: [{ id: "a", text: "к b", next: "loop_b", effects: [] }] },
+        { id: "loop_b", mood: "neutral", text: "", effects: [], auto: true, choices: [{ id: "b", text: "к a", next: "loop_a", effects: [] }] },
+      );
+      dlg.startNodeId = "router";
+      dlg.nodes.find((n) => n.id === "start")!.choices.push({ id: "go_loop", text: "в цикл", next: "loop_a", effects: [] });
+    });
+    actions.interact("npc_alina");
+    expect(store.get().overlay).toBeNull(); // условие не выполнено, подходящего варианта нет — разговор закончился
+    actions.close();
+    actions.interact("npc_alina");
+    expect(store.get().overlay).toBeNull();
+
+    // с флагом — тёплый узел, эффект варианта применён
+    store.get();
+    start((c) => {
+      const dlg = c.dialogues.find((d) => d.id === "dlg_alina")!;
+      dlg.nodes.push(
+        { id: "router", mood: "neutral", text: "", effects: [{ type: "changeVariable", variableId: "warm", action: "on" }], auto: true, choices: [{ id: "to_warm", text: "тёплый", next: "warm_start", effects: [inc], requires: { flags: ["warm"] } }] },
+        { id: "warm_start", mood: "friendly", text: "Рада вас видеть!", effects: [], choices: [{ id: "ok", text: "Хорошо.", next: null, effects: [] }] },
+      );
+      dlg.startNodeId = "router";
+    });
+    actions.interact("npc_alina");
+    expect(store.get().overlay).toMatchObject({ kind: "dialogue", nodeId: "warm_start" });
+    expect(store.get().progress.counters.n).toBe(1);
+  });
+});

@@ -678,3 +678,17 @@ describe("человек на карте по условию; диалог не 
     expect(caseWarnings(c).join("\n")).toContain("останется только «Закончить разговор»");
   });
 });
+
+describe("узлы-переходы: предупреждения", () => {
+  it("нет варианта без условия и цикл переходов", () => {
+    const c = structuredClone(case001) as unknown as CaseFile;
+    const dlg = c.dialogues[0];
+    dlg.nodes.push(
+      { id: "r1", mood: "neutral", text: "", effects: [], auto: true, choices: [{ id: "x", text: "", next: "r2", effects: [], requires: { flags: ["f"] } }] },
+      { id: "r2", mood: "neutral", text: "", effects: [], auto: true, choices: [{ id: "y", text: "", next: "r1", effects: [] }] },
+    );
+    const text = caseWarnings(c).join("\n");
+    expect(text).toContain("у перехода нет варианта без условия");
+    expect(text).toContain("переходы идут по кругу");
+  });
+});

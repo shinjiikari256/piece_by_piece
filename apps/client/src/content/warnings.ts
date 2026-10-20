@@ -24,8 +24,33 @@ export function caseWarnings(c: CaseFile): string[] {
   // реплика, где у всех вариантов есть условие: если ни одно не выполнено, игра предложит только «Закончить разговор»
   for (const d of c.dialogues)
     for (const n of d.nodes)
-      if (n.choices.length && n.choices.every((ch) => ch.requires && Object.keys(ch.requires).length))
+      if (!n.auto && n.choices.length && n.choices.every((ch) => ch.requires && Object.keys(ch.requires).length))
         out.push(`dialogue ${d.id}/${n.id}: у всех вариантов есть условие — если ни одно не выполнится, останется только «Закончить разговор»; добавьте вариант без условия`);
+
+  // узлы-переходы: без варианта без условия разговор при невыполненных условиях закончится; цепочка переходов по кругу
+  for (const d of c.dialogues) {
+    for (const n of d.nodes) {
+      if (!n.auto) continue;
+      if (!n.choices.some((ch) => !ch.requires || !Object.keys(ch.requires).length)) out.push(`dialogue ${d.id}/${n.id}: у перехода нет варианта без условия — если ни одно условие не выполнится, разговор закончится`);
+    }
+    const autoNext = (id: string) => (d.nodes.find((n) => n.id === id)?.auto ? d.nodes.find((n) => n.id === id)!.choices.flatMap((ch) => (ch.next ? [ch.next] : [])) : []);
+    for (const n of d.nodes) {
+      if (!n.auto) continue;
+      const seen = new Set<string>();
+      const stack = [n.id];
+      let loops = false;
+      while (stack.length && !loops) {
+        for (const next of autoNext(stack.pop()!)) {
+          if (next === n.id) loops = true;
+          else if (!seen.has(next)) {
+            seen.add(next);
+            stack.push(next);
+          }
+        }
+      }
+      if (loops) out.push(`dialogue ${d.id}/${n.id}: переходы идут по кругу — игра остановит цепочку через 20 шагов`);
+    }
+  }
 
   // область без действий
   for (const l of c.locations) for (const z of l.zones) if (!z.actions.length) out.push(`location ${l.id}/zone ${z.id}: у области нет действий — она ничего не делает`);

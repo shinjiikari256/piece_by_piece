@@ -243,11 +243,27 @@ function withZoneTargets(effects: Effect[]): Effect[] {
   });
 }
 
-function enterNode(npcId: string, dialogueId: string, nodeId: string) {
+function enterNode(npcId: string, dialogueId: string, nodeId: string, depth = 0) {
   const dialogue = state.caseFile?.dialogues.find((d) => d.id === dialogueId);
   const node = dialogue?.nodes.find((n) => n.id === nodeId);
   if (!node) return;
   const { progress, newEvidence, messages, removedEvidence, followUp } = applyEffects(withZoneTargets(node.effects), state.progress, fxCtx(`node:${dialogueId}/${nodeId}`));
+  // узел-переход: игрок его не видит, первый вариант с выполненным условием срабатывает сам; предел глубины страхует от цикла
+  if (node.auto) {
+    set({ progress });
+    announce(newEvidence, messages, removedEvidence, followUp);
+    if (followUp.dialogueId || followUp.failCase) return;
+    const pick = node.choices.find((ch) => meets(ch.requires, state.progress, state.locationId));
+    if (!pick || depth >= 20) return set({ overlay: null });
+    if (pick.effects?.length) {
+      const out = applyEffects(withZoneTargets(pick.effects), state.progress, fxCtx(`choice:${dialogueId}/${nodeId}/${pick.id}`));
+      set({ progress: out.progress });
+      announce(out.newEvidence, out.messages, out.removedEvidence, out.followUp);
+      if (out.followUp.failCase || (out.followUp.dialogueId && state.caseFile?.dialogues.some((d) => d.id === out.followUp.dialogueId))) return;
+    }
+    if (pick.next === null) return set({ overlay: null });
+    return enterNode(npcId, dialogueId, pick.next, depth + 1);
+  }
   set({ progress, overlay: { kind: "dialogue", npcId, dialogueId, nodeId } });
   announce(newEvidence, messages, removedEvidence, followUp);
 }

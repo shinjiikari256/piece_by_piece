@@ -377,6 +377,10 @@ export const DialogueNode = z.object({
   mood: z.enum(["neutral", "friendly", "nervous", "angry", "sad"]),
   effects: z.array(Effect),
   choices: z.array(DialogueChoice),
+  auto: z
+    .boolean()
+    .optional()
+    .describe("Переход без выбора игрока: узел не показывается, а первый вариант с выполненным условием срабатывает сам (эффекты варианта применяются, текст варианта и реплики игроку не виден)"),
 });
 
 export const Dialogue = z.object({

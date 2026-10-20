@@ -467,6 +467,11 @@ function Graph({
                   }}
                 >
                   {n.id === dialogue.startNodeId && <span className="dg-tag dg-tag--start">★ начало</span>}
+                  {n.auto && (
+                    <span className="dg-tag" title="Игрок этот узел не видит: первый вариант с выполненным условием срабатывает сам">
+                      переход
+                    </span>
+                  )}
                   <b>{n.id}</b>
                   <span className={`dg-node__speaker ${multi ? "is-other" : ""}`}>{speakerName(n.speaker)}</span>
                 </div>
