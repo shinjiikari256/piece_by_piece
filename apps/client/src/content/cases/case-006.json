@@ -1,0 +1,3054 @@
+{
+  "formatVersion": 11,
+  "legend": {
+    "#": "wall",
+    "W": "window",
+    "B": "brick",
+    "G": "glass",
+    "P": "painted_wall",
+    "F": "fence",
+    ".": "tile",
+    ",": "carpet",
+    "_": "parquet",
+    "w": "dark_parquet",
+    "b": "linoleum",
+    "k": "ceramic",
+    "m": "marble",
+    "r": "runner",
+    "S": "stairs",
+    "Z": "stairs_side",
+    "D": "doorway",
+    "g": "grass",
+    "a": "asphalt",
+    "p": "sidewalk"
+  },
+  "id": "case-006",
+  "number": "006",
+  "title": "Чужие руки",
+  "tagline": "Можно ли передать заботу о больном ребёнке постороннему — и снимает ли вахта ответственность?",
+  "introduction": "В комнате коммунальной квартиры обнаружено тело шестилетней Алисы. Отец почти два месяца жил и работал вдали, оставив дочь сожительнице, не приходившейся ей родственницей. Вы — дознаватель: изучите материалы в отделе по делам несовершеннолетних, побывайте в квартире, поговорите с участниками и решите, кто и в чём отвечает.",
+  "difficulty": "medium",
+  "timeBonus": {
+    "minutes": 20,
+    "points": 10
+  },
+  "published": true,
+  "updatedAt": "2026-10-20T20:29:07Z",
+  "locations": [
+    {
+      "id": "dept",
+      "name": "Отдел по делам несовершеннолетних",
+      "tiles": [
+        "###WW########WW######WW#####",
+        "#........#_________________#",
+        "#........#_________________#",
+        "#........D_________________#",
+        "#........#_________________#",
+        "#........###################",
+        "#........#_________________#",
+        "#........#_________________#",
+        "#........D_________________#",
+        "#........#_________________#",
+        "#........###################",
+        "#,,,,,,,,#_________________#",
+        "#,,,,,,,,#_________________#",
+        "#,,,,,,,,D_________________#",
+        "#,,,,,,,,#_________________#",
+        "####DD########WW######WW####"
+      ],
+      "areas": [
+        {
+          "name": "Кабинет инспектора",
+          "x": 17,
+          "y": 3
+        },
+        {
+          "name": "Кабинет допросов",
+          "x": 17,
+          "y": 8
+        },
+        {
+          "name": "Комната свидетелей",
+          "x": 17,
+          "y": 13
+        },
+        {
+          "name": "Вестибюль",
+          "x": 4,
+          "y": 8
+        }
+      ],
+      "playerStart": {
+        "x": 5,
+        "y": 12
+      },
+      "objects": [
+        {
+          "id": "door_a",
+          "sprite": "door_v",
+          "x": 9,
+          "y": 3,
+          "label": "Дверь",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "door_b",
+          "sprite": "door_v",
+          "x": 9,
+          "y": 8,
+          "label": "Дверь",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "door_c",
+          "sprite": "door_v",
+          "x": 9,
+          "y": 13,
+          "label": "Дверь",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "door_street",
+          "sprite": "door_h",
+          "x": 4,
+          "y": 15,
+          "label": "Дверь",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "obj_rapport",
+          "sprite": "cabinet",
+          "x": 11,
+          "y": 1,
+          "label": "Рапорты",
+          "interaction": {
+            "title": "Папка с рапортами",
+            "description": "Рапорт инспектора об обнаружении признаков преступления по факту смерти шестилетней девочки."
+          },
+          "onInteract": [
+            {
+              "type": "addEvidence",
+              "evidenceId": "rapport"
+            }
+          ]
+        },
+        {
+          "id": "obj_law",
+          "sprite": "bookshelf",
+          "x": 16,
+          "y": 1,
+          "label": "Нормативные акты",
+          "interaction": {
+            "title": "Кодексы с закладками",
+            "description": "Раскрыты Конституция РФ, Семейный кодекс РФ и Уголовный кодекс РФ."
+          },
+          "onInteract": [
+            {
+              "type": "addEvidence",
+              "evidenceId": "law_note"
+            }
+          ]
+        },
+        {
+          "id": "obj_birth",
+          "sprite": "desk_papers",
+          "x": 12,
+          "y": 3,
+          "label": "Свидетельство о рождении",
+          "interaction": {
+            "title": "Документы о ребёнке",
+            "description": "Свидетельство о рождении и запись о смерти матери девочки."
+          },
+          "onInteract": [
+            {
+              "type": "addEvidence",
+              "evidenceId": "birth_cert"
+            }
+          ]
+        },
+        {
+          "id": "obj_med",
+          "sprite": "desk_papers",
+          "x": 15,
+          "y": 3,
+          "label": "Выписка из медицинских карт",
+          "interaction": {
+            "title": "Выписка из медицинских карт",
+            "description": "Обращения девочки к врачам за последние месяцы и данные о записях, на которые не пришли."
+          },
+          "onInteract": [
+            {
+              "type": "addEvidence",
+              "evidenceId": "med_history"
+            }
+          ]
+        },
+        {
+          "id": "obj_home",
+          "sprite": "desk_papers",
+          "x": 24,
+          "y": 3,
+          "label": "Протокол осмотра квартиры отца",
+          "interaction": {
+            "title": "Протокол осмотра квартиры отца",
+            "description": "Осмотр жилья по месту регистрации девочки: детская комната, кухня, домашняя аптечка."
+          },
+          "onInteract": [
+            {
+              "type": "addEvidence",
+              "evidenceId": "home_protocol"
+            }
+          ]
+        },
+        {
+          "id": "dec_a_chair",
+          "sprite": "chair",
+          "x": 20,
+          "y": 2,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "obj_a_desk",
+          "sprite": "desk",
+          "x": 20,
+          "y": 3,
+          "label": "Стол инспектора",
+          "interaction": {
+            "title": "Стол инспектора",
+            "description": "Рабочий стол инспектора: бланки, штамп, настольная лампа."
+          },
+          "onInteract": []
+        },
+        {
+          "id": "obj_phone_rec",
+          "sprite": "desk_papers",
+          "x": 12,
+          "y": 8,
+          "label": "Детализация соединений",
+          "interaction": {
+            "title": "Детализация соединений",
+            "description": "Сведения оператора связи о местонахождении телефона отца по периодам."
+          },
+          "onInteract": [
+            {
+              "type": "addEvidence",
+              "evidenceId": "phone_records"
+            }
+          ]
+        },
+        {
+          "id": "obj_bank",
+          "sprite": "desk_papers",
+          "x": 15,
+          "y": 8,
+          "label": "Выписки по счетам",
+          "interaction": {
+            "title": "Выписки по счетам отца",
+            "description": "Движение денег по банковским счетам отца за время отъезда."
+          },
+          "onInteract": [
+            {
+              "type": "addEvidence",
+              "evidenceId": "bank_statement"
+            }
+          ]
+        },
+        {
+          "id": "obj_chat",
+          "sprite": "desk_papers",
+          "x": 25,
+          "y": 8,
+          "label": "Протокол осмотра телефона",
+          "interaction": {
+            "title": "Протокол осмотра телефона Сайко",
+            "description": "Переписка из мессенджера: сообщения тёте отца и самому отцу."
+          },
+          "onInteract": [
+            {
+              "type": "addEvidence",
+              "evidenceId": "chat_sayko"
+            }
+          ]
+        },
+        {
+          "id": "dec_b_chair",
+          "sprite": "chair",
+          "x": 21,
+          "y": 6,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "obj_b_desk",
+          "sprite": "desk",
+          "x": 21,
+          "y": 7,
+          "label": "Стол допроса",
+          "interaction": {
+            "title": "Стол допроса",
+            "description": "Протокол допроса и ручка. Присутствует защитник."
+          },
+          "onInteract": []
+        },
+        {
+          "id": "obj_kg_letter",
+          "sprite": "desk_papers",
+          "x": 13,
+          "y": 13,
+          "label": "Письмо из детского сада",
+          "interaction": {
+            "title": "Письмо заведующей детского сада",
+            "description": "Письмо в отдел полиции о том, что девочка перестала ходить в сад."
+          },
+          "onInteract": [
+            {
+              "type": "addEvidence",
+              "evidenceId": "kg_letter"
+            }
+          ]
+        },
+        {
+          "id": "obj_kg_talk",
+          "sprite": "desk_papers",
+          "x": 16,
+          "y": 13,
+          "label": "Протокол беседы в детском саду",
+          "interaction": {
+            "title": "Протокол беседы в детском саду",
+            "description": "Беседа сотрудников детского сада с отцом девочки."
+          },
+          "onInteract": [
+            {
+              "type": "addEvidence",
+              "evidenceId": "kg_talk"
+            }
+          ]
+        },
+        {
+          "id": "f_dept_clock_1",
+          "sprite": "clock",
+          "x": 18,
+          "y": 0,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_dept_poster_1",
+          "sprite": "poster",
+          "x": 11,
+          "y": 0,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_dept_bookshelf_1",
+          "sprite": "bookshelf",
+          "x": 19,
+          "y": 1,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_dept_cabinet_1",
+          "sprite": "cabinet",
+          "x": 23,
+          "y": 1,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_dept_printer_1",
+          "sprite": "printer",
+          "x": 25,
+          "y": 2,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_dept_plant_1",
+          "sprite": "plant",
+          "x": 26,
+          "y": 1,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_dept_trash_bin_1",
+          "sprite": "trash_bin",
+          "x": 10,
+          "y": 1,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_dept_floor_lamp_1",
+          "sprite": "floor_lamp",
+          "x": 10,
+          "y": 4,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_dept_water_cooler_1",
+          "sprite": "water_cooler",
+          "x": 26,
+          "y": 4,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_dept_chair_1",
+          "sprite": "chair",
+          "x": 12,
+          "y": 4,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_dept_clock_2",
+          "sprite": "clock",
+          "x": 16,
+          "y": 5,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_dept_whiteboard_1",
+          "sprite": "whiteboard",
+          "x": 24,
+          "y": 5,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_dept_plant_2",
+          "sprite": "plant",
+          "x": 10,
+          "y": 6,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_dept_cabinet_2",
+          "sprite": "cabinet",
+          "x": 12,
+          "y": 6,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_dept_floor_lamp_2",
+          "sprite": "floor_lamp",
+          "x": 26,
+          "y": 6,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_dept_trash_bin_2",
+          "sprite": "trash_bin",
+          "x": 26,
+          "y": 9,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_dept_water_cooler_2",
+          "sprite": "water_cooler",
+          "x": 10,
+          "y": 9,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_dept_chair_2",
+          "sprite": "chair",
+          "x": 15,
+          "y": 9,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_dept_chair_3",
+          "sprite": "chair",
+          "x": 23,
+          "y": 8,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_dept_sofa_1",
+          "sprite": "sofa",
+          "x": 19,
+          "y": 14,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_dept_coffee_table_1",
+          "sprite": "coffee_table",
+          "x": 21,
+          "y": 14,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_dept_armchair_1",
+          "sprite": "armchair",
+          "x": 24,
+          "y": 14,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_dept_plant_3",
+          "sprite": "plant",
+          "x": 26,
+          "y": 11,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_dept_plant_4",
+          "sprite": "plant",
+          "x": 10,
+          "y": 14,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_dept_poster_2",
+          "sprite": "poster",
+          "x": 14,
+          "y": 10,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_dept_clock_3",
+          "sprite": "clock",
+          "x": 22,
+          "y": 10,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_dept_bookshelf_2",
+          "sprite": "bookshelf",
+          "x": 11,
+          "y": 11,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_dept_floor_lamp_3",
+          "sprite": "floor_lamp",
+          "x": 26,
+          "y": 13,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_dept_water_cooler_3",
+          "sprite": "water_cooler",
+          "x": 26,
+          "y": 12,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_dept_sofa_2",
+          "sprite": "sofa",
+          "x": 2,
+          "y": 12,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_dept_plant_5",
+          "sprite": "plant",
+          "x": 1,
+          "y": 11,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_dept_plant_6",
+          "sprite": "plant",
+          "x": 8,
+          "y": 14,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_dept_vending_1",
+          "sprite": "vending",
+          "x": 1,
+          "y": 6,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_dept_water_cooler_4",
+          "sprite": "water_cooler",
+          "x": 8,
+          "y": 2,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_dept_bench_1",
+          "sprite": "bench",
+          "x": 2,
+          "y": 9,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_dept_coat_rack_1",
+          "sprite": "coat_rack",
+          "x": 1,
+          "y": 3,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_dept_poster_3",
+          "sprite": "poster",
+          "x": 6,
+          "y": 0,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_dept_clock_4",
+          "sprite": "clock",
+          "x": 8,
+          "y": 0,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_dept_trash_bin_3",
+          "sprite": "trash_bin",
+          "x": 8,
+          "y": 6,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_dept_floor_lamp_4",
+          "sprite": "floor_lamp",
+          "x": 1,
+          "y": 14,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        }
+      ],
+      "npcs": [
+        {
+          "id": "npc_lapteva",
+          "characterId": "lapteva",
+          "dialogueId": "dlg_lapteva",
+          "x": 23,
+          "y": 4,
+          "dialogues": []
+        },
+        {
+          "id": "npc_rogov",
+          "characterId": "rogov",
+          "dialogueId": "dlg_rogov",
+          "x": 24,
+          "y": 7,
+          "dialogues": []
+        },
+        {
+          "id": "npc_ermakova",
+          "characterId": "ermakova",
+          "dialogueId": "dlg_ermakova",
+          "x": 19,
+          "y": 12,
+          "dialogues": []
+        },
+        {
+          "id": "npc_zakharova",
+          "characterId": "zakharova",
+          "dialogueId": "dlg_zakharova",
+          "x": 23,
+          "y": 12,
+          "dialogues": []
+        }
+      ],
+      "zones": [
+        {
+          "id": "to_flat",
+          "name": "Выезд в коммунальную квартиру",
+          "cells": [
+            {
+              "x": 4,
+              "y": 15
+            },
+            {
+              "x": 5,
+              "y": 15
+            }
+          ],
+          "actions": [
+            {
+              "kind": "exit",
+              "to": "flat",
+              "spawn": {
+                "x": 13,
+                "y": 12
+              }
+            }
+          ]
+        }
+      ],
+      "onEnter": []
+    },
+    {
+      "id": "flat",
+      "name": "Коммунальная квартира",
+      "tiles": [
+        "###WW########WW#######WW####",
+        "#wwwwwwww#kkkkkkkk#wwwwwwww#",
+        "#wwwwwwww#kkkkkkkk#wwwwwwww#",
+        "#wwwwwwww#kkkkkkkk#wwwwwwww#",
+        "#wwwwwwww#kkkkkkkk#wwwwwwww#",
+        "#wwwwwwww#kkkkkkkk#wwwwwwww#",
+        "####D########D########D#####",
+        "#..........................#",
+        "#..........................#",
+        "#..........................#",
+        "#####WW######DD######WW#####",
+        "FppppppppppppppppppppppppppF",
+        "FggggggggggggggggggggggggggF",
+        "FggggggggggggggggggggggggggF",
+        "FaaaaaaaaaaaaaaaaaaaaaaaaaaF",
+        "FFFFFFFFFFFFFFFFFFFFFFFFFFFF"
+      ],
+      "areas": [
+        {
+          "name": "Комната девочки",
+          "x": 4,
+          "y": 3
+        },
+        {
+          "name": "Общая кухня",
+          "x": 13,
+          "y": 3
+        },
+        {
+          "name": "Комната семьи Сайко",
+          "x": 22,
+          "y": 3
+        },
+        {
+          "name": "Коридор",
+          "x": 13,
+          "y": 8
+        },
+        {
+          "name": "Двор",
+          "x": 13,
+          "y": 12
+        }
+      ],
+      "objects": [
+        {
+          "id": "door_f_room",
+          "sprite": "door_h",
+          "x": 4,
+          "y": 6,
+          "label": "Дверь",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "door_f_kitchen",
+          "sprite": "door_h",
+          "x": 13,
+          "y": 6,
+          "label": "Дверь",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "door_f_sayko",
+          "sprite": "door_h",
+          "x": 22,
+          "y": 6,
+          "label": "Дверь",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "door_f_front",
+          "sprite": "door_h",
+          "x": 13,
+          "y": 10,
+          "label": "Дверь",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "obj_scene",
+          "sprite": "evidence_tag",
+          "x": 4,
+          "y": 4,
+          "label": "Метка следственной группы",
+          "interaction": {
+            "title": "Место обнаружения",
+            "description": "Протокол осмотра места происшествия составлен здесь. На полу у стены одеяло, в комнате беспорядок и запах."
+          },
+          "onInteract": [
+            {
+              "type": "addEvidence",
+              "evidenceId": "scene_protocol"
+            }
+          ]
+        },
+        {
+          "id": "obj_table",
+          "sprite": "nightstand",
+          "x": 7,
+          "y": 4,
+          "label": "Пеленальный столик",
+          "interaction": {
+            "title": "Столик у стены",
+            "description": "Столик завален одеждой и мелочами. Детских лекарств и продуктов для особой диеты не видно."
+          },
+          "onInteract": []
+        },
+        {
+          "id": "obj_kitchen",
+          "sprite": "kitchen_table",
+          "x": 13,
+          "y": 3,
+          "label": "Общий кухонный стол",
+          "interaction": {
+            "title": "Общий кухонный стол",
+            "description": "Кухней пользуются несколько семей. Соседи говорят, что в последние дни девочку за столом не видели."
+          },
+          "onInteract": []
+        },
+        {
+          "id": "obj_sayko_room",
+          "sprite": "crate",
+          "x": 25,
+          "y": 4,
+          "label": "Миски и подстилки",
+          "interaction": {
+            "title": "Миски и подстилки",
+            "description": "В комнате держат несколько собак. Здесь же жила семья Сайко: муж, жена и их дочь."
+          },
+          "onInteract": []
+        },
+        {
+          "id": "obj_dvr",
+          "sprite": "cctv_desk",
+          "x": 24,
+          "y": 8,
+          "label": "Видеорегистратор",
+          "interaction": {
+            "title": "Видеорегистратор соседки",
+            "description": "Запись камеры у входа в здание. Хранится у соседки до окончания расследования."
+          },
+          "onInteract": [
+            {
+              "type": "addEvidence",
+              "evidenceId": "video_cam"
+            }
+          ]
+        },
+        {
+          "id": "f_flat_sofa_1",
+          "sprite": "sofa",
+          "x": 2,
+          "y": 2,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_flat_cabinet_1",
+          "sprite": "cabinet",
+          "x": 7,
+          "y": 1,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_flat_floor_lamp_1",
+          "sprite": "floor_lamp",
+          "x": 1,
+          "y": 1,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_flat_boxes_1",
+          "sprite": "boxes",
+          "x": 7,
+          "y": 5,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_flat_chair_1",
+          "sprite": "chair",
+          "x": 3,
+          "y": 5,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_flat_poster_1",
+          "sprite": "poster",
+          "x": 1,
+          "y": 0,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_flat_stove_1",
+          "sprite": "stove",
+          "x": 11,
+          "y": 1,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_flat_kitchen_counter_1",
+          "sprite": "kitchen_counter",
+          "x": 12,
+          "y": 1,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_flat_sink_1",
+          "sprite": "sink",
+          "x": 14,
+          "y": 1,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_flat_fridge_1",
+          "sprite": "fridge",
+          "x": 16,
+          "y": 1,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_flat_chair_2",
+          "sprite": "chair",
+          "x": 12,
+          "y": 3,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_flat_chair_3",
+          "sprite": "chair",
+          "x": 14,
+          "y": 3,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_flat_trash_bin_1",
+          "sprite": "trash_bin",
+          "x": 10,
+          "y": 5,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_flat_boxes_2",
+          "sprite": "boxes",
+          "x": 16,
+          "y": 5,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_flat_clock_1",
+          "sprite": "clock",
+          "x": 15,
+          "y": 0,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_flat_bed_1",
+          "sprite": "bed",
+          "x": 20,
+          "y": 2,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_flat_bed_2",
+          "sprite": "bed",
+          "x": 24,
+          "y": 2,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_flat_nightstand_1",
+          "sprite": "nightstand",
+          "x": 22,
+          "y": 1,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_flat_boxes_3",
+          "sprite": "boxes",
+          "x": 25,
+          "y": 1,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_flat_chair_4",
+          "sprite": "chair",
+          "x": 21,
+          "y": 4,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_flat_sofa_2",
+          "sprite": "sofa",
+          "x": 24,
+          "y": 5,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_flat_floor_lamp_2",
+          "sprite": "floor_lamp",
+          "x": 19,
+          "y": 5,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_flat_coat_rack_1",
+          "sprite": "coat_rack",
+          "x": 1,
+          "y": 8,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_flat_bench_1",
+          "sprite": "bench",
+          "x": 6,
+          "y": 8,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_flat_floor_lamp_3",
+          "sprite": "floor_lamp",
+          "x": 10,
+          "y": 7,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_flat_boxes_4",
+          "sprite": "boxes",
+          "x": 20,
+          "y": 9,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_flat_trash_bin_2",
+          "sprite": "trash_bin",
+          "x": 26,
+          "y": 9,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_flat_plant_1",
+          "sprite": "plant",
+          "x": 26,
+          "y": 7,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_flat_poster_2",
+          "sprite": "poster",
+          "x": 7,
+          "y": 6,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_flat_tree_1",
+          "sprite": "tree",
+          "x": 4,
+          "y": 12,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_flat_tree_2",
+          "sprite": "tree",
+          "x": 22,
+          "y": 12,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_flat_tree_3",
+          "sprite": "tree",
+          "x": 25,
+          "y": 13,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_flat_bench_2",
+          "sprite": "bench",
+          "x": 8,
+          "y": 12,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_flat_street_lamp_1",
+          "sprite": "street_lamp",
+          "x": 10,
+          "y": 11,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_flat_street_lamp_2",
+          "sprite": "street_lamp",
+          "x": 17,
+          "y": 11,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_flat_mailbox_1",
+          "sprite": "mailbox",
+          "x": 6,
+          "y": 11,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_flat_car_1",
+          "sprite": "car",
+          "x": 22,
+          "y": 14,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_flat_bus_stop_1",
+          "sprite": "bus_stop",
+          "x": 3,
+          "y": 14,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_flat_crate_1",
+          "sprite": "crate",
+          "x": 25,
+          "y": 11,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        }
+      ],
+      "npcs": [
+        {
+          "id": "npc_sorokina",
+          "characterId": "sorokina",
+          "dialogueId": "dlg_sorokina",
+          "x": 6,
+          "y": 3,
+          "dialogues": []
+        },
+        {
+          "id": "npc_fomina",
+          "characterId": "fomina",
+          "dialogueId": "dlg_fomina",
+          "x": 16,
+          "y": 4,
+          "dialogues": []
+        }
+      ],
+      "zones": [
+        {
+          "id": "to_dept",
+          "name": "Возвращение в отдел",
+          "cells": [
+            {
+              "x": 13,
+              "y": 14
+            },
+            {
+              "x": 14,
+              "y": 14
+            }
+          ],
+          "actions": [
+            {
+              "kind": "exit",
+              "to": "dept",
+              "spawn": {
+                "x": 5,
+                "y": 13
+              }
+            }
+          ]
+        }
+      ],
+      "onEnter": []
+    }
+  ],
+  "characters": [
+    {
+      "id": "rogov",
+      "name": "Денис Рогов",
+      "look": "worker_m",
+      "position": "отец девочки, вахтовик, столяр",
+      "description": "Растил дочь один после смерти жены. Уехал на вахту, оставив девочку сожительнице. Вызван на допрос."
+    },
+    {
+      "id": "sayko",
+      "name": "Вероника Сайко",
+      "look": "casual_f",
+      "position": "сожительница отца, ухаживала за девочкой; в розыске",
+      "description": "Не родственница девочки. Дело в её отношении выделено в отдельное производство, на допрос не явилась."
+    },
+    {
+      "id": "lapteva",
+      "name": "Ирина Лаптева",
+      "look": "official_f",
+      "position": "инспектор по делам несовершеннолетних",
+      "description": "Ведёт проверку. Объяснит, на ком лежит обязанность заботиться о ребёнке."
+    },
+    {
+      "id": "ermakova",
+      "name": "Галина Ермакова",
+      "look": "teacher_f",
+      "position": "заведующая детским садом",
+      "description": "Знала девочку и её проблемы со здоровьем, беседовала с отцом."
+    },
+    {
+      "id": "zakharova",
+      "name": "Нина Захарова",
+      "look": "elder_f",
+      "position": "тётя отца, свидетель",
+      "description": "Переписывалась с Сайко о состоянии девочки и передавала сообщения племяннику."
+    },
+    {
+      "id": "fomina",
+      "name": "Лидия Фомина",
+      "look": "cleaner_f",
+      "position": "соседка по коммунальной квартире, свидетель",
+      "description": "Видела девочку в квартире весной и в последние дни."
+    },
+    {
+      "id": "sorokina",
+      "name": "Марина Сорокина",
+      "look": "doctor_f",
+      "position": "судебно-медицинский эксперт",
+      "description": "Установила причину смерти и объяснит, как развивалась болезнь и когда её можно было остановить."
+    }
+  ],
+  "events": [
+    {
+      "id": "ev_clinic",
+      "title": "Девочку показали детскому хирургу: недержание кала, рекомендованы обследования",
+      "at": "2025-02-10",
+      "showInTimeline": true
+    },
+    {
+      "id": "ev_talk",
+      "title": "Беседа в детском саду: отцу сообщают о проблемах девочки с кишечником",
+      "at": "2025-03-05",
+      "showInTimeline": true
+    },
+    {
+      "id": "ev_leave",
+      "title": "Рогов уезжает на вахту и оставляет дочь Сайко",
+      "at": "2025-03-18",
+      "showInTimeline": true
+    },
+    {
+      "id": "ev_letter",
+      "title": "Заведующая сообщает в полицию: девочка не ходит в сад, отец не выходит на связь",
+      "at": "2025-04-22",
+      "showInTimeline": true
+    },
+    {
+      "id": "ev_home",
+      "title": "Рогов находится в городе, но дочь не навещает",
+      "at": "2025-05-14",
+      "until": "2025-05-22",
+      "showInTimeline": true
+    },
+    {
+      "id": "ev_fever",
+      "title": "Сайко пишет, что третий день температура 39; Рогов отвечает: «вам виднее»",
+      "at": "2025-05-25T14:33",
+      "showInTimeline": true
+    },
+    {
+      "id": "ev_death",
+      "title": "Семья Сайко уезжает из дома, вечером девочку находят мёртвой",
+      "at": "2025-05-28T19:00",
+      "showInTimeline": true
+    }
+  ],
+  "evidence": [
+    {
+      "id": "rapport",
+      "title": "Рапорт об обнаружении признаков преступления",
+      "description": "Инспектор сообщила о смерти шестилетней девочки и о том, что отец оставил её сожительнице.",
+      "details": "РАПОРТ инспектора по делам несовершеннолетних\n\n28 мая 2025 года в комнате коммунальной квартиры обнаружено тело Алисы Роговой, 6 лет. Отец, Рогов Д.И., проживал отдельно и находился за пределами области. Девочку он оставил сожительнице, Сайко В.А., которая не является ей родственницей или законным представителем.\n\nВ действиях отца усматриваются признаки преступлений, предусмотренных ст. 156 и ч. 1 ст. 109 УК РФ.",
+      "kind": "evidence",
+      "subtype": "Рапорт",
+      "relatedCharacters": [
+        "lapteva",
+        "rogov",
+        "sayko"
+      ],
+      "relatedEvents": [
+        "ev_leave",
+        "ev_death"
+      ],
+      "reliability": "high",
+      "onCollect": []
+    },
+    {
+      "id": "birth_cert",
+      "title": "Свидетельство о рождении и запись о смерти матери",
+      "description": "Родитель девочки — только отец; Сайко опекуном или представителем не назначалась.",
+      "details": "СВИДЕТЕЛЬСТВО О РОЖДЕНИИ\n\nРебёнок: Рогова Алиса Денисовна, 6 лет. Отец: Рогов Денис Игоревич. Мать: умерла (запись акта о смерти).\n\nПримечание инспектора: опека над девочкой не оформлялась, доверенности или соглашения с Сайко В.А. нет. Сайко уход осуществляла по устной договорённости; со слов её мужа — за плату.",
+      "kind": "evidence",
+      "subtype": "Документ",
+      "relatedCharacters": [
+        "rogov",
+        "sayko"
+      ],
+      "relatedEvents": [
+        "ev_leave"
+      ],
+      "reliability": "high",
+      "onCollect": []
+    },
+    {
+      "id": "law_note",
+      "title": "Конституция РФ и Семейный кодекс РФ об обязанностях родителей",
+      "description": "Забота о детях — право и обязанность родителей; они отвечают за здоровье и развитие ребёнка.",
+      "details": "Ч. 2 ст. 38 Конституции РФ: забота о детях, их воспитание — равное право и обязанность родителей.\n\nЧ. 1 ст. 63 Семейного кодекса РФ: родители имеют право и обязаны воспитывать своих детей. Они несут ответственность за воспитание и развитие детей и обязаны заботиться об их здоровье, физическом, психическом, духовном и нравственном развитии.",
+      "kind": "evidence",
+      "subtype": "Нормативный акт",
+      "relatedCharacters": [],
+      "relatedEvents": [
+        "ev_leave"
+      ],
+      "reliability": "high",
+      "onCollect": []
+    },
+    {
+      "id": "med_history",
+      "title": "Выписка из медицинских карт девочки",
+      "description": "Жалобы на недержание кала были давно; рекомендации врачей выполнены частично, дальше обследований не было.",
+      "details": "ВЫПИСКА ИЗ МЕДИЦИНСКИХ КАРТ\n\nДетская поликлиника: жалобы на недержание кала и мочи, диагноз «энурез, энкопрез», назначено лечение и консультации.\n\n10.02.2025, частная клиника, детский хирург: функциональное нарушение кишечника, запор. Рекомендованы анализы, УЗИ брюшной полости, консультация гастроэнтеролога, повторный приём через неделю. УЗИ и анализы сданы, патологии не выявлено.\n\nНа повторный приём к хирургу не явились. Запись к гастроэнтерологу на 03.03.2025 не реализована: пациентка не пришла.\n\nБолее обращений к врачам и вызовов скорой помощи за период с марта по 28 мая 2025 года нет.",
+      "kind": "evidence",
+      "subtype": "Документ",
+      "relatedCharacters": [
+        "rogov"
+      ],
+      "relatedEvents": [
+        "ev_clinic"
+      ],
+      "reliability": "high",
+      "onCollect": []
+    },
+    {
+      "id": "home_protocol",
+      "title": "Протокол осмотра квартиры отца",
+      "description": "В квартире порядок, но лекарств для лечения кишечника нет.",
+      "details": "ПРОТОКОЛ осмотра жилья по месту регистрации девочки\n\nЧастный дом на четыре квартиры, огороженная территория. Есть детская комната: шкаф с одеждой, кровать, игрушки, на стене фотография девочки и диплом детского центра. На кухне лекарства, но среди них нет препаратов для лечения заболеваний желудочно-кишечного тракта. Общий порядок в квартире не нарушен.",
+      "kind": "evidence",
+      "subtype": "Протокол осмотра",
+      "relatedCharacters": [
+        "rogov"
+      ],
+      "relatedEvents": [
+        "ev_leave"
+      ],
+      "reliability": "medium",
+      "onCollect": []
+    },
+    {
+      "id": "phone_records",
+      "title": "Детализация соединений телефона Рогова",
+      "description": "Показывает, где находился Рогов: часть времени он был в городе.",
+      "details": "ДЕТАЛИЗАЦИЯ СОЕДИНЕНИЙ абонента Рогова Д.И.\n\n18.03.2025 — покинул территорию области, до 13.05 находился в соседних областях.\n14.05–22.05.2025 — на территории города, где живёт дочь.\n23.05–28.05.2025 — в другой области.\n\nВ городе телефон Рогова находился в районе его квартиры; в район, где жила девочка, не заходил.",
+      "kind": "evidence",
+      "subtype": "Документ",
+      "relatedCharacters": [
+        "rogov"
+      ],
+      "relatedEvents": [
+        "ev_leave",
+        "ev_home"
+      ],
+      "reliability": "high",
+      "onCollect": []
+    },
+    {
+      "id": "bank_statement",
+      "title": "Выписки по счетам Рогова",
+      "description": "За время отъезда нет ни одной траты на лекарства или врачей.",
+      "details": "СВЕДЕНИЯ О ДВИЖЕНИИ ДЕНЕЖНЫХ СРЕДСТВ по четырём счетам Рогова Д.И.\n\nПериод: 18.03.2025–28.05.2025. Поступления — заработная плата. Расходов на медицинские услуги и оплату лекарств не зафиксировано. Переводов Сайко В.А. на содержание ребёнка в последний месяц нет.",
+      "kind": "evidence",
+      "subtype": "Документ",
+      "relatedCharacters": [
+        "rogov"
+      ],
+      "relatedEvents": [
+        "ev_leave",
+        "ev_fever"
+      ],
+      "reliability": "high",
+      "onCollect": []
+    },
+    {
+      "id": "chat_sayko",
+      "title": "Протокол осмотра телефона Сайко: переписка",
+      "description": "Сайко писала Рогову и его тёте о болезни девочки; он получил эти сообщения.",
+      "details": "ПРОТОКОЛ осмотра телефона, мессенджер\n\n— Сайко — Захаровой, 22.05: «Алиса опять легла грязная». Захарова: «Может, вызвать врача или скорую?»\n— Сайко — Захаровой, 25.05, 14:33: «Алиса ночью три раза вставала пить, температура 39, сейчас спит. Денис не писал и не звонил».\n— Сайко — Рогову, 25.05: «У Алисы третий день температура 39. Переводи деньги на ребёнка, ты работаешь на себя». Рогов: «Вы сами так решили, вам виднее». Сайко: «Если бы не я, Алису бы никто не лечил». Рогов: «Всё кончено».\n— Сайко — Захаровой, 27.05, 11:18: «Температура 39, ждём врача».",
+      "kind": "evidence",
+      "subtype": "Протокол осмотра",
+      "relatedCharacters": [
+        "sayko",
+        "rogov",
+        "zakharova"
+      ],
+      "relatedEvents": [
+        "ev_home",
+        "ev_fever"
+      ],
+      "reliability": "high",
+      "onCollect": []
+    },
+    {
+      "id": "kg_letter",
+      "title": "Письмо заведующей детским садом в полицию",
+      "description": "Девочка не ходит в сад, отец на связь не выходит, а его сожительница просит документы для перевода.",
+      "details": "ПИСЬМО заведующей детским садом, 22.04.2025\n\nДевочка Рогова А. не посещает сад с 24.03.2025. Отец, Рогов Д.И., на связь не выходит, обязанности родителя, по нашему мнению, не исполняет. Его сожительница, Сайко В.А., требует выдать документы для перевода в другой сад и говорит, что ребёнок живёт с ней, а не с отцом.",
+      "kind": "evidence",
+      "subtype": "Документ",
+      "relatedCharacters": [
+        "ermakova",
+        "sayko",
+        "rogov"
+      ],
+      "relatedEvents": [
+        "ev_letter"
+      ],
+      "reliability": "high",
+      "onCollect": []
+    },
+    {
+      "id": "kg_talk",
+      "title": "Протокол беседы с отцом в детском саду",
+      "description": "Отцу заранее сообщали о проблемах со здоровьем дочери и просили показать её врачам.",
+      "details": "ПРОТОКОЛ БЕСЕДЫ, 05.03.2025\n\nУчаствуют: воспитатели, заведующая, медсестра, отец воспитанницы Рогов Д.И.\n\nОтцу сообщено: у девочки длительные проблемы с кишечником, непроизвольное опорожнение до пяти-семи раз в день. Необходимы обращение к врачам-специалистам, обследования, актуальная справка о диете, физиолечение по назначению невролога.\n\nРогов обещал обратиться. Медицинские документы в сад не предоставил.",
+      "kind": "evidence",
+      "subtype": "Протокол беседы",
+      "relatedCharacters": [
+        "ermakova",
+        "rogov"
+      ],
+      "relatedEvents": [
+        "ev_talk"
+      ],
+      "reliability": "high",
+      "onCollect": []
+    },
+    {
+      "id": "scene_protocol",
+      "title": "Протокол осмотра места происшествия",
+      "description": "Тело девочки найдено в комнате, в квартире антисанитария, пища и лекарства для неё не видны.",
+      "details": "ПРОТОКОЛ осмотра места происшествия\n\nКоммунальная квартира на восьмом этаже. Комната около 15 кв. м; подоконник и столик завалены вещами. На полу на одеяле обнаружено тело девочки, одежды нет; на теле ссадины и кровоподтёки. В комнате антисанитария.\n\nФельдшер скорой помощи констатировала смерть. Вызов поступил от знакомого семьи Сайко.",
+      "kind": "evidence",
+      "subtype": "Протокол осмотра",
+      "relatedCharacters": [
+        "fomina",
+        "sorokina"
+      ],
+      "relatedEvents": [
+        "ev_death"
+      ],
+      "reliability": "high",
+      "onCollect": []
+    },
+    {
+      "id": "video_cam",
+      "title": "Запись камеры у входа в здание",
+      "description": "В день смерти семья Сайко уезжает на машине; девочка из здания не выходила.",
+      "details": "ПРОТОКОЛ осмотра видеозаписи, 28.05.2025\n\n14:20 — из здания выходят двое взрослых и ребёнок (Сайко, её муж и их дочь), садятся в машину и уезжают.\n19:05 — те же лица выходят из машины и заходят в здание.\n\nЧетвёртая девочка (Алиса) в кадре за весь день не появляется.",
+      "kind": "evidence",
+      "subtype": "Видеозапись",
+      "relatedCharacters": [
+        "sayko",
+        "fomina"
+      ],
+      "relatedEvents": [
+        "ev_death"
+      ],
+      "reliability": "high",
+      "onCollect": []
+    },
+    {
+      "id": "expert_conclusion",
+      "title": "Заключение судебно-медицинского эксперта",
+      "description": "Смерть — от непроходимости кишечника; на ранней стадии её устранила бы обычная клизма, на поздней — стационар.",
+      "details": "ЗАКЛЮЧЕНИЕ эксперта\n\nПричина смерти: обтурационная толстокишечная непроходимость — прямая кишка полностью перекрыта плотными каловыми массами. Осложнения: интоксикация, гнойное воспаление стенки кишки, сепсис, полиорганная недостаточность.\n\nПервый период (от 7–14 до 3–4 суток до смерти): изменения обратимы; восстановить проходимость мог бы приём клизмы. На поздней стадии этого периода требовалась инфузионная терапия в стационаре.\n\nВторой период (последние 3–4 суток): необходимы госпитализация, интенсивная терапия и операция. При полном комплексе лечения в стационаре смерти можно было избежать почти до самого конца.\n\nОтдельно: острый бронхит, рахит, миотонический синдром. Они сами смерть не вызвали.",
+      "kind": "evidence",
+      "subtype": "Экспертиза",
+      "relatedCharacters": [
+        "sorokina"
+      ],
+      "relatedEvents": [
+        "ev_death"
+      ],
+      "reliability": "high",
+      "onCollect": []
+    },
+    {
+      "id": "t_rogov_lie",
+      "title": "Показания Рогова: «я всё делал»",
+      "description": "Рогов уверяет, что лечил дочь, а Сайко докладывала, что всё в порядке.",
+      "details": "Рогов: «Дочь с рождения лечили: врачи, диета, клизмы дважды в неделю. Я уехал на вахту, Вероника сказала, что справится. В городе мы с дочерью не виделись: психолог посоветовал. Мне говорили, что приезжала скорая и ей лучше. Я не знал, что всё настолько серьёзно».",
+      "kind": "testimony",
+      "subtype": "Показания",
+      "relatedCharacters": [
+        "rogov",
+        "sayko"
+      ],
+      "relatedEvents": [
+        "ev_leave",
+        "ev_home"
+      ],
+      "reliability": "low",
+      "onCollect": []
+    },
+    {
+      "id": "t_rogov_admit",
+      "title": "Показания Рогова: признание фактов",
+      "description": "Рогов признал, что знал о температуре, врача не вызвал и к дочери не приехал; вину отрицает.",
+      "details": "Рогов: «Я знал, что у Алисы три дня температура: Вероника писала. Скорую не вызывал и дочь в больницу не отправлял. Деньги не переводил, на вахте был занят. В городе к дочери не заезжал, она жила не у меня. Тётя говорила, что Вероника ждёт врача, я поверил. Я не хотел, чтобы так вышло. Но обязанностей я не нарушал: она же была не одна».",
+      "kind": "testimony",
+      "subtype": "Показания",
+      "relatedCharacters": [
+        "rogov"
+      ],
+      "relatedEvents": [
+        "ev_home",
+        "ev_fever"
+      ],
+      "reliability": "high",
+      "onCollect": []
+    },
+    {
+      "id": "t_zakharova",
+      "title": "Показания Захаровой",
+      "description": "Тётя советовала вызвать врача и передала Рогову, что Сайко «ждёт врача»; проверять не стала.",
+      "details": "Захарова: «Вероника писала, что Алиса заболела. Я предлагала вызвать врача или скорую. Денису я передала, что она ждёт врача. Приезжала ли скорая, я не проверяла, и он, насколько знаю, не спрашивал. Я думала, он сам разберётся. Сказать, что приезжала скорая и стало легче, я ему не могла: этого никто не знал».",
+      "kind": "testimony",
+      "subtype": "Показания",
+      "relatedCharacters": [
+        "zakharova",
+        "rogov",
+        "sayko"
+      ],
+      "relatedEvents": [
+        "ev_fever"
+      ],
+      "reliability": "high",
+      "onCollect": []
+    },
+    {
+      "id": "t_ermakova",
+      "title": "Показания Ермаковой",
+      "description": "Проблемы с кишечником у девочки были давно; отец обещал показать врачам, но не показал.",
+      "details": "Ермакова: «Девочка у нас в группе для детей с задержкой развития. До пяти-семи раз в день она не могла удержать стул. Мы много раз просили отца показать её врачам, он обещал, но справок не приносил, лучше не становилось. С конца марта в сад она не ходит, отец на связь не выходил, звонила его сожительница».",
+      "kind": "testimony",
+      "subtype": "Показания",
+      "relatedCharacters": [
+        "ermakova",
+        "rogov"
+      ],
+      "relatedEvents": [
+        "ev_talk",
+        "ev_letter"
+      ],
+      "reliability": "high",
+      "onCollect": []
+    },
+    {
+      "id": "t_fomina",
+      "title": "Показания Фоминой",
+      "description": "Девочка жила у Сайко в плохих условиях, врачей и скорую не вызывали.",
+      "details": "Фомина: «С весны у соседей жила девочка, они называли её родственницей. Семья шумная, в комнате собаки, везде грязь. Гулять девочку не водили, в сад тоже. Врача на дом и скорую я не видела. В последние дни она у нас на кухне не ела. 28-го они уехали после обеда, а вечером приехала скорая: девочка умерла».",
+      "kind": "testimony",
+      "subtype": "Показания",
+      "relatedCharacters": [
+        "fomina",
+        "sayko"
+      ],
+      "relatedEvents": [
+        "ev_fever",
+        "ev_death"
+      ],
+      "reliability": "medium",
+      "onCollect": []
+    }
+  ],
+  "dialogues": [
+    {
+      "id": "dlg_lapteva",
+      "characterId": "lapteva",
+      "startNodeId": "start",
+      "nodes": [
+        {
+          "id": "start",
+          "text": "Материалы на столах и в шкафах. Что вас интересует?",
+          "mood": "neutral",
+          "effects": [],
+          "choices": [
+            {
+              "id": "case",
+              "text": "С чего началась проверка?",
+              "next": "case",
+              "effects": []
+            },
+            {
+              "id": "duty",
+              "text": "Мог ли отец передать заботу о дочери Сайко?",
+              "next": "duty",
+              "effects": []
+            },
+            {
+              "id": "elements",
+              "text": "Что нужно установить по ст. 156 УК РФ?",
+              "next": "elements",
+              "effects": []
+            },
+            {
+              "id": "bye",
+              "text": "Спасибо, пока всё.",
+              "next": null,
+              "effects": []
+            }
+          ]
+        },
+        {
+          "id": "case",
+          "text": "Сначала нам написала заведующая детского сада: девочка перестала ходить, отец на связь не выходит. Мы проверили семью, Сайко пришла в отдел с обеими девочками, выглядели опрятно. 28 мая вечером поступил вызов: ребёнок мёртв.",
+          "mood": "neutral",
+          "effects": [],
+          "choices": [
+            {
+              "id": "back",
+              "text": "Понятно.",
+              "next": "start",
+              "effects": []
+            }
+          ]
+        },
+        {
+          "id": "duty",
+          "text": "Родитель отвечает за ребёнка лично. Вахта, работа, чужая помощь не отменяют этого. Помощники могут помогать, но родитель обязан проверять, как они справляются, и вмешаться при беде. У Сайко же не было ни опеки, ни доверенности.",
+          "mood": "neutral",
+          "effects": [
+            {
+              "type": "changeVariable",
+              "variableId": "duty_explained",
+              "action": "on"
+            }
+          ],
+          "choices": [
+            {
+              "id": "back",
+              "text": "Понятно.",
+              "next": "start",
+              "effects": []
+            }
+          ]
+        },
+        {
+          "id": "elements",
+          "text": "Три вещи. Обязан ли человек заботиться о ребёнке: родитель, опекун. Не исполнял ли он обязанность. И соединено ли это с жестоким обращением: например, оставлением беспомощного ребёнка без ухода и без помощи врача. Смерть ребёнка квалифицируют отдельно.",
+          "mood": "neutral",
+          "effects": [
+            {
+              "type": "changeVariable",
+              "variableId": "elements_explained",
+              "action": "on"
+            }
+          ],
+          "choices": [
+            {
+              "id": "back",
+              "text": "Понятно.",
+              "next": "start",
+              "effects": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "dlg_rogov",
+      "characterId": "rogov",
+      "startNodeId": "start",
+      "nodes": [
+        {
+          "id": "start",
+          "text": "Я уже всё рассказывал. Что ещё?",
+          "mood": "nervous",
+          "effects": [],
+          "choices": [
+            {
+              "id": "alisa",
+              "text": "Расскажите об Алисе и её здоровье.",
+              "next": "alisa",
+              "effects": []
+            },
+            {
+              "id": "left",
+              "text": "Почему вы оставили дочь Сайко?",
+              "next": "left",
+              "effects": []
+            },
+            {
+              "id": "care",
+              "text": "Как вы следили за здоровьем дочери, пока были на вахте?",
+              "next": "lie",
+              "requires": {
+                "notFlags": [
+                  "rogov_admitted",
+                  "rogov_closed"
+                ]
+              },
+              "effects": []
+            },
+            {
+              "id": "press",
+              "text": "Переписка Сайко, детализация и заключение эксперта: вы знали о температуре и не вмешались.",
+              "next": "admit",
+              "requires": {
+                "evidence": [
+                  "chat_sayko",
+                  "phone_records",
+                  "expert_conclusion"
+                ],
+                "flags": [
+                  "rogov_lied"
+                ],
+                "notFlags": [
+                  "rogov_admitted",
+                  "rogov_closed"
+                ]
+              },
+              "effects": []
+            },
+            {
+              "id": "rude",
+              "text": "Вы бросили больного ребёнка и теперь врёте.",
+              "next": "closed",
+              "requires": {
+                "flags": [
+                  "rogov_lied"
+                ],
+                "notFlags": [
+                  "rogov_admitted",
+                  "rogov_closed"
+                ]
+              },
+              "effects": []
+            },
+            {
+              "id": "bye",
+              "text": "Продолжим позже.",
+              "next": null,
+              "effects": []
+            }
+          ]
+        },
+        {
+          "id": "alisa",
+          "text": "С рождения у неё были проблемы с кишечником: запоры, недержание. Лечили, возили к врачам, дома делали клизмы. После смерти жены я растил её один. Работал столяром, потом уехал на вахту.",
+          "mood": "sad",
+          "effects": [],
+          "choices": [
+            {
+              "id": "back",
+              "text": "Понятно.",
+              "next": "start",
+              "effects": []
+            }
+          ]
+        },
+        {
+          "id": "left",
+          "text": "Вероника переехала ко мне с дочкой, с Алисой они ладили. Я уехал на заработок, а она сказала: оставьте, справлюсь. Потом они жили у её родителей, мы виделись редко: психолог будто бы рекомендовал нам с дочерью не встречаться.",
+          "mood": "neutral",
+          "effects": [],
+          "choices": [
+            {
+              "id": "back",
+              "text": "Понятно.",
+              "next": "start",
+              "effects": []
+            }
+          ]
+        },
+        {
+          "id": "lie",
+          "text": "Я всё делал: врачи, диета, клизмы. Вероника отчитывалась, что всё в порядке и что приезжала скорая. Когда я был в городе, с дочерью не виделись: так советовали. Я не знал, что это так серьёзно.",
+          "mood": "nervous",
+          "effects": [
+            {
+              "type": "changeVariable",
+              "variableId": "rogov_lied",
+              "action": "on"
+            },
+            {
+              "type": "addEvidence",
+              "evidenceId": "t_rogov_lie"
+            },
+            {
+              "type": "addCharacterNote",
+              "characterId": "rogov",
+              "text": "Сказал, что заботился о здоровье дочери и считал, что всё в порядке."
+            }
+          ],
+          "choices": [
+            {
+              "id": "back",
+              "text": "Запишу.",
+              "next": "start",
+              "effects": []
+            }
+          ]
+        },
+        {
+          "id": "admit",
+          "text": "…Знал, что у неё температура уже три дня. Вероника писала. Скорую не вызвал, денег не переслал, в город к дочери не заехал. Тётя говорила, что Вероника ждёт врача. Я думал, обойдётся. Умирать она не должна была, но и я не нарушал обязанностей: за ней же смотрели.",
+          "mood": "sad",
+          "effects": [
+            {
+              "type": "changeVariable",
+              "variableId": "rogov_admitted",
+              "action": "on"
+            },
+            {
+              "type": "addEvidence",
+              "evidenceId": "t_rogov_admit"
+            },
+            {
+              "type": "addCharacterNote",
+              "characterId": "rogov",
+              "text": "Признал факты: знал о температуре, врача не вызвал, к дочери не приехал; вину отрицает."
+            }
+          ],
+          "choices": [
+            {
+              "id": "back",
+              "text": "Спасибо, что сказали честно.",
+              "next": "start",
+              "effects": []
+            }
+          ]
+        },
+        {
+          "id": "closed",
+          "text": "Дальше только с защитником.",
+          "mood": "angry",
+          "effects": [
+            {
+              "type": "changeVariable",
+              "variableId": "rogov_closed",
+              "action": "on"
+            }
+          ],
+          "choices": [
+            {
+              "id": "back",
+              "text": "Как хотите.",
+              "next": null,
+              "effects": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "dlg_ermakova",
+      "characterId": "ermakova",
+      "startNodeId": "start",
+      "nodes": [
+        {
+          "id": "start",
+          "text": "Я заведующая. Что вас интересует?",
+          "mood": "neutral",
+          "effects": [],
+          "choices": [
+            {
+              "id": "health",
+              "text": "Что вы знали о здоровье девочки?",
+              "next": "health",
+              "effects": []
+            },
+            {
+              "id": "father",
+              "text": "Как вёл себя отец?",
+              "next": "father",
+              "effects": []
+            },
+            {
+              "id": "bye",
+              "text": "Спасибо, пока всё.",
+              "next": null,
+              "effects": []
+            }
+          ]
+        },
+        {
+          "id": "health",
+          "text": "Девочка занималась в группе для детей с задержкой развития. До пяти-семи раз в день не удерживала стул, из-за этого плохо чувствовала себя и другие дети отворачивались. Мы много раз советовали обратиться к врачам.",
+          "mood": "sad",
+          "effects": [
+            {
+              "type": "addEvidence",
+              "evidenceId": "t_ermakova"
+            }
+          ],
+          "choices": [
+            {
+              "id": "back",
+              "text": "Понятно.",
+              "next": "start",
+              "effects": []
+            }
+          ]
+        },
+        {
+          "id": "father",
+          "text": "Отец обещал показать её специалистам, но справок не приносил. В марте мы поговорили при протоколе, он снова пообещал. Потом перестал отвечать, девочка в сад не ходила. Я написала в полицию.",
+          "mood": "neutral",
+          "effects": [],
+          "choices": [
+            {
+              "id": "back",
+              "text": "Понятно.",
+              "next": "start",
+              "effects": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "dlg_zakharova",
+      "characterId": "zakharova",
+      "startNodeId": "start",
+      "nodes": [
+        {
+          "id": "start",
+          "text": "Я тётя Дениса. Спрашивайте.",
+          "mood": "neutral",
+          "effects": [],
+          "choices": [
+            {
+              "id": "chat",
+              "text": "Что вам писала Сайко об Алисе?",
+              "next": "chat",
+              "effects": []
+            },
+            {
+              "id": "denis",
+              "text": "Что вы передали Рогову?",
+              "next": "denis",
+              "effects": []
+            },
+            {
+              "id": "bye",
+              "text": "Спасибо, пока всё.",
+              "next": null,
+              "effects": []
+            }
+          ]
+        },
+        {
+          "id": "chat",
+          "text": "Что Алиса болеет, что температура. Я сразу посоветовала вызвать врача или скорую. Вероника ответила, что ждёт врача.",
+          "mood": "neutral",
+          "effects": [
+            {
+              "type": "addEvidence",
+              "evidenceId": "t_zakharova"
+            }
+          ],
+          "choices": [
+            {
+              "id": "back",
+              "text": "Понятно.",
+              "next": "start",
+              "effects": []
+            }
+          ]
+        },
+        {
+          "id": "denis",
+          "text": "Что Вероника ждёт врача. Приезжала ли скорая, я не проверяла и ему такого не говорила: никто ничего не знал. Я думала, он сам во всём разберётся.",
+          "mood": "sad",
+          "effects": [],
+          "choices": [
+            {
+              "id": "back",
+              "text": "Понятно.",
+              "next": "start",
+              "effects": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "dlg_fomina",
+      "characterId": "fomina",
+      "startNodeId": "start",
+      "nodes": [
+        {
+          "id": "start",
+          "text": "Я Лидия, живу здесь давно. Спрашивайте.",
+          "mood": "neutral",
+          "effects": [],
+          "choices": [
+            {
+              "id": "girl",
+              "text": "Что вы знали о девочке?",
+              "next": "girl",
+              "effects": []
+            },
+            {
+              "id": "day",
+              "text": "Что было в тот день?",
+              "next": "day",
+              "effects": []
+            },
+            {
+              "id": "bye",
+              "text": "Спасибо, пока всё.",
+              "next": null,
+              "effects": []
+            }
+          ]
+        },
+        {
+          "id": "girl",
+          "text": "С весны жила у Вероники, говорили — родственница. Семья неблагополучная: собаки, грязь. Гулять не водили. Врача к ней на дом или скорую не вызывали, это я бы заметила. На кухне в последние дни она не ела.",
+          "mood": "sad",
+          "effects": [
+            {
+              "type": "addEvidence",
+              "evidenceId": "t_fomina"
+            }
+          ],
+          "choices": [
+            {
+              "id": "back",
+              "text": "Понятно.",
+              "next": "start",
+              "effects": []
+            }
+          ]
+        },
+        {
+          "id": "day",
+          "text": "Они уехали после обеда, всей семьёй, а Алису оставили дома. Вечером вернулись, мужчина вызвал скорую. Запись с камеры у меня в коридоре, я отдала полиции.",
+          "mood": "sad",
+          "effects": [],
+          "choices": [
+            {
+              "id": "back",
+              "text": "Понятно.",
+              "next": "start",
+              "effects": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "dlg_sorokina",
+      "characterId": "sorokina",
+      "startNodeId": "start",
+      "nodes": [
+        {
+          "id": "start",
+          "text": "Я эксперт. Задавайте вопросы по заключению.",
+          "mood": "neutral",
+          "effects": [],
+          "choices": [
+            {
+              "id": "cause",
+              "text": "От чего умерла девочка?",
+              "next": "cause",
+              "effects": []
+            },
+            {
+              "id": "periods",
+              "text": "Когда это можно было остановить?",
+              "next": "periods",
+              "effects": []
+            },
+            {
+              "id": "bye",
+              "text": "Спасибо, пока всё.",
+              "next": null,
+              "effects": []
+            }
+          ]
+        },
+        {
+          "id": "cause",
+          "text": "Кишечник полностью перекрыт плотными каловыми массами. Несколько дней это нарастало, стенка кишки пострадала, развился сепсис. Были и другие болезни, но смерть вызвала именно непроходимость.",
+          "mood": "neutral",
+          "effects": [],
+          "choices": [
+            {
+              "id": "back",
+              "text": "Понятно.",
+              "next": "start",
+              "effects": []
+            }
+          ]
+        },
+        {
+          "id": "periods",
+          "text": "Первые дни можно было справиться обычной клизмой. Позже нужна капельница в стационаре. В последние три-четыре дня ребёнок выглядел очень плохо, и больница почти до самого конца ещё спасла бы. Всё это замечает любой взрослый рядом: вялость, жар, вздутый живот, стоны.",
+          "mood": "sad",
+          "effects": [
+            {
+              "type": "addEvidence",
+              "evidenceId": "expert_conclusion"
+            },
+            {
+              "type": "changeVariable",
+              "variableId": "expert_told",
+              "action": "on"
+            }
+          ],
+          "choices": [
+            {
+              "id": "back",
+              "text": "Понятно.",
+              "next": "start",
+              "effects": []
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "deductions": [
+    {
+      "id": "d_duty",
+      "title": "Чья обязанность",
+      "evidenceIds": [
+        "birth_cert",
+        "law_note"
+      ],
+      "question": "На ком лежала обязанность заботиться о здоровье Алисы?",
+      "options": [
+        {
+          "id": "a",
+          "text": "На Сайко, так как она жила с девочкой",
+          "correct": false,
+          "feedback": "У Сайко не было ни опеки, ни доверенности; закон возлагает обязанность на родителя."
+        },
+        {
+          "id": "b",
+          "text": "На отце: он родитель и обязан заботиться о здоровье дочери",
+          "correct": true,
+          "feedback": "Мать умерла, иных законных представителей нет; ч. 2 ст. 38 Конституции и ч. 1 ст. 63 СК РФ возлагают обязанность на родителя."
+        },
+        {
+          "id": "c",
+          "text": "На детском саде",
+          "correct": false,
+          "feedback": "Сад обязанностей родителя не несёт."
+        }
+      ],
+      "conclusion": "Обязанность заботиться о здоровье дочери лежала на Рогове.",
+      "effects": [
+        {
+          "type": "changeVariable",
+          "variableId": "d_duty",
+          "action": "on"
+        }
+      ],
+      "failEffects": []
+    },
+    {
+      "id": "d_knew",
+      "title": "Знал о проблеме",
+      "evidenceIds": [
+        "med_history",
+        "kg_talk"
+      ],
+      "question": "Что показывают медицинская выписка и протокол беседы в саду?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Отец не знал о проблемах со здоровьем дочери",
+          "correct": false,
+          "feedback": "Он сам делал клизмы, и в саду ему говорили о проблеме лично."
+        },
+        {
+          "id": "b",
+          "text": "Рогов давно знал о хроническом нарушении и о рекомендациях врачей",
+          "correct": true,
+          "feedback": "Об этом ему говорили врачи и сотрудники сада, но обследования он не завершил."
+        },
+        {
+          "id": "c",
+          "text": "Проблема была незначительной",
+          "correct": false,
+          "feedback": "Недержание кала до 5–7 раз в день, рекомендованы гастроэнтеролог и повторные приёмы."
+        }
+      ],
+      "conclusion": "Рогов знал о заболевании дочери и о нужных обследованиях.",
+      "effects": [
+        {
+          "type": "changeVariable",
+          "variableId": "d_knew",
+          "action": "on"
+        }
+      ],
+      "failEffects": []
+    },
+    {
+      "id": "d_delegate",
+      "title": "Передача постороннему",
+      "evidenceIds": [
+        "d_duty",
+        "t_fomina"
+      ],
+      "question": "Освобождает ли отца то, что он оставил дочь Сайко?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Да, уход взяла на себя Сайко",
+          "correct": false,
+          "feedback": "Сайко не могла принять на себя обязанность родителя: свидетели говорят, что врачей не вызывали и условия были плохими."
+        },
+        {
+          "id": "b",
+          "text": "Нет: он передал заботу постороннему, не контролируя уход",
+          "correct": true,
+          "feedback": "Родитель обязан проверять, как исполняется уход, и вмешаться, если есть беда."
+        },
+        {
+          "id": "c",
+          "text": "Да, если за уход платили",
+          "correct": false,
+          "feedback": "Деньги не заменяют обязанности и контроль."
+        }
+      ],
+      "conclusion": "Передача дочери Сайко не освободила Рогова от обязанности.",
+      "effects": [
+        {
+          "type": "changeVariable",
+          "variableId": "d_delegate",
+          "action": "on"
+        }
+      ],
+      "failEffects": []
+    },
+    {
+      "id": "d_trip",
+      "title": "Вахта не оправдание",
+      "evidenceIds": [
+        "phone_records",
+        "chat_sayko"
+      ],
+      "question": "Могла ли вахта помешать отцу помочь дочери?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Да, он был далеко и ничего не мог",
+          "correct": false,
+          "feedback": "Он получал сообщения, телефон работал, а с 14 по 22 мая он был в городе."
+        },
+        {
+          "id": "b",
+          "text": "Нет: он знал о болезни, мог приехать, вызвать врача или скорую",
+          "correct": true,
+          "feedback": "Вахта не снимает обязанностей; он получил сообщения о температуре и не принял мер."
+        },
+        {
+          "id": "c",
+          "text": "Да: обязанности родителя действуют только дома",
+          "correct": false,
+          "feedback": "Обязанности родителя не исчезают на время работы."
+        }
+      ],
+      "conclusion": "Нахождение на вахте не освобождало Рогова от обязанностей.",
+      "effects": [
+        {
+          "type": "changeVariable",
+          "variableId": "d_trip",
+          "action": "on"
+        }
+      ],
+      "failEffects": []
+    },
+    {
+      "id": "d_nocare",
+      "title": "Какие меры принял",
+      "evidenceIds": [
+        "d_knew",
+        "bank_statement"
+      ],
+      "question": "Принял ли Рогов меры, зная о проблеме?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Да, оплатил врачей и лекарства",
+          "correct": false,
+          "feedback": "Расходов на лечение нет."
+        },
+        {
+          "id": "b",
+          "text": "Нет: ни обследований, ни лекарств, ни контроля",
+          "correct": true,
+          "feedback": "Он не завершил обследования, не оплатил лечение и не проверял, выполняются ли рекомендации."
+        },
+        {
+          "id": "c",
+          "text": "Недостаточно данных",
+          "correct": false,
+          "feedback": "Выписки, выписка из карты и протокол осмотра дают ответ."
+        }
+      ],
+      "conclusion": "Рогов не принимал мер для лечения дочери.",
+      "effects": [
+        {
+          "type": "changeVariable",
+          "variableId": "d_nocare",
+          "action": "on"
+        }
+      ],
+      "failEffects": []
+    },
+    {
+      "id": "d_cruel",
+      "title": "Жестокое обращение",
+      "evidenceIds": [
+        "d_delegate",
+        "d_nocare"
+      ],
+      "question": "Как оценить бездействие отца и условия, в которых оставалась девочка?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Это бытовые трудности без последствий",
+          "correct": false,
+          "feedback": "Девочка была беспомощна, нуждалась в лечении, а помощи не получила."
+        },
+        {
+          "id": "b",
+          "text": "Неисполнение обязанностей по воспитанию, соединённое с жестоким обращением: оставление беспомощного ребёнка без ухода и помощи врача",
+          "correct": true,
+          "feedback": "Так оценил суд: отец не контролировал ни условия жизни, ни питание, ни лечение."
+        },
+        {
+          "id": "c",
+          "text": "Это только административное нарушение",
+          "correct": false,
+          "feedback": "Отдельно от КоАП: здесь жестокое обращение и тяжкие последствия."
+        }
+      ],
+      "conclusion": "Бездействие Рогова образует ст. 156 УК РФ.",
+      "effects": [
+        {
+          "type": "changeVariable",
+          "variableId": "d_cruel",
+          "action": "on"
+        }
+      ],
+      "failEffects": []
+    },
+    {
+      "id": "d_death",
+      "title": "Связь со смертью",
+      "evidenceIds": [
+        "expert_conclusion",
+        "d_trip"
+      ],
+      "question": "Связано ли бездействие отца со смертью девочки?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Нет, она умерла от болезни и отец ни при чём",
+          "correct": false,
+          "feedback": "Эксперт: на любой стадии помощь предотвратила бы смерть, а это зависело от отца и его вмешательства."
+        },
+        {
+          "id": "b",
+          "text": "Да: он мог и должен был предвидеть опасность, но не вмешался, и это привело к смерти по неосторожности",
+          "correct": true,
+          "feedback": "Бездействие в прямой причинной связи со смертью; это ч. 1 ст. 109 УК РФ."
+        },
+        {
+          "id": "c",
+          "text": "Умысла убить у него был, поэтому это убийство",
+          "correct": false,
+          "feedback": "Умысла на смерть не установлено: он не предвидел её, хотя должен был и мог."
+        }
+      ],
+      "conclusion": "Бездействие Рогова привело к смерти девочки по неосторожности.",
+      "effects": [
+        {
+          "type": "changeVariable",
+          "variableId": "d_death",
+          "action": "on"
+        }
+      ],
+      "failEffects": []
+    }
+  ],
+  "hints": [
+    {
+      "level": 1,
+      "text": "Выясните, на ком лежала обязанность заботиться о девочке и знал ли этот человек о её болезни и ухудшении.",
+      "penalty": 5
+    },
+    {
+      "level": 2,
+      "text": "Сопоставьте переписку Сайко и детализацию звонков: где был Рогов и что ему сообщали, пока девочке становилось хуже.",
+      "penalty": 7
+    },
+    {
+      "level": 3,
+      "text": "Для ст. 156 важны обязанность родителя, её неисполнение и жестокое обращение (бездействие). Смерть ребёнка квалифицируется по ст. 109 УК РФ отдельно. Вахта и передача ребёнка не освобождают.",
+      "penalty": 10
+    }
+  ],
+  "questions": [
+    {
+      "id": "q_right",
+      "category": "right",
+      "prompt": "Какое право затронуто?",
+      "kind": "single",
+      "source": "inline",
+      "maxPoints": 30,
+      "options": [
+        {
+          "id": "childhood",
+          "label": "Защита детства и обязанность родителей заботиться о детях",
+          "mark": "ч. 1 и 2 ст. 38 Конституции РФ",
+          "points": 30,
+          "feedback": "Верно: родитель обязан заботиться о ребёнке, государство защищает детство."
+        },
+        {
+          "id": "health",
+          "label": "Право на охрану здоровья и медицинскую помощь",
+          "mark": "ст. 41 Конституции РФ",
+          "points": 20,
+          "feedback": "Нарушено и оно, но центральная норма дела — об обязанностях родителя."
+        },
+        {
+          "id": "life",
+          "label": "Право на жизнь",
+          "mark": "ст. 20 Конституции РФ",
+          "points": 14,
+          "feedback": "Девочка погибла, но дело прежде всего о ненадлежащем исполнении обязанностей."
+        },
+        {
+          "id": "privacy",
+          "label": "Неприкосновенность частной жизни",
+          "mark": "ст. 23 Конституции РФ",
+          "points": 0,
+          "feedback": "Частная жизнь не нарушалась."
+        },
+        {
+          "id": "labor",
+          "label": "Право на труд",
+          "mark": "ст. 37 Конституции РФ",
+          "points": 0,
+          "feedback": "Трудовые права не затронуты."
+        }
+      ]
+    },
+    {
+      "id": "q_violation",
+      "category": "violation",
+      "prompt": "Было ли нарушение?",
+      "kind": "single",
+      "source": "inline",
+      "maxPoints": 15,
+      "options": [
+        {
+          "id": "yes",
+          "label": "Да",
+          "mark": "",
+          "points": 15,
+          "feedback": "Верно: отец не исполнял обязанности, и ребёнок погиб."
+        },
+        {
+          "id": "no",
+          "label": "Нет",
+          "mark": "",
+          "points": 0,
+          "feedback": "Нарушение есть: девочке не оказали помощи, хотя она была тяжело больна."
+        },
+        {
+          "id": "insufficient",
+          "label": "Данных недостаточно",
+          "mark": "",
+          "points": 4,
+          "feedback": "Данных достаточно: переписка, записи, экспертиза, показания."
+        }
+      ]
+    },
+    {
+      "id": "q_qualification",
+      "category": "qualification",
+      "prompt": "Как можно квалифицировать действия виновного?",
+      "kind": "single",
+      "source": "inline",
+      "maxPoints": 15,
+      "options": [
+        {
+          "id": "both",
+          "label": "Признаки преступлений: ст. 156 и ч. 1 ст. 109 УК РФ",
+          "mark": "",
+          "points": 15,
+          "feedback": "Верно как возможная квалификация. Окончательную оценку дают следствие и суд."
+        },
+        {
+          "id": "only_156",
+          "label": "Признаки преступления: ст. 156 УК РФ",
+          "mark": "",
+          "points": 9,
+          "feedback": "Часть верна, но смерть ребёнка по неосторожности тоже вменяется."
+        },
+        {
+          "id": "only_109",
+          "label": "Признаки преступления: ч. 1 ст. 109 УК РФ",
+          "mark": "",
+          "points": 6,
+          "feedback": "Смерть верна, но не учтено неисполнение обязанностей по воспитанию."
+        },
+        {
+          "id": "art125",
+          "label": "Оставление в опасности (ст. 125 УК РФ)",
+          "mark": "",
+          "points": 3,
+          "feedback": "Статья о заведомом оставлении без помощи лица, находящегося в опасном для жизни состоянии, не подходит: суд применил другие нормы."
+        },
+        {
+          "id": "admin",
+          "label": "Административное правонарушение (ст. 5.35 КоАП РФ)",
+          "mark": "",
+          "points": 2,
+          "feedback": "КоАП применяется, если нет признаков преступления; здесь они есть."
+        },
+        {
+          "id": "none",
+          "label": "Состава нет: за девочкой смотрела Сайко",
+          "mark": "",
+          "points": 0,
+          "feedback": "Передача ребёнка постороннему не снимает ответственности с родителя."
+        }
+      ]
+    },
+    {
+      "id": "q_responsible",
+      "category": "responsible",
+      "prompt": "Кто несёт ответственность в рамках этого дела?",
+      "kind": "single",
+      "source": "characters",
+      "maxPoints": 20,
+      "options": [
+        {
+          "id": "rogov",
+          "label": "",
+          "mark": "",
+          "points": 20,
+          "feedback": "Верно: отец обязан был заботиться о дочери и не исполнил обязанность."
+        },
+        {
+          "id": "sayko",
+          "label": "",
+          "mark": "",
+          "points": 5,
+          "feedback": "Сайко фактически ухаживала за девочкой, но родителем не была; дело в её отношении выделено отдельно."
+        },
+        {
+          "id": "zakharova",
+          "label": "",
+          "mark": "",
+          "points": 0,
+          "feedback": "Тётя советовала вызвать врача и передала сообщение; обязанностей родителя у неё не было."
+        },
+        {
+          "id": "ermakova",
+          "label": "",
+          "mark": "",
+          "points": 0,
+          "feedback": "Заведующая предупреждала отца и сообщила в полицию."
+        },
+        {
+          "id": "fomina",
+          "label": "",
+          "mark": "",
+          "points": 0,
+          "feedback": "Соседка по квартире, свидетель."
+        },
+        {
+          "id": "sorokina",
+          "label": "",
+          "mark": "",
+          "points": 0,
+          "feedback": "Эксперт."
+        },
+        {
+          "id": "lapteva",
+          "label": "",
+          "mark": "",
+          "points": 0,
+          "feedback": "Инспектор, ведущий проверку."
+        }
+      ]
+    },
+    {
+      "id": "q_evidence",
+      "category": "evidence",
+      "prompt": "Какие доказательства это подтверждают?",
+      "kind": "multi",
+      "source": "evidence",
+      "maxPoints": 20,
+      "options": [
+        {
+          "id": "birth_cert",
+          "label": "",
+          "mark": "",
+          "points": 3,
+          "feedback": "Подтверждает, что родитель — отец, а Сайко опекуном не была."
+        },
+        {
+          "id": "kg_talk",
+          "label": "",
+          "mark": "",
+          "points": 3,
+          "feedback": "Отца предупреждали о проблемах и просили показать девочку врачам."
+        },
+        {
+          "id": "chat_sayko",
+          "label": "",
+          "mark": "",
+          "points": 3,
+          "feedback": "Показывает, что Рогов знал о температуре и ответил отказом."
+        },
+        {
+          "id": "expert_conclusion",
+          "label": "",
+          "mark": "",
+          "points": 3,
+          "feedback": "Причина смерти и то, что её можно было предотвратить."
+        },
+        {
+          "id": "med_history",
+          "label": "",
+          "mark": "",
+          "points": 2,
+          "feedback": "Хроническое заболевание и невыполненные рекомендации врачей."
+        },
+        {
+          "id": "phone_records",
+          "label": "",
+          "mark": "",
+          "points": 2,
+          "feedback": "Показывает, что часть времени Рогов был в городе."
+        },
+        {
+          "id": "law_note",
+          "label": "",
+          "mark": "",
+          "points": 2,
+          "feedback": "Обязанность родителей заботиться о здоровье детей."
+        },
+        {
+          "id": "t_rogov_admit",
+          "label": "",
+          "mark": "",
+          "points": 2,
+          "feedback": "Признание фактов: знал, не приехал, врача не вызывал."
+        },
+        {
+          "id": "bank_statement",
+          "label": "",
+          "mark": "",
+          "points": 0,
+          "feedback": "Нет трат на лечение."
+        },
+        {
+          "id": "t_ermakova",
+          "label": "",
+          "mark": "",
+          "points": 0,
+          "feedback": "Показания о хроническом заболевании и обещаниях отца."
+        },
+        {
+          "id": "t_fomina",
+          "label": "",
+          "mark": "",
+          "points": 0,
+          "feedback": "Условия жизни и отсутствие врачей."
+        },
+        {
+          "id": "kg_letter",
+          "label": "",
+          "mark": "",
+          "points": 0,
+          "feedback": "Отец не выходил на связь, девочка не ходила в сад."
+        },
+        {
+          "id": "home_protocol",
+          "label": "",
+          "mark": "",
+          "points": 0,
+          "feedback": "Дома нет лекарств для лечения кишечника."
+        },
+        {
+          "id": "scene_protocol",
+          "label": "",
+          "mark": "",
+          "points": 0,
+          "feedback": "Антисанитария и состояние комнаты."
+        },
+        {
+          "id": "t_zakharova",
+          "label": "",
+          "mark": "",
+          "points": 0,
+          "feedback": "Рогов получал сообщения о болезни и не проверил, что врач приехал."
+        },
+        {
+          "id": "video_cam",
+          "label": "",
+          "mark": "",
+          "points": 0,
+          "feedback": "Показывает, что девочка оставалась дома одна, но на ответственность отца прямо не влияет."
+        },
+        {
+          "id": "rapport",
+          "label": "",
+          "mark": "",
+          "points": 0,
+          "feedback": "Повод для проверки, не доказательство."
+        },
+        {
+          "id": "t_rogov_lie",
+          "label": "",
+          "mark": "",
+          "points": -3,
+          "feedback": "Ложная версия: опровергнута перепиской, детализацией и его собственным признанием."
+        }
+      ]
+    }
+  ],
+  "solution": {
+    "right": "childhood",
+    "rightText": "Защита детства и обязанность родителей заботиться о детях (ч. 1 и 2 ст. 38 Конституции РФ); также затронуты охрана здоровья (ст. 41) и жизнь (ст. 20).",
+    "violation": true,
+    "responsibleCharacter": "rogov",
+    "correctAnswer": "Рогов, будучи отцом шестилетней Алисы, знал о хроническом заболевании кишечника и о необходимости обследований, но не завершил их, а в марте уехал на вахту и оставил девочку Сайко, не являвшейся её законным представителем. Он не контролировал ни условия жизни, ни питание, ни лечение; узнав о нескольких днях температуры 39, врача и скорую не вызвал, не приехал, деньги не переслал. Девочка умерла от непроходимости кишечника, которую можно было остановить клизмой, а позже в стационаре. Возможная квалификация — ст. 156 и ч. 1 ст. 109 УК РФ.",
+    "whatHappened": "У Алисы с рождения были запоры и недержание. Отца предупреждали врачи и сотрудники детского сада, он обещал показать её специалистам, но обследования не довёл. В марте Рогов уехал на вахту, оставив девочку сожительнице Сайко, с которой не было ни опеки, ни доверенности. В мае, когда Рогов был в городе, он дочь не навещал. С 23 мая у девочки держалась температура 39; Сайко писала об этом ему и его тёте, Рогов ответил «вам виднее». Врача и скорую не вызвали. 28 мая семья Сайко уехала на машине, девочка осталась одна, вечером её нашли мёртвой.",
+    "explanation": "Ст. 156 УК РФ наказывает родителя за неисполнение обязанностей по воспитанию несовершеннолетнего, если деяние соединено с жестоким обращением. Обязанность заботиться о здоровье ребёнка лежит на родителе (ч. 2 ст. 38 Конституции РФ, ч. 1 ст. 63 СК РФ) и не передаётся постороннему без контроля. Суд указал, что командировка не освобождает от этих обязанностей: Рогов не лечил дочь, не проверял, как выполняются рекомендации врачей, не контролировал её питание и условия, не вызвал скорую, хотя в мае был в городе и знал о её состоянии. Он должен был и мог предвидеть смерть, поэтому его бездействие образует и ч. 1 ст. 109 УК РФ. То, что раньше он делал клизмы и возил девочку к врачам, что за ней присматривала Сайко и что сам он находился вдали, не снимает ответственности. Суд назначил по ст. 156 УК РФ исправительные работы на 1 год, по ч. 1 ст. 109 УК РФ — на 1 год 6 месяцев, окончательно по совокупности (ч. 2 ст. 69) — 2 года исправительных работ с удержанием 15 % заработка в доход государства. Смягчающим обстоятельством суд признал состояние здоровья, включая психическое, и особенности личности; по ч. 1 ст. 109 отягчающим — совершение преступления в отношении несовершеннолетней родителем (п. «п» ч. 1 ст. 63 УК РФ).",
+    "legalQualification": "Действия Рогова содержат признаки преступлений, предусмотренных ст. 156 УК РФ (неисполнение обязанностей по воспитанию несовершеннолетнего родителем, соединённое с жестоким обращением) и ч. 1 ст. 109 УК РФ (причинение смерти по неосторожности). Виновность определяет только суд.",
+    "qualificationNotes": [
+      {
+        "kind": "right",
+        "applies": "yes",
+        "text": "Нарушена обязанность родителя заботиться о ребёнке (ч. 2 ст. 38 Конституции РФ); затронуты охрана здоровья и жизнь."
+      },
+      {
+        "kind": "violation",
+        "applies": "yes",
+        "text": "Беспомощный ребёнок остался без ухода, лечения и вызова врача."
+      },
+      {
+        "kind": "criminal",
+        "applies": "possible",
+        "text": "Признаки ст. 156 и ч. 1 ст. 109 УК РФ. Вывод о виновности делает суд."
+      },
+      {
+        "kind": "administrative",
+        "applies": "no",
+        "text": "Ст. 5.35 КоАП РФ применяется, если нет признаков преступления; здесь они есть."
+      },
+      {
+        "kind": "civil",
+        "applies": "possible",
+        "text": "Возможно лишение родительских прав и иные меры защиты прав ребёнка (СК РФ)."
+      },
+      {
+        "kind": "disciplinary",
+        "applies": "no",
+        "text": "Дисциплинарной ответственности нет: речь о родительских обязанностях, а не служебных."
+      }
+    ],
+    "keyEvidence": [
+      {
+        "evidenceId": "birth_cert",
+        "why": "Подтверждает, что родитель — отец, а Сайко не имела права представлять девочку."
+      },
+      {
+        "evidenceId": "kg_talk",
+        "why": "Отца заранее предупреждали о проблемах со здоровьем дочери."
+      },
+      {
+        "evidenceId": "chat_sayko",
+        "why": "Рогов знал о нескольких днях температуры и не вмешался."
+      },
+      {
+        "evidenceId": "expert_conclusion",
+        "why": "Смерть была предотвратима на любой стадии при своевременной помощи."
+      },
+      {
+        "evidenceId": "t_rogov_admit",
+        "why": "Рогов признал, что знал о температуре, врача не вызвал, к дочери не приехал."
+      }
+    ],
+    "sources": [
+      "Конституция РФ, ст. 20, 41, ч. 1 и 2 ст. 38",
+      "Семейный кодекс РФ, ч. 1 ст. 63",
+      "УК РФ, ст. 156, ч. 1 ст. 109, ч. 2 ст. 69, п. «п» ч. 1 ст. 63",
+      "Организации, места и люди в деле вымышлены; основа — обстоятельства судебной практики"
+    ]
+  },
+  "flags": [
+    {
+      "id": "elements_explained",
+      "name": "Инспектор объяснила состав ст. 156"
+    },
+    {
+      "id": "duty_explained",
+      "name": "Инспектор объяснила, можно ли передать заботу о ребёнке"
+    },
+    {
+      "id": "rogov_lied",
+      "name": "Рогов утверждал, что заботился о дочери"
+    },
+    {
+      "id": "rogov_admitted",
+      "name": "Рогов признал факты"
+    },
+    {
+      "id": "rogov_closed",
+      "name": "Рогов отказался говорить"
+    },
+    {
+      "id": "expert_told",
+      "name": "Эксперт объяснила стадии болезни"
+    },
+    {
+      "id": "d_duty",
+      "name": "Решено: Чья обязанность"
+    },
+    {
+      "id": "d_knew",
+      "name": "Решено: Знал о проблеме"
+    },
+    {
+      "id": "d_delegate",
+      "name": "Решено: Передача постороннему"
+    },
+    {
+      "id": "d_trip",
+      "name": "Решено: Вахта не оправдание"
+    },
+    {
+      "id": "d_nocare",
+      "name": "Решено: Какие меры принял"
+    },
+    {
+      "id": "d_cruel",
+      "name": "Решено: Жестокое обращение"
+    },
+    {
+      "id": "d_death",
+      "name": "Решено: Связь со смертью"
+    }
+  ],
+  "lawReference": {
+    "basis": [
+      {
+        "article": "ч. 1 и 2 ст. 38 Конституции РФ",
+        "title": "Защита детства",
+        "text": "Материнство и детство находятся под защитой государства. Забота о детях, их воспитание — равное право и обязанность родителей.",
+        "url": "http://www.consultant.ru/document/cons_doc_LAW_28399/"
+      },
+      {
+        "article": "ст. 41 Конституции РФ",
+        "title": "Охрана здоровья",
+        "text": "Каждый имеет право на охрану здоровья и медицинскую помощь.",
+        "url": "http://www.consultant.ru/document/cons_doc_LAW_28399/"
+      },
+      {
+        "article": "ч. 1 ст. 63 СК РФ",
+        "title": "Права и обязанности родителей",
+        "text": "Родители обязаны воспитывать своих детей и заботиться об их здоровье, физическом, психическом, духовном и нравственном развитии.",
+        "url": "http://www.consultant.ru/document/cons_doc_LAW_8982/"
+      },
+      {
+        "article": "ст. 156 УК РФ",
+        "title": "Неисполнение обязанностей по воспитанию несовершеннолетнего",
+        "text": "Неисполнение или ненадлежащее исполнение обязанностей по воспитанию несовершеннолетнего родителем, если это соединено с жестоким обращением.",
+        "url": "http://www.consultant.ru/document/cons_doc_LAW_10699/"
+      },
+      {
+        "article": "ч. 1 ст. 109 УК РФ",
+        "title": "Причинение смерти по неосторожности",
+        "text": "Причинение смерти по неосторожности: лицо не предвидело возможности наступления смерти, хотя при необходимой внимательности и предусмотрительности должно было и могло её предвидеть.",
+        "url": "http://www.consultant.ru/document/cons_doc_LAW_10699/"
+      }
+    ],
+    "notes": [
+      {
+        "title": "Вахта и командировка",
+        "text": "Работа вдали от дома не освобождает родителя от обязанностей: он должен организовать и контролировать уход за ребёнком, а при угрозе здоровью — вмешаться, в том числе вызвать скорую."
+      },
+      {
+        "title": "Передача ребёнка постороннему",
+        "text": "Рогов оставил дочь сожительнице, не являвшейся законным представителем. Это не снимает обязанности родителя, особенно без контроля за уходом и лечением."
+      },
+      {
+        "title": "Прежняя забота",
+        "text": "То, что отец раньше делал клизмы и возил дочь к врачам, не оправдывает бездействие в период, когда она заболела и нуждалась в помощи."
+      },
+      {
+        "title": "Дело в отношении Сайко",
+        "text": "Её ответственность рассматривается отдельно: дело выделено в отдельное производство, так как она находится в розыске."
+      }
+    ]
+  }
+}
