@@ -33,7 +33,7 @@
     "points": 10
   },
   "published": true,
-  "updatedAt": "2026-10-20T20:02:45Z",
+  "updatedAt": "2026-10-20T20:06:28Z",
   "locations": [
     {
       "id": "dept",
@@ -635,7 +635,7 @@
       "zones": [
         {
           "id": "to_studio",
-          "name": "Выход на улицу",
+          "name": "Выезд в студию «Контур»",
           "cells": [
             {
               "x": 13,
@@ -1203,7 +1203,7 @@
       "zones": [
         {
           "id": "to_dept",
-          "name": "Выход к отделу",
+          "name": "Возвращение в отдел",
           "cells": [
             {
               "x": 12,
