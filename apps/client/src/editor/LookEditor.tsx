@@ -3,6 +3,8 @@ import {
   CHAR_H,
   CHAR_W,
   LOOK_NAMES,
+  BUILTIN_PARTS,
+  PART_NAMES,
   customFromLook,
   drawCharacter,
   drawTile,
@@ -10,7 +12,7 @@ import {
   type CharFrame,
   type Look
 } from "../game/art";
-import type { AccentStyle, Appearance, Character, CustomLook, HairStyle } from "../../../../shared/case";
+import type { Appearance, Character, CustomLook, PartSlot } from "../../../../shared/case";
 import { ArtThumb } from "./Pickers";
 import { Tabs } from "./Tabs";
 import { Alert } from "../ui/alert";
@@ -71,24 +73,9 @@ const ACCENT = [
   "#e07a9b"
 ];
 
-const HAIR_STYLES: { id: HairStyle; label: string }[] = [
-  { id: "short", label: "Короткая" },
-  { id: "long", label: "Длинные" },
-  { id: "bob", label: "Каре" },
-  { id: "ponytail", label: "Хвост" },
-  { id: "bun", label: "Пучок" },
-  { id: "curly", label: "Кудри" },
-  { id: "bald", label: "Лысина" },
-  { id: "cap", label: "Кепка" },
-  { id: "headscarf", label: "Косынка" }
-];
-const ACCENTS: { id: AccentStyle; label: string }[] = [
-  { id: "collar", label: "Воротник" },
-  { id: "tie", label: "Галстук" },
-  { id: "scarf", label: "Шарф" },
-  { id: "badge", label: "Значок" },
-  { id: "apron", label: "Фартук" }
-];
+/** Библиотека частей слота: встроенные и части дела (названия — `PART_NAMES`). */
+const partList = (slot: PartSlot, skip: string[] = []) =>
+  Object.entries(PART_NAMES[slot]).filter(([id]) => !skip.includes(id)).map(([id, label]) => ({ id, label }));
 
 type Tab = "preset" | "face" | "clothes" | "extras";
 const TABS: { id: Tab; label: string }[] = [
@@ -170,7 +157,7 @@ export function LookEditor({
             </Group>
             <Group title='Причёска'>
               <div className='look-ed__options'>
-                {HAIR_STYLES.map((h) => (
+                {partList("hair").map((h) => (
                   <button
                     key={h.id}
                     className="look-ed__option" aria-pressed={look.hairStyle === h.id}
@@ -203,7 +190,7 @@ export function LookEditor({
             </Group>
             <Group title='Деталь'>
               <div className='look-ed__chips'>
-                {ACCENTS.map((a) => (
+                {partList("accent").map((a) => (
                   <button
                     key={a.id}
                     className="look-ed__chip" aria-pressed={look.accentStyle === a.id}
@@ -217,12 +204,7 @@ export function LookEditor({
             </Group>
             <Group title='Низ'>
               <div className='look-ed__chips'>
-                {(
-                  [
-                    ["pants", "Брюки"],
-                    ["skirt", "Юбка"]
-                  ] as const
-                ).map(([id, label]) => (
+                {[{ id: "pants", label: "Брюки" }, ...partList("bottom")].map(({ id, label }) => (
                   <button
                     key={id}
                     className="look-ed__chip" aria-pressed={(look.bottom ?? "pants") === id}
@@ -241,6 +223,7 @@ export function LookEditor({
         )}
 
         {tab === "extras" && (
+          <>
           <Group title='Очки'>
             <Toggles look={look} keys={[["glasses", "Очки"]]} set={set} />
             {look.glasses && (
@@ -251,6 +234,25 @@ export function LookEditor({
               />
             )}
           </Group>
+          {partList("face", BUILTIN_PARTS.face).length > 0 && (
+            <Group title='Детали лица (из частей дела)'>
+              <div className='look-ed__chips'>
+                {partList("face", BUILTIN_PARTS.face).map(({ id, label }) => {
+                  const on = (look.faceParts ?? []).includes(id);
+                  return (
+                    <button
+                      key={id}
+                      className='look-ed__chip' aria-pressed={on}
+                      onClick={() => set({ faceParts: on ? (look.faceParts ?? []).filter((k) => k !== id) : [...(look.faceParts ?? []), id] })}
+                    >
+                      {label}
+                    </button>
+                  );
+                })}
+              </div>
+            </Group>
+          )}
+          </>
         )}
       </div>
     </section>

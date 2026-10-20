@@ -170,7 +170,8 @@ export const CustomLook = z.object({
   beard: z.boolean(),
   eyes: z.string().optional(),
   glassesColor: z.string().optional(),
-  bottom: z.enum(["pants", "skirt"]).optional(),
+  bottom: z.string().optional().describe("Ключ низа (часть слота «bottom»); без ключа — брюки"),
+  faceParts: z.array(z.string()).optional().describe("Ключи дополнительных деталей лица (слот «face») — например, части дела"),
 });
 
 export const Character = z.object({

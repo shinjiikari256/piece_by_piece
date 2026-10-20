@@ -11,6 +11,7 @@ import { useUrlParam } from "../url";
 import { isBuiltin, copyOf, spriteGroups, spriteView } from "./catalog";
 import { SpriteCanvas, SpriteToolbar, TOOLS, type Tool } from "./SpriteCanvas";
 import { DrawPanel, FootBar, PropsPanel } from "./SpritePanels";
+import { PartsSection } from "./PartsSection";
 import { SpriteAnims, SpriteParams, SpriteStates } from "./SpriteStates";
 import { frameLabel, moveFrame, newSprite, patchSprite, spriteUses, uniqueKey } from "./helpers";
 
@@ -24,7 +25,7 @@ const TABS: { id: Tab; label: string; own: boolean }[] = [
 ];
 
 /** Раздел «Спрайты»: слева все спрайты (встроенные и свои), в центре рисунок, справа свойства. Компоновка — как в «Локациях». */
-export function SpritesSection() {
+function SpriteEditor() {
   const draft = useEditor((s) => s.draft);
   const [selected, setSelected] = useUrlParam("item", "");
   const [tabParam, setTab] = useUrlParam("tab", "draw");
@@ -190,5 +191,22 @@ export function SpritesSection() {
         )}
       </aside>
     </section>
+  );
+}
+
+const KINDS = [
+  { id: "sprites", label: "Предметы" },
+  { id: "parts", label: "Части персонажей" },
+] as const;
+
+/** Раздел «Спрайты»: предметы и части персонажей — две страницы с одним переключателем. */
+export function SpritesSection() {
+  const focus = useEditor((s) => s.focus);
+  const [kind, setKind] = useUrlParam<"sprites" | "parts">("kind", focus?.sub === "parts" ? "parts" : "sprites", ["sprites", "parts"]);
+  return (
+    <div style={{ display: "flex", flexDirection: "column", height: "100%", minHeight: 0 }}>
+      <Tabs variant="bar" tabs={KINDS.map((k) => ({ id: k.id, label: k.label }))} active={kind} onChange={setKind} />
+      <div style={{ flex: 1, minHeight: 0 }}>{kind === "parts" ? <PartsSection /> : <SpriteEditor />}</div>
+    </div>
   );
 }

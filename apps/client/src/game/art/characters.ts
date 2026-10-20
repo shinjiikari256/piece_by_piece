@@ -20,7 +20,9 @@ export interface Look {
   /** Цвет глаз (по умолчанию тёмный). */
   eyes?: string;
   glassesColor?: string;
-  bottom?: "pants" | "skirt";
+  bottom?: string;
+  /** Дополнительные детали лица (слот «face»), рисуются после очков. */
+  faceParts?: string[];
 }
 
 export const LOOKS: Record<Appearance | "player", Look> = {
@@ -163,6 +165,7 @@ export function customFromLook(l: Look): CustomLook {
     eyes: l.eyes ?? "#2a2320",
     glassesColor: l.glassesColor ?? "#2a2320",
     bottom: l.bottom ?? "pants",
+    ...(l.faceParts?.length ? { faceParts: l.faceParts } : {}),
   };
 }
 
@@ -240,6 +243,7 @@ export function drawCharacter(ctx: Ctx, look: Look, frame: CharFrame, ox: number
   if (look.beard) drawPart(ctx, partOf("face", "beard"), roles, frame, ox);
   if (look.mustache) drawPart(ctx, partOf("face", "mustache"), roles, frame, ox);
   if (look.glasses) drawPart(ctx, partOf("face", "glasses"), roles, frame, ox);
+  for (const key of look.faceParts ?? []) drawPart(ctx, partOf("face", key), roles, frame, ox);
 
   // волосы
   drawPart(ctx, partOf("hair", look.hairStyle), roles, frame, ox);

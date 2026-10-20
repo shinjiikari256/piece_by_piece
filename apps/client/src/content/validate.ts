@@ -62,6 +62,8 @@ function checkIntegrity(c: CaseFile): string[] {
     if (!a) continue;
     if (!partOf("hair", a.hairStyle)) err(`characters: у «${ch.id}» нет причёски «${a.hairStyle}»`);
     if (!partOf("accent", a.accentStyle)) err(`characters: у «${ch.id}» нет детали одежды «${a.accentStyle}»`);
+    if (a.bottom && a.bottom !== "pants" && !partOf("bottom", a.bottom)) err(`characters: у «${ch.id}» нет низа «${a.bottom}»`);
+    for (const k of a.faceParts ?? []) if (!partOf("face", k)) err(`characters: у «${ch.id}» нет детали лица «${k}»`);
   }
   let badSprite = false;
   for (const l of c.locations)
