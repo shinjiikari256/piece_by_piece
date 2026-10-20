@@ -71,6 +71,7 @@ export const SPRITE_NAMES: Record<string, string> = {
   street_lamp: "Фонарь",
   tree: "Дерево",
   car: "Машина",
+  police_car: "Полицейская машина",
   bus_stop: "Остановка",
   mailbox: "Почтовый ящик",
   desk_papers: "Стол с бумагами",

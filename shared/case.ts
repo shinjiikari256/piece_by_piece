@@ -268,6 +268,7 @@ export const SpriteKey = z.enum([
   "street_lamp",
   "tree",
   "car",
+  "police_car",
   "bus_stop",
   "mailbox",
   "desk_papers",
