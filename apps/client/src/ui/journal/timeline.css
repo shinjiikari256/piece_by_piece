@@ -1,57 +1,149 @@
 .timeline {
+  --head: 3.2rem;
+  --lane: 8rem;
+  --lanes: 1; /* задаёт разметка */
+  --lane-n: 0;
   display: flex;
   flex-direction: column;
-  gap: 1.2rem;
-  max-width: 46rem;
+  gap: 0.8rem;
+  min-height: 0;
 }
-.timeline__date {
-  margin: 0 0 0.4rem;
-  font-size: var(--fs-md);
-  font-weight: 700;
+.timeline__tools {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.6rem;
 }
-.timeline__item {
-  display: grid;
-  grid-template-columns: 7.5rem 1.2rem 1fr;
-  column-gap: 0.6rem;
-  align-items: stretch;
-}
-.timeline__when {
-  padding: 0.45rem 0;
-  text-align: right;
-  font-family: var(--font-mono);
-  font-size: var(--fs-md);
+.timeline__zoom {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-left: auto;
+  font-size: var(--fs-sm);
   color: var(--text-muted);
+}
+.timeline__scroll {
+  overflow-x: auto;
+  padding-bottom: 0.4rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg-surface);
+}
+.timeline__plot {
+  position: relative;
+  min-width: 100%;
+  height: calc(var(--head) + var(--lanes) * var(--lane) + 0.5rem);
+}
+
+/* метки времени на оси и линии сетки */
+.timeline__tick {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 0;
+  border-left: 1px dotted var(--border-strong);
+}
+.timeline__day,
+.timeline__clock {
+  position: absolute;
+  left: 0.3rem;
   white-space: nowrap;
 }
-/* ось: линия через все события; точка у момента, вытянутая полоса — у события, которое длилось */
-.timeline__mark {
-  position: relative;
-  display: flex;
-  justify-content: center;
+.timeline__day {
+  top: 0.25rem;
+  font-size: var(--fs-sm);
+  font-weight: 700;
 }
-.timeline__mark::before {
-  content: "";
-  width: 2px;
-  background: var(--border-strong);
+.timeline__clock {
+  top: 1.55rem;
+  font-family: var(--font-mono);
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
 }
-.timeline__mark::after {
-  content: "";
+.timeline__break {
   position: absolute;
-  top: 0.65rem;
-  width: 0.7rem;
-  height: 0.7rem;
-  border-radius: 50%;
-  background: var(--accent);
-  box-shadow: 0 0 0 3px var(--bg-paper);
+  top: 0;
+  bottom: 0;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: 0.3rem;
+  background: repeating-linear-gradient(135deg, transparent 0 6px, var(--border) 6px 7px);
+  border-inline: 1px solid var(--border-strong);
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
 }
-.timeline__item[data-range] .timeline__mark::after {
-  top: 0.55rem;
-  bottom: 0.55rem;
-  height: auto;
-  width: 0.55rem;
+.timeline__break span {
+  background: var(--bg-surface);
+  padding: 0 0.3rem;
+  border-radius: 4px;
+}
+
+/* полоса события: точка у момента, вытянутая — у того, что длилось */
+.timeline__span {
+  position: absolute;
+  top: calc(var(--head) + var(--lane) * var(--lane-n));
+  height: 0.7rem;
+  min-width: 0.7rem;
+  margin-left: -0.35rem;
   border-radius: 999px;
+  background: var(--accent);
+  box-shadow: 0 0 0 2px var(--bg-surface);
+}
+.timeline__span[data-range] {
+  background: var(--accent-soft);
+  border: 2px solid var(--accent);
+  box-sizing: border-box;
+}
+.timeline__span[data-selected] {
+  box-shadow: 0 0 0 2px var(--bg-surface), 0 0 0 4px var(--accent-line);
+}
+.timeline__card {
+  position: absolute;
+  top: calc(var(--head) + var(--lane) * var(--lane-n) + 1.1rem);
+  height: calc(var(--lane) - 1.5rem);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.2rem;
+  padding: 0.45rem 0.6rem;
+  overflow: hidden;
+  text-align: left;
+  background: var(--bg-paper-dim);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+.timeline__card[data-selected] {
+  border-color: var(--accent);
+  box-shadow: var(--ring-selected);
+}
+.timeline__when {
+  font-family: var(--font-mono);
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
 }
 .timeline__title {
-  padding: 0.4rem 0 0.7rem;
-  line-height: 1.35;
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  font-size: var(--fs-md);
+  line-height: 1.3;
+}
+.timeline__detail {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  padding: 0.7rem 0.9rem;
+  background: var(--bg-paper-dim);
+  border-left: 3px solid var(--accent);
+  border-radius: 4px;
+}
+.timeline__detail h3 {
+  margin: 0;
+}
+.timeline__detail-time {
+  font-family: var(--font-mono);
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
 }

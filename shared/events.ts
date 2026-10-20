@@ -101,3 +101,22 @@ export function knownEvents(c: Pick<CaseFile, "evidence" | "events">, p: Progres
     .sort((x, y) => eventSortKey(x.ev.at, year) - eventSortKey(y.ev.at, year) || x.i - y.i)
     .map(({ ev }) => ev);
 }
+
+export interface EventSpan {
+  /** Начало и конец в минутах (шкала `eventSortKey`); у момента совпадают. Дата без времени: начало — 00:00, у диапазона дат конец — конец последнего дня. */
+  start: number;
+  end: number;
+  /** Время суток не задано (только дата). */
+  dateOnly: boolean;
+  range: boolean;
+}
+
+/** Где событие стоит на шкале времени. */
+export function eventSpan(ev: Pick<CaseEvent, "at" | "until">, year: number): EventSpan {
+  const start = eventSortKey(ev.at, year);
+  const dateOnly = parseEventTime(ev.at)?.hour === undefined;
+  if (ev.until === undefined) return { start, end: start, dateOnly, range: false };
+  const endTime = parseEventTime(ev.until);
+  const end = eventSortKey(ev.until, year) + (endTime?.hour === undefined ? 24 * 60 : 0);
+  return { start, end: Math.max(start, end), dateOnly: dateOnly && endTime?.hour === undefined, range: true };
+}
