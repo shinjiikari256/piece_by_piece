@@ -281,10 +281,16 @@ export class OfficeScene extends Phaser.Scene {
   private syncNpcs() {
     const { progress } = this.host.getState();
     const wanted = new Map<string, { mode: "static" | "follower"; tile: { x: number; y: number }; failText?: string }>();
+    const hidden = new Set<string>();
     for (const loc of this.caseFile.locations) {
       for (const n of loc.npcs) {
         if (progress.followers.includes(n.characterId)) {
           wanted.set(n.characterId, { mode: "follower", tile: this.tileOf(this.player) });
+          continue;
+        }
+        // условие присутствия не выполнено — человека на карте нет (исчезает сразу, без хода к выходу)
+        if (!meets(n.requires, progress, this.location.id)) {
+          hidden.add(n.characterId);
           continue;
         }
         const place = progress.npcPlaces[n.characterId] ?? { locationId: loc.id, x: n.x, y: n.y };
@@ -294,6 +300,10 @@ export class OfficeScene extends Phaser.Scene {
 
     for (const [characterId, npc] of this.npcs) {
       const want = wanted.get(characterId);
+      if (hidden.has(characterId)) {
+        this.removeNpc(npc);
+        continue;
+      }
       if (!want) {
         // место теперь в другой локации: идёт к выходу и уходит
         if (!(npc.mode === "walker" && npc.walk?.leaving)) this.leaveLocation(npc, progress.npcPlaces[characterId]);

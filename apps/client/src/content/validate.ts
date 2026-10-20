@@ -208,6 +208,7 @@ function checkIntegrity(c: CaseFile): string[] {
     for (const n of loc.npcs) {
       ref(characters, n.characterId, `npc ${n.id}`);
       ref(dialogues, n.dialogueId, `npc ${n.id}`);
+      checkCondition(n.requires, `npc ${n.id}.requires`);
       n.dialogues.forEach((nd, i) => {
         ref(dialogues, nd.dialogueId, `npc ${n.id}: диалог по условию №${i + 1}`);
         checkCondition(nd.requires, `npc ${n.id}: диалог по условию №${i + 1}.requires`);
@@ -343,7 +344,12 @@ function checkIntegrity(c: CaseFile): string[] {
       condFlags(e.requires);
     }),
   );
-  c.locations.forEach((l) => l.npcs.forEach((n) => n.dialogues.forEach((nd) => condFlags(nd.requires))));
+  c.locations.forEach((l) =>
+    l.npcs.forEach((n) => {
+      condFlags(n.requires);
+      n.dialogues.forEach((nd) => condFlags(nd.requires));
+    }),
+  );
   c.locations.forEach((l) => l.zones.forEach((z) => z.actions.forEach((a) => condFlags(a.requires))));
   c.locations.forEach((l) => l.doors.forEach((d) => condFlags(d.requires)));
   for (const f of usedFlags) if (!named.has(f)) err(`flags: у флага «${f}» нет названия — добавьте его в разделе «Переменные»`);

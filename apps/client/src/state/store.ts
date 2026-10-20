@@ -506,6 +506,7 @@ export const actions = {
     }
     const npc = allNpcs(s.caseFile).find((n) => n.id === targetId);
     if (npc) {
+      if (!meets(npc.requires, s.progress, s.locationId)) return; // человека сейчас на карте нет
       // диалоги по условию — по порядку, первый подходящий; иначе диалог по умолчанию
       const dialogueId = npc.dialogues.find((d) => meets(d.requires, s.progress, s.locationId))?.dialogueId ?? npc.dialogueId;
       const dialogue = s.caseFile.dialogues.find((d) => d.id === dialogueId);

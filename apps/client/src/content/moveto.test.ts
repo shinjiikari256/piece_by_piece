@@ -659,3 +659,22 @@ describe("«где используется»: счётчики, перечис�
     expect((evidenceUsage(c).get(c.evidence[0].id) ?? []).map((u) => u.kind)).toContain("проверяет отсутствие");
   });
 });
+
+describe("человек на карте по условию; диалог не застревает", () => {
+  it("npc.requires: проверяется валидатором, учитывается в «где используется» и при удалении флага", () => {
+    const c = structuredClone(case001) as unknown as CaseFile;
+    c.flags = [{ id: "show", name: "Показать" }];
+    c.locations[0].npcs[0].requires = { flags: ["show"], evidence: ["нет_улики"] };
+    const r = validateCase(c);
+    expect(r.ok ? "" : r.errors.join("\n")).toContain("нет_улики");
+    c.locations[0].npcs[0].requires = { flags: ["show"] };
+    expect(flagUsage(c).get("show")?.some((u) => u.where.startsWith("Человек на карте"))).toBe(true);
+    expect(deleteFlag(c, "show").locations[0].npcs[0].requires).toBeUndefined();
+  });
+  it("предупреждение: у всех вариантов реплики есть условие", () => {
+    const c = structuredClone(case001) as unknown as CaseFile;
+    const node = c.dialogues[0].nodes[0];
+    node.choices.forEach((ch) => (ch.requires = { flags: ["x"] }));
+    expect(caseWarnings(c).join("\n")).toContain("останется только «Закончить разговор»");
+  });
+});

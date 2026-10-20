@@ -21,6 +21,12 @@ export function caseWarnings(c: CaseFile): string[] {
   effectSites(c).forEach((site) => site.effects.forEach((e) => e.type === "startDialogue" && launched.add(e.dialogueId)));
   for (const d of c.dialogues) if (!launched.has(d.id)) out.push(`dialogue ${d.id}: никто не запускает — подключите диалог к человеку на карте или к области`);
 
+  // реплика, где у всех вариантов есть условие: если ни одно не выполнено, игра предложит только «Закончить разговор»
+  for (const d of c.dialogues)
+    for (const n of d.nodes)
+      if (n.choices.length && n.choices.every((ch) => ch.requires && Object.keys(ch.requires).length))
+        out.push(`dialogue ${d.id}/${n.id}: у всех вариантов есть условие — если ни одно не выполнится, останется только «Закончить разговор»; добавьте вариант без условия`);
+
   // область без действий
   for (const l of c.locations) for (const z of l.zones) if (!z.actions.length) out.push(`location ${l.id}/zone ${z.id}: у области нет действий — она ничего не делает`);
 
@@ -50,11 +56,10 @@ export function caseWarnings(c: CaseFile): string[] {
     l.doors.forEach((d) => {
       positive(d.requires);
     });
-    l.npcs.forEach((n) =>
-      n.dialogues.forEach((d) => {
-        positive(d.requires);
-      }),
-    );
+    l.npcs.forEach((n) => {
+      positive(n.requires);
+      n.dialogues.forEach((d) => positive(d.requires));
+    });
     l.zones.forEach((z) =>
       z.actions.forEach((a) => {
         positive(a.requires);

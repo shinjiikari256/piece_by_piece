@@ -1075,3 +1075,19 @@ describe("тестовое дело: ветка «Новые возможнос�
     expect(store.get().overlay).toMatchObject({ kind: "failed" });
   });
 });
+
+describe("человек, скрытый условием", () => {
+  it("взаимодействие с человеком, которого на карте сейчас нет, не открывает разговор", () => {
+    const raw = load("case-001.json") as unknown as CaseFile;
+    raw.flags = [...(raw.flags ?? []), { id: "come", name: "Пришёл" }];
+    raw.locations.flatMap((l) => l.npcs).find((n) => n.id === "npc_alina")!.requires = { flags: ["come"] };
+    const c = validateCase(raw);
+    if (!c.ok) throw new Error(c.errors.join("; "));
+    setPlatform(createMemoryPlatform());
+    actions.openCase(new LocalAuthority(c.caseFile));
+    actions.beginInvestigation();
+    actions.interact("npc_alina");
+    expect(store.get().overlay).toBeNull();
+    actions.close();
+  });
+});

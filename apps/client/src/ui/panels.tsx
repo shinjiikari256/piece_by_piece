@@ -190,7 +190,7 @@ export function DialogueWindow({
   }, [dialogueId, nodeId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Заданные вопросы остаются на своих местах с отметкой — нумерация не прыгает
-  const choices: ChoiceView[] = node.choices
+  const available: ChoiceView[] = node.choices
         .filter((c) => actions.isChoiceVisible(c))
         .map((c) => ({
           id: c.id,
@@ -200,6 +200,8 @@ export function DialogueWindow({
           evidence: !!c.requires?.evidence,
           onPick: () => actions.choose(c.id),
         }));
+  // подходящих вариантов нет (все скрыты условиями): разговор не должен застревать — всегда есть выход
+  const choices: ChoiceView[] = available.length ? available : [{ id: "__end", text: "Закончить разговор", asked: false, evidence: false, onPick: actions.close }];
 
   const list = useRef<HTMLOListElement>(null);
   useWindowKey((e) => {

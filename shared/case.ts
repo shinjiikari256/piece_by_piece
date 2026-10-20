@@ -280,6 +280,7 @@ export const NpcPlacement = z.object({
   id: z.string(),
   characterId: z.string(),
   dialogueId: z.string().describe("Диалог по умолчанию — запускается, если ни один из `dialogues` не подошёл"),
+  requires: Condition.optional().describe("Человек есть на карте, только пока условие выполнено; без условия — всегда"),
   dialogues: z
     .array(NpcDialogue)
     .default([])
