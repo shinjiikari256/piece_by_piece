@@ -9,6 +9,7 @@ import { MaterialsTab } from "./materials";
 import { CharactersTab } from "./characters";
 import { LawTab } from "./law";
 import { TimelineTab } from "./timeline";
+import { timelineEnabled } from "../../../../../shared/events";
 import { CaseCredit } from "../credit";
 export const useCase = () => useGame((s) => s.caseFile)!;
 
@@ -25,7 +26,7 @@ const CARDS = ".materials__list button.evidence-card, .materials__list button.pe
 
 export function Journal({ tab, match, focus }: { tab: JournalTab; match?: boolean; focus?: string }) {
   const content = useRef<HTMLDivElement>(null);
-  const hasEvents = useCase().events.length > 0;
+  const hasEvents = timelineEnabled(useCase());
   // пока на доске показаны варианты сопоставления, стрелки ходят по ним (match.tsx), а не по карточкам
   useArrowNav(content, CARDS, { active: () => !content.current?.querySelector(".deduction__options") });
   return (

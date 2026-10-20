@@ -10,6 +10,7 @@ import { refTarget } from "./refs";
 
 import { ContextMenu, copyText, type MenuContext, type MenuItem } from "../ui/contextmenu";
 import { GeneralSection } from "./sections/General";
+import { SettingsSection } from "./sections/Settings";
 import { AuthorshipSection } from "./sections/Authorship";
 import { FlagsSection } from "./sections/Flags";
 import { LawSection } from "./sections/Law";
@@ -65,7 +66,7 @@ function editorMenu({ target, selection }: MenuContext): MenuItem[] {
 }
 
 const SECTIONS: { id: SectionId; label: string; hint: string }[] = [
-  { id: "general", label: "Основное", hint: "Название, вводная, бонус за время, показывать ли в списке" },
+  { id: "general", label: "Основное", hint: "Название, вводная, показывать ли в списке" },
   { id: "characters", label: "Персонажи", hint: "Кто участвует и как выглядит" },
   { id: "locations", label: "Локации", hint: "Карта, предметы, люди, области" },
   { id: "evidence", label: "Улики", hint: "Что можно найти" },
@@ -77,6 +78,7 @@ const SECTIONS: { id: SectionId; label: string; hint: string }[] = [
   { id: "solution", label: "Решение", hint: "Разбор и источники" },
   { id: "flags", label: "Переменные", hint: "Флаги («произошло или нет») счётчики (числа) и перечисления (одно значение из списка)" },
   { id: "law", label: "Закон", hint: "Что игрок видит во вкладке «Закон»" },
+  { id: "settings", label: "Настройки", hint: "Хронология и бонус за время" },
   { id: "authorship", label: "Авторство", hint: "Автор, почта, лицензия" },
   { id: "json", label: "JSON", hint: "Исходник целиком" },
 ];
@@ -187,6 +189,7 @@ export function EditorApp() {
         {section === "dialogues" && <DialogueEditor />}
         {section === "solution" && <SolutionSection />}
         {section === "law" && <LawSection />}
+        {section === "settings" && <SettingsSection />}
         {section === "authorship" && <AuthorshipSection />}
         {section === "flags" && <FlagsSection />}
         {section === "json" && <JsonSection />}

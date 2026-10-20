@@ -26,6 +26,7 @@ export type SectionId =
   | "solution"
   | "law"
   | "authorship"
+  | "settings"
   | "flags"
   | "json"
   | "errors";

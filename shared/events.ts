@@ -120,3 +120,8 @@ export function eventSpan(ev: Pick<CaseEvent, "at" | "until">, year: number): Ev
   const end = eventSortKey(ev.until, year) + (endTime?.hour === undefined ? 24 * 60 : 0);
   return { start, end: Math.max(start, end), dateOnly: dateOnly && endTime?.hour === undefined, range: true };
 }
+
+/** Показывается ли игроку хронология: в деле есть события, и автор её не выключил. */
+export function timelineEnabled(c: { events: unknown[]; settings?: { timeline?: boolean } }): boolean {
+  return c.events.length > 0 && c.settings?.timeline !== false;
+}

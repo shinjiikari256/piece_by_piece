@@ -34,3 +34,13 @@ describe("раскладка хронологии", () => {
     expect(s.end - s.start).toBe(24 * 60);
   });
 });
+
+describe("включение хронологии", () => {
+  it("нужны события и не выключено автором", async () => {
+    const { timelineEnabled } = await import("../../../../../shared/events");
+    expect(timelineEnabled({ events: [] })).toBe(false);
+    expect(timelineEnabled({ events: [1] })).toBe(true);
+    expect(timelineEnabled({ events: [1], settings: {} })).toBe(true);
+    expect(timelineEnabled({ events: [1], settings: { timeline: false } })).toBe(false);
+  });
+});
