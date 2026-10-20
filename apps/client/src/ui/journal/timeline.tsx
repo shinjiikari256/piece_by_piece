@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useArrowNav } from "../hooks";
 import { eventYear, formatEventTime, knownEvents, timelineEvents } from "../../../../../shared/events";
 import { resolveLook } from "../../game/art";
 import { useGame } from "../../state/store";
@@ -21,6 +22,9 @@ export function TimelineTab() {
   const locationId = useGame((s) => s.locationId);
   const [person, setPerson] = useState("all");
   const [selected, setSelected] = useState<string | null>(null);
+  const [dayStart, setDayStart] = useState<number | null>(null);
+  const list = useRef<HTMLUListElement>(null);
+  useArrowNav(list, ".timeline__daybtn");
 
   const known = useMemo(() => timelineEvents(knownEvents(caseFile, progress, locationId)), [caseFile, progress, locationId]);
   /** Кто связан с событием — по найденным уликам (ненайденные не раскрываются). */
@@ -39,7 +43,12 @@ export function TimelineTab() {
 
   if (!known.length) return <p className="empty">Пока ни одно событие не установлено. Находки и разговоры дополняют хронологию.</p>;
 
-  const current = shown.find((ev) => ev.id === selected);
+  const day = days.find((d) => d.start === dayStart) ?? days[0];
+  const current = day?.entries.find((e) => e.ev.id === selected)?.ev;
+  const pick = (start: number) => {
+    setDayStart(start);
+    setSelected(null);
+  };
   const toggle = (id: string) => setSelected(id === selected ? null : id);
 
   return (
@@ -57,29 +66,44 @@ export function TimelineTab() {
         </div>
       )}
 
-      {days.length === 0 ? (
+      {!day ? (
         <p className="empty">У выбранного человека нет известных событий.</p>
       ) : (
-        days.map((d) => <DayCard key={d.start} day={d} selected={selected} onSelect={toggle} />)
-      )}
-
-      {current && (
-        <article className="timeline__detail">
-          <span className="timeline__detail-time">{formatEventTime(current.at, current.until)}</span>
-          <h3>{current.title}</h3>
-          <div className="row row--wrap">
-            {(links.get(current.id)?.people ?? []).map((id) => {
-              const c = caseFile.characters.find((x) => x.id === id);
-              return c && (
-                <span key={id} className="event-chip">
-                  <Portrait look={resolveLook(c)} />
-                  {c.name}
-                </span>
-              );
-            })}
+        <div className="timeline__body">
+          <ul className="timeline__days list-reset" ref={list} aria-label="Дни">
+            {days.map((d) => (
+              <li key={d.start}>
+                <button className="timeline__daybtn" data-selected={d.start === day.start || undefined} aria-current={d.start === day.start || undefined} onClick={() => pick(d.start)}>
+                  <span>{dayTitle(d)}</span>
+                  <span className="timeline__count">{new Set(d.entries.map((e) => e.ev.id)).size}</span>
+                </button>
+              </li>
+            ))}
+          </ul>
+          <div className="timeline__main">
+            <DayCard key={day.start} day={day} selected={selected} onSelect={toggle} />
+            {current ? (
+              <article className="timeline__detail">
+                <span className="timeline__detail-time">{formatEventTime(current.at, current.until)}</span>
+                <h3>{current.title}</h3>
+                <div className="row row--wrap">
+                  {(links.get(current.id)?.people ?? []).map((id) => {
+                    const c = caseFile.characters.find((x) => x.id === id);
+                    return c && (
+                      <span key={id} className="event-chip">
+                        <Portrait look={resolveLook(c)} />
+                        {c.name}
+                      </span>
+                    );
+                  })}
+                </div>
+                {(links.get(current.id)?.evidence ?? []).length > 0 && <p className="muted">Известно из: {links.get(current.id)!.evidence.map((e) => e.title).join(" · ")}</p>}
+              </article>
+            ) : (
+              <p className="muted">Выберите событие, чтобы увидеть подробности.</p>
+            )}
           </div>
-          {(links.get(current.id)?.evidence ?? []).length > 0 && <p className="muted">Известно из: {links.get(current.id)!.evidence.map((e) => e.title).join(" · ")}</p>}
-        </article>
+        </div>
       )}
     </div>
   );

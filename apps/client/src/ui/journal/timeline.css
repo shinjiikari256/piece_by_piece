@@ -2,6 +2,7 @@
   display: flex;
   flex-direction: column;
   gap: 0.8rem;
+  height: 100%;
   min-height: 0;
 }
 .timeline__tools {
@@ -9,6 +10,62 @@
   align-items: center;
   flex-wrap: wrap;
   gap: 0.6rem;
+}
+.timeline__body {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: 11rem minmax(0, 1fr);
+  gap: 1rem;
+}
+.timeline__days,
+.timeline__main {
+  min-height: 0;
+  overflow-y: auto;
+}
+.timeline__days {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+.timeline__daybtn {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.45rem 0.6rem;
+  text-align: left;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+.timeline__daybtn[data-selected] {
+  border-color: var(--accent);
+  box-shadow: var(--ring-selected);
+}
+.timeline__count {
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+}
+.timeline__main {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+@media (max-width: 760px) {
+  .timeline__body {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto minmax(0, 1fr);
+  }
+  .timeline__days {
+    flex-direction: row;
+    overflow-x: auto;
+    overflow-y: hidden;
+  }
+  .timeline__days li {
+    flex: none;
+  }
 }
 .timeline__daycard {
   padding: 0.6rem 0.8rem 0.8rem;
