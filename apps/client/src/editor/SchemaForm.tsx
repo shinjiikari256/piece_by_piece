@@ -298,14 +298,14 @@ export function Field({ name, schema, value, onChange, ctx, bare }: FieldProps):
   }
 
   // облик и спрайт выбираем по картинкам
-  if ((name === "look" || name === "sprite") && schema.enum) {
+  if ((name === "look" && schema.enum) || (name === "sprite" && schema.type === "string")) {
     const kind = name === "look" ? "look" : "sprite";
     return (
       <div className="ef">
         {label}
         <TilePicker
           kind={kind}
-          ids={schema.enum}
+          ids={name === "sprite" ? Object.keys(SPRITES) : schema.enum}
           value={String(value ?? "")}
           onChange={onChange}
           taken={kind === "look" ? ctx.draft.characters.map((c) => c.look) : []}

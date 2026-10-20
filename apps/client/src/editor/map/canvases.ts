@@ -7,6 +7,7 @@ import {
   TILE_NAMES,
   drawCharacter,
   drawSprite,
+  spriteVersion,
   type Look,
 } from "../../game/art";
 
@@ -32,6 +33,7 @@ export function lookCanvas(look: Look) {
 
 /** Картинки спрайтов рисуем один раз. */
 export function useSpriteCanvases() {
+  const version = spriteVersion();
   return useMemo(() => {
     const sprites = new Map<string, HTMLCanvasElement>();
     for (const [key, spec] of Object.entries(SPRITES)) {
@@ -42,5 +44,5 @@ export function useSpriteCanvases() {
       sprites.set(key, c);
     }
     return { sprites };
-  }, []);
+  }, [version]);
 }

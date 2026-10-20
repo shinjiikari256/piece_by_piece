@@ -4,7 +4,7 @@ import { effectSites } from "../../../../shared/effect-sites";
 import { isRangeOrdered, parseEventTime } from "../../../../shared/events";
 import { isEntryTrigger, isInteractive } from "../../../../shared/case";
 import { parseCase } from "../../../../shared/migrate";
-import { FLOOR_TILES, SPRITES, WALL_TILES, resolveLook, solidCells } from "../game/art";
+import { FLOOR_TILES, SPRITES, SPRITE_GROUPS, registerCaseSprites, WALL_TILES, resolveLook, solidCells } from "../game/art";
 import { zoneTargetCell } from "./case-utils";
 import { findPath } from "../game/scene/navigation";
 
@@ -18,6 +18,7 @@ const FLOOR = FLOOR_TILES;
 export function validateCase(raw: unknown): ValidationResult {
   const parsed = parseCase(raw);
   if (!parsed.success) return { ok: false, errors: parsed.errors };
+  registerCaseSprites(parsed.data.sprites);
   const errors = checkIntegrity(parsed.data);
   return errors.length ? { ok: false, errors } : { ok: true, caseFile: parsed.data };
 }
@@ -25,6 +26,29 @@ export function validateCase(raw: unknown): ValidationResult {
 function checkIntegrity(c: CaseFile): string[] {
   const errors: string[] = [];
   const err = (msg: string) => errors.push(msg);
+
+  // спрайты дела и ссылки на спрайты — раньше всего: дальше проверки читают SPRITES[o.sprite]
+  const builtin = new Set(SPRITE_GROUPS.flatMap((g) => Object.keys(g.sprites)));
+  const seenSprites = new Set<string>();
+  for (const sp of c.sprites ?? []) {
+    const W = `sprite ${sp.key}`;
+    if (builtin.has(sp.key)) err(`${W}: ключ совпадает со встроенным спрайтом`);
+    if (seenSprites.has(sp.key)) err(`${W}: повторяющийся ключ`);
+    seenSprites.add(sp.key);
+    if (!sp.name.trim()) err(`${W}: не задано название`);
+    for (const [fr, ops] of Object.entries(sp.frames))
+      for (const [x, y, w, h] of ops) if (x < 0 || y < 0 || x + w > sp.w || y + h > sp.h) err(`${W}: кадр ${fr}: прямоугольник выходит за размер ${sp.w}×${sp.h}`);
+    for (const cell of sp.cells ?? [])
+      if (cell.dx < 0 || cell.dx >= sp.footprint.w || cell.dy < 0 || cell.dy >= sp.footprint.h) err(`${W}: клетка ${cell.dx},${cell.dy} вне опоры`);
+  }
+  let badSprite = false;
+  for (const l of c.locations)
+    for (const o of l.objects)
+      if (!(o.sprite in SPRITES)) {
+        err(`location ${l.id}/object ${o.id}: нет спрайта «${o.sprite}»`);
+        badSprite = true;
+      }
+  if (badSprite) return errors;
 
   const unique = (label: string, ids: string[]) => {
     const seen = new Set<string>();

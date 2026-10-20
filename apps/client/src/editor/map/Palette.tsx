@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { FLOOR_GROUPS, SPRITE_GROUPS, SPRITE_NAMES, WALL_GROUPS, resolveLook } from "../../game/art";
+import { FLOOR_GROUPS, SPRITES, SPRITE_GROUPS, SPRITE_NAMES, WALL_GROUPS, resolveLook } from "../../game/art";
 import { SpriteKey } from "../../../../../shared/case";
 import type { CaseFile as CaseFileT, SpriteKey as SpriteKeyT } from "../../../../../shared/case";
 import { ArtThumb } from "../Pickers";
@@ -29,9 +29,11 @@ export function MapPalette({
   // подгруппы: по умолчанию раскрыты самые частые; при поиске раскрываются все, где есть совпадения
   const [groups, setGroups] = useState<Record<string, boolean>>({ floor: true, walls: true, furniture: true });
   const q = query.trim().toLowerCase();
+  const builtin = new Set(SPRITE_GROUPS.flatMap((g) => Object.keys(g.sprites)));
+  const customKeys = Object.keys(SPRITES).filter((k) => !builtin.has(k));
   const groupOpen = (id: string) => !!q || !!groups[id];
   const toggleGroup = (id: string) => setGroups((o) => ({ ...o, [id]: !o[id] }));
-  const matches = (k: SpriteKeyT) => !q || (SPRITE_NAMES[k] ?? k).toLowerCase().includes(q) || k.includes(q);
+  const matches = (k: string) => !q || (SPRITE_NAMES[k] ?? k).toLowerCase().includes(q) || k.includes(q);
   // поиск клеток по названию («кафель», «паркет»); отдельно от поиска предметов
   const [tileQuery, setTileQuery] = useState("");
   const tq = tileQuery.trim().toLowerCase();
@@ -64,9 +66,9 @@ export function MapPalette({
         {tq && TILE_TOOLS.every((t) => !t.label.toLowerCase().includes(tq)) && <p className="lm__note">Ничего не найдено.</p>}
       </PaletteSection>
 
-      <PaletteSection title={`Предметы (${SpriteKey.options.length})`} open={open.objects} onToggle={() => toggle("objects")}>
+      <PaletteSection title={`Предметы (${SpriteKey.options.length + customKeys.length})`} open={open.objects} onToggle={() => toggle("objects")}>
         <input className="lm__search" placeholder="Поиск предмета…" value={query} onChange={(e) => setQuery(e.target.value)} />
-        {SPRITE_GROUPS.map((g) => {
+        {[...SPRITE_GROUPS, ...(customKeys.length ? [{ id: "custom", label: "Свои", sprites: Object.fromEntries(customKeys.map((k) => [k, SPRITES[k]])) }] : [])].map((g) => {
           const keys = (Object.keys(g.sprites) as SpriteKeyT[]).filter(matches);
           if (!keys.length) return null;
           return (
@@ -89,7 +91,7 @@ export function MapPalette({
             </PaletteGroup>
           );
         })}
-        {q && SpriteKey.options.every((k) => !matches(k)) && <p className="lm__note">Ничего не найдено.</p>}
+        {q && [...SpriteKey.options, ...customKeys].every((k) => !matches(k)) && <p className="lm__note">Ничего не найдено.</p>}
       </PaletteSection>
 
       <PaletteSection title="Люди" open={open.people} onToggle={() => toggle("people")}>

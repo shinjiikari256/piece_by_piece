@@ -13,6 +13,21 @@
   },
   "published": true,
   "updatedAt": "2026-10-15T00:00:00Z",
+  "sprites": [
+    {
+      "key": "test_beacon",
+      "name": "[ТЕСТ] Маяк",
+      "group": "Тест",
+      "w": 16,
+      "h": 16,
+      "footprint": { "w": 1, "h": 1 },
+      "solid": true,
+      "frames": {
+        "default": [[5, 12, 6, 3, "#444444"], [7, 4, 2, 8, "#888888"], [6, 2, 4, 3, "#aa2222"]],
+        "on": [[5, 12, 6, 3, "#444444"], [7, 4, 2, 8, "#888888"], [6, 2, 4, 3, "#ffdd33"]]
+      }
+    }
+  ],
   "locations": [
     {
       "id": "dorm_floor",
@@ -630,6 +645,15 @@
           "x": 24,
           "y": 9,
           "label": "Дверь",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "dec_test_beacon",
+          "sprite": "test_beacon",
+          "x": 27,
+          "y": 14,
+          "label": "[ТЕСТ] Маяк (спрайт дела)",
           "interaction": null,
           "onInteract": []
         }

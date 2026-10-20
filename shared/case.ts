@@ -270,6 +270,28 @@ export const SpriteKey = z.enum([
   "door_v",
 ]);
 
+const SpriteOp = z.union([
+  z.tuple([z.number().int(), z.number().int(), z.number().int().min(1), z.number().int().min(1), z.string().regex(/^#[0-9a-f]{6}([0-9a-f]{2})?$/i)]),
+  z.tuple([z.number().int(), z.number().int(), z.number().int().min(1), z.number().int().min(1)]),
+]);
+
+/** Спрайт, нарисованный автором дела (встроенные хранятся только ключом): те же поля, что у встроенного, плюс название и группа. */
+export const CustomSprite = z.object({
+  key: z.string().regex(/^[a-z][a-z0-9_]*$/).describe("Ключ: латиница, цифры, _; не совпадает со встроенным"),
+  name: z.string().describe("Название в палитре"),
+  group: z.string().optional().describe("Группа палитры; без значения — «Свои»"),
+  w: z.number().int().min(1).max(256).describe("Ширина в пикселях (16 px = тайл)"),
+  h: z.number().int().min(1).max(256).describe("Высота в пикселях"),
+  footprint: z.object({ w: z.number().int().min(1).max(16), h: z.number().int().min(1).max(16) }).describe("Опора в клетках: вправо и вверх от точки предмета"),
+  solid: z.boolean().describe("Мешает ли проходу"),
+  cells: z.array(z.object({ dx: z.number().int(), dy: z.number().int(), solid: z.boolean() })).optional().describe("Исключения из solid по клеткам опоры"),
+  flat: z.boolean().optional(),
+  mount: z.number().int().optional(),
+  opensNear: z.boolean().optional(),
+  mirrorRight: z.boolean().optional(),
+  frames: z.record(z.string(), z.array(SpriteOp)).refine((f) => Array.isArray(f.default), "нужен кадр default"),
+});
+
 /** Цикл состояния: клип идёт по кругу, пока состояние действует. */
 export const ObjectLoop = z.object({
   clip: z.array(ClipStep).min(1),
@@ -314,7 +336,7 @@ export const ObjectState = z.object({
 
 export const LocationObject = z.object({
   id: z.string(),
-  sprite: SpriteKey,
+  sprite: z.string().describe("Ключ спрайта: встроенный или из спрайтов дела"),
   x: z.number().int().describe("Колонка тайла"),
   y: z.number().int().describe("Строка тайла"),
   label: z.string().describe("Подпись над объектом"),
@@ -566,6 +588,7 @@ export const CaseMeta = z.object({
 });
 
 export const CaseFile = z.object({
+  sprites: z.array(CustomSprite).optional().describe("Спрайты, нарисованные в деле"),
   formatVersion: z.number().int().optional().describe("Версия формата файла дела (ставится само; нет поля = 1)"),
   id: z.string(),
   number: z.string(),
@@ -671,6 +694,7 @@ export type Zone = z.infer<typeof Zone>;
 export type ZoneAction = z.infer<typeof ZoneAction>;
 export type NpcDialogue = z.infer<typeof NpcDialogue>;
 export type SpriteKey = z.infer<typeof SpriteKey>;
+export type CustomSprite = z.infer<typeof CustomSprite>;
 export type Appearance = z.infer<typeof Appearance>;
 export type CustomLook = z.infer<typeof CustomLook>;
 export type HairStyle = z.infer<typeof HairStyle>;
