@@ -35,7 +35,7 @@ function siteInfo(o: EffectOwner, who: (id: string) => string): { where: string;
       return { where: `Осмотр «${o.label}» — ${o.locationName}`, focus: { section: "locations", sub: o.locationId, kind: "object", id: o.objectId } };
     case "objectState":
       return {
-        where: `Предмет «${o.label}», состояние «${o.stateId}» (${o.phase === "enter" ? "вход" : "выход"}) — ${o.locationName}`,
+        where: `Предмет «${o.label}», состояние «${o.stateId}» (${{ enter: "вход", exit: "выход", interact: "осмотр" }[o.phase]}) — ${o.locationName}`,
         focus: { section: "locations", sub: o.locationId, kind: "object", id: o.objectId },
       };
     case "zone":

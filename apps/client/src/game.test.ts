@@ -1063,6 +1063,27 @@ describe("события состояний предмета (сейф в тес
     expect(store.get().progress.flags).not.toContain("test_safe_opened");
   });
 
+  it("осмотр сломанного сейфа: эффекты состояния вместо окна — сообщение", () => {
+    start();
+    actions.interact("npc_timur");
+    actions.choose("n_menu");
+    actions.choose("n2b");
+    actions.close();
+    actions.interact("dec_safe");
+    expect(store.get().overlay).toBeNull();
+    expect(toasts()).toContain("Замок вырван, дверца не открывается.");
+  });
+
+  it("осмотр открытого сейфа открывает окно с текстом состояния", () => {
+    start();
+    actions.interact("npc_timur");
+    actions.choose("n_menu");
+    actions.choose("n2a");
+    actions.close();
+    actions.interact("dec_safe");
+    expect(store.get().overlay).toMatchObject({ kind: "object", objectId: "dec_safe" });
+  });
+
   it("начальное состояние (старт дела, загрузка) эффектов не запускает", () => {
     start("open");
     expect(store.get().progress.enums.test_safe).toBe("open");

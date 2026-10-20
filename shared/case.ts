@@ -265,6 +265,8 @@ export const ObjectState = z.object({
   frame: z.string().optional().describe("Кадр спрайта; без значения — кадр по умолчанию"),
   solid: z.boolean().optional().describe("Мешает ли проходу в этом состоянии; без значения — как у спрайта"),
   interaction: ObjectInteraction.nullable().optional().describe("Окно осмотра в этом состоянии; без значения — как у предмета, null — без окна"),
+  label: z.string().optional().describe("Подпись над предметом в этом состоянии; без значения — как у предмета"),
+  onInteract: z.array(Effect).optional().describe("Эффекты осмотра в этом состоянии вместо эффектов предмета (например, сообщение «Заперто»)"),
   onEnter: z.array(Effect).optional().describe("Эффекты в момент, когда предмет перешёл в это состояние (только при смене во время игры, не при загрузке сохранения)"),
   onExit: z.array(Effect).optional().describe("Эффекты в момент, когда предмет вышел из этого состояния"),
 });
@@ -281,13 +283,13 @@ export const LocationObject = z.object({
 });
 
 /** Улики, которые может выдать осмотр предмета (эффекты «добавить улику в дело» в `onInteract`, независимо от условий). */
-export const objectEvidenceIds = (o: { onInteract?: { type: string; evidenceId?: string }[] }): string[] => [
-  ...new Set((o.onInteract ?? []).flatMap((e) => (e.type === "addEvidence" && e.evidenceId ? [e.evidenceId] : []))),
+export const objectEvidenceIds = (o: { onInteract?: { type: string; evidenceId?: string }[]; states?: { onInteract?: { type: string; evidenceId?: string }[] }[] }): string[] => [
+  ...new Set([...(o.onInteract ?? []), ...(o.states ?? []).flatMap((st) => st.onInteract ?? [])].flatMap((e) => (e.type === "addEvidence" && e.evidenceId ? [e.evidenceId] : []))),
 ];
 
 /** Предмет, с которым можно взаимодействовать: есть окно осмотра или эффекты. */
-export const isInteractive = (o: { interaction?: unknown; onInteract?: unknown[]; states?: { interaction?: unknown }[] }): boolean =>
-  !!o.interaction || !!o.onInteract?.length || !!o.states?.some((st) => st.interaction);
+export const isInteractive = (o: { interaction?: unknown; onInteract?: unknown[]; states?: { interaction?: unknown; onInteract?: unknown[] }[] }): boolean =>
+  !!o.interaction || !!o.onInteract?.length || !!o.states?.some((st) => st.interaction || st.onInteract?.length);
 
 /** Диалог персонажа, доступный при условии (например, очная ставка: другой персонаж идёт за игроком). */
 export const NpcDialogue = z.object({

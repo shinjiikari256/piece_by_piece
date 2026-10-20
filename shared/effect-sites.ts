@@ -9,7 +9,7 @@ export type EffectOwner =
   | { kind: "evidence"; evidenceId: string; title: string }
   | { kind: "enter"; locationId: string; locationName: string }
   | { kind: "object"; locationId: string; locationName: string; objectId: string; label: string }
-  | { kind: "objectState"; locationId: string; locationName: string; objectId: string; label: string; stateId: string; phase: "enter" | "exit" }
+  | { kind: "objectState"; locationId: string; locationName: string; objectId: string; label: string; stateId: string; phase: "enter" | "exit" | "interact" }
   | { kind: "zone"; locationId: string; locationName: string; zoneId: string; zoneName: string; actionIndex: number }
   | { kind: "zoneFallback"; locationId: string; locationName: string; zoneId: string; zoneName: string };
 
@@ -78,6 +78,7 @@ function walkEffects<C extends EffectCase>(c: C, visit: (effects: Effect[], owne
                   ...st,
                   onEnter: visit(st.onEnter ?? [], { ...owner, phase: "enter" }, `${where}, вход`),
                   onExit: visit(st.onExit ?? [], { ...owner, phase: "exit" }, `${where}, выход`),
+                  ...(st.onInteract ? { onInteract: visit(st.onInteract, { ...owner, phase: "interact" }, `${where}, осмотр`) } : {}),
                 };
               }),
             }

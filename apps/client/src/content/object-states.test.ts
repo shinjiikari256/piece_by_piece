@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import type { CaseFile, LocationObject } from "../../../../shared/case";
 import { isInteractive } from "../../../../shared/case";
 import { startProgress } from "../../../../shared/conditions";
-import { activeState, currentInteraction } from "../../../../shared/object-state";
+import { activeState, currentInteraction, objectView } from "../../../../shared/object-state";
 import testCase from "./test-cases/case-test-moveto.json";
 import { effectSites } from "../../../../shared/effect-sites";
 import { flagUsage, deleteFlag } from "../editor/fields/Conditions";
@@ -34,7 +34,27 @@ describe("состояния предметов", () => {
     expect(o.interaction).toBeNull();
     expect(isInteractive(o)).toBe(true);
     expect(currentInteraction(o, withEnum("closed"))).toBeNull();
+    expect(currentInteraction(o, withEnum("broken"))).toBeNull();
     expect(currentInteraction(o, withEnum("open"))?.title).toBe("Сейф открыт");
+  });
+
+  it("подпись и эффекты осмотра берутся из состояния; без своих — от предмета", () => {
+    const closed = objectView(safe(), withEnum("closed"));
+    expect(closed).toMatchObject({ label: "Сейф", interactive: false, interaction: null });
+    expect(closed.onInteract).toEqual([]);
+    const broken = objectView(safe(), withEnum("broken"));
+    expect(broken.label).toBe("Сейф (сломан)");
+    expect(broken.interaction).toBeNull();
+    expect(broken.onInteract).toEqual([{ type: "message", text: "Замок вырван, дверца не открывается." }]);
+    expect(broken.interactive).toBe(true);
+  });
+
+  it("предмет без окна и эффектов не интерактивен, пока состояние их не даёт", () => {
+    const o = { label: "Дверь", interaction: null, onInteract: [], states: [{ id: "locked", when: { flags: ["l"] }, onInteract: [{ type: "message", text: "Заперто" }] }] } as unknown as LocationObject;
+    const p = startProgress(base);
+    expect(objectView(o, p).interactive).toBe(false);
+    expect(objectView(o, { ...p, flags: ["l"] }).interactive).toBe(true);
+    expect(isInteractive(o)).toBe(true);
   });
 
   it("null в состоянии убирает окно, пропущенное поле оставляет окно предмета", () => {

@@ -1,7 +1,7 @@
 import { editorPathOfPlaytest } from "../content/drafts";
 import { useSyncExternalStore } from "react";
-import { activeState, currentInteraction } from "../../../../shared/object-state";
-import { isInteractive, objectEvidenceIds, type Effect, type Solution, type Zone, type ZoneAction } from "../../../../shared/case";
+import { activeState, objectView } from "../../../../shared/object-state";
+import { objectEvidenceIds, type Effect, type Solution, type Zone, type ZoneAction } from "../../../../shared/case";
 import type { PublicCase, PublicDeduction } from "../../../../shared/public-case";
 import { RESULT_FORMAT_VERSION, type CaseAuthority, type DeductionVerdict, type FinishInput, type RevealedHint } from "../../../../shared/judge";
 import { APP_NAME, FROM_EDITOR, GAME_VERSION } from "../env";
@@ -589,13 +589,14 @@ export const actions = {
     }
     // осмотренное сразу попадает в дело
     const obj = findObject(s.caseFile, targetId);
-    if (obj && isInteractive(obj)) {
-      // всё, что даёт осмотр (улики, флаги, сообщения…), — эффекты `onInteract`: при каждом осмотре, разово — настройкой `once`
-      const { progress, newEvidence, messages, removedEvidence, followUp } = applyEffects(withZoneTargets(obj.onInteract ?? []), s.progress, fxCtx(`object:${obj.id}`));
+    const view = obj ? objectView(obj, s.progress, s.locationId) : null;
+    if (obj && view?.interactive) {
+      // всё, что даёт осмотр (улики, флаги, сообщения…), — эффекты `onInteract` (в действующем состоянии): при каждом осмотре, разово — настройкой `once`
+      const { progress, newEvidence, messages, removedEvidence, followUp } = applyEffects(withZoneTargets(view.onInteract), s.progress, fxCtx(`object:${obj.id}`));
       set({
         progress,
         // окно осмотра — только у предмета с `interaction` (в действующем состоянии); без него эффекты срабатывают молча (или сообщением)
-        ...(currentInteraction(obj, progress, s.locationId) ? { overlay: { kind: "object" as const, objectId: obj.id, gained: newEvidence.filter((id) => objectEvidenceIds(obj).includes(id)) }, examined: s.examined.includes(obj.id) ? s.examined : [...s.examined, obj.id] } : {}),
+        ...(view.interaction ? { overlay: { kind: "object" as const, objectId: obj.id, gained: newEvidence.filter((id) => objectEvidenceIds(obj).includes(id)) }, examined: s.examined.includes(obj.id) ? s.examined : [...s.examined, obj.id] } : {}),
       });
       announce(newEvidence, messages, removedEvidence, followUp);
     }

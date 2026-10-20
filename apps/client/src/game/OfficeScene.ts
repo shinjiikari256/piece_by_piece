@@ -2,7 +2,7 @@ import Phaser from "phaser";
 import { isInteractive, type Door, type Location, type LocationObject } from "../../../../shared/case";
 import type { PublicCase as CaseFile } from "../../../../shared/public-case";
 import { meets } from "../../../../shared/conditions";
-import { activeState } from "../../../../shared/object-state";
+import { objectView } from "../../../../shared/object-state";
 import { firstFloorCell, getLocation } from "../content/case-utils";
 import {
   BASE_TILE,
@@ -55,7 +55,7 @@ export class OfficeScene extends Phaser.Scene {
   /** Клетки запертых дверей — непроходимы. */
   private doorTiles = new Set<string>();
   /** Предметы с состояниями: вид и проходимость зависят от прогресса. */
-  private stateful: { o: LocationObject; img: Phaser.GameObjects.Image; footprint: { x: number; y: number }[]; solid: boolean }[] = [];
+  private stateful: { o: LocationObject; img: Phaser.GameObjects.Image; footprint: { x: number; y: number }[]; item: Interactable | null }[] = [];
   private objectTiles = new Set<string>();
   private player!: Phaser.GameObjects.Sprite;
   private keys!: Record<"up" | "down" | "left" | "right" | "w" | "a" | "s" | "d", Phaser.Input.Keyboard.Key>;
@@ -252,52 +252,80 @@ export class OfficeScene extends Phaser.Scene {
         .setScale(SCALE)
         .setDepth(spec.flat ? 0 : bottom);
       const footprint = footprintCells(o.x, o.y, spec.footprint);
-      if (o.states?.length) this.stateful.push({ o, img, footprint, solid: spec.solid });
-      else if (spec.solid) footprint.forEach((t) => this.setSolid(t.x, t.y));
-      if (!isInteractive(o)) continue;
-
-      const top = bottom - spec.h * SCALE;
-      const item: Interactable = {
-        id: o.id,
-        label: o.label,
-        x: cx,
-        y: bottom - TILE / 2,
-        footprint,
-        // висящий на стене предмет читается только спереди (клетка под ним), а не с обратной стороны стены
-        access: spec.mount !== undefined ? footprint.filter((t) => t.y === o.y).map((t) => ({ x: t.x, y: t.y + 1 })) : undefined,
-        sprite: img,
-        labelText: this.makeLabel(o.label).setPosition(cx, top - 4),
-        check: this.add
-          .text(cx + (spec.w * SCALE) / 2 - 2, top + 2, "✓", {
-            fontFamily: "Rubik, system-ui, sans-serif",
-            fontSize: "14px",
-            fontStyle: "bold",
-            color: "#ffffff",
-            backgroundColor: "#2e9e5b",
-            padding: { x: 3, y: 0 },
-          })
-          .setOrigin(1, 0)
-          .setDepth(9_500)
-          .setVisible(false),
-      };
-      this.makeClickable(item);
-      this.interactables.push(item);
+      const entry = { o, img, footprint, item: null as Interactable | null };
+      if (o.states?.length) this.stateful.push(entry);
+      else {
+        if (spec.solid) footprint.forEach((t) => this.setSolid(t.x, t.y));
+        if (isInteractive(o)) this.addObjectItem(entry, o.label);
+      }
     }
     this.syncObjects();
   }
 
-  /** Вид и проходимость предметов с состояниями по текущему прогрессу. */
+  /** Сделать предмет доступным для осмотра: подпись, галочка «осмотрено», клик. */
+  private addObjectItem(e: { o: LocationObject; img: Phaser.GameObjects.Image; footprint: { x: number; y: number }[]; item: Interactable | null }, label: string) {
+    const spec = SPRITES[e.o.sprite];
+    const cx = e.img.x;
+    const bottom = e.img.y;
+    const top = bottom - spec.h * SCALE;
+    const item: Interactable = {
+      id: e.o.id,
+      label,
+      x: cx,
+      y: bottom - TILE / 2,
+      footprint: e.footprint,
+      // висящий на стене предмет читается только спереди (клетка под ним), а не с обратной стороны стены
+      access: spec.mount !== undefined ? e.footprint.filter((t) => t.y === e.o.y).map((t) => ({ x: t.x, y: t.y + 1 })) : undefined,
+      sprite: e.img,
+      labelText: this.makeLabel(label).setPosition(cx, top - 4),
+      check: this.add
+        .text(cx + (spec.w * SCALE) / 2 - 2, top + 2, "✓", {
+          fontFamily: "Rubik, system-ui, sans-serif",
+          fontSize: "14px",
+          fontStyle: "bold",
+          color: "#ffffff",
+          backgroundColor: "#2e9e5b",
+          padding: { x: 3, y: 0 },
+        })
+        .setOrigin(1, 0)
+        .setDepth(9_500)
+        .setVisible(false),
+    };
+    e.item = item;
+    this.makeClickable(item);
+    this.interactables.push(item);
+  }
+
+  private removeObjectItem(e: { img: Phaser.GameObjects.Image; item: Interactable | null }) {
+    const item = e.item;
+    if (!item) return;
+    item.labelText.destroy();
+    item.check?.destroy();
+    e.img.removeAllListeners().disableInteractive();
+    this.interactables = this.interactables.filter((i) => i !== item);
+    if (this.focused === item) this.focused = null;
+    e.item = null;
+  }
+
+  /** Вид, проходимость и доступность осмотра предметов с состояниями по текущему прогрессу. */
   private syncObjects() {
     if (!this.stateful.length) return;
     const { progress, locationId } = this.host.getState();
     this.objectTiles.clear();
     for (const e of this.stateful) {
-      const st = activeState(e.o, progress, locationId);
-      const sprite = e.o.sprite;
-      const tex = ensureObjectFrameTexture(this.textures, sprite, st?.frame);
+      const view = objectView(e.o, progress, locationId);
+      const spec = SPRITES[e.o.sprite];
+      const tex = ensureObjectFrameTexture(this.textures, e.o.sprite, view.state?.frame);
       if (e.img.texture.key !== tex) e.img.setTexture(tex);
-      if (st?.solid ?? SPRITES[sprite].solid) e.footprint.forEach((t) => this.objectTiles.add(`${t.x},${t.y}`));
+      if (view.state?.solid ?? spec.solid) e.footprint.forEach((t) => this.objectTiles.add(`${t.x},${t.y}`));
+      if (view.interactive && !e.item) this.addObjectItem(e, view.label);
+      else if (!view.interactive) this.removeObjectItem(e);
+      else if (e.item && e.item.label !== view.label) {
+        e.item.label = view.label;
+        e.item.labelText.setText(view.label);
+      }
     }
+    this.refreshChecks();
   }
 
   /** Где должен быть каждый персонаж сейчас: на месте, рядом с игроком или в другой локации. Смена места — ход пешком (`moveTo`). */
