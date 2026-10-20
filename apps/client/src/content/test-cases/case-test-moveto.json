@@ -434,6 +434,31 @@
           "y": 1,
           "label": "",
           "interaction": null
+        },
+        {
+          "id": "obj_test_box",
+          "sprite": "boxes",
+          "x": 15,
+          "y": 14,
+          "label": "[ТЕСТ] Ящик",
+          "interaction": {
+            "title": "Ящик с вещами",
+            "description": "Внутри несколько мелочей: проверка закладок окна осмотра."
+          },
+          "onInteract": [
+            {
+              "type": "addEvidence",
+              "evidenceId": "test_item_a"
+            },
+            {
+              "type": "addEvidence",
+              "evidenceId": "test_item_b"
+            },
+            {
+              "type": "addEvidence",
+              "evidenceId": "test_item_c"
+            }
+          ]
         }
       ],
       "npcs": [
@@ -660,6 +685,81 @@
               "trigger": "enter"
             }
           ]
+        },
+        {
+          "id": "zone_test_modes",
+          "name": "[ТЕСТ] Режимы области",
+          "color": "#c46b9a",
+          "cells": [
+            {
+              "x": 15,
+              "y": 12
+            },
+            {
+              "x": 14,
+              "y": 13
+            }
+          ],
+          "actions": [
+            {
+              "kind": "effects",
+              "trigger": "enter",
+              "effects": [
+                {
+                  "type": "message",
+                  "text": "Область: вход (один раз)"
+                }
+              ]
+            },
+            {
+              "kind": "effects",
+              "trigger": "enterEvery",
+              "effects": [
+                {
+                  "type": "message",
+                  "text": "Область: вход (каждый раз)"
+                },
+                {
+                  "type": "changeVariable",
+                  "variableId": "test_score",
+                  "action": "add",
+                  "value": 1
+                }
+              ]
+            },
+            {
+              "kind": "effects",
+              "trigger": "leave",
+              "effects": [
+                {
+                  "type": "message",
+                  "text": "Область: выход"
+                }
+              ]
+            },
+            {
+              "kind": "effects",
+              "requires": {
+                "flags": [
+                  "test_flag_a"
+                ]
+              },
+              "lockedText": "Нужен «Тест: флаг A» (диалог с Тимуром → новые возможности)",
+              "effects": [
+                {
+                  "type": "message",
+                  "text": "Область: проход по клавише разрешён"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "onEnter": [
+        {
+          "type": "message",
+          "text": "Этаж: первый вход (в том числе старт игры)",
+          "once": true
         }
       ]
     },
@@ -1048,6 +1148,23 @@
             }
           ]
         }
+      ],
+      "onEnter": [
+        {
+          "type": "message",
+          "text": "Вестибюль: вход (каждый раз)"
+        },
+        {
+          "type": "changeVariable",
+          "variableId": "test_entries",
+          "action": "add",
+          "value": 1
+        },
+        {
+          "type": "message",
+          "text": "Вестибюль: первый вход",
+          "once": true
+        }
       ]
     }
   ],
@@ -1346,6 +1463,60 @@
       "relatedCharacters": [],
       "relatedEvents": [],
       "reliability": "high"
+    },
+    {
+      "id": "test_key",
+      "title": "Ключ от кладовки",
+      "description": "Маленький ключ с биркой «кладовка».",
+      "details": "Маленький ключ с биркой «кладовка».",
+      "kind": "item",
+      "subtype": "Ключ",
+      "relatedCharacters": [],
+      "relatedEvents": [],
+      "reliability": "high",
+      "onCollect": [
+        {
+          "type": "message",
+          "text": "Ключ взят: сработало «при получении предмета»",
+          "once": true
+        }
+      ]
+    },
+    {
+      "id": "test_item_a",
+      "title": "Фонарик",
+      "description": "Фонарик, заряда хватит ненадолго.",
+      "details": "Фонарик, заряда хватит ненадолго.",
+      "kind": "item",
+      "subtype": "Предмет",
+      "relatedCharacters": [],
+      "relatedEvents": [],
+      "reliability": "high",
+      "onCollect": []
+    },
+    {
+      "id": "test_item_b",
+      "title": "Скотч",
+      "description": "Рулон строительного скотча.",
+      "details": "Рулон строительного скотча.",
+      "kind": "item",
+      "subtype": "Предмет",
+      "relatedCharacters": [],
+      "relatedEvents": [],
+      "reliability": "high",
+      "onCollect": []
+    },
+    {
+      "id": "test_item_c",
+      "title": "Батарейки",
+      "description": "Две пальчиковые батарейки.",
+      "details": "Две пальчиковые батарейки.",
+      "kind": "item",
+      "subtype": "Предмет",
+      "relatedCharacters": [],
+      "relatedEvents": [],
+      "reliability": "high",
+      "onCollect": []
     }
   ],
   "dialogues": [
@@ -1426,6 +1597,12 @@
               "id": "t_menu",
               "text": "[ТЕСТ] Перемещения персонажей",
               "next": "t_menu"
+            },
+            {
+              "id": "n_menu",
+              "text": "[ТЕСТ] Новые возможности",
+              "next": "n_menu",
+              "effects": []
             }
           ]
         },
@@ -1896,6 +2073,306 @@
               "id": "back_menu",
               "text": "Назад к списку",
               "next": "t_menu"
+            }
+          ]
+        },
+        {
+          "id": "n_menu",
+          "mood": "neutral",
+          "effects": [],
+          "text": "[ТЕСТ] Новые возможности. 1 — эффекты варианта; 2 — перечисление «сейф»; 3 — предмет-ключ; 4 — составное условие; 5 — вход в вестибюль, ошибка в сопоставлении (события); 6 — область «Режимы» рядом со стартом; 7 — ящик с тремя предметами (закладки), диалог, перенос, провал.",
+          "choices": [
+            {
+              "id": "n1",
+              "text": "1. Эффекты варианта: сообщение, разовые очки, бонус по флагу",
+              "next": "n_menu",
+              "effects": [
+                {
+                  "type": "message",
+                  "text": "Эффект варианта сработал"
+                },
+                {
+                  "type": "changeVariable",
+                  "variableId": "test_score",
+                  "action": "add",
+                  "value": 1,
+                  "once": true
+                },
+                {
+                  "type": "changeVariable",
+                  "variableId": "test_score",
+                  "action": "add",
+                  "value": 10,
+                  "requires": {
+                    "flags": [
+                      "test_flag_bonus"
+                    ]
+                  }
+                },
+                {
+                  "type": "changeVariable",
+                  "variableId": "test_flag_bonus",
+                  "action": "on"
+                }
+              ]
+            },
+            {
+              "id": "n1a",
+              "text": "1а. Получить удар (−2; не ниже 0)",
+              "next": "n_menu",
+              "effects": [
+                {
+                  "type": "changeVariable",
+                  "variableId": "test_hp",
+                  "action": "subtract",
+                  "value": 2
+                }
+              ]
+            },
+            {
+              "id": "n1b",
+              "text": "1б. Лечиться (+2; не выше 5)",
+              "next": "n_menu",
+              "effects": [
+                {
+                  "type": "changeVariable",
+                  "variableId": "test_hp",
+                  "action": "add",
+                  "value": 2
+                }
+              ]
+            },
+            {
+              "id": "n2a",
+              "text": "2а. Сейф → открыт",
+              "next": "n_menu",
+              "effects": [
+                {
+                  "type": "changeVariable",
+                  "variableId": "test_safe",
+                  "action": "assign",
+                  "valueId": "open"
+                }
+              ]
+            },
+            {
+              "id": "n2b",
+              "text": "2б. Сейф → сломан",
+              "next": "n_menu",
+              "effects": [
+                {
+                  "type": "changeVariable",
+                  "variableId": "test_safe",
+                  "action": "assign",
+                  "valueId": "broken"
+                }
+              ]
+            },
+            {
+              "id": "n2c",
+              "text": "2в. Сейф → закрыт",
+              "next": "n_menu",
+              "effects": [
+                {
+                  "type": "changeVariable",
+                  "variableId": "test_safe",
+                  "action": "assign",
+                  "valueId": "closed"
+                }
+              ]
+            },
+            {
+              "id": "n2d",
+              "text": "2г. Заглянуть в сейф (только если открыт)",
+              "next": "n_safe",
+              "effects": [],
+              "requires": {
+                "enums": [
+                  {
+                    "enumId": "test_safe",
+                    "in": [
+                      "open"
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "id": "n2e",
+              "text": "2д. Постучать по сейфу (если не открыт)",
+              "next": "n_menu",
+              "effects": [
+                {
+                  "type": "message",
+                  "text": "Сейф заперт или сломан"
+                }
+              ],
+              "requires": {
+                "enums": [
+                  {
+                    "enumId": "test_safe",
+                    "notIn": [
+                      "open"
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "id": "n3a",
+              "text": "3а. Взять ключ от кладовки (предмет, не улика)",
+              "next": "n_menu",
+              "effects": [
+                {
+                  "type": "addEvidence",
+                  "evidenceId": "test_key"
+                }
+              ]
+            },
+            {
+              "id": "n3b",
+              "text": "3б. Открыть кладовку ключом (ключ тратится)",
+              "next": "n_menu",
+              "effects": [
+                {
+                  "type": "removeEvidence",
+                  "evidenceId": "test_key"
+                },
+                {
+                  "type": "message",
+                  "text": "Кладовка открыта, ключ потрачен"
+                }
+              ],
+              "requires": {
+                "evidence": [
+                  "test_key"
+                ]
+              }
+            },
+            {
+              "id": "n3c",
+              "text": "3в. Попросить ключ ещё раз (если ключа нет)",
+              "next": "n_menu",
+              "effects": [
+                {
+                  "type": "message",
+                  "text": "Ключа в деле нет"
+                }
+              ],
+              "requires": {
+                "notEvidence": [
+                  "test_key"
+                ]
+              }
+            },
+            {
+              "id": "n4a",
+              "text": "4а. Поставить «Тест: флаг A»",
+              "next": "n_menu",
+              "effects": [
+                {
+                  "type": "changeVariable",
+                  "variableId": "test_flag_a",
+                  "action": "toggle"
+                }
+              ]
+            },
+            {
+              "id": "n4",
+              "text": "4. Составное: не в вестибюле, (флаг A или ключ), и вариант 1 уже выбирался",
+              "next": "n_menu",
+              "effects": [
+                {
+                  "type": "message",
+                  "text": "Составное условие выполнено"
+                }
+              ],
+              "requires": {
+                "notInLocation": [
+                  "dorm_lobby"
+                ],
+                "chosen": [
+                  {
+                    "dialogueId": "dlg_timur",
+                    "nodeId": "n_menu",
+                    "choiceId": "n1"
+                  }
+                ],
+                "anyOf": [
+                  {
+                    "flags": [
+                      "test_flag_a"
+                    ]
+                  },
+                  {
+                    "evidence": [
+                      "test_key"
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "id": "n7a",
+              "text": "7а. Запустить диалог эффектом (Вика)",
+              "next": "n_menu",
+              "effects": [
+                {
+                  "type": "startDialogue",
+                  "dialogueId": "dlg_vika"
+                }
+              ]
+            },
+            {
+              "id": "n7b",
+              "text": "7б. Перенести игрока в вестибюль эффектом",
+              "next": "n_menu",
+              "effects": [
+                {
+                  "type": "travel",
+                  "locationId": "dorm_lobby",
+                  "x": 11,
+                  "y": 8
+                }
+              ]
+            },
+            {
+              "id": "n7c",
+              "text": "7в. Провалить дело (окно «Дело провалено»)",
+              "next": "n_menu",
+              "effects": [
+                {
+                  "type": "failCase",
+                  "text": "Тестовый провал: вас заметил комендант."
+                }
+              ]
+            },
+            {
+              "id": "n_back",
+              "text": "← Назад",
+              "next": "start",
+              "effects": []
+            }
+          ]
+        },
+        {
+          "id": "n_safe",
+          "mood": "neutral",
+          "effects": [],
+          "text": "В сейфе лежит пачка бумаг.",
+          "choices": [
+            {
+              "id": "n_safe_back",
+              "text": "Закрыть сейф",
+              "next": "n_menu",
+              "effects": [
+                {
+                  "type": "changeVariable",
+                  "variableId": "test_safe",
+                  "action": "assign",
+                  "valueId": "closed"
+                }
+              ]
             }
           ]
         }
@@ -2819,6 +3296,18 @@
           "variableId": "d_absent",
           "action": "on"
         }
+      ],
+      "failEffects": [
+        {
+          "type": "changeVariable",
+          "variableId": "test_errors",
+          "action": "add",
+          "value": 1
+        },
+        {
+          "type": "message",
+          "text": "Ошибка в сопоставлении: сработали эффекты ошибки"
+        }
       ]
     },
     {
@@ -3403,6 +3892,14 @@
     {
       "id": "test_fridge_seen",
       "name": "[ТЕСТ] Холодильник осмотрен"
+    },
+    {
+      "id": "test_flag_a",
+      "name": "Тест: флаг A"
+    },
+    {
+      "id": "test_flag_bonus",
+      "name": "Тест: бонус получен"
     }
   ],
   "lawReference": {
@@ -3480,6 +3977,46 @@
       "id": "test_trust",
       "name": "[ТЕСТ] Доверие",
       "initial": 1
+    },
+    {
+      "id": "test_score",
+      "name": "Тест: очки"
+    },
+    {
+      "id": "test_hp",
+      "name": "Тест: здоровье (0…5)",
+      "initial": 3,
+      "min": 0,
+      "max": 5
+    },
+    {
+      "id": "test_entries",
+      "name": "Тест: входы в вестибюль"
+    },
+    {
+      "id": "test_errors",
+      "name": "Тест: ошибки сопоставления"
+    }
+  ],
+  "enums": [
+    {
+      "id": "test_safe",
+      "name": "Тест: сейф",
+      "values": [
+        {
+          "id": "closed",
+          "name": "Закрыт"
+        },
+        {
+          "id": "open",
+          "name": "Открыт"
+        },
+        {
+          "id": "broken",
+          "name": "Сломан"
+        }
+      ],
+      "initial": "closed"
     }
   ]
 }

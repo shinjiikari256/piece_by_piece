@@ -4,6 +4,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { validateCase } from "./content/validate";
 import { scoreCase } from "../../../shared/scoring";
 import { actions, store } from "./state/store";
+import testCaseJson from "./content/test-cases/case-test-moveto.json";
 import { isSaveOutdated, listSaves, readSave } from "./state/persistence";
 import { objectEvidenceIds, type CaseFile, type Effect } from "../../../shared/case";
 import { LocalAuthority } from "./content/local-authority";
@@ -1026,5 +1027,51 @@ describe("осмотр предмета с несколькими уликами
     actions.interact("obj_computer");
     const again = store.get().overlay;
     expect(again?.kind === "object" && again.gained).toEqual([]);
+  });
+});
+
+describe("тестовое дело: ветка «Новые возможности»", () => {
+  it("сценарии 1–4 и 7 проходятся: эффекты варианта, сейф, ключ, составное условие, провал", () => {
+    const c = validateCase(structuredClone(testCaseJson) as unknown as CaseFile);
+    if (!c.ok) throw new Error(c.errors.join("; "));
+    setPlatform(createMemoryPlatform());
+    actions.openCase(new LocalAuthority(c.caseFile));
+    actions.beginInvestigation();
+    const p = () => store.get().progress;
+    actions.interact("npc_timur");
+    actions.choose("n_menu");
+    // 1. разовые очки, бонус по условию, границы счётчика
+    actions.choose("n1");
+    expect(p().counters.test_score).toBe(1);
+    actions.choose("n1");
+    expect(p().counters.test_score).toBe(11); // разовый +1 не повторился, +10 по флагу сработал
+    actions.choose("n1a");
+    actions.choose("n1a");
+    expect(p().counters.test_hp).toBe(0);
+    actions.choose("n1b");
+    actions.choose("n1b");
+    actions.choose("n1b");
+    expect(p().counters.test_hp).toBe(5);
+    // 2. сейф
+    expect(actions.isChoiceVisible({ requires: { enums: [{ enumId: "test_safe", in: ["open"] }] } })).toBe(false);
+    actions.choose("n2a");
+    expect(p().enums.test_safe).toBe("open");
+    actions.choose("n2d");
+    expect(store.get().overlay).toMatchObject({ nodeId: "n_safe" });
+    actions.choose("n_safe_back");
+    expect(p().enums.test_safe).toBe("closed");
+    // 3. ключ: предмет в деле, но не улика; расходуется
+    actions.choose("n3a");
+    expect(p().collected).toContain("test_key");
+    actions.choose("n3b");
+    expect(p().collected).not.toContain("test_key");
+    // 4. составное условие: вариант 1 уже выбирался и вне вестибюля, нужен флаг A или ключ
+    const compound = c.caseFile.dialogues.find((d) => d.id === "dlg_timur")!.nodes.find((n) => n.id === "n_menu")!.choices.find((x) => x.id === "n4")!;
+    expect(actions.isChoiceVisible(compound)).toBe(false);
+    actions.choose("n4a");
+    expect(actions.isChoiceVisible(compound)).toBe(true);
+    // 7. провал дела
+    actions.choose("n7c");
+    expect(store.get().overlay).toMatchObject({ kind: "failed" });
   });
 });
