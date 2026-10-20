@@ -1,8 +1,4 @@
 .timeline {
-  --head: 3.2rem;
-  --lane: 8rem;
-  --lanes: 1; /* задаёт разметка */
-  --lane-n: 0;
   display: flex;
   flex-direction: column;
   gap: 0.8rem;
@@ -14,28 +10,31 @@
   flex-wrap: wrap;
   gap: 0.6rem;
 }
-.timeline__zoom {
-  display: flex;
-  align-items: center;
-  gap: 0.35rem;
-  margin-left: auto;
-  font-size: var(--fs-sm);
-  color: var(--text-muted);
-}
-.timeline__scroll {
-  overflow-x: auto;
-  padding-bottom: 0.4rem;
+.timeline__daycard {
+  padding: 0.6rem 0.8rem 0.8rem;
   border: 1px solid var(--border);
   border-radius: 8px;
   background: var(--bg-surface);
 }
+.timeline__daytitle {
+  margin: 0 0 0.4rem;
+  font-size: var(--fs-md);
+}
 .timeline__plot {
+  --head: 1.6rem; /* ось с часами */
+  --band-h: 1.6rem;
+  --lane-h: 7.4rem;
+  --bands: 0; /* число полос и дорожек задаёт разметка */
+  --lanes: 1;
+  --band-n: 0;
+  --lane-n: 0;
+  --cards-top: calc(var(--head) + var(--bands) * var(--band-h) + 0.3rem);
   position: relative;
-  min-width: 100%;
-  height: calc(var(--head) + var(--lanes) * var(--lane) + 0.5rem);
+  width: 100%;
+  height: calc(var(--cards-top) + var(--lanes) * var(--lane-h));
 }
 
-/* метки времени на оси и линии сетки */
+/* ось суток: часы и линии сетки */
 .timeline__tick {
   position: absolute;
   top: 0;
@@ -43,53 +42,60 @@
   width: 0;
   border-left: 1px dotted var(--border-strong);
 }
-.timeline__day,
-.timeline__clock {
+.timeline__tick span {
   position: absolute;
-  left: 0.3rem;
-  white-space: nowrap;
-}
-.timeline__day {
-  top: 0.25rem;
-  font-size: var(--fs-sm);
-  font-weight: 700;
-}
-.timeline__clock {
-  top: 1.55rem;
+  top: 0;
+  left: 0.25rem;
   font-family: var(--font-mono);
   font-size: var(--fs-sm);
   color: var(--text-muted);
 }
-.timeline__break {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  padding-bottom: 0.3rem;
-  white-space: nowrap;
-  border-inline: 1px solid var(--border);
-  font-size: var(--fs-sm);
-  color: var(--text-muted);
+.timeline__tick[data-end] {
+  border-left: 0;
+  border-right: 1px dotted var(--border-strong);
+}
+.timeline__tick[data-end] span {
+  left: auto;
+  right: 0.25rem;
 }
 
-/* полоса события: точка у момента, вытянутая — у того, что длилось */
-.timeline__span {
+/* полоса: событие длилось или относится ко всему дню */
+.timeline__band {
   position: absolute;
-  top: calc(var(--head) + var(--lane) * var(--lane-n) + 0.4rem);
-  height: 0.5rem;
-  min-width: 0.5rem;
-  background: var(--accent);
-  border-radius: 3px 3px 0 0;
+  top: calc(var(--head) + var(--band-n) * var(--band-h));
+  height: calc(var(--band-h) - 0.25rem);
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  padding: 0 0.5rem;
+  text-align: left;
+  font-size: var(--fs-sm);
+  background: var(--accent-soft);
+  border: 1px solid var(--accent);
+  border-radius: 4px;
 }
-.timeline__span[data-selected] {
+.timeline__band[data-selected] {
+  background: var(--accent-line);
+}
+
+/* маркер на оси и карточка под ним */
+.timeline__marker {
+  position: absolute;
+  top: calc(var(--cards-top) + var(--lane-n) * var(--lane-h));
+  width: 0.5rem;
+  height: 0.5rem;
+  margin-left: -0.25rem;
+  background: var(--accent);
+  border-radius: 50% 50% 0 0;
+}
+.timeline__marker[data-selected] {
   background: var(--accent-strong);
 }
 .timeline__card {
   position: absolute;
-  top: calc(var(--head) + var(--lane) * var(--lane-n) + 0.9rem);
-  height: calc(var(--lane) - 1.5rem);
+  top: calc(var(--cards-top) + var(--lane-n) * var(--lane-h) + 0.5rem);
+  height: calc(var(--lane-h) - 1rem);
+  box-sizing: border-box;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -100,7 +106,7 @@
   background: var(--bg-paper-dim);
   border: 1px solid var(--border);
   border-top: 2px solid var(--accent);
-  border-radius: 0 6px 6px 6px;
+  border-radius: 0 0 6px 6px;
 }
 .timeline__card[data-selected] {
   border-color: var(--accent);
@@ -113,7 +119,7 @@
 }
 .timeline__title {
   display: -webkit-box;
-  -webkit-line-clamp: 4;
+  -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
   font-size: var(--fs-md);

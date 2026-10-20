@@ -92,9 +92,14 @@ export function isEventKnown(c: Pick<CaseFile, "evidence">, ev: CaseEvent, p: Pr
   return !ev.requires || meets(ev.requires, p, locationId);
 }
 
+/** Год для событий без года: из настроек дела, иначе самый ранний из заданных. */
+export function eventYear(c: { events: { at: string; until?: string }[]; settings?: { timelineYear?: number } }): number {
+  return c.settings?.timelineYear ?? defaultEventYear(c.events);
+}
+
 /** События, известные игроку, по порядку времени (при равенстве — как в деле). */
-export function knownEvents(c: Pick<CaseFile, "evidence" | "events">, p: Progress, locationId?: string): CaseEvent[] {
-  const year = defaultEventYear(c.events);
+export function knownEvents(c: Pick<CaseFile, "evidence" | "events" | "settings">, p: Progress, locationId?: string): CaseEvent[] {
+  const year = eventYear(c);
   return c.events
     .map((ev, i) => ({ ev, i }))
     .filter(({ ev }) => isEventKnown(c, ev, p, locationId))

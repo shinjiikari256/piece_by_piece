@@ -1,26 +1,24 @@
-import { useMemo, useState } from "react";
-import type { CaseEvent } from "../../../../../shared/case";
-import { defaultEventYear, eventSpan, formatEventTime, knownEvents } from "../../../../../shared/events";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { eventYear, formatEventTime, knownEvents } from "../../../../../shared/events";
 import { resolveLook } from "../../game/art";
 import { useGame } from "../../state/store";
 import { Portrait } from "../panels";
 import { Select } from "../Select";
-import { layoutTimeline, TIMELINE_DEFAULTS } from "./timeline-layout";
+import { buildDays, DAY, layoutDay, type Day, type DayCard, type DayEntry } from "./timeline-layout";
 import { useCase } from "./index";
 import "./timeline.css";
 
 // ---------- Хронология ----------
 
-const ZOOM = [1.5, 3, 6, 12];
-const MONTHS = ["янв", "фев", "мар", "апр", "мая", "июн", "июл", "авг", "сен", "окт", "ноя", "дек"];
+const MONTHS = ["января", "февраля", "марта", "апреля", "мая", "июня", "июля", "августа", "сентября", "октября", "ноября", "декабря"];
+const CARD_WIDTH = 176;
 const pad = (n: number) => String(n).padStart(2, "0");
 
-/** События, о которых игрок уже узнал, на шкале времени: моменты — метки, события, которые длились, — полосы. */
+/** Дни, в которых что-то известно: у каждого своя шкала на 24 часа; события без времени и длящиеся — полосами. */
 export function TimelineTab() {
   const caseFile = useCase();
   const progress = useGame((s) => s.progress);
   const locationId = useGame((s) => s.locationId);
-  const [zoom, setZoom] = useState(1);
   const [person, setPerson] = useState("all");
   const [selected, setSelected] = useState<string | null>(null);
 
@@ -36,28 +34,18 @@ export function TimelineTab() {
   const people = caseFile.characters.filter((c) => known.some((ev) => links.get(ev.id)?.people.includes(c.id)));
   const shown = person === "all" ? known : known.filter((ev) => links.get(ev.id)?.people.includes(person));
 
-  const year = useMemo(() => defaultEventYear(caseFile.events), [caseFile.events]);
-  const layout = useMemo(() => layoutTimeline(shown.map((ev) => eventSpan(ev, year)), { pxPerMin: ZOOM[zoom] }), [shown, year, zoom]);
+  const year = eventYear(caseFile);
+  const days = useMemo(() => buildDays(shown, year), [shown, year]);
 
   if (!known.length) return <p className="empty">Пока ни одно событие не установлено. Находки и разговоры дополняют хронологию.</p>;
 
-  const tickLabel = (minute: number) => {
-    const d = new Date(minute * 60000);
-    return { day: `${d.getUTCDate()} ${MONTHS[d.getUTCMonth()]}`, clock: `${pad(d.getUTCHours())}:${pad(d.getUTCMinutes())}` };
-  };
-  // подпись времени пропускаем, если она налезает на предыдущую
-  let lastLabelX = -Infinity;
-  const ticks = layout.ticks.map((t) => {
-    const show = t.x - lastLabelX >= 56;
-    if (show) lastLabelX = t.x;
-    return { ...t, show, ...tickLabel(t.minute) };
-  });
   const current = shown.find((ev) => ev.id === selected);
+  const toggle = (id: string) => setSelected(id === selected ? null : id);
 
   return (
     <div className="timeline">
-      <div className="timeline__tools">
-        {people.length > 0 && (
+      {people.length > 0 && (
+        <div className="timeline__tools">
           <Select
             variant="filter"
             label="Фигурант"
@@ -66,34 +54,13 @@ export function TimelineTab() {
             onChange={setPerson}
             options={[{ value: "all", label: "все" }, ...people.map((c) => ({ value: c.id, label: c.name, art: <Portrait look={resolveLook(c)} /> }))]}
           />
-        )}
-        <span className="timeline__zoom">
-          Масштаб
-          <button className="btn btn--sm btn--icon" aria-label="Мельче" disabled={zoom === 0} onClick={() => setZoom(zoom - 1)}>−</button>
-          <button className="btn btn--sm btn--icon" aria-label="Крупнее" disabled={zoom === ZOOM.length - 1} onClick={() => setZoom(zoom + 1)}>+</button>
-        </span>
-      </div>
+        </div>
+      )}
 
-      {shown.length === 0 ? (
+      {days.length === 0 ? (
         <p className="empty">У выбранного человека нет известных событий.</p>
       ) : (
-        <div className="timeline__scroll">
-          <div className="timeline__plot" style={{ width: layout.width, ["--lanes" as string]: layout.lanes }}>
-            {layout.breaks.map((b) => (
-              <div key={b.x} className="timeline__break" style={{ left: b.x, width: b.width }} />
-            ))}
-            {ticks.map((t) => (
-              <div key={t.minute} className="timeline__tick" style={{ left: t.x }}>
-                {t.show && t.newDay && <span className="timeline__day">{t.day}</span>}
-                {t.show && <span className="timeline__clock">{t.clock}</span>}
-              </div>
-            ))}
-            {layout.placed.map((p) => {
-              const ev = shown[p.index];
-              return <Entry key={ev.id} ev={ev} x0={p.x0} x1={p.x1} lane={p.lane} selected={ev.id === selected} onSelect={() => setSelected(ev.id === selected ? null : ev.id)} />;
-            })}
-          </div>
-        </div>
+        days.map((d) => <DayCard key={d.start} day={d} selected={selected} onSelect={toggle} />)
       )}
 
       {current && (
@@ -118,15 +85,72 @@ export function TimelineTab() {
   );
 }
 
-function Entry({ ev, x0, x1, lane, selected, onSelect }: { ev: CaseEvent; x0: number; x1: number; lane: number; selected: boolean; onSelect: () => void }) {
-  const range = x1 > x0;
+function useWidth() {
+  const ref = useRef<HTMLDivElement>(null);
+  const [width, setWidth] = useState(640);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const read = () => setWidth(Math.max(160, Math.round(el.clientWidth)));
+    read();
+    const ro = new ResizeObserver(read);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+  return [ref, width] as const;
+}
+
+function dayTitle(day: Day): string {
+  const d = new Date(day.start * 60000);
+  const explicit = day.entries.some((e) => /^\d{4}-/.test(e.ev.at) || (e.ev.until && /^\d{4}-/.test(e.ev.until)));
+  return `${d.getUTCDate()} ${MONTHS[d.getUTCMonth()]}${explicit ? ` ${d.getUTCFullYear()}` : ""}`;
+}
+
+function cardWhen(e: DayEntry, c: DayCard): string {
+  const t = formatEventTime(c.kind === "end" ? e.ev.until! : e.ev.at).match(/\d{2}:\d{2}$/)?.[0];
+  if (c.kind === "end") return t ? `до ${t}` : "конец";
+  if (c.kind === "start") return t ? `с ${t}` : "начало";
+  return t ?? "весь день";
+}
+
+function DayCard({ day, selected, onSelect }: { day: Day; selected: string | null; onSelect: (id: string) => void }) {
+  const [ref, width] = useWidth();
+  const layout = useMemo(() => layoutDay(day.entries, width, CARD_WIDTH), [day, width]);
+  const step = width < 520 ? 6 : 3;
+  const hours = Array.from({ length: 24 / step + 1 }, (_, i) => i * step);
+  const card = Math.min(CARD_WIDTH, width);
   return (
-    <>
-      <div className="timeline__span" data-range={range || undefined} data-selected={selected || undefined} style={{ left: x0, width: Math.max(x1 - x0, 0), ["--lane-n" as string]: lane }} />
-      <button className="timeline__card" data-selected={selected || undefined} aria-pressed={selected} style={{ left: x0, width: TIMELINE_DEFAULTS.cardWidth, ["--lane-n" as string]: lane }} onClick={onSelect} title={ev.title}>
-        <span className="timeline__when">{formatEventTime(ev.at, ev.until)}</span>
-        <span className="timeline__title">{ev.title}</span>
-      </button>
-    </>
+    <section className="timeline__daycard">
+      <h3 className="timeline__daytitle">{dayTitle(day)}</h3>
+      <div ref={ref} className="timeline__plot" style={{ ["--bands" as string]: layout.bandRows, ["--lanes" as string]: layout.lanes }}>
+        {hours.map((h) => (
+          <div key={h} className="timeline__tick" data-end={h === 24 || undefined} style={{ left: (h * 60 * width) / DAY }}>
+            <span>{pad(h)}:00</span>
+          </div>
+        ))}
+        {layout.bands.map((b) => {
+          const e = day.entries[b.entry];
+          return (
+            <button key={`b${b.entry}`} className="timeline__band" data-selected={selected === e.ev.id || undefined} style={{ left: b.x0, width: Math.max(b.x1 - b.x0, 4), ["--band-n" as string]: b.row }} onClick={() => onSelect(e.ev.id)} title={e.ev.title}>
+              <span className="ellipsis">{e.ev.title}</span>
+            </button>
+          );
+        })}
+        {layout.cards.map((p) => {
+          const e = day.entries[p.entry];
+          const c = e.cards[p.card];
+          const sel = selected === e.ev.id || undefined;
+          return (
+            <div key={`${p.entry}:${p.card}`}>
+              <span className="timeline__marker" data-selected={sel} style={{ left: p.marker, ["--lane-n" as string]: p.lane }} />
+              <button className="timeline__card" data-selected={sel} aria-pressed={!!sel} style={{ left: p.left, width: card, ["--lane-n" as string]: p.lane }} onClick={() => onSelect(e.ev.id)} title={e.ev.title}>
+                <span className="timeline__when">{cardWhen(e, c)}</span>
+                <span className="timeline__title">{e.ev.title}</span>
+              </button>
+            </div>
+          );
+        })}
+      </div>
+    </section>
   );
 }

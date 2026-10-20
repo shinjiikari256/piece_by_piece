@@ -583,6 +583,7 @@ export const CaseFile = z.object({
     .describe("Бонус за скорость: время считается от начала расследования"),
   settings: z
     .object({
+      timelineYear: z.number().int().min(1).max(9999).optional().describe("Год для событий без года: на хронологии не показывается"),
       timeline: z.boolean().optional().describe("Показывать игроку вкладку «Хронология». Пусто — показывать, если в деле есть события"),
     })
     .optional()

@@ -72,6 +72,7 @@ export function locateError(message: string, c: CaseFile): LocatedError {
   if (/^hints?\b/.test(message)) return make("hints");
   if (/^questions/.test(message)) return make("questions");
   if (/^solution/.test(message)) return make("solution");
+  if (/^settings/.test(message)) return make("settings");
   if (/^lawReference/.test(message)) return make("law");
   if ((m = message.match(/^flags: у флага «([^»]+)»/))) return make("flags", { id: m[1] });
   if (/^flags/.test(message)) return make("flags");
@@ -88,7 +89,7 @@ export function locateError(message: string, c: CaseFile): LocatedError {
 const WORDS: Record<string, string> = {
   dialogue: "диалог", dialogues: "диалоги", evidence: "улика", deduction: "сопоставление", deductions: "сопоставления",
   question: "вопрос", questions: "вопросы", flag: "флаг", counter: "счётчик", flags: "флаги", counters: "счётчики", enum: "перечисление", enums: "перечисления",
-  location: "локация", locations: "локации", characters: "персонажи", events: "события", hints: "подсказки", solution: "решение",
+  location: "локация", locations: "локации", characters: "персонажи", events: "события", settings: "настройки", hints: "подсказки", solution: "решение",
   lawReference: "закон", timeBonus: "бонус за время", object: "предмет", zone: "область", door: "дверь", npc: "человек",
   moveTo: "перемещение", addEvidence: "выдача улики", spawn: "точка появления", playerStart: "старт игрока", startNodeId: "первая реплика", speaker: "говорящий", requires: "условие", choices: "варианты ответа",
 };

@@ -17,6 +17,24 @@ export function SettingsSection() {
         />
         Хронология в журнале
       </label>
+      {on && (
+        <label className="labeled">
+          <span>Базовый год событий</span>
+          <input
+            type="number"
+            min={1}
+            max={9999}
+            value={draft.settings?.timelineYear ?? ""}
+            placeholder="по самому раннему событию"
+            onChange={(e) => {
+              const { timelineYear: _y, ...rest } = draft.settings ?? {};
+              const n = Math.round(Number(e.target.value));
+              editor.update((d) => ({ ...d, settings: e.target.value === "" || !(n >= 1) ? rest : { ...rest, timelineYear: Math.min(9999, n) } }), "settings");
+            }}
+          />
+          <span className="ef__hint">Год для событий, у которых он не указан. На хронологии не показывается.</span>
+        </label>
+      )}
       <TimeBonus draft={draft} />
       {on && !timelineEnabled(draft) && <p className="muted">Вкладка появится, когда в деле будет хотя бы одно событие.</p>}
     </section>
