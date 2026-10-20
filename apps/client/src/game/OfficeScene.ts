@@ -1,7 +1,6 @@
 import Phaser from "phaser";
 import { isInteractive, type Location, type LocationObject } from "../../../../shared/case";
 import type { PublicCase as CaseFile } from "../../../../shared/public-case";
-import { meets } from "../../../../shared/conditions";
 import type { ClipStep, ObjectState } from "../../../../shared/case";
 import { effectSites } from "../../../../shared/effect-sites";
 import { DEFAULT_STATE, clipFrameAt, findAction, findTransition, loopFrameAt, timerActive, timerDelay } from "../../../../shared/object-anim";
@@ -9,7 +8,6 @@ import { objectView } from "../../../../shared/object-state";
 import { firstFloorCell, getLocation } from "../content/case-utils";
 import {
   BASE_TILE,
-  CHAR_H,
   SCALE,
   SPRITES,
   footprintCells,
@@ -21,18 +19,17 @@ import {
 import { gameBridge } from "./bridge";
 import type { SceneHost } from "./host";
 import { collides, findPath, nearestFree, reachWithin, slideShift, type IsFree, type Tile } from "./scene/navigation";
-import { redirect, startWalk, stepWalk, tileOfPoint, turnBack } from "./scene/walker";
 import { ensureCharacterTextures, ensureExitTextures, ensureObjectFrameTexture, ensureObjectTextures } from "./scene/textures";
+import { NpcCrowd, tileOfSprite } from "./scene/npcs";
+import { SPEED } from "./scene/consts";
 import type { Interactable, Npc } from "./scene/types";
 
-const SPEED = 150; // px/с в мировых координатах
 const INTERACT_RANGE = TILE * 1.75;
 /** Условное «расстояние» до области, в которой стоит игрок: ближе — персонаж или предмет рядом, дальше — область. */
 const ZONE_RANGE = TILE * 1.5;
 const INTERACT_KEYS = new Set(["KeyE", "Enter", "NumpadEnter", "Space"]);
 const UI_TARGETS = "button, input, textarea, select, a, [contenteditable]";
 
-const FOLLOW_GAP = TILE * 1.1;
 /** Минимальный размер клетки на экране (px), ниже которого включается следящая камера. */
 const MIN_TILE_PX = 40;
 
@@ -68,8 +65,6 @@ export class OfficeScene extends Phaser.Scene {
   private caseFile!: CaseFile;
   private location!: Location;
   private solid: boolean[][] = [];
-  /** Клетки, занятые стоящими NPC (они меняются по ходу игры). */
-  private npcTiles = new Set<string>();
   /** Путь игрока — по нему идут сопровождающие. */
   private trail: { x: number; y: number }[] = [];
   private leaving = false;
@@ -79,7 +74,7 @@ export class OfficeScene extends Phaser.Scene {
   private player!: Phaser.GameObjects.Sprite;
   private keys!: Record<"up" | "down" | "left" | "right" | "w" | "a" | "s" | "d", Phaser.Input.Keyboard.Key>;
   private interactables: Interactable[] = [];
-  private npcs = new Map<string, Npc>();
+  private crowd!: NpcCrowd;
   private path: { x: number; y: number }[] = [];
   private pendingInteraction: string | null = null;
   private hadOverlay = false;
@@ -103,8 +98,6 @@ export class OfficeScene extends Phaser.Scene {
     this.interactables = [];
     this.stateful = [];
     this.objectTiles = new Set();
-    this.npcs = new Map();
-    this.npcTiles = new Set();
     this.trail = [];
     this.path = [];
     this.focused = null;
@@ -119,7 +112,8 @@ export class OfficeScene extends Phaser.Scene {
     this.buildObjects();
     this.buildZones();
     this.buildPlayer();
-    this.syncNpcs();
+    this.crowd = this.makeCrowd();
+    this.crowd.sync();
     this.fitCamera();
     this.scale.on(Phaser.Scale.Events.RESIZE, this.fitCamera, this);
     this.cameras.main.fadeIn(200, 43, 35, 28);
@@ -189,7 +183,7 @@ export class OfficeScene extends Phaser.Scene {
         else if (!this.host.isBlocked()) this.host.releaseFollowers();
       },
       whereIs: (characterId) => {
-        const npc = this.npcs.get(characterId);
+        const npc = this.crowd.npcs.get(characterId);
         if (!npc) return undefined;
         const x = Math.floor(npc.sprite.x / TILE);
         const y = Math.floor((npc.sprite.y - 2) / TILE);
@@ -256,6 +250,28 @@ export class OfficeScene extends Phaser.Scene {
         .setAlpha(0.35)
         .setDepth(0);
     }
+  }
+
+  /** Люди на карте живут в `NpcCrowd`; сцена даёт им только то, что нужно (мир, игрока, список взаимодействий). */
+  private makeCrowd() {
+    // eslint-disable-next-line @typescript-eslint/no-this-alias
+    const scene = this;
+    return new NpcCrowd({
+      scene,
+      get host() { return scene.host; },
+      get caseFile() { return scene.caseFile; },
+      get location() { return scene.location; },
+      get player() { return scene.player; },
+      get trail() { return scene.trail; },
+      isFree: (x, y) => scene.isFree(x, y),
+      makeLabel: (text) => scene.makeLabel(text),
+      makeClickable: (item) => scene.makeClickable(item),
+      addInteractable: (item) => void scene.interactables.push(item),
+      removeInteractable: (item) => {
+        scene.interactables = scene.interactables.filter((i) => i !== item);
+        if (scene.focused === item) scene.focused = null;
+      },
+    });
   }
 
   private makeLabel(text: string) {
@@ -409,251 +425,6 @@ export class OfficeScene extends Phaser.Scene {
     this.host.onInteract(id);
   }
 
-  /** Где должен быть каждый персонаж сейчас: на месте, рядом с игроком или в другой локации. Смена места — ход пешком (`moveTo`). */
-  private syncNpcs() {
-    const { progress } = this.host.getState();
-    const wanted = new Map<string, { mode: "static" | "follower"; tile: { x: number; y: number }; failText?: string }>();
-    const hidden = new Set<string>();
-    for (const loc of this.caseFile.locations) {
-      for (const n of loc.npcs) {
-        if (progress.followers.includes(n.characterId)) {
-          wanted.set(n.characterId, { mode: "follower", tile: this.tileOf(this.player) });
-          continue;
-        }
-        // условие присутствия не выполнено — человека на карте нет (исчезает сразу, без хода к выходу)
-        if (!meets(n.requires, progress, this.location.id)) {
-          hidden.add(n.characterId);
-          continue;
-        }
-        const place = progress.npcPlaces[n.characterId] ?? { locationId: loc.id, x: n.x, y: n.y };
-        if (place.locationId === this.location.id) wanted.set(n.characterId, { mode: "static", tile: place, failText: place.failText });
-      }
-    }
-
-    for (const [characterId, npc] of this.npcs) {
-      const want = wanted.get(characterId);
-      if (hidden.has(characterId)) {
-        this.removeNpc(npc);
-        continue;
-      }
-      if (!want) {
-        // место теперь в другой локации: идёт к выходу и уходит
-        if (!(npc.mode === "walker" && npc.walk?.leaving)) this.leaveLocation(npc, progress.npcPlaces[characterId]);
-        continue;
-      }
-      if (want.mode === "follower") {
-        if (npc.mode !== "follower") {
-          this.npcTiles.delete(`${npc.tile.x},${npc.tile.y}`);
-          npc.walk = undefined;
-          npc.mode = "follower";
-        }
-        continue;
-      }
-      const here = this.tileOf(npc.sprite);
-      if (npc.mode === "walker") {
-        if (!npc.walk?.leaving && npc.walk?.goal.x === want.tile.x && npc.walk.goal.y === want.tile.y) continue; // идёт туда же
-        this.beginMove(npc, want.tile, want.failText);
-      } else if (npc.mode === "follower") {
-        // перестал идти следом: остался там, где стоит, или пошёл на своё место
-        if (here.x === want.tile.x && here.y === want.tile.y) {
-          npc.mode = "static";
-          this.placeNpc(npc, here);
-        } else this.beginMove(npc, want.tile, want.failText);
-      } else if (npc.tile.x !== want.tile.x || npc.tile.y !== want.tile.y) {
-        this.beginMove(npc, want.tile, want.failText);
-      }
-    }
-    for (const [characterId, want] of wanted) {
-      if (this.npcs.has(characterId)) continue;
-      const npcDef = this.location.npcs.find((n) => n.characterId === characterId) ??
-        this.caseFile.locations.flatMap((l) => l.npcs).find((n) => n.characterId === characterId)!;
-      const tile = want.mode === "follower" ? this.freeTileNear(this.tileOf(this.player)) : want.tile;
-      this.addNpc(npcDef.id, characterId, tile, want.mode);
-    }
-  }
-
-  // ---------- ход персонажа (moveTo) ----------
-
-  /** Свободна ли клетка для идущего персонажа: как для игрока, но и сам игрок на клетке — помеха. */
-  private walkFree: IsFree = (x, y) => {
-    const p = this.tileOf(this.player);
-    return this.isFree(x, y) && !(p.x === x && p.y === y);
-  };
-
-  /** Начать ход к клетке (или перестроить текущий). Пути нет сейчас — персонаж остаётся и «ругается». */
-  private beginMove(npc: Npc, goal: { x: number; y: number }, failText?: string) {
-    const from = this.tileOf(npc.sprite);
-    this.npcTiles.delete(`${npc.tile.x},${npc.tile.y}`);
-    this.npcTiles.add(`${from.x},${from.y}`); // стоит на своей клетке, пока идёт
-    npc.tile = from;
-    const ok = npc.walk ? redirect(npc.walk, this.walkFree, from, goal, { failText }) : (npc.walk = startWalk(this.walkFree, from, goal, { failText }) ?? undefined) !== undefined;
-    if (!ok) {
-      this.say(npc, failText);
-      this.settle(npc, from);
-      return;
-    }
-    npc.mode = "walker";
-  }
-
-  /** Место персонажа теперь в другой локации: идёт к ближайшему выходу в ту сторону и исчезает с карты. */
-  private leaveLocation(npc: Npc, place: { locationId: string; failText?: string } | undefined) {
-    const exit = place ? this.exitToward(place.locationId) : null;
-    if (!exit) return this.removeNpc(npc);
-    const from = this.tileOf(npc.sprite);
-    this.npcTiles.delete(`${npc.tile.x},${npc.tile.y}`);
-    this.npcTiles.add(`${from.x},${from.y}`);
-    npc.tile = from;
-    const walk = startWalk(this.walkFree, from, exit.cells, { leaving: true, failText: place?.failText });
-    if (!walk) {
-      this.say(npc, place?.failText);
-      this.settle(npc, from);
-      return;
-    }
-    npc.walk = walk;
-    npc.mode = "walker";
-  }
-
-  /** Первая область-выход этой локации на кратчайшем пути в локацию `target` (по действиям `exit`); null — пути нет. */
-  private exitToward(target: string) {
-    const exitsOf = (loc: Location) => loc.zones.flatMap((zone) => zone.actions.flatMap((a) => (a.kind === "exit" ? [{ zone, to: a.to }] : [])));
-    const seen = new Set([this.location.id]);
-    const queue = exitsOf(this.location).map((first) => ({ at: first.to, first: first.zone }));
-    while (queue.length) {
-      const { at, first } = queue.shift()!;
-      if (seen.has(at)) continue;
-      seen.add(at);
-      if (at === target) return first;
-      const loc = this.caseFile.locations.find((l) => l.id === at);
-      if (loc) for (const e of exitsOf(loc)) queue.push({ at: e.to, first });
-    }
-    return null;
-  }
-
-  /** Персонаж остановился на клетке: стоит там, а стор узнаёт его настоящее место (дошёл, вернулся или остался). */
-  private settle(npc: Npc, tile: { x: number; y: number }) {
-    npc.mode = "static";
-    npc.walk = undefined;
-    this.placeNpc(npc, tile);
-    const def = this.caseFile.locations.flatMap((l) => l.npcs.map((n) => ({ locationId: l.id, ...n }))).find((n) => n.characterId === npc.characterId);
-    const home = def && def.locationId === this.location.id && def.x === tile.x && def.y === tile.y;
-    const saved = this.host.getState().progress.npcPlaces[npc.characterId];
-    const same = home ? !saved : !!saved && saved.locationId === this.location.id && saved.x === tile.x && saved.y === tile.y;
-    if (!same) this.host.setNpcPlace(npc.characterId, home ? null : { locationId: this.location.id, x: tile.x, y: tile.y });
-  }
-
-  /** Реплики, сказанные, пока поверх сцены было окно: покажем, когда оно закроется. */
-  private pendingSay: { npc: Npc; text: string }[] = [];
-
-  /** Реплика над персонажем на несколько секунд. */
-  private say(npc: Npc, text?: string) {
-    if (!text) return;
-    if (this.host.isBlocked()) {
-      this.pendingSay.push({ npc, text });
-      return;
-    }
-    const bubble = this.add
-      .text(npc.sprite.x, npc.sprite.y - CHAR_H * SCALE - 26, text, {
-        fontFamily: "Rubik, system-ui, sans-serif",
-        fontSize: "13px",
-        color: "#2b231c",
-        backgroundColor: "rgba(255,252,244,0.96)",
-        padding: { x: 7, y: 4 },
-        wordWrap: { width: 220 },
-      })
-      .setOrigin(0.5, 1)
-      .setDepth(9_600);
-    this.time.delayedCall(3500, () => bubble.destroy());
-  }
-
-  /** Один кадр хода: шаг по пути, занятая клетка, подпись; события — приход, закрытый путь. */
-  private stepWalker(npc: Npc, dt: number) {
-    const walk = npc.walk!;
-    const pos = { x: npc.sprite.x, y: npc.sprite.y };
-    const r = stepWalk(walk, pos, dt, SPEED * 0.9, this.walkFree);
-    if (r.moved) {
-      npc.sprite.setPosition(pos.x, pos.y).setDepth(pos.y);
-      npc.x = pos.x;
-      npc.y = pos.y - TILE / 2;
-      npc.labelText.setPosition(pos.x, pos.y - CHAR_H * SCALE - 4);
-      const tile = tileOfPoint(pos);
-      if (tile.x !== npc.tile.x || tile.y !== npc.tile.y) {
-        this.npcTiles.delete(`${npc.tile.x},${npc.tile.y}`);
-        npc.tile = tile;
-        this.npcTiles.add(`${tile.x},${tile.y}`);
-      }
-    }
-    const here = tileOfPoint(pos);
-    if (r.event === "arrived") {
-      if (walk.leaving) this.removeNpc(npc);
-      else this.settle(npc, walk.phase === "out" ? walk.goal : walk.origin);
-    } else if (r.event === "failed") {
-      this.say(npc, walk.failText);
-      if (!turnBack(walk, this.walkFree, here)) this.settle(npc, here);
-    } else if (r.event === "gaveUp") {
-      this.settle(npc, here);
-    }
-    return r.moved;
-  }
-
-  private addNpc(id: string, characterId: string, tile: { x: number; y: number }, mode: Npc["mode"]) {
-    const character = this.caseFile.characters.find((c) => c.id === characterId)!;
-    const cx = (tile.x + 0.5) * TILE;
-    const bottom = (tile.y + 1) * TILE - 2;
-    const sprite = this.add
-      .sprite(cx, bottom, `chr_${character.id}`, "idle")
-      .setOrigin(0.5, 1)
-      .setScale(SCALE)
-      .setDepth(bottom);
-    if (mode === "static") this.npcTiles.add(`${tile.x},${tile.y}`);
-    const npc: Npc = {
-      id,
-      characterId,
-      mode,
-      tile,
-      label: character.name,
-      x: cx,
-      y: bottom - TILE / 2,
-      footprint: [tile],
-      sprite,
-      labelText: this.makeLabel(character.name).setPosition(cx, bottom - CHAR_H * SCALE - 4),
-    };
-    this.makeClickable(npc);
-    this.interactables.push(npc);
-    this.npcs.set(characterId, npc);
-  }
-
-  /** Ставит стоящего персонажа на клетку целиком: спрайт, точка взаимодействия, подпись, занятая клетка. */
-  private placeNpc(npc: Npc, tile: { x: number; y: number }) {
-    npc.tile = { x: tile.x, y: tile.y };
-    const cx = (tile.x + 0.5) * TILE;
-    const bottom = (tile.y + 1) * TILE - 2;
-    npc.sprite.setPosition(cx, bottom).setDepth(bottom);
-    npc.x = cx;
-    npc.y = bottom - TILE / 2;
-    npc.footprint = [npc.tile];
-    npc.labelText.setPosition(cx, bottom - CHAR_H * SCALE - 4);
-    this.npcTiles.add(`${tile.x},${tile.y}`);
-  }
-
-  private removeNpc(npc: Npc) {
-    this.npcTiles.delete(`${npc.tile.x},${npc.tile.y}`);
-    npc.sprite.destroy();
-    npc.labelText.destroy();
-    this.interactables = this.interactables.filter((i) => i !== npc);
-    this.npcs.delete(npc.characterId);
-    if (this.focused === npc) this.focused = null;
-  }
-
-  private tileOf(sprite: { x: number; y: number }) {
-    return { x: Math.floor(sprite.x / TILE), y: Math.floor((sprite.y - 2) / TILE) };
-  }
-
-  private freeTileNear(t: { x: number; y: number }) {
-    for (const [dx, dy] of [[-1, 0], [1, 0], [0, 1], [0, -1], [-1, 1], [1, 1]]) {
-      if (this.isFree(t.x + dx, t.y + dy)) return { x: t.x + dx, y: t.y + dy };
-    }
-    return t;
-  }
 
   // ---------- выходы ----------
 
@@ -694,7 +465,7 @@ export class OfficeScene extends Phaser.Scene {
 
   /** Клик по выходу: игрок идёт в область и по приходу проходит (автовыход срабатывает сам при входе); уже стоит внутри — проходит сразу. */
   private goThroughExit(zone: { id: string; cells: Tile[]; actions: { kind: string; trigger?: string }[] }) {
-    const here = this.tileOf(this.player);
+    const here = tileOfSprite(this.player);
     if (zone.cells.some((c) => c.x === here.x && c.y === here.y)) {
       this.path = [];
       this.host.onInteract(`zone:${zone.id}`);
@@ -711,7 +482,7 @@ export class OfficeScene extends Phaser.Scene {
 
   /** Вошёл в область — сообщаем хосту (автозапуск диалога). */
   private watchZones() {
-    const t = this.tileOf(this.player);
+    const t = tileOfSprite(this.player);
     const key = `${t.x},${t.y}`;
     const now = new Set<string>();
     for (const item of this.interactables) if (item.zone?.cells.has(key)) now.add(item.zone.id);
@@ -764,7 +535,7 @@ export class OfficeScene extends Phaser.Scene {
     }
     this.refreshChecks();
     this.syncObjects();
-    this.syncNpcs();
+    this.crowd.sync();
   }
 
   // ---------- двери ----------
@@ -773,7 +544,7 @@ export class OfficeScene extends Phaser.Scene {
   private animateDoors() {
     const doors = this.stateful.filter((e) => SPRITES[e.o.sprite].opensNear && !e.trans);
     if (!doors.length) return;
-    const walkers = [this.player, ...[...this.npcs.values()].filter((n) => n.mode === "follower").map((n) => n.sprite)];
+    const walkers = [this.player, ...[...this.crowd.npcs.values()].filter((n) => n.mode === "follower").map((n) => n.sprite)];
     const { progress, locationId } = this.host.getState();
     for (const e of doors) {
       const view = objectView(e.o, progress, locationId);
@@ -836,7 +607,7 @@ export class OfficeScene extends Phaser.Scene {
 
   private isFree(x: number, y: number) {
     const key = `${x},${y}`;
-    return this.solid[y]?.[x] === false && !this.npcTiles.has(key) && !this.objectTiles.has(key);
+    return this.solid[y]?.[x] === false && !this.crowd.tiles.has(key) && !this.objectTiles.has(key);
   }
 
   private isFreeFn: IsFree = (x, y) => this.isFree(x, y);
@@ -866,7 +637,7 @@ export class OfficeScene extends Phaser.Scene {
 
   /** Клетки, достижимые от игрока за два шага: через стену взаимодействовать нельзя. */
   private reachableTiles() {
-    const t = this.tileOf(this.player);
+    const t = tileOfSprite(this.player);
     const key = `${t.x},${t.y}`;
     if (key !== this.reachKey) {
       this.reachKey = key;
@@ -952,28 +723,7 @@ export class OfficeScene extends Phaser.Scene {
       if (this.trail.length > 60) this.trail.shift();
     }
 
-    if (!blocked && this.pendingSay.length) {
-      for (const { npc, text } of this.pendingSay.splice(0)) if (this.npcs.get(npc.characterId) === npc) this.say(npc, text);
-    }
-    const talkingTo = state.overlay?.kind === "dialogue" ? state.overlay.npcId : null;
-    let followerIndex = 0;
-    for (const npc of this.npcs.values()) {
-      let walking = false;
-      if (npc.mode === "walker" && npc.walk) {
-        walking = blocked ? false : this.stepWalker(npc, dt); // за окном (разговор, журнал) ход стоит
-      } else if (npc.mode === "follower") {
-        walking = this.stepFollower(npc, ++followerIndex, dt);
-        npc.x = npc.sprite.x;
-        npc.y = npc.sprite.y - TILE / 2;
-        npc.sprite.setDepth(npc.sprite.y);
-        npc.labelText.setPosition(npc.sprite.x, npc.sprite.y - CHAR_H * SCALE - 4);
-      }
-      const talking = npc.id === talkingTo;
-      const phase = Math.floor((this.animClock + npc.x * 7) / (talking ? 180 : 700)) % 2 === 0;
-      const walkFrame = Math.floor(this.animClock / 160) % 2 === 0 ? "walk1" : "walk2";
-      npc.sprite.setFrame(walking ? walkFrame : talking ? (phase ? "talk" : "idle") : phase ? "idle" : "idle2");
-    }
-
+    this.crowd.update(blocked, dt, this.animClock, state.overlay?.kind === "dialogue" ? state.overlay.npcId : null);
 
     this.animateDoors();
     this.tickObjectAnims(deltaMs);
@@ -990,29 +740,6 @@ export class OfficeScene extends Phaser.Scene {
         this.host.savePlayerPosition(this.caseFile.id, { ...tile, locationId: this.location.id });
       }
     }
-  }
-
-  /** Сопровождающий идёт по следу игрока на небольшом расстоянии. Возвращает, двигался ли. */
-  private stepFollower(npc: Npc, index: number, dt: number) {
-    const gap = FOLLOW_GAP * index;
-    let target = this.trail[0] ?? { x: this.player.x, y: this.player.y };
-    let acc = 0;
-    for (let i = this.trail.length - 1; i > 0; i--) {
-      acc += Math.hypot(this.trail[i].x - this.trail[i - 1].x, this.trail[i].y - this.trail[i - 1].y);
-      if (acc >= gap) {
-        target = this.trail[i - 1];
-        break;
-      }
-    }
-    const dx = target.x - npc.sprite.x;
-    const dy = target.y - npc.sprite.y;
-    const dist = Math.hypot(dx, dy);
-    const toPlayer = Math.hypot(this.player.x - npc.sprite.x, this.player.y - npc.sprite.y);
-    if (dist < 2 || toPlayer < gap * 0.8) return false;
-    const step = Math.min(dist, SPEED * 1.15 * dt);
-    npc.sprite.x += (dx / dist) * step;
-    npc.sprite.y += (dy / dist) * step;
-    return true;
   }
 
   /**
@@ -1043,7 +770,7 @@ export class OfficeScene extends Phaser.Scene {
         if ((item as Npc).mode === "walker") continue; // пока идёт, поговорить нельзя
         if (item.zone) {
           // область: подсказка, пока игрок внутри и у области есть подходящий диалог
-          const t = this.tileOf(this.player);
+          const t = tileOfSprite(this.player);
           if (item.zone.cells.has(`${t.x},${t.y}`) && this.host.hasZoneAction(item.zone.id) && ZONE_RANGE < bestDist) {
             best = item;
             bestDist = ZONE_RANGE;

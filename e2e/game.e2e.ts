@@ -265,7 +265,7 @@ describe("игра в браузере", () => {
     });
     const state = () => page.evaluate(() => {
       const scene = (window as any).__scene;
-      const n = scene.npcs.get("timur");
+      const n = scene.crowd.npcs.get("timur");
       const item = scene.interactables.find((i: any) => i.id === "npc_timur");
       return { mode: n.mode, tile: [n.tile.x, n.tile.y], x: n.x, y: n.y, item: [item.x, item.y], label: n.labelText.x, sprite: n.sprite.x, place: (window as any).__game.store.get().progress.npcPlaces.timur };
     });
@@ -276,7 +276,7 @@ describe("игра в браузере", () => {
     expect(walking.tile).not.toEqual([22, 14]);
     expect(walking.place).toMatchObject({ x: 22, y: 14 });
     // пришёл
-    await page.waitForFunction(() => (window as any).__scene.npcs.get("timur").mode === "static", null, { timeout: 25_000 });
+    await page.waitForFunction(() => (window as any).__scene.crowd.npcs.get("timur").mode === "static", null, { timeout: 25_000 });
     const arrived = await state();
     expect(arrived.tile).toEqual([22, 14]);
     expect(arrived.item).toEqual([arrived.x, arrived.y]); // подсказка «E» меряется от нового места, а не от старого
@@ -297,7 +297,7 @@ describe("игра в браузере", () => {
       actions.close();
     });
     await page.waitForTimeout(500);
-    const vika = await page.evaluate(() => ({ mode: (window as any).__scene.npcs.get("vika").mode, place: (window as any).__game.store.get().progress.npcPlaces.vika ?? null }));
+    const vika = await page.evaluate(() => ({ mode: (window as any).__scene.crowd.npcs.get("vika").mode, place: (window as any).__game.store.get().progress.npcPlaces.vika ?? null }));
     expect(vika).toEqual({ mode: "static", place: null });
     await page.close();
   });
@@ -314,12 +314,12 @@ describe("игра в браузере", () => {
       actions.choose("t1"); // Тимур идёт в клетку 22,14
       actions.close();
     });
-    await page.waitForFunction(() => (window as any).__scene.npcs.get("timur").mode === "static", null, { timeout: 25_000 });
+    await page.waitForFunction(() => (window as any).__scene.crowd.npcs.get("timur").mode === "static", null, { timeout: 25_000 });
     await page.waitForTimeout(600); // автосохранение
     await page.reload();
-    await page.waitForFunction(() => (window as any).__game.store.get().screen === "play" && (window as any).__scene?.npcs.get("timur"));
+    await page.waitForFunction(() => (window as any).__game.store.get().screen === "play" && (window as any).__scene?.crowd?.npcs.get("timur"));
     const after = await page.evaluate(() => {
-      const n = (window as any).__scene.npcs.get("timur");
+      const n = (window as any).__scene.crowd.npcs.get("timur");
       return { mode: n.mode, tile: [n.tile.x, n.tile.y], place: (window as any).__game.store.get().progress.npcPlaces.timur };
     });
     expect(after.mode).toBe("static"); // не идёт заново, а стоит
