@@ -1,0 +1,81 @@
+import type { CaseEvent, CaseFile } from "./case";
+import { meets, type Progress } from "./conditions";
+
+/** Год для сортировки, если у даты его нет: события без года идут в одном условном году. */
+const NO_YEAR = 2000;
+const MONTHS = ["января", "февраля", "марта", "апреля", "мая", "июня", "июля", "августа", "сентября", "октября", "ноября", "декабря"];
+
+export interface EventMoment {
+  /** Год, если автор его задал. */
+  year?: number;
+  month: number;
+  day: number;
+  /** Часы и минуты, если время задано. */
+  hour?: number;
+  minute?: number;
+}
+
+/** Разбор момента события; null, если строка не по формату или такой даты нет в календаре. */
+export function parseEventTime(text: string): EventMoment | null {
+  const m = /^(?:(\d{4})-)?(\d{2})-(\d{2})(?:T(\d{2}):(\d{2}))?$/.exec(text);
+  if (!m) return null;
+  const year = m[1] ? Number(m[1]) : undefined;
+  const month = Number(m[2]);
+  const day = Number(m[3]);
+  const hour = m[4] === undefined ? undefined : Number(m[4]);
+  const minute = m[5] === undefined ? undefined : Number(m[5]);
+  // 29 февраля без года считаем допустимым — высокосный условный год
+  const daysIn = new Date(year ?? 2024, month, 0).getDate();
+  if (month < 1 || month > 12 || day < 1 || day > daysIn) return null;
+  if (hour !== undefined && (hour > 23 || minute! > 59)) return null;
+  return { year, month, day, hour, minute };
+}
+
+/** Число для сортировки (минуты от условного начала); год без значения — условный. */
+export function eventSortKey(text: string): number {
+  const t = parseEventTime(text);
+  if (!t) return Number.POSITIVE_INFINITY;
+  return Date.UTC(t.year ?? NO_YEAR, t.month - 1, t.day, t.hour ?? 0, t.minute ?? 0) / 60000;
+}
+
+const pad = (n: number) => String(n).padStart(2, "0");
+const clock = (t: EventMoment) => (t.hour === undefined ? "" : `${pad(t.hour)}:${pad(t.minute!)}`);
+const dayText = (t: EventMoment) => `${t.day} ${MONTHS[t.month - 1]}${t.year ? ` ${t.year}` : ""}`;
+
+/** Подпись для игрока: «14 марта, 21:30», «10 марта», «14 марта 2026»; диапазон — «14 марта, с 21:30 по 22:10» или «с 1 по 5 октября». */
+export function formatEventTime(at: string, until?: string): string {
+  const a = parseEventTime(at);
+  if (!a) return at;
+  const b = until ? parseEventTime(until) : null;
+  if (!b) return [dayText(a), clock(a)].filter(Boolean).join(", ");
+  const sameDay = a.year === b.year && a.month === b.month && a.day === b.day;
+  if (sameDay) {
+    if (a.hour === undefined && b.hour === undefined) return dayText(a);
+    return `${dayText(a)}, с ${clock(a) || "00:00"} по ${clock(b) || "00:00"}`;
+  }
+  const from = [dayText(a), clock(a)].filter(Boolean).join(", ");
+  const to = [dayText(b), clock(b)].filter(Boolean).join(", ");
+  return `с ${from} по ${to}`;
+}
+
+/** Конец не раньше начала (сравнивается только то, что задано: события без года — в одном условном году). */
+export const isRangeOrdered = (at: string, until: string) => eventSortKey(until) >= eventSortKey(at);
+
+/**
+ * Событие видно в хронологии, если игрок о нём узнал: найдена хотя бы одна улика, у которой оно в `relatedEvents`
+ * (если таких улик в деле нет — это условие не действует), и выполнено `requires` (если задано).
+ */
+export function isEventKnown(c: Pick<CaseFile, "evidence">, ev: CaseEvent, p: Progress, locationId?: string): boolean {
+  const sources = c.evidence.filter((e) => e.relatedEvents.includes(ev.id));
+  if (sources.length && !sources.some((e) => p.collected.includes(e.id))) return false;
+  return !ev.requires || meets(ev.requires, p, locationId);
+}
+
+/** События, известные игроку, по порядку времени (при равенстве — как в деле). */
+export function knownEvents(c: Pick<CaseFile, "evidence" | "events">, p: Progress, locationId?: string): CaseEvent[] {
+  return c.events
+    .map((ev, i) => ({ ev, i }))
+    .filter(({ ev }) => isEventKnown(c, ev, p, locationId))
+    .sort((x, y) => eventSortKey(x.ev.at) - eventSortKey(y.ev.at) || x.i - y.i)
+    .map(({ ev }) => ev);
+}

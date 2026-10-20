@@ -4,6 +4,7 @@ import { useEffect, useState, type ReactNode } from "react";
 import { editor, useEditor } from "./state";
 import { caseKey, countRefs, isEntityKey, renameKey, toKey } from "./keys";
 import { Select } from "../ui/Select";
+import { formatEventTime } from "../../../../shared/events";
 import { ItemTools } from "./ItemTools";
 import { moveItem } from "../util/lists";
 import { ArtThumb, TilePicker } from "./Pickers";
@@ -71,7 +72,7 @@ function refOptions(name: string, ctx: FormCtx, isArrayItem: boolean): Option[] 
     case "deductions":
       return isArrayItem ? d.deductions.map((x) => ({ value: x.id, label: `${x.title} (${x.id})` })) : null;
     case "relatedEvents":
-      return d.events.map((e) => ({ value: e.id, label: `${e.time} — ${e.title}` }));
+      return d.events.map((e) => ({ value: e.id, label: `${formatEventTime(e.at, e.until)} — ${e.title}` }));
     case "right":
     case "topic":
       // права — варианты вопроса категории «right» самого дела

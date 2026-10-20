@@ -85,6 +85,7 @@ export function caseWarnings(c: CaseFile): string[] {
     n.textVariants?.forEach((tv) => positive(tv.requires));
   }
   c.hints.forEach((h) => positive(h.requires));
+  c.events.forEach((ev) => positive(ev.requires));
   c.deductions.forEach((x) => positive(x.requires));
   for (const l of c.locations) {
     l.doors.forEach((d) => {

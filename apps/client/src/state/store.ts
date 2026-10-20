@@ -16,7 +16,7 @@ import { platform } from "./platform";
 
 /** menu — страницы сайта (адрес решает какая, см. ui/router.ts); остальное — расследование. */
 export type Screen = "menu" | "intro" | "play" | "final" | "result";
-export type JournalTab = "brief" | "materials" | "characters" | "law";
+export type JournalTab = "brief" | "materials" | "timeline" | "characters" | "law";
 
 /** Пометка игрока на материале: важное — наверх, неважное — вниз и бледнее. */
 export type Mark = "important" | "unimportant";

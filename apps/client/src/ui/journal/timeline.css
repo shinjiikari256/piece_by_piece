@@ -1,0 +1,22 @@
+.timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  max-width: 44rem;
+}
+.timeline__item {
+  display: flex;
+  align-items: baseline;
+  gap: 0.8rem;
+  padding: 0.5rem 0.8rem;
+  background: var(--bg-paper-dim);
+  border-left: 3px solid var(--border-strong);
+  border-radius: 4px;
+}
+.timeline__time {
+  flex: none;
+  min-width: 10rem;
+  font-family: var(--font-mono);
+  font-size: var(--fs-md);
+  color: var(--text-muted);
+}

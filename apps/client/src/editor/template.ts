@@ -56,7 +56,7 @@ export function blankCase(): CaseFile {
     characters: [
       { id: "witness", name: "Свидетель", look: "casual_m", position: "кто он", description: "Что о нём известно." },
     ],
-    events: [{ id: "ev_main", time: "1 января", title: "Главное событие" }],
+    events: [{ id: "ev_main", title: "Главное событие", at: "01-01" }],
     evidence: [
       {
         id: "ev_document",

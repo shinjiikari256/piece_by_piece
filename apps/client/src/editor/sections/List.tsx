@@ -7,7 +7,7 @@ import { editor, editorStore, useEditor } from "../state";
 import { useUrlParam, useWriteDefaultParam } from "../url";
 import { Field, ObjectFields, defaultFor, itemTitle, type JS } from "../SchemaForm";
 import { LookEditor } from "../LookEditor";
-import type { Character, Evidence } from "../../../../../shared/case";
+import type { Character, CaseEvent, Evidence } from "../../../../../shared/case";
 import { Icon } from "../../ui/icons";
 import { Tabs } from "../Tabs";
 import { EntityList, ItemText } from "../EntityList";
@@ -15,7 +15,14 @@ import { moveItem } from "../../util/lists";
 import { ArtThumb } from "../Pickers";
 import { resolveLook } from "../../game/art";
 import { ask } from "../../ui/dialog";
+import { EventWhen } from "../fields/EventTime";
 import { SCHEMA, itemHeading, listActions } from "../shared";
+
+/** Событие с новым временем; пустой конец в дело не пишется. */
+function withWhen(ev: CaseEvent, when: { at: string; until?: string }): CaseEvent {
+  const { until: _old, ...rest } = ev;
+  return { ...rest, at: when.at, ...(when.until === undefined ? {} : { until: when.until }) };
+}
 
 export function ListSection({ field }: { field: keyof CaseFile }) {
   const draft = useEditor((s) => s.draft);
@@ -44,6 +51,7 @@ export function ListSection({ field }: { field: keyof CaseFile }) {
 
   const add = () => {
     const fresh = defaultFor(itemSchema) as Record<string, unknown>;
+    if (field === "events") fresh.at = "01-01";
     if ("id" in fresh) fresh.id = `${String(field).slice(0, 3)}_${list.length + 1}`;
     editor.update((d) => ({ ...d, [field]: [...list, fresh] }) as CaseFile);
     setSelected(list.length);
@@ -128,6 +136,16 @@ export function ListSection({ field }: { field: keyof CaseFile }) {
               others={(list as Character[]).filter((_, i) => i !== index)}
               onChange={(v) => update(list.map((x, i) => (i === index ? v : x)))}
             />
+          </>
+        ) : field === "events" ? (
+          <>
+            <ObjectFields schema={itemSchema} value={list[index]} ctx={{ draft }} only={["id", "title"]} onChange={(v) => update(list.map((x, i) => (i === index ? v : x)))} />
+            <EventWhen
+              at={(list[index] as CaseEvent).at}
+              until={(list[index] as CaseEvent).until}
+              onChange={(w) => update(list.map((x, i) => (i === index ? withWhen(x as CaseEvent, w) : x)))}
+            />
+            <ObjectFields schema={itemSchema} value={list[index]} ctx={{ draft }} only={["requires"]} onChange={(v) => update(list.map((x, i) => (i === index ? v : x)))} />
           </>
         ) : (
           <Field

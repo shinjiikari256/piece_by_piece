@@ -1,6 +1,7 @@
 import { type CaseFile, type Condition, type Effect } from "../../../../shared/case";
 import { flagOfEffect, isFlagAction } from "../../../../shared/conditions";
 import { effectSites } from "../../../../shared/effect-sites";
+import { isRangeOrdered, parseEventTime } from "../../../../shared/events";
 import { isEntryTrigger, isInteractive } from "../../../../shared/case";
 import { parseCase } from "../../../../shared/migrate";
 import { FLOOR_TILES, SPRITES, WALL_TILES, resolveLook } from "../game/art";
@@ -356,6 +357,7 @@ function checkIntegrity(c: CaseFile): string[] {
   );
   c.locations.forEach((l) => l.zones.forEach((z) => z.actions.forEach((a) => condFlags(a.requires))));
   c.locations.forEach((l) => l.doors.forEach((d) => condFlags(d.requires)));
+  c.events.forEach((ev) => condFlags(ev.requires));
   for (const f of usedFlags) if (!named.has(f)) err(`flags: у флага «${f}» нет названия — добавьте его в разделе «Переменные»`);
   c.lawReference?.basis.forEach((x, i) => x.title.trim() || err(`lawReference: у нормы №${i + 1} нет названия`));
   c.lawReference?.notes.forEach((x, i) => x.title.trim() || err(`lawReference: у пояснения №${i + 1} нет заголовка`));
@@ -366,6 +368,16 @@ function checkIntegrity(c: CaseFile): string[] {
   const levels = c.hints.map((h) => h.level).sort();
   if (levels.join(",") !== "1,2,3") err("hints: нужны подсказки уровней 1, 2 и 3");
   c.hints.forEach((h) => checkCondition(h.requires, `hint ${h.level}.requires`));
+
+  // События хронологии
+  for (const ev of c.events) {
+    checkCondition(ev.requires, `event ${ev.id}.requires`);
+    if (!parseEventTime(ev.at)) err(`event ${ev.id}: такой даты или времени нет — «${ev.at}»`);
+    if (ev.until !== undefined) {
+      if (!parseEventTime(ev.until)) err(`event ${ev.id}: такой даты или времени нет — «${ev.until}»`);
+      else if (parseEventTime(ev.at) && !isRangeOrdered(ev.at, ev.until)) err(`event ${ev.id}: конец («${ev.until}») раньше начала («${ev.at}»)`);
+    }
+  }
 
   // Вопросы и баллы
   let total = 0;

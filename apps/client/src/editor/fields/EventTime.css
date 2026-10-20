@@ -1,0 +1,49 @@
+/* дата и время события — одна строка */
+.event-time {
+  display: flex;
+  align-items: center;
+  flex-wrap: nowrap;
+  gap: 0.4rem;
+  min-width: 0;
+}
+.event-time__label {
+  flex: none;
+  width: 3.2rem;
+}
+.event-time input[type="number"] {
+  flex: none;
+  width: 3.2rem;
+  text-align: center;
+  appearance: textfield;
+  -moz-appearance: textfield;
+}
+.event-time input[type="number"]::-webkit-inner-spin-button,
+.event-time input[type="number"]::-webkit-outer-spin-button {
+  appearance: none;
+  margin: 0;
+}
+.event-time .event-time__year {
+  width: 4.6rem;
+}
+.event-time__month {
+  flex: 1 1 7rem;
+  min-width: 6.5rem;
+  max-width: 10rem;
+}
+.event-time__check {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: var(--fs-md);
+  white-space: nowrap;
+}
+.event-time__clock {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+.event-time .event-time__check {
+  margin-left: 0.4rem;
+}

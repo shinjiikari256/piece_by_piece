@@ -70,6 +70,7 @@ export function flagsOf(d: FormCtx["draft"]): string[] {
     l.zones.forEach((z) => z.actions.forEach((a) => cond(a.requires)));
   });
   d.hints.forEach((h) => cond(h.requires));
+  d.events.forEach((ev) => cond(ev.requires));
   d.deductions.forEach((x) => cond(x.requires));
   return [...out].sort();
 }
@@ -127,6 +128,7 @@ function collectUsage(d: FormCtx["draft"]): { vars: Map<string, FlagUse[]>; evid
   });
   d.deductions.forEach((x) => cond(x.requires, `Сопоставление «${x.title}» (доступность)`, { section: "deductions", id: x.id }));
   d.hints.forEach((h) => cond(h.requires, `Подсказка ${h.level}`, { section: "hints" }));
+  d.events.forEach((ev) => cond(ev.requires, `Хронология: «${ev.title.slice(0, 50)}»`, { section: "events", id: ev.id }));
   return { vars, evidence };
 }
 

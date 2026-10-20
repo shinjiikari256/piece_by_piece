@@ -169,10 +169,15 @@ export const Character = z.object({
   description: z.string(),
 });
 
+/** Момент события: «ГГГГ-ММ-ДД» или «ММ-ДД» (год необязателен), с необязательным временем «Tчч:мм». */
+export const EventTime = z.string().regex(/^(\d{4}-)?\d{2}-\d{2}(T\d{2}:\d{2})?$/, "Ожидается «ГГГГ-ММ-ДД» или «ММ-ДД», можно с «Tчч:мм»");
+
 export const CaseEvent = z.object({
   id: z.string(),
-  time: z.string(),
   title: z.string(),
+  at: EventTime.describe("Когда произошло (начало, если задан «до»)"),
+  until: EventTime.optional().describe("Конец, если событие длилось (диапазон «с … по …»)"),
+  requires: Condition.optional().describe("Когда игрок узнаёт о событии: в хронологию оно попадает, только если условие выполнено"),
 });
 
 export const Evidence = z.object({
@@ -595,6 +600,7 @@ export const CaseFile = z.object({
 export type CaseFile = z.infer<typeof CaseFile>;
 export type Character = z.infer<typeof Character>;
 export type Evidence = z.infer<typeof Evidence>;
+export type CaseEvent = z.infer<typeof CaseEvent>;
 export type Dialogue = z.infer<typeof Dialogue>;
 export type DialogueNode = z.infer<typeof DialogueNode>;
 export type DialogueChoice = z.infer<typeof DialogueChoice>;

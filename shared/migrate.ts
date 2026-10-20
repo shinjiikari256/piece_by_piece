@@ -35,7 +35,7 @@ export function runMigrations(
 
 // ——— Дело ———
 
-export const CASE_FORMAT_VERSION = 8;
+export const CASE_FORMAT_VERSION = 9;
 
 const WALL_CHARS = new Set(["#", "W", "B", "G", "P", "F"]);
 
@@ -221,8 +221,39 @@ function caseV7toV8(data: Raw): Raw {
   return { ...data, locations };
 }
 
+const RU_MONTHS = ["января", "февраля", "марта", "апреля", "мая", "июня", "июля", "августа", "сентября", "октября", "ноября", "декабря"];
+
+/** Текст вида «14 марта, 21:30» / «10 марта» / «2026-03-14T21:30» → момент события; нераспознанное — null. */
+function parseEventText(text: string): string | null {
+  const t = text.trim();
+  if (/^(\d{4}-)?\d{2}-\d{2}(T\d{2}:\d{2})?$/.test(t)) return t;
+  const m = /^(\d{1,2})\s+([а-яё]+)(?:\s+(\d{4}))?(?:\s*,?\s*(\d{1,2})[:.](\d{2}))?$/i.exec(t);
+  const month = m ? RU_MONTHS.indexOf(m[2].toLowerCase()) : -1;
+  if (!m || month < 0) return null;
+  const pad = (n: string | number) => String(n).padStart(2, "0");
+  const date = `${m[3] ? `${m[3]}-` : ""}${pad(month + 1)}-${pad(m[1])}`;
+  return m[4] ? `${date}T${pad(m[4])}:${m[5]}` : date;
+}
+
+/**
+ * 8 → 9: событие `{ time: "14 марта, 21:30" }` стало `{ at: "03-14T21:30", until?, requires? }` (год необязателен, время — тоже).
+ * Текст «с … по …» / «… — …» раскладывается на начало и конец; нераспознанный текст уходит в `at` как есть и не пройдёт проверку схемы.
+ */
+function caseV8toV9(data: Raw): Raw {
+  const events = ((data.events as Raw[] | undefined) ?? []).map((ev) => {
+    if (typeof ev.time !== "string") return ev;
+    const { time, ...rest } = ev;
+    const range = /^(?:с\s+)?(.+?)\s+(?:по|[—–-])\s+(.+)$/.exec(time);
+    const from = range ? parseEventText(range[1]) : null;
+    const to = range ? parseEventText(range[2]) : null;
+    if (from && to) return { ...rest, at: from, until: to };
+    return { ...rest, at: parseEventText(time) ?? time };
+  });
+  return { ...data, events };
+}
+
 /** Звенья цепочки: `caseMigrations[v]` переводит дело версии v в v + 1. */
-export const caseMigrations: Record<number, Migration> = { 1: caseV1toV2, 2: caseV2toV3, 3: caseV3toV4, 4: caseV4toV5, 5: caseV5toV6, 6: caseV6toV7, 7: caseV7toV8 };
+export const caseMigrations: Record<number, Migration> = { 1: caseV1toV2, 2: caseV2toV3, 3: caseV3toV4, 4: caseV4toV5, 5: caseV5toV6, 6: caseV6toV7, 7: caseV7toV8, 8: caseV8toV9 };
 
 export const migrateCase = (raw: unknown, chain = caseMigrations, current = CASE_FORMAT_VERSION): Migrated =>
   runMigrations(raw, "formatVersion", chain, current, "дело");
