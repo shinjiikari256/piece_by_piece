@@ -76,6 +76,7 @@ export function locateError(message: string, c: CaseFile): LocatedError {
   if (/^flags/.test(message)) return make("flags");
   if ((m = message.match(/^counters: у счётчика «([^»]+)»/))) return make("flags", { id: m[1] });
   if (/^counters/.test(message)) return make("flags");
+  if ((m = message.match(/^counter (\S+?):/))) return make("flags", { id: m[1] });
   if ((m = message.match(/^enum (\S+?):/))) return make("flags", { id: m[1] });
   if ((m = message.match(/^enums: у (?:перечисления|значения «[^»]+» перечисления) «([^»]+)»/))) return make("flags", { id: m[1] });
   if (/^enums/.test(message)) return make("flags");
@@ -85,7 +86,7 @@ export function locateError(message: string, c: CaseFile): LocatedError {
 /** Служебные слова в сообщениях проверки (разбор адреса идёт по ним) → русские слова для показа. */
 const WORDS: Record<string, string> = {
   dialogue: "диалог", dialogues: "диалоги", evidence: "улика", deduction: "сопоставление", deductions: "сопоставления",
-  question: "вопрос", questions: "вопросы", flag: "флаг", flags: "флаги", counters: "счётчики", enum: "перечисление", enums: "перечисления",
+  question: "вопрос", questions: "вопросы", flag: "флаг", counter: "счётчик", flags: "флаги", counters: "счётчики", enum: "перечисление", enums: "перечисления",
   location: "локация", locations: "локации", characters: "персонажи", events: "события", hints: "подсказки", solution: "решение",
   lawReference: "закон", timeBonus: "бонус за время", object: "предмет", zone: "область", door: "дверь", npc: "человек",
   moveTo: "перемещение", addEvidence: "выдача улики", spawn: "точка появления", playerStart: "старт игрока", startNodeId: "первая реплика", speaker: "говорящий", requires: "условие", choices: "варианты ответа",

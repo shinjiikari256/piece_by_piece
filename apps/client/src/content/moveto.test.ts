@@ -224,6 +224,19 @@ describe("предупреждения дела", () => {
     expect(text).toContain("zone z_empty: у области нет действий");
     expect(text).toContain("flag flag_never_set: условия ждут этот флаг");
   });
+  it("счётчики: условие вне границ и счётчик, который никто не меняет", async () => {
+    const { caseWarnings } = await import("./warnings");
+    const c = structuredClone(case001) as unknown as CaseFile;
+    c.counters = [{ id: "k_out", name: "Вне", initial: 0, min: 0, max: 5 }, { id: "k_stuck", name: "Стоит", initial: 0 }];
+    c.dialogues.push({ id: "dlg_k", characterId: c.characters[0].id, startNodeId: "s", nodes: [{ id: "s", text: "…", mood: "neutral", effects: [], choices: [
+      { id: "a", text: "a", next: null, effects: [], requires: { counters: [{ counterId: "k_out", min: 6 }] } },
+      { id: "b", text: "b", next: null, effects: [], requires: { counters: [{ counterId: "k_stuck", min: 1 }] } },
+      { id: "c", text: "c", next: null, effects: [] },
+    ] }] });
+    const text = caseWarnings(c).join("\n");
+    expect(text).toContain("counter k_out: условие требует значение вне границ");
+    expect(text).toContain("counter k_stuck: никакой эффект не меняет счётчик");
+  });
 });
 
 describe("условия: «или» и «игрок в локации»", () => {

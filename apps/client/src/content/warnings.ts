@@ -60,15 +60,19 @@ export function caseWarnings(c: CaseFile): string[] {
   const effects = (list: Effect[]) => list.forEach((e) => {
     const f = flagOfEffect(e);
     if (f && f.action !== "off") set.add(f.flag);
+    if (e.type === "changeVariable" && !e.valueId) changed.add(e.variableId);
     if (e.type === "changeVariable" && e.action === "assign" && e.valueId) assigned.add(`${e.variableId}:${e.valueId}`);
   });
   // значения перечислений: условие ждёт значение, которое ни один эффект не выбирает и которое не начальное
   const assigned = new Set<string>(initialEnumPairs(c));
+  const changed = new Set<string>(); // счётчики, которые меняет хоть один эффект
   const needsValue = new Set<string>();
   const needsSetting = new Set<string>(); // проверяемые «флаг стоит» — их обязательно кто-то ставит
+  const counterRanges: NonNullable<Condition["counters"]> = [];
   const positive = (cnd: Condition | undefined): void => {
     cnd?.flags?.forEach((f) => needsSetting.add(f));
     cnd?.enums?.forEach((r) => r.in?.forEach((v) => needsValue.add(`${r.enumId}:${v}`)));
+    cnd?.counters?.forEach((r) => counterRanges.push(r));
     cnd?.anyOf?.forEach(positive);
     cnd?.allOf?.forEach(positive);
   };
@@ -93,6 +97,26 @@ export function caseWarnings(c: CaseFile): string[] {
   }
   for (const f of needsSetting) if (!set.has(f)) out.push(`flag ${f}: условия ждут этот флаг, но ни один эффект его не ставит — то, что за ним, недостижимо`);
   for (const key of needsValue) if (!assigned.has(key)) out.push(`enum ${key.split(":")[0]}: условия ждут значение «${key.split(":")[1]}», но ни один эффект его не выбирает — то, что за ним, недостижимо`);
+
+  // счётчики: условие вне границ счётчика или счётчик, который никто не меняет, а условие требует другого значения
+  const counters = new Map((c.counters ?? []).map((k) => [k.id, k]));
+  const seenCounter = new Set<string>();
+  for (const r of counterRanges) {
+    const k = counters.get(r.counterId);
+    if (!k) continue;
+    const reach = (r.min !== undefined && k.max !== undefined && r.min > k.max) || (r.max !== undefined && k.min !== undefined && r.max < k.min);
+    const start = k.initial ?? 0;
+    const stuck = !changed.has(k.id) && ((r.min !== undefined && r.min > start) || (r.max !== undefined && r.max < start));
+    const text = reach
+      ? `условие требует значение вне границ счётчика (${k.min ?? "−∞"}…${k.max ?? "∞"}) — то, что за ним, недостижимо`
+      : stuck
+        ? `никакой эффект не меняет счётчик (всегда ${start}), а условие требует другого значения — то, что за ним, недостижимо`
+        : "";
+    if (text && !seenCounter.has(`${k.id}:${text}`)) {
+      seenCounter.add(`${k.id}:${text}`);
+      out.push(`counter ${k.id}: ${text}`);
+    }
+  }
   return out;
 }
 
