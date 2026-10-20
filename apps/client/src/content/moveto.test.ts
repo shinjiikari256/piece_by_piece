@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { emptyProgress, applyEffects, meets, startProgress } from "../../../../shared/conditions";
+import { emptyProgress, applyEffects, choiceKey, meets, startProgress } from "../../../../shared/conditions";
 import case002 from "./cases/case-002.json";
 import { deleteCounter } from "../editor/sections/Counters";
 import { deleteFlag } from "../editor/fields/Conditions";
@@ -578,5 +578,31 @@ describe("эффекты removeEvidence, startDialogue, travel", () => {
     expect(text).toContain("нет_диалога");
     expect(text).toContain("travel — неизвестная локация");
     expect(text).toContain("не пол");
+  });
+});
+
+describe("условия chosen и notInLocation", () => {
+  const key = choiceKey("d", "n", "c");
+  it("chosen: вариант уже выбирался / ещё не выбирался", () => {
+    const row = { dialogueId: "d", nodeId: "n", choiceId: "c" };
+    const before = emptyProgress();
+    const after = { ...before, chosen: [key] };
+    expect(meets({ chosen: [row] }, before)).toBe(false);
+    expect(meets({ chosen: [row] }, after)).toBe(true);
+    expect(meets({ chosen: [{ ...row, not: true }] }, before)).toBe(true);
+    expect(meets({ chosen: [{ ...row, not: true }] }, after)).toBe(false);
+  });
+  it("notInLocation: не в перечисленных; локация неизвестна — условие не мешает", () => {
+    expect(meets({ notInLocation: ["a", "b"] }, emptyProgress(), "c")).toBe(true);
+    expect(meets({ notInLocation: ["a", "b"] }, emptyProgress(), "b")).toBe(false);
+    expect(meets({ notInLocation: ["a"] }, emptyProgress())).toBe(true);
+  });
+  it("валидатор: несуществующий вариант и локация", () => {
+    const c = structuredClone(case001) as unknown as CaseFile;
+    c.dialogues[0].nodes[0].choices[0].requires = { chosen: [{ dialogueId: "нет", nodeId: "x", choiceId: "y" }], notInLocation: ["нет_локации"] };
+    const r = validateCase(c);
+    const text = r.ok ? "" : r.errors.join("\n");
+    expect(text).toContain("не найден");
+    expect(text).toContain("нет_локации");
   });
 });

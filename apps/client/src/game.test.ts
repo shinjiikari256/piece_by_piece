@@ -957,3 +957,26 @@ describe("эффекты: startDialogue, travel, removeEvidence в игре", ()
     expect(store.get().spawn).toEqual({ x: 5, y: 5 });
   });
 });
+
+describe("условие chosen в игре", () => {
+  it("вариант, зависящий от выбранного ранее, появляется после выбора; сохранение хранит выбранное", async () => {
+    const raw = load("case-001.json") as unknown as CaseFile;
+    const dlg = raw.dialogues.find((d) => d.id === "dlg_alina")!;
+    const start = dlg.nodes.find((n) => n.id === "start")!;
+    const pass = start.choices.find((c) => c.id === "pass")!;
+    const bye = start.choices.find((c) => c.next === null)!;
+    bye.requires = { chosen: [{ dialogueId: dlg.id, nodeId: start.id, choiceId: pass.id }] };
+    const c = validateCase(raw);
+    if (!c.ok) throw new Error(c.errors.join("; "));
+    setPlatform(createMemoryPlatform());
+    actions.openCase(new LocalAuthority(c.caseFile));
+    actions.beginInvestigation();
+    actions.interact("npc_alina");
+    expect(actions.isChoiceVisible(bye)).toBe(false);
+    actions.choose(pass.id);
+    actions.choose("back");
+    expect(actions.isChoiceVisible(bye)).toBe(true);
+    expect(actions.isChoiceUsed(dlg.id, start.id, pass.id)).toBe(true);
+    expect(store.get().progress.chosen).toContain(`${dlg.id}/${start.id}/${pass.id}`);
+  });
+});

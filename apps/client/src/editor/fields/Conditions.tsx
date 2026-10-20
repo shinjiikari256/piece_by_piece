@@ -23,6 +23,9 @@ export type Condition = {
   following?: string[];
   notFollowing?: string[];
   inLocation?: string[];
+  notInLocation?: string[];
+  /** Варианты ответа, которые уже выбирались (с `not` — ещё не выбирались). */
+  chosen?: { dialogueId: string; nodeId: string; choiceId: string; not?: boolean }[];
   /** Значения счётчиков в границах (пустая граница — без ограничения). */
   counters?: { counterId: string; min?: number; max?: number }[];
   /** Значения перечислений: одно из / не одно из. */
@@ -258,7 +261,7 @@ export function FlagDialog({ initial, onDone }: { initial?: { id: string; name: 
   );
 }
 
-type ListKey = Exclude<keyof Condition, "anyOf" | "counters" | "enums">;
+type ListKey = Exclude<keyof Condition, "anyOf" | "counters" | "enums" | "chosen">;
 
 /** Условие показа: только заполненные строки + «+ условие». Строки — «и»; варианты «или» — отдельные вложенные условия. */
 export function ConditionEditor({ value, onChange, ctx, label, nested }: { value: Condition; onChange: (v: unknown) => void; ctx: FormCtx; label: ReactNode; nested?: boolean }) {
@@ -281,10 +284,12 @@ export function ConditionEditor({ value, onChange, ctx, label, nested }: { value
     { key: "following", title: "Идут за игроком", options: chars },
     { key: "notFollowing", title: "Не идут за игроком", options: chars },
     { key: "inLocation", title: "Игрок в локации (любой из)", options: d.locations.map((l) => ({ value: l.id, label: l.name })) },
+    { key: "notInLocation", title: "Игрок не в локациях", options: d.locations.map((l) => ({ value: l.id, label: l.name })) },
   ];
   const shown = rows.filter((r) => value[r.key]?.length || added.includes(r.key));
   const addCounters = "__counters__";
   const addEnums = "__enums__";
+  const addChosen = "__chosen__";
   const free = rows.filter((r) => !shown.includes(r));
   const removeRow = (key: ListKey) => {
     setAdded((a) => a.filter((k) => k !== key));
@@ -299,6 +304,23 @@ export function ConditionEditor({ value, onChange, ctx, label, nested }: { value
     else delete next.counters;
     onChange(next);
   };
+  const chosenRows = value.chosen ?? [];
+  const [chosenOpen, setChosenOpen] = useState(false);
+  const showChosen = chosenRows.length > 0 || chosenOpen;
+  const setChosen = (list: NonNullable<Condition["chosen"]>) => {
+    const next = { ...value };
+    if (list.length) next.chosen = list;
+    else delete next.chosen;
+    onChange(next);
+  };
+  const choiceOptions = d.dialogues.flatMap((dl) =>
+    dl.nodes.flatMap((n) =>
+      n.choices.map((ch) => ({
+        value: `${dl.id}/${n.id}/${ch.id}`,
+        label: `${d.characters.find((x) => x.id === dl.characterId)?.name ?? dl.characterId}: «${ch.text.slice(0, 45)}» (${n.id})`,
+      })),
+    ),
+  );
   const enumRows = value.enums ?? [];
   const [enumsOpen, setEnumsOpen] = useState(false);
   const showEnums = enumRows.length > 0 || enumsOpen;
@@ -360,6 +382,38 @@ export function ConditionEditor({ value, onChange, ctx, label, nested }: { value
           </button>
         </div>
       )}
+      {showChosen && (
+        <div className="cond__row">
+          <span className="cond__title">Варианты ответа в разговорах</span>
+          {chosenRows.map((r, i) => (
+            <div key={i} className="cond__counter">
+              <Select
+                value={`${r.dialogueId}/${r.nodeId}/${r.choiceId}`}
+                placeholder="какой вариант"
+                options={choiceOptions}
+                onChange={(v) => {
+                  const [dialogueId, nodeId, choiceId] = v.split("/");
+                  setChosen(chosenRows.map((x, k) => (k === i ? { ...x, dialogueId, nodeId, choiceId } : x)));
+                }}
+              />
+              <Select
+                value={r.not ? "not" : "yes"}
+                options={[
+                  { value: "yes", label: "уже выбирался" },
+                  { value: "not", label: "ещё не выбирался" },
+                ]}
+                onChange={(m) => setChosen(chosenRows.map((x, k) => (k === i ? { dialogueId: x.dialogueId, nodeId: x.nodeId, choiceId: x.choiceId, ...(m === "not" ? { not: true } : {}) } : x)))}
+              />
+              <button className="cond__remove" onClick={() => setChosen(chosenRows.filter((_, k) => k !== i))} title="Убрать строку">
+                ✕
+              </button>
+            </div>
+          ))}
+          <button className="btn btn--sm cond__or" onClick={() => setChosen([...chosenRows, { dialogueId: "", nodeId: "", choiceId: "" }])}>
+            + вариант
+          </button>
+        </div>
+      )}
       {showEnums && (
         <div className="cond__row">
           <span className="cond__title">Значения перечислений</span>
@@ -403,7 +457,7 @@ export function ConditionEditor({ value, onChange, ctx, label, nested }: { value
           </button>
         </div>
       )}
-      {(free.length > 0 || !showCounters || (!showEnums && !!d.enums?.length)) && (
+      {(free.length > 0 || !showCounters || (!showEnums && !!d.enums?.length) || (!showChosen && choiceOptions.length > 0)) && (
         <Select
           className="sel--add"
           value=""
@@ -412,10 +466,13 @@ export function ConditionEditor({ value, onChange, ctx, label, nested }: { value
             ...free.map((r) => ({ value: r.key as string, label: r.title })),
             ...(showCounters ? [] : [{ value: addCounters, label: "Значение счётчика" }]),
             ...(showEnums || !d.enums?.length ? [] : [{ value: addEnums, label: "Значение перечисления" }]),
+            ...(showChosen || !choiceOptions.length ? [] : [{ value: addChosen, label: "Выбранные варианты ответа" }]),
           ]}
           onChange={(k) =>
             k === addCounters
               ? (setCountersOpen(true), setCounters([...counterRows, { counterId: d.counters?.[0]?.id ?? "" }]))
+              : k === addChosen
+                ? (setChosenOpen(true), setChosen([...chosenRows, { dialogueId: "", nodeId: "", choiceId: "" }]))
               : k === addEnums
                 ? (setEnumsOpen(true), setEnums([...enumRows, { enumId: d.enums?.[0]?.id ?? "", in: [] }]))
                 : setAdded((a) => [...a, k as ListKey])

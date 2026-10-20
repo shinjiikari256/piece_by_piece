@@ -8,7 +8,6 @@ const SAVED_FIELDS = [
   "progress",
   "examined",
   "marks",
-  "usedChoices",
   "wrongDeductions",
   "playerNotes",
   "hintsUsed",
@@ -40,7 +39,7 @@ export function createAutosave(get: () => GameState, onFail: () => void) {
       progress: s.progress,
       examined: s.examined,
       marks: s.marks,
-      usedChoices: s.usedChoices,
+      usedChoices: s.progress.chosen, // для сохранений прежнего вида
       wrongDeductions: s.wrongDeductions,
       playerNotes: s.playerNotes,
       hintsUsed: s.hintsUsed,

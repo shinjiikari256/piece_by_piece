@@ -22,6 +22,8 @@ export interface Progress {
   counters: Record<string, number>;
   /** Текущие значения перечислений дела (id значения); заполняются при старте — `startProgress`. */
   enums: Record<string, string>;
+  /** Варианты ответа, которые игрок уже выбирал: `диалог/узел/вариант` (отметка ✓ и условие `chosen`). */
+  chosen: string[];
   /** Диалоги с автозапуском по входу в область, которые уже сработали (один раз за прохождение). */
   fired: string[];
 }
@@ -34,9 +36,13 @@ export const emptyProgress = (): Progress => ({
   followers: [],
   counters: {},
   enums: {},
+  chosen: [],
   npcPlaces: {},
   fired: [],
 });
+
+/** Ключ выбранного варианта ответа в `Progress.chosen`. */
+export const choiceKey = (dialogueId: string, nodeId: string, choiceId: string) => `${dialogueId}/${nodeId}/${choiceId}`;
 
 function meetsAll(cond: Omit<Condition, "anyOf">, p: Progress, locationId?: string): boolean {
   return (
@@ -56,6 +62,8 @@ function meetsAll(cond: Omit<Condition, "anyOf">, p: Progress, locationId?: stri
       const v = p.enums?.[r.enumId];
       return (!r.in?.length || (v !== undefined && r.in.includes(v))) && (!r.notIn?.length || v === undefined || !r.notIn.includes(v));
     }) &&
+    (cond.chosen ?? []).every((r) => (p.chosen ?? []).includes(choiceKey(r.dialogueId, r.nodeId, r.choiceId)) !== !!r.not) &&
+    (!cond.notInLocation?.length || locationId === undefined || !cond.notInLocation.includes(locationId)) &&
     (!cond.inLocation?.length || (locationId !== undefined && cond.inLocation.includes(locationId)))
   );
 }
@@ -147,6 +155,7 @@ export function applyEffects(effects: Effect[], p: Progress, ctx: EffectContext 
     followers: [...p.followers],
     counters: { ...(p.counters ?? {}) },
     enums: { ...(p.enums ?? {}) },
+    chosen: [...(p.chosen ?? [])],
     npcPlaces: { ...p.npcPlaces },
     fired: [...(p.fired ?? [])],
   };

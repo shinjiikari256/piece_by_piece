@@ -45,6 +45,11 @@ const BaseCondition = z.object({
   following: z.array(z.string()).optional().describe("Эти персонажи идут за игроком"),
   notFollowing: z.array(z.string()).optional().describe("Эти персонажи не идут за игроком"),
   inLocation: z.array(z.string()).optional().describe("Игрок сейчас в одной из этих локаций"),
+  notInLocation: z.array(z.string()).optional().describe("Игрок сейчас ни в одной из этих локаций"),
+  chosen: z
+    .array(z.object({ dialogueId: z.string(), nodeId: z.string(), choiceId: z.string(), not: z.boolean().optional().describe("Вариант ещё не выбирался") }))
+    .optional()
+    .describe("Варианты ответа, которые игрок уже выбирал (или, с «not», ещё не выбирал)"),
   counters: z
     .array(
       z.object({

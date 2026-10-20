@@ -85,6 +85,11 @@ function checkIntegrity(c: CaseFile): string[] {
     cond?.following?.forEach((id) => ref(characters, id, where));
     cond?.notFollowing?.forEach((id) => ref(characters, id, where));
     cond?.inLocation?.forEach((id) => ref(locationIds, id, where));
+    cond?.notInLocation?.forEach((id) => ref(locationIds, id, where));
+    cond?.chosen?.forEach((r) => {
+      const choice = c.dialogues.find((d) => d.id === r.dialogueId)?.nodes.find((n) => n.id === r.nodeId)?.choices.find((ch) => ch.id === r.choiceId);
+      if (!choice) err(`${where}: вариант ответа «${r.dialogueId}/${r.nodeId}/${r.choiceId}» не найден`);
+    });
     cond?.counters?.forEach((r) => {
       ref(counterIds, r.counterId, where);
       if (r.min !== undefined && r.max !== undefined && r.min > r.max) err(`${where}: счётчик «${r.counterId}» — «от» больше «до»`);

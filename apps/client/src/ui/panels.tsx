@@ -111,7 +111,6 @@ export function DialogueWindow({
   const caseFile = useCase();
   // подписка, чтобы список вариантов пересчитывался при изменении прогресса
   useGame((s) => s.progress);
-  useGame((s) => s.usedChoices);
   const dialogue = caseFile.dialogues.find((d) => d.id === dialogueId)!;
   const node = dialogue.nodes.find((n) => n.id === nodeId)!;
   const speakerOf = (id?: string) => caseFile.characters.find((c) => c.id === (id ?? dialogue.characterId))!;

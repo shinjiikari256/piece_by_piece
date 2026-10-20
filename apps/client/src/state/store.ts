@@ -6,7 +6,7 @@ import { RESULT_FORMAT_VERSION, type CaseAuthority, type DeductionVerdict, type 
 import { APP_NAME, FROM_EDITOR, GAME_VERSION } from "../env";
 import { currentRoute, navigate } from "../ui/router";
 import { createAutosave, pauseOnPageHide } from "./autosave";
-import { applyEffects, emptyProgress, meets, startProgress, type EffectOutcome, type Progress } from "../../../../shared/conditions";
+import { applyEffects, choiceKey, emptyProgress, meets, startProgress, type EffectOutcome, type Progress } from "../../../../shared/conditions";
 import { allNpcs, findObject, startLocation, zoneTargetCell } from "../content/case-utils";
 import { gameBridge } from "../game/bridge";
 import type { ResultRecord } from "./result-record";
@@ -58,7 +58,6 @@ export interface GameState {
   /** Пометки игрока: ключ — id улики или `fact:<id сопоставления>`. */
   marks: Record<string, Mark>;
   notesOpen: boolean;
-  usedChoices: string[];
   wrongDeductions: number;
   playerNotes: string;
   hintsUsed: number;
@@ -94,7 +93,6 @@ const initialState = (): GameState => ({
   examined: [],
   marks: {},
   notesOpen: false,
-  usedChoices: [],
   wrongDeductions: 0,
   playerNotes: "",
   hintsUsed: 0,
@@ -309,9 +307,6 @@ function runZoneAction(zoneId: string, a: ZoneAction) {
   } else actions.travel({ to: a.to, spawn: a.spawn });
 }
 
-const choiceKey = (dialogueId: string, nodeId: string, choiceId: string) =>
-  `${dialogueId}/${nodeId}/${choiceId}`;
-
 export const actions = {
   /** На главную страницу сайта. */
   goMenu: () => {
@@ -376,10 +371,10 @@ export const actions = {
       screen: save.screen,
       // пока игрока не было, таймер стоял
       startedAt: (save.startedAt ?? Date.now()) + (save.pausedAt ? Math.max(0, Date.now() - save.pausedAt) : 0),
-      progress: save.progress,
+      // выбранные варианты раньше лежали отдельно (`usedChoices`)
+      progress: { ...save.progress, chosen: save.progress.chosen ?? save.usedChoices ?? [] },
       examined: save.examined,
       marks: save.marks ?? {},
-      usedChoices: save.usedChoices,
       wrongDeductions: save.wrongDeductions,
       playerNotes: save.playerNotes,
       hintsUsed: save.hintsUsed,
@@ -569,7 +564,7 @@ export const actions = {
     // запоминаем выбранное — для отметки ✓; повторный выбор просто снова ведёт к ответу.
     // Разные реакции на повтор автор строит флагами и условиями.
     const key = choiceKey(o.dialogueId, o.nodeId, choice.id);
-    if (!state.usedChoices.includes(key)) set((s) => ({ usedChoices: [...s.usedChoices, key] }));
+    if (!state.progress.chosen.includes(key)) set((s) => ({ progress: { ...s.progress, chosen: [...s.progress.chosen, key] } }));
     // эффекты варианта — при каждом выборе, до ответа персонажа
     if (choice.effects?.length) {
       const { progress, newEvidence, messages, removedEvidence, followUp } = applyEffects(withZoneTargets(choice.effects), state.progress, fxCtx(`choice:${o.dialogueId}/${o.nodeId}/${choice.id}`));
@@ -587,7 +582,7 @@ export const actions = {
   },
 
   isChoiceUsed(dialogueId: string, nodeId: string, choiceId: string) {
-    return state.usedChoices.includes(choiceKey(dialogueId, nodeId, choiceId));
+    return state.progress.chosen.includes(choiceKey(dialogueId, nodeId, choiceId));
   },
 
   open(overlay: Overlay) {

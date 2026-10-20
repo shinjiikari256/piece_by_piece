@@ -65,6 +65,7 @@ export function sanitizeSave(save: SaveData, c: PublicCase): SaveData {
           return [id, saved !== undefined && (c.enums ?? []).find((e) => e.id === id)?.values.some((v) => v.id === saved) ? saved : start];
         }),
       ),
+      chosen: save.progress.chosen ?? save.usedChoices ?? [],
       followers: (save.progress.followers ?? []).filter((id) => characters.has(id)),
       fired: (save.progress.fired ?? []).filter((key) => c.locations.some((l) => key.startsWith("once:") || l.zones.some((z) => key.startsWith(`${z.id}:`)))),
       npcPlaces: Object.fromEntries(
