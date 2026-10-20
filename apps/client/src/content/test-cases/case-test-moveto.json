@@ -1191,6 +1191,198 @@
           "y": 14,
           "label": "",
           "interaction": null
+        },
+        {
+          "id": "gal_blood_pool",
+          "sprite": "blood_pool",
+          "x": 3,
+          "y": 9,
+          "label": "[ТЕСТ] Лужа крови",
+          "interaction": null
+        },
+        {
+          "id": "gal_blood_splatter",
+          "sprite": "blood_splatter",
+          "x": 6,
+          "y": 9,
+          "label": "[ТЕСТ] Брызги крови",
+          "interaction": null
+        },
+        {
+          "id": "gal_blood_drops",
+          "sprite": "blood_drops",
+          "x": 8,
+          "y": 9,
+          "label": "[ТЕСТ] Кровавая дорожка",
+          "interaction": null
+        },
+        {
+          "id": "gal_body_floor",
+          "sprite": "body_floor",
+          "x": 11,
+          "y": 9,
+          "label": "[ТЕСТ] Тело на полу",
+          "interaction": null
+        },
+        {
+          "id": "gal_body_wall",
+          "sprite": "body_wall",
+          "x": 14,
+          "y": 9,
+          "label": "[ТЕСТ] Тело вдоль стены",
+          "interaction": null
+        },
+        {
+          "id": "gal_body_covered",
+          "sprite": "body_covered",
+          "x": 16,
+          "y": 9,
+          "label": "[ТЕСТ] Тело под простынёй",
+          "interaction": null
+        },
+        {
+          "id": "gal_chalk_outline",
+          "sprite": "chalk_outline",
+          "x": 19,
+          "y": 9,
+          "label": "[ТЕСТ] Контур мелом",
+          "interaction": null
+        },
+        {
+          "id": "gal_key",
+          "sprite": "key",
+          "x": 8,
+          "y": 7,
+          "label": "[ТЕСТ] Ключ",
+          "interaction": null
+        },
+        {
+          "id": "gal_flashlight",
+          "sprite": "flashlight",
+          "x": 9,
+          "y": 7,
+          "label": "[ТЕСТ] Фонарик",
+          "interaction": null
+        },
+        {
+          "id": "gal_documents",
+          "sprite": "documents",
+          "x": 10,
+          "y": 7,
+          "label": "[ТЕСТ] Документы",
+          "interaction": null
+        },
+        {
+          "id": "gal_folder",
+          "sprite": "folder",
+          "x": 11,
+          "y": 7,
+          "label": "[ТЕСТ] Папка",
+          "interaction": null
+        },
+        {
+          "id": "gal_evidence_tag",
+          "sprite": "evidence_tag",
+          "x": 12,
+          "y": 7,
+          "label": "[ТЕСТ] Табличка улики",
+          "interaction": null
+        },
+        {
+          "id": "gal_conference_table_3",
+          "sprite": "conference_table_3",
+          "x": 3,
+          "y": 11,
+          "label": "[ТЕСТ] Переговорный 3×1",
+          "interaction": null
+        },
+        {
+          "id": "gal_conference_table_4",
+          "sprite": "conference_table_4",
+          "x": 7,
+          "y": 11,
+          "label": "[ТЕСТ] Переговорный 4×1",
+          "interaction": null
+        },
+        {
+          "id": "gal_school_desk",
+          "sprite": "school_desk",
+          "x": 12,
+          "y": 11,
+          "label": "[ТЕСТ] Школьная парта",
+          "interaction": null
+        },
+        {
+          "id": "gal_nightstand",
+          "sprite": "nightstand",
+          "x": 14,
+          "y": 11,
+          "label": "[ТЕСТ] Прикроватная тумба",
+          "interaction": null
+        },
+        {
+          "id": "gal_crate",
+          "sprite": "crate",
+          "x": 16,
+          "y": 11,
+          "label": "[ТЕСТ] Ящик",
+          "interaction": null
+        },
+        {
+          "id": "gal_desk_corner",
+          "sprite": "desk_corner",
+          "x": 18,
+          "y": 11,
+          "label": "[ТЕСТ] Угловой стол",
+          "interaction": null
+        },
+        {
+          "id": "gal_desk_papers",
+          "sprite": "desk_papers",
+          "x": 3,
+          "y": 13,
+          "label": "[ТЕСТ] Стол с бумагами",
+          "interaction": null
+        },
+        {
+          "id": "gal_coffee_table",
+          "sprite": "coffee_table",
+          "x": 6,
+          "y": 13,
+          "label": "[ТЕСТ] Журнальный столик",
+          "interaction": null
+        },
+        {
+          "id": "gal_kitchen_table",
+          "sprite": "kitchen_table",
+          "x": 9,
+          "y": 13,
+          "label": "[ТЕСТ] Кухонный стол",
+          "interaction": null
+        },
+        {
+          "id": "gal_dining_table",
+          "sprite": "dining_table",
+          "x": 12,
+          "y": 13,
+          "label": "[ТЕСТ] Обеденный стол",
+          "interaction": null
+        },
+        {
+          "id": "gal_lab_table",
+          "sprite": "lab_table",
+          "x": 16,
+          "y": 13,
+          "label": "[ТЕСТ] Лабораторный стол",
+          "interaction": null
+        },
+        {
+          "id": "gal_operating_table",
+          "sprite": "operating_table",
+          "x": 19,
+          "y": 13,
+          "label": "[ТЕСТ] Операционный стол",
+          "interaction": null
         }
       ],
       "npcs": [
