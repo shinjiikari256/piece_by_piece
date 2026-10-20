@@ -2,6 +2,8 @@ import Phaser from "phaser";
 import { isInteractive, type Location, type LocationObject } from "../../../../shared/case";
 import type { PublicCase as CaseFile } from "../../../../shared/public-case";
 import { meets } from "../../../../shared/conditions";
+import type { ClipStep, ObjectState } from "../../../../shared/case";
+import { DEFAULT_STATE, clipFrameAt, findTransition, loopFrameAt } from "../../../../shared/object-anim";
 import { objectView } from "../../../../shared/object-state";
 import { firstFloorCell, getLocation } from "../content/case-utils";
 import {
@@ -33,6 +35,20 @@ const FOLLOW_GAP = TILE * 1.1;
 /** Минимальный размер клетки на экране (px), ниже которого включается следящая камера. */
 const MIN_TILE_PX = 40;
 
+/** Предмет на сцене: картинка, опора, кнопка осмотра и состояние анимации. */
+interface ObjEntry {
+  o: LocationObject;
+  img: Phaser.GameObjects.Image;
+  footprint: { x: number; y: number }[];
+  item: Interactable | null;
+  stateId?: string;
+  baseFrame?: string;
+  loop?: ObjectState["loop"];
+  trans?: ClipStep[];
+  /** Время с начала текущего перехода или цикла, мс. */
+  animT: number;
+}
+
 const labelStyle: Phaser.Types.GameObjects.Text.TextStyle = {
   fontFamily: "Rubik, system-ui, sans-serif",
   fontSize: "13px",
@@ -52,7 +68,7 @@ export class OfficeScene extends Phaser.Scene {
   private trail: { x: number; y: number }[] = [];
   private leaving = false;
   /** Предметы с состояниями: вид и проходимость зависят от прогресса. */
-  private stateful: { o: LocationObject; img: Phaser.GameObjects.Image; footprint: { x: number; y: number }[]; item: Interactable | null }[] = [];
+  private stateful: ObjEntry[] = [];
   private objectTiles = new Set<string>();
   private player!: Phaser.GameObjects.Sprite;
   private keys!: Record<"up" | "down" | "left" | "right" | "w" | "a" | "s" | "d", Phaser.Input.Keyboard.Key>;
@@ -246,7 +262,7 @@ export class OfficeScene extends Phaser.Scene {
         .setScale(SCALE)
         .setDepth(spec.flat ? 0 : bottom);
       const footprint = footprintCells(o.x, o.y, spec.footprint);
-      const entry = { o, img, footprint, item: null as Interactable | null };
+      const entry: ObjEntry = { o, img, footprint, item: null, animT: 0 };
       if (spec.mirrorRight && o.x >= this.location.tiles[0].length / 2) img.setFlipX(true);
       if (o.states?.length || spec.opensNear) this.stateful.push(entry);
       else {
@@ -258,7 +274,7 @@ export class OfficeScene extends Phaser.Scene {
   }
 
   /** Сделать предмет доступным для осмотра: подпись, галочка «осмотрено», клик. */
-  private addObjectItem(e: { o: LocationObject; img: Phaser.GameObjects.Image; footprint: { x: number; y: number }[]; item: Interactable | null }, label: string) {
+  private addObjectItem(e: ObjEntry, label: string) {
     const spec = SPRITES[e.o.sprite];
     const cx = e.img.x;
     const bottom = e.img.y;
@@ -310,8 +326,16 @@ export class OfficeScene extends Phaser.Scene {
     for (const e of this.stateful) {
       const view = objectView(e.o, progress, locationId);
       const spec = SPRITES[e.o.sprite];
-      const tex = ensureObjectFrameTexture(this.textures, e.o.sprite, view.state?.frame);
-      if (e.img.texture.key !== tex) e.img.setTexture(tex);
+      const sid = view.state?.id ?? DEFAULT_STATE;
+      // живая смена состояния запускает переход; первая синхронизация (старт, загрузка) только запоминает состояние
+      if (e.stateId !== undefined && e.stateId !== sid) {
+        e.trans = findTransition(e.o, e.stateId, sid) ?? undefined;
+        e.animT = 0;
+      }
+      e.stateId = sid;
+      e.baseFrame = view.state?.frame;
+      e.loop = view.state?.loop;
+      this.showObjectFrame(e);
       solidCells(e.o.x, e.o.y, spec, view.state?.solid ?? spec.solid).forEach((t) => this.objectTiles.add(`${t.x},${t.y}`));
       if (view.interactive && !e.item) this.addObjectItem(e, view.label);
       else if (!view.interactive) this.removeObjectItem(e);
@@ -321,6 +345,32 @@ export class OfficeScene extends Phaser.Scene {
       }
     }
     this.refreshChecks();
+  }
+
+  /** Кадр предмета сейчас: переход, затем цикл состояния, иначе кадр состояния. */
+  private showObjectFrame(e: ObjEntry) {
+    let frame: string | null = null;
+    if (e.trans) {
+      frame = clipFrameAt(e.trans, e.animT);
+      if (frame === null) e.trans = undefined;
+    }
+    if (frame === null && e.loop) frame = loopFrameAt(e.loop, e.animT);
+    const tex = ensureObjectFrameTexture(this.textures, e.o.sprite, frame ?? e.baseFrame);
+    if (e.img.texture.key !== tex) e.img.setTexture(tex);
+  }
+
+  /** Время сцены: идёт всегда (цикл Phaser не засыпает), на паузе дела сцена не обновляется. */
+  private tickObjectAnims(deltaMs: number) {
+    for (const e of this.stateful) {
+      if (!e.trans && !e.loop) continue;
+      const wasTrans = !!e.trans;
+      e.animT += deltaMs;
+      this.showObjectFrame(e);
+      if (wasTrans && !e.trans) {
+        e.animT = 0; // цикл состояния начинается после перехода
+        this.showObjectFrame(e);
+      }
+    }
   }
 
   /** Где должен быть каждый персонаж сейчас: на месте, рядом с игроком или в другой локации. Смена места — ход пешком (`moveTo`). */
@@ -685,7 +735,7 @@ export class OfficeScene extends Phaser.Scene {
 
   /** Предметы с `opensNear` (двери) распахиваются, когда рядом игрок или сопровождающий и они сейчас проходимы. */
   private animateDoors() {
-    const doors = this.stateful.filter((e) => SPRITES[e.o.sprite].opensNear);
+    const doors = this.stateful.filter((e) => SPRITES[e.o.sprite].opensNear && !e.trans);
     if (!doors.length) return;
     const walkers = [this.player, ...[...this.npcs.values()].filter((n) => n.mode === "follower").map((n) => n.sprite)];
     const { progress, locationId } = this.host.getState();
@@ -890,6 +940,7 @@ export class OfficeScene extends Phaser.Scene {
 
 
     this.animateDoors();
+    this.tickObjectAnims(deltaMs);
     if (!blocked) this.watchZones();
     this.updateFocus(blocked);
 

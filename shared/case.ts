@@ -260,6 +260,26 @@ export const SpriteKey = z.enum([
   "door_v",
 ]);
 
+/** Шаг клипа: кадр спрайта и сколько миллисекунд его держать. */
+export const ClipStep = z.object({
+  frame: z.string().describe("Кадр спрайта"),
+  ms: z.number().int().min(10).max(10000).default(100).describe("Сколько миллисекунд показывать кадр"),
+});
+export type ClipStep = z.infer<typeof ClipStep>;
+
+/** Цикл состояния: клип идёт по кругу, пока состояние действует. */
+export const ObjectLoop = z.object({
+  clip: z.array(ClipStep).min(1),
+  pauseMs: z.number().int().min(0).max(60000).optional().describe("Пауза между повторами (в это время виден кадр состояния)"),
+});
+
+/** Переход между состояниями: клип проигрывается один раз при живой смене `from → to`. */
+export const ObjectTransition = z.object({
+  from: z.string().describe("Состояние «из» (id), `default` — вид по умолчанию, `*` — любое"),
+  to: z.string().describe("Состояние «в» (id), `default` — вид по умолчанию, `*` — любое"),
+  clip: z.array(ClipStep).min(1),
+});
+
 /** Вид и поведение предмета при условии. Состояние — производная переменных дела: сменить его можно только сменив переменную обычным эффектом. */
 export const ObjectState = z.object({
   id: z.string(),
@@ -271,6 +291,7 @@ export const ObjectState = z.object({
   onInteract: z.array(Effect).optional().describe("Эффекты осмотра в этом состоянии вместо эффектов предмета (например, сообщение «Заперто»)"),
   onEnter: z.array(Effect).optional().describe("Эффекты в момент, когда предмет перешёл в это состояние (только при смене во время игры, не при загрузке сохранения)"),
   onExit: z.array(Effect).optional().describe("Эффекты в момент, когда предмет вышел из этого состояния"),
+  loop: ObjectLoop.optional().describe("Анимация по кругу, пока состояние действует (мигающая лампа)"),
 });
 
 export const LocationObject = z.object({
@@ -280,6 +301,7 @@ export const LocationObject = z.object({
   y: z.number().int().describe("Строка тайла"),
   label: z.string().describe("Подпись над объектом"),
   interaction: ObjectInteraction.nullable().describe("Окно осмотра; null — без окна (декорация или предмет только с эффектами)"),
+  transitions: z.array(ObjectTransition).optional().describe("Анимации перехода между состояниями (открытие двери); нет подходящей — кадр меняется сразу"),
   states: z.array(ObjectState).optional().describe("Состояния по условиям: действует первое подходящее по порядку; нет подходящего — вид по умолчанию"),
   onInteract: z.array(Effect).default([]).meta({ always: true }).describe("Эффекты осмотра предмета (при каждом осмотре; «только один раз» — у самого эффекта); выдача улики — в окне осмотра"),
 });

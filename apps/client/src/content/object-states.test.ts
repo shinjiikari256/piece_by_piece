@@ -106,3 +106,25 @@ describe("дверь — предмет с состояниями (door_412 в �
     expect(open.interactive).toBe(false);
   });
 });
+
+describe("анимации предмета: валидатор и тестовое дело", () => {
+  it("сейф в тестовом деле: переход в open и цикл у сломанного состояния описаны и проходят валидацию", () => {
+    expect(safe().transitions?.[0]).toMatchObject({ from: "*", to: "open" });
+    expect(safe().states?.find((st) => st.id === "broken")?.loop?.pauseMs).toBe(1500);
+    expect(validateCase(base).ok).toBe(true);
+  });
+
+  it("валидатор: нет кадра в клипе, нет состояния в переходе, «из» = «в»", () => {
+    const c = structuredClone(base);
+    const o = c.locations.flatMap((l) => l.objects).find((x) => x.id === "dec_safe")!;
+    o.transitions = [
+      { from: "nope", to: "open", clip: [{ frame: "default", ms: 100 }] },
+      { from: "open", to: "open", clip: [{ frame: "ghost", ms: 100 }] },
+    ];
+    const r = validateCase(c);
+    const text = r.ok ? "" : r.errors.join("\n");
+    expect(text).toContain("нет состояния «nope»");
+    expect(text).toContain("совпадают");
+    expect(text).toContain("нет кадра ghost");
+  });
+});

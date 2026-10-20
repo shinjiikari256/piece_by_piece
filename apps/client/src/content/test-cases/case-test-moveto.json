@@ -461,6 +461,35 @@
                   "type": "message",
                   "text": "Замок вырван, дверца не открывается."
                 }
+              ],
+              "loop": {
+                "clip": [
+                  {
+                    "frame": "open",
+                    "ms": 300
+                  },
+                  {
+                    "frame": "default",
+                    "ms": 300
+                  }
+                ],
+                "pauseMs": 1500
+              }
+            }
+          ],
+          "transitions": [
+            {
+              "from": "*",
+              "to": "open",
+              "clip": [
+                {
+                  "frame": "default",
+                  "ms": 150
+                },
+                {
+                  "frame": "open",
+                  "ms": 150
+                }
               ]
             }
           ]

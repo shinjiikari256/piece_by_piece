@@ -202,8 +202,19 @@ function checkIntegrity(c: CaseFile): string[] {
         for (const st of o.states) {
           if (st.frame && !spec.frames[st.frame]) err(`${L}/object ${o.id}: состояние ${st.id}: у спрайта ${o.sprite} нет кадра ${st.frame}`);
           checkCondition(st.when, `${L}/object ${o.id}: состояние ${st.id}.when`);
+          st.loop?.clip.forEach((step) => {
+            if (!spec.frames[step.frame]) err(`${L}/object ${o.id}: состояние ${st.id}: в цикле нет кадра ${step.frame} у спрайта ${o.sprite}`);
+          });
         }
       }
+      const stateIds = new Set(["*", "default", ...(o.states ?? []).map((st) => st.id)]);
+      o.transitions?.forEach((t, i) => {
+        for (const side of [t.from, t.to]) if (!stateIds.has(side)) err(`${L}/object ${o.id}: переход №${i + 1}: нет состояния «${side}»`);
+        if (t.from === t.to && t.from !== "*") err(`${L}/object ${o.id}: переход №${i + 1}: «из» и «в» совпадают`);
+        t.clip.forEach((step) => {
+          if (!spec.frames[step.frame]) err(`${L}/object ${o.id}: переход №${i + 1}: нет кадра ${step.frame} у спрайта ${o.sprite}`);
+        });
+      });
     }
     for (const n of loc.npcs) occupy(n.x, n.y, `npc ${n.id}`);
     occupiedOf.set(loc.id, occupied);
