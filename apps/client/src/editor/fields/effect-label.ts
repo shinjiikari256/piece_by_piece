@@ -19,6 +19,8 @@ export function effectLabel(e: Effect): string {
         return `игрок → ${e.locationId} (${e.x}, ${e.y})`;
       case "message":
         return `сообщение «${e.text.slice(0, 30)}${e.text.length > 30 ? "…" : ""}»`;
+      case "playAnimation":
+        return `анимация предмета ${e.objectId}`;
       case "addCharacterNote":
         return `заметка о ${e.characterId}`;
       default:

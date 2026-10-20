@@ -7,13 +7,15 @@ import { editorStore } from "../state";
 import { FormCtx, charOption } from "../SchemaForm";
 import { ConditionEditor, flagLabel, flagsOf, type Condition } from "./Conditions";
 import { NewVariableDialog } from "./NewVariable";
+import { ClipEditor } from "./ClipEditor";
+import { SPRITES } from "../../game/art/sprites";
 import { firstFloorCell } from "../../content/case-utils";
 
 const cellOf = (l: Parameters<typeof firstFloorCell>[0] | undefined) => (l ? l.playerStart ?? firstFloorCell(l) : { x: 0, y: 0 });
 
 // ---------- эффекты ----------
 
-const EFFECT_TYPES: Effect["type"][] = ["addEvidence", "removeEvidence", "changeVariable", "message", "startDialogue", "travel", "failCase", "follow", "stay", "returnHome", "moveTo", "addCharacterNote"];
+const EFFECT_TYPES: Effect["type"][] = ["addEvidence", "removeEvidence", "changeVariable", "message", "startDialogue", "travel", "failCase", "follow", "stay", "returnHome", "moveTo", "addCharacterNote", "playAnimation"];
 
 const blankEffect = (type: Effect["type"], d: FormCtx["draft"]): Effect => {
   const ch = d.characters[0]?.id ?? "";
@@ -36,6 +38,8 @@ const blankEffect = (type: Effect["type"], d: FormCtx["draft"]): Effect => {
     }
     case "addCharacterNote":
       return { type, characterId: ch, text: "" };
+    case "playAnimation":
+      return { type, objectId: "", clip: [{ frame: "default", ms: 100 }] };
     case "moveTo":
       return { type, characterId: ch, locationId: d.locations[0]?.id ?? "", x: 0, y: 0 };
     default:
@@ -154,6 +158,21 @@ export function EffectsEditor({ value, onChange, ctx }: { value: Effect[]; onCha
                   </button>
                   <span className="muted">клетка {e.x}, {e.y}</span>
                 </div>
+              </>
+            )}
+            {e.type === "playAnimation" && (
+              <>
+                <Select
+                  value={e.objectId}
+                  placeholder="какой предмет"
+                  options={d.locations.flatMap((l) => l.objects.map((o) => ({ value: o.id, label: `${l.name} · ${o.id}` })))}
+                  onChange={(v) => set(i, { ...e, objectId: v })}
+                />
+                <ClipEditor
+                  value={e.clip}
+                  frames={Object.keys(SPRITES[d.locations.flatMap((l) => l.objects).find((o) => o.id === e.objectId)?.sprite as keyof typeof SPRITES]?.frames ?? { default: 0 })}
+                  onChange={(clip) => set(i, { ...e, clip })}
+                />
               </>
             )}
             {e.type === "changeVariable" && <VariableEffect effect={e} ctx={ctx} onChange={(v) => set(i, v)} />}

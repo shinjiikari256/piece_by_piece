@@ -1,3 +1,4 @@
+import type { ClipStep } from "../../../../shared/case";
 import type { GameState } from "../state/store";
 
 /**
@@ -9,6 +10,8 @@ export interface SceneHost {
   subscribe(listener: () => void): () => void;
   /** Открыт интерфейс поверх сцены — персонаж стоит. */
   isBlocked(): boolean;
+  /** Эффект `playAnimation`: проиграть клип предмета. Возвращает отписку. */
+  onPlayAnimation(listener: (objectId: string, clip: ClipStep[]) => void): () => void;
   /** Игрок взаимодействует с объектом, персонажем или выходом. */
   onInteract(targetId: string): void;
   /** Есть ли сейчас подходящее действие у области: подсказка взаимодействия показывается только тогда. */

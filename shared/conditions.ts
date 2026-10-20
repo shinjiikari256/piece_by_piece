@@ -1,4 +1,4 @@
-import type { Condition, Effect } from "./case";
+import type { ClipStep, Condition, Effect } from "./case";
 
 /** Часть состояния, от которой зависят условия и эффекты сценария. */
 export interface Place {
@@ -128,7 +128,7 @@ export interface EffectOutcome {
   /** Улики, убранные эффектами `removeEvidence` (были в деле). */
   removedEvidence: string[];
   /** Что вызывающий должен сделать после применения: перенести игрока, запустить диалог (побеждает последний такой эффект). */
-  followUp: { dialogueId?: string; travel?: { to: string; spawn: { x: number; y: number } }; failCase?: { text?: string } };
+  followUp: { animations?: { objectId: string; clip: ClipStep[] }[]; dialogueId?: string; travel?: { to: string; spawn: { x: number; y: number } }; failCase?: { text?: string } };
 }
 
 /**
@@ -222,6 +222,9 @@ export function applyEffects(effects: Effect[], p: Progress, ctx: EffectContext 
         break;
       case "failCase":
         followUp.failCase = { text: e.text };
+        break;
+      case "playAnimation":
+        (followUp.animations ??= []).push({ objectId: e.objectId, clip: e.clip });
         break;
       case "startDialogue":
         followUp.dialogueId = e.dialogueId;

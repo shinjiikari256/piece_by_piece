@@ -3,6 +3,7 @@ import { isInteractive, type Location, type LocationObject } from "../../../../s
 import type { PublicCase as CaseFile } from "../../../../shared/public-case";
 import { meets } from "../../../../shared/conditions";
 import type { ClipStep, ObjectState } from "../../../../shared/case";
+import { effectSites } from "../../../../shared/effect-sites";
 import { DEFAULT_STATE, clipFrameAt, findAction, findTransition, loopFrameAt, timerActive, timerDelay } from "../../../../shared/object-anim";
 import { objectView } from "../../../../shared/object-state";
 import { firstFloorCell, getLocation } from "../content/case-utils";
@@ -198,7 +199,12 @@ export class OfficeScene extends Phaser.Scene {
 
     this.unsubscribe = this.host.subscribe(() => this.onStoreChange());
     this.refreshChecks();
+    const stopAnimations = this.host.onPlayAnimation((objectId, clip) => {
+      const e = this.stateful.find((s) => s.o.id === objectId);
+      if (e && !e.trans) this.playOverlay(e, clip);
+    });
     this.cleanups.push(() => {
+      stopAnimations();
       this.unsubscribe?.();
       this.unsubscribe = undefined;
       this.scale?.off(Phaser.Scale.Events.RESIZE, this.fitCamera, this);
@@ -257,6 +263,7 @@ export class OfficeScene extends Phaser.Scene {
   }
 
   private buildObjects() {
+    const animated = new Set(effectSites(this.caseFile as unknown as Parameters<typeof effectSites>[0]) /* нужны только эффекты, ответов сопоставлений они не касаются */.flatMap((s) => s.effects.flatMap((e) => (e.type === "playAnimation" ? [e.objectId] : []))));
     for (const o of this.location.objects) {
       const spec = SPRITES[o.sprite];
       const cx = (o.x + spec.footprint.w / 2) * TILE;
@@ -269,7 +276,7 @@ export class OfficeScene extends Phaser.Scene {
       const footprint = footprintCells(o.x, o.y, spec.footprint);
       const entry: ObjEntry = { o, img, footprint, item: null, animT: 0, overlayT: 0, timerAt: (o.timers ?? []).map((t) => timerDelay(t, Math.random())) };
       if (spec.mirrorRight && o.x >= this.location.tiles[0].length / 2) img.setFlipX(true);
-      if (o.states?.length || spec.opensNear || o.actions?.length || o.timers?.length) this.stateful.push(entry);
+      if (o.states?.length || spec.opensNear || o.actions?.length || o.timers?.length || animated.has(o.id)) this.stateful.push(entry);
       else {
         solidCells(o.x, o.y, spec).forEach((t) => this.setSolid(t.x, t.y));
         if (isInteractive(o)) this.addObjectItem(entry, o.label);

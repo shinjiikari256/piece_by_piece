@@ -220,4 +220,5 @@ export const ENUM_LABELS: Record<string, string> = {
   stay: "персонаж остаётся, где стоит",
   returnHome: "персонаж возвращается на место",
   moveTo: "персонаж идёт на клетку карты",
+  playAnimation: "проиграть анимацию предмета",
 };

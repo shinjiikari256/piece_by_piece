@@ -400,8 +400,20 @@
           "sprite": "fire_extinguisher",
           "x": 11,
           "y": 10,
-          "label": "",
-          "interaction": null
+          "label": "[ТЕСТ] Огнетушитель (мигает сейф)",
+          "interaction": null,
+          "onInteract": [
+            {
+              "type": "playAnimation",
+              "objectId": "dec_safe",
+              "clip": [
+                { "frame": "open", "ms": 150 },
+                { "frame": "default", "ms": 150 },
+                { "frame": "open", "ms": 150 },
+                { "frame": "default", "ms": 150 }
+              ]
+            }
+          ]
         },
         {
           "id": "dec_safe",

@@ -93,6 +93,13 @@ const effectWhen = {
   once: z.boolean().optional().describe("Только один раз за прохождение: после первого срабатывания эффект больше не применяется"),
 };
 
+/** Шаг клипа: кадр спрайта и сколько миллисекунд его держать. */
+export const ClipStep = z.object({
+  frame: z.string().describe("Кадр спрайта"),
+  ms: z.number().int().min(10).max(10000).default(100).describe("Сколько миллисекунд показывать кадр"),
+});
+export type ClipStep = z.infer<typeof ClipStep>;
+
 export const Effect = z.discriminatedUnion("type", [
   z.object({ type: z.literal("addEvidence"), evidenceId: z.string(), ...effectWhen }),
   z
@@ -106,6 +113,9 @@ export const Effect = z.discriminatedUnion("type", [
     })
     .describe("Изменить переменную: флаг — поставить, снять или переключить; счётчик — прибавить, отнять или задать значение (в границах счётчика); перечисление — выбрать значение"),
   z.object({ type: z.literal("removeEvidence"), evidenceId: z.string(), ...effectWhen }).describe("Убрать улику из дела (отдал ключ, расход предмета)"),
+  z
+    .object({ type: z.literal("playAnimation"), objectId: z.string(), clip: z.array(ClipStep).min(1), ...effectWhen })
+    .describe("Проиграть анимацию предмета один раз, не меняя его состояния (диалог заставил дверь постучать); только вид, на условия не влияет"),
   z.object({ type: z.literal("startDialogue"), dialogueId: z.string(), ...effectWhen }).describe("Запустить диалог (после остальных эффектов списка)"),
   z
     .object({ type: z.literal("travel"), locationId: z.string(), x: z.number().int(), y: z.number().int(), ...effectWhen })
@@ -259,13 +269,6 @@ export const SpriteKey = z.enum([
   "door_h",
   "door_v",
 ]);
-
-/** Шаг клипа: кадр спрайта и сколько миллисекунд его держать. */
-export const ClipStep = z.object({
-  frame: z.string().describe("Кадр спрайта"),
-  ms: z.number().int().min(10).max(10000).default(100).describe("Сколько миллисекунд показывать кадр"),
-});
-export type ClipStep = z.infer<typeof ClipStep>;
 
 /** Цикл состояния: клип идёт по кругу, пока состояние действует. */
 export const ObjectLoop = z.object({

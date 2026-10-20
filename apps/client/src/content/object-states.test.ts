@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { CaseFile, LocationObject } from "../../../../shared/case";
 import { isInteractive } from "../../../../shared/case";
-import { startProgress } from "../../../../shared/conditions";
+import { applyEffects, startProgress } from "../../../../shared/conditions";
 import { activeState, currentInteraction, objectView } from "../../../../shared/object-state";
 import testCase from "./test-cases/case-test-moveto.json";
 import { effectSites } from "../../../../shared/effect-sites";
@@ -145,5 +145,19 @@ describe("действия и таймеры предмета", () => {
     expect(text).toContain("действие №1: нет состояния «нет»");
     expect(text).toContain("действие №1: нет кадра ghost");
     expect(text).toContain("таймер №1: нет состояния «тоже_нет»");
+  });
+
+  it("playAnimation: в тестовом деле есть, applyEffects отдаёт followUp, валидатор ловит ошибки", () => {
+    const fx = base.locations.flatMap((l) => l.objects).flatMap((o) => o.onInteract ?? []).find((e) => e.type === "playAnimation");
+    expect(fx).toMatchObject({ objectId: "dec_safe" });
+    const res = applyEffects([fx!], startProgress(base), { whereIs: () => undefined, counters: [], locationId: "" } as never);
+    expect(res.followUp?.animations).toEqual([{ objectId: "dec_safe", clip: (fx as { clip: unknown }).clip }]);
+
+    const c = structuredClone(base);
+    const bad = c.locations.flatMap((l) => l.objects).flatMap((o) => o.onInteract ?? []).find((e) => e.type === "playAnimation") as { objectId: string; clip: { frame: string; ms: number }[] };
+    bad.clip = [{ frame: "ghost", ms: 100 }];
+    expect(JSON.stringify(validateCase(c))).toContain("нет кадра «ghost»");
+    bad.objectId = "nope";
+    expect(JSON.stringify(validateCase(c))).toContain("неизвестный предмет «nope»");
   });
 });

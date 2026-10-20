@@ -1,6 +1,6 @@
 import type { SceneHost } from "../game/host";
 import { platform } from "./platform";
-import { actions, isWorldBlocked, store } from "./store";
+import { actions, isWorldBlocked, onPlayAnimation, store } from "./store";
 
 /** Хост сцены поверх стора игры. */
 export function createSceneHost(): SceneHost {
@@ -8,6 +8,7 @@ export function createSceneHost(): SceneHost {
     getState: store.get,
     subscribe: store.subscribe,
     isBlocked: () => isWorldBlocked(store.get()),
+    onPlayAnimation,
     onInteract: (id) => actions.interact(id),
     hasZoneAction: (id) => actions.hasZoneAction(id),
     enterZone: (id) => actions.enterZone(id),

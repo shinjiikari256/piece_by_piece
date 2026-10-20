@@ -1,7 +1,7 @@
 import { editorPathOfPlaytest } from "../content/drafts";
 import { useSyncExternalStore } from "react";
 import { activeState, objectView } from "../../../../shared/object-state";
-import { objectEvidenceIds, type Effect, type Solution, type Zone, type ZoneAction } from "../../../../shared/case";
+import { objectEvidenceIds, type ClipStep, type Effect, type Solution, type Zone, type ZoneAction } from "../../../../shared/case";
 import type { PublicCase, PublicDeduction } from "../../../../shared/public-case";
 import { RESULT_FORMAT_VERSION, type CaseAuthority, type DeductionVerdict, type FinishInput, type RevealedHint } from "../../../../shared/judge";
 import { APP_NAME, FROM_EDITOR, GAME_VERSION } from "../env";
@@ -217,9 +217,18 @@ function announce(newEvidence: string[], messages: string[], removedEvidence: st
   runFollowUp(followUp);
 }
 
+/** Подписчики на эффект `playAnimation` (сцена Phaser, через хост). */
+const animationListeners = new Set<(objectId: string, clip: ClipStep[]) => void>();
+export const onPlayAnimation = (fn: (objectId: string, clip: ClipStep[]) => void) => {
+  animationListeners.add(fn);
+  return () => void animationListeners.delete(fn);
+};
+
 let followDepth = 0;
 /** Перенос игрока и запуск диалога, которые потребовали эффекты. Глубина ограничена: локации с взаимным переносом не зациклят игру. */
 function runFollowUp(f: EffectOutcome["followUp"]) {
+  // анимации — только вид: сцена проигрывает их, если предмет в текущей локации
+  f.animations?.forEach((a) => animationListeners.forEach((fn) => fn(a.objectId, a.clip)));
   if ((!f.travel && !f.dialogueId && !f.failCase) || followDepth >= 5) return;
   followDepth++;
   try {

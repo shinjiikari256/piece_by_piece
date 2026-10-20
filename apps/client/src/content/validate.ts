@@ -119,6 +119,14 @@ function checkIntegrity(c: CaseFile): string[] {
         if (!locationIds.has(e.locationId)) err(`${where}: перенос игрока — неизвестная локация «${e.locationId}»`);
         else if (!floorOf.get(e.locationId)?.(e.x, e.y)) err(`${where}: перенос игрока — клетка ${e.x},${e.y} в «${e.locationId}» не пол`);
       }
+      if (e.type === "playAnimation") {
+        const obj = c.locations.flatMap((l) => l.objects).find((o) => o.id === e.objectId);
+        if (!obj) err(`${where}: анимация — неизвестный предмет «${e.objectId}»`);
+        else
+          e.clip.forEach((step) => {
+            if (!(step.frame in SPRITES[obj.sprite].frames)) err(`${where}: у спрайта «${obj.sprite}» нет кадра «${step.frame}»`);
+          });
+      }
       if (e.type === "message" && !e.text.trim()) err(`${where}: у сообщения нет текста`);
       if (e.type === "addEvidence") ref(evidence, e.evidenceId, where);
       if (e.type === "changeVariable") {
