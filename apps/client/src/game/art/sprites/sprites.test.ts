@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { SpriteKey } from "../../../../../../shared/case";
 import { SPRITE_NAMES } from "../tiles";
-import { SPRITES, SPRITE_GROUPS } from "./index";
+import { SPRITES, SPRITE_GROUPS, drawSprite } from "./index";
 
 /** Прогнать `draw` по записывающему холсту: список прямоугольников. */
 function record(draw: (ctx: never) => void) {
@@ -36,13 +36,21 @@ describe("спрайты предметов", () => {
 
   it.each(SpriteKey.options)("%s: рисунок не выходит за размер спрайта и не пуст", (key) => {
     const spec = SPRITES[key];
-    const rects = record(spec.draw as never);
+    const rects = record((ctx) => drawSprite(ctx as never, spec));
     expect(rects.length).toBeGreaterThan(0);
     for (const r of rects) {
       expect(r.x, `${key} x`).toBeGreaterThanOrEqual(0);
       expect(r.y, `${key} y`).toBeGreaterThanOrEqual(0);
       expect(r.x + r.w, `${key} правый край`).toBeLessThanOrEqual(spec.w);
       expect(r.y + r.h, `${key} низ`).toBeLessThanOrEqual(spec.h);
+    }
+    expect(Array.isArray(spec.frames.default), `${key} кадр default`).toBe(true);
+    for (const [frame, ops] of Object.entries(spec.frames)) {
+      for (const op of ops) {
+        expect(op, `${key}/${frame}`).toHaveLength(5);
+        expect(op.slice(0, 4).every((n) => Number.isInteger(n)), `${key}/${frame} числа`).toBe(true);
+        expect(typeof op[4], `${key}/${frame} цвет`).toBe("string");
+      }
     }
     expect(spec.footprint.w).toBeGreaterThanOrEqual(1);
     expect(spec.footprint.h).toBeGreaterThanOrEqual(1);

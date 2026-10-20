@@ -1,6 +1,11 @@
-import type { SpriteKey } from "../../../../../../shared/case";
 import type { Ctx } from "../common";
 import type { Footprint } from "./cells";
+
+/** Одна операция рисования: залить прямоугольник (x, y, ширина, высота, цвет). Порядок в кадре = порядок рисования. */
+export type SpriteOp = [x: number, y: number, w: number, h: number, color: string];
+
+/** Кадры спрайта: именованные списки операций; кадр по умолчанию — `default`. */
+export type SpriteFrames = { default: SpriteOp[] } & Record<string, SpriteOp[]>;
 
 export interface SpriteSpec {
   w: number; // ширина в базовых пикселях
@@ -12,12 +17,20 @@ export interface SpriteSpec {
   flat?: boolean;
   /** Висит на стене: на сколько базовых пикселей низ поднят над полом клетки. */
   mount?: number;
-  draw: (ctx: Ctx) => void;
+  frames: SpriteFrames;
 }
 
-/** Группа предметов: так они подписаны в палитре редактора карты; файл группы — `sprites/<id>.ts`. */
+/** Группа предметов: так они подписаны в палитре редактора карты; данные группы — `sprites/data/<id>.json`. */
 export interface SpriteGroup {
   id: string;
   label: string;
-  sprites: Partial<Record<SpriteKey, SpriteSpec>>;
+  sprites: Record<string, SpriteSpec>;
+}
+
+/** Нарисовать кадр спрайта (по умолчанию `default`) в левый верхний угол холста. */
+export function drawSprite(ctx: Ctx, spec: SpriteSpec, frame = "default") {
+  for (const [x, y, w, h, color] of spec.frames[frame] ?? spec.frames.default) {
+    ctx.fillStyle = color;
+    ctx.fillRect(x, y, w, h);
+  }
 }

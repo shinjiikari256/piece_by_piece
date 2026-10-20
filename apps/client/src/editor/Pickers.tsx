@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { CHAR_H, CHAR_W, LOOKS, LOOK_NAMES, SPRITES, SPRITE_NAMES, drawCharacter, type Look } from "../game/art";
+import { CHAR_H, CHAR_W, LOOKS, LOOK_NAMES, SPRITES, SPRITE_NAMES, drawCharacter, drawSprite, type Look } from "../game/art";
 
 /** Картинка облика или предмета, нарисованная тем же кодом, что и в игре. */
 export function ArtThumb({ kind, id, scale = 2, look }: { kind: "look" | "sprite"; id: string; scale?: number; look?: Look }) {
@@ -14,7 +14,10 @@ export function ArtThumb({ kind, id, scale = 2, look }: { kind: "look" | "sprite
     if (kind === "look") {
       const l = look ?? LOOKS[id as keyof typeof LOOKS];
       if (l) drawCharacter(ctx, l, "idle", 0);
-    } else SPRITES[id as keyof typeof SPRITES]?.draw(ctx);
+    } else {
+      const sp = SPRITES[id as keyof typeof SPRITES];
+      if (sp) drawSprite(ctx, sp);
+    }
   }, [kind, id, w, h, lookKey]); // eslint-disable-line react-hooks/exhaustive-deps
   return <canvas ref={ref} width={w} height={h} className="art-thumb" style={{ width: w * scale, height: h * scale }} />;
 }

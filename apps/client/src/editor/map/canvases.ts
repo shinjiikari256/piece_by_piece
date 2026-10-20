@@ -7,6 +7,7 @@ import {
   SPRITES,
   TILE_NAMES,
   drawCharacter,
+  drawSprite,
   drawDoor,
   type Look,
 } from "../../game/art";
@@ -57,7 +58,7 @@ export function useSpriteCanvases() {
       const c = document.createElement("canvas");
       c.width = spec.w;
       c.height = spec.h;
-      spec.draw(c.getContext("2d")!);
+      drawSprite(c.getContext("2d")!, spec);
       sprites.set(key, c);
     }
     return { sprites };

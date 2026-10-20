@@ -1,6 +1,6 @@
 import type Phaser from "phaser";
 import type { PublicCase } from "../../../../../shared/public-case";
-import { CHAR_FRAMES, CHAR_H, CHAR_W, DOOR_SIZE, LOOKS, SPRITES, drawCharacter, drawDoor, resolveLook, type Look } from "../art";
+import { CHAR_FRAMES, CHAR_H, CHAR_W, DOOR_SIZE, LOOKS, SPRITES, drawCharacter, drawDoor, drawSprite, resolveLook, type Look } from "../art";
 
 type Textures = Phaser.Textures.TextureManager;
 
@@ -10,7 +10,7 @@ export function ensureObjectTextures(textures: Textures) {
     const tex = `obj_${key}`;
     if (textures.exists(tex)) continue;
     const canvas = textures.createCanvas(tex, spec.w, spec.h)!;
-    spec.draw(canvas.getContext());
+    drawSprite(canvas.getContext(), spec);
     canvas.refresh();
   }
 }
