@@ -1,7 +1,7 @@
 import { type CaseFile, type Condition, type Effect } from "../../../../shared/case";
 import { flagOfEffect, isFlagAction } from "../../../../shared/conditions";
 import { effectSites } from "../../../../shared/effect-sites";
-import { isInteractive } from "../../../../shared/case";
+import { isEntryTrigger, isInteractive } from "../../../../shared/case";
 import { parseCase } from "../../../../shared/migrate";
 import { FLOOR_TILES, SPRITES, WALL_TILES, resolveLook } from "../game/art";
 import { zoneTargetCell } from "./case-utils";
@@ -209,6 +209,7 @@ function checkIntegrity(c: CaseFile): string[] {
         checkCondition(a.requires, `${where}.requires`);
         if (a.kind === "dialogue") ref(dialogues, a.dialogueId, `${where} (диалог)`);
         if (a.kind === "exit") ref(locationIds, a.to, `${where} (выход)`);
+        if (a.kind === "exit" && a.trigger === "leave") err(`${where} (выход): выход не может срабатывать при выходе из области`);
         if (a.kind === "object") {
           const o = c.locations.flatMap((l) => l.objects).find((x) => x.id === a.objectId);
           if (!o) err(`${where} (предмет): неизвестная ссылка «${a.objectId}»`);
@@ -237,7 +238,7 @@ function checkIntegrity(c: CaseFile): string[] {
         if (!target) return;
         const where = `location ${loc.id}/zone ${z.id}: действие №${i + 1}`;
         if (!floorOf.get(target.id)?.(a.spawn.x, a.spawn.y)) err(`${where} (выход): spawn не на полу в «${a.to}»`);
-        const bounce = target.zones.some((tz) => tz.cells.some((cell) => cell.x === a.spawn.x && cell.y === a.spawn.y) && tz.actions.some((ta) => ta.kind === "exit" && ta.auto));
+        const bounce = target.zones.some((tz) => tz.cells.some((cell) => cell.x === a.spawn.x && cell.y === a.spawn.y) && tz.actions.some((ta) => ta.kind === "exit" && isEntryTrigger(ta.trigger)));
         if (bounce) err(`${where} (выход): spawn стоит в области с автоматическим выходом — игрока сразу выкинет обратно`);
       });
     }

@@ -664,7 +664,7 @@ describe("moveTo с областью", () => {
       name: "Цель",
       // первая клетка занята другим человеком — берётся вторая
       cells: [{ x: other.x, y: other.y }, { x: start.x, y: start.y }],
-      actions: [{ kind: "effects", auto: true, effects: [{ type: "moveTo", characterId: "krylov", locationId: loc.id, x: 0, y: 0, zoneId: "z_goal" }] }],
+      actions: [{ kind: "effects", trigger: "enter", effects: [{ type: "moveTo", characterId: "krylov", locationId: loc.id, x: 0, y: 0, zoneId: "z_goal" }] }],
     } as never);
     const c = validateCase(raw);
     if (!c.ok) throw new Error(c.errors.join("; "));
@@ -853,5 +853,55 @@ describe("осмотр без окна и повторные эффекты", ()
     actions.interact("obj_computer");
     expect(store.get().overlay).toMatchObject({ kind: "object" });
     expect(store.get().progress.collected).not.toContain("mail_log");
+  });
+});
+
+describe("области: режимы запуска и текст отказа", () => {
+  const zoneCase = (actionsOf: (c: CaseFile) => unknown[]) => {
+    const raw = load("case-001.json") as unknown as CaseFile;
+    raw.flags = [...(raw.flags ?? []), { id: "key", name: "Ключ" }];
+    raw.counters = [{ id: "n", name: "Счёт" }];
+    const loc = raw.locations[0];
+    // область на первой свободной клетке пола
+    const cell = loc.tiles.flatMap((row, y) => [...row].map((ch, x) => ({ ch, x, y }))).find((t) => t.ch === ".")!;
+    loc.zones = [{ id: "z_test", name: "Тест", cells: [{ x: cell.x, y: cell.y }], actions: actionsOf(raw) as never }];
+    const c = validateCase(raw);
+    if (!c.ok) throw new Error(c.errors.join("; "));
+    setPlatform(createMemoryPlatform());
+    actions.openCase(new LocalAuthority(c.caseFile));
+    actions.beginInvestigation();
+  };
+  const inc: Effect = { type: "changeVariable", variableId: "n", action: "add", value: 1 };
+
+  it("enterEvery — при каждом входе, enter — один раз, leave — при выходе", () => {
+    zoneCase(() => [
+      { kind: "effects", trigger: "enter", effects: [inc] },
+      { kind: "effects", trigger: "enterEvery", effects: [inc, inc] },
+      { kind: "effects", trigger: "leave", effects: [{ ...inc, value: 10 }] },
+    ]);
+    // actionKey у «enter» и «enterEvery» разный; входим дважды
+    actions.enterZone("z_test");
+    actions.leaveZone("z_test");
+    actions.enterZone("z_test");
+    actions.leaveZone("z_test");
+    // «enter»: первое подходящее действие списка срабатывает на каждый вход — enter (1) один раз, затем enterEvery (2) дважды; leave: 10 + 10
+    expect(store.get().progress.counters.n).toBe(1 + 2 + 10 + 10);
+  });
+
+  it("текст отказа: по клавише и при входе, пока условие не выполнено", () => {
+    zoneCase(() => [{ kind: "effects", trigger: "enterEvery", requires: { flags: ["key"] }, lockedText: "Нужен ключ", effects: [inc] }]);
+    actions.enterZone("z_test");
+    expect(store.get().toasts.map((t) => t.text)).toContain("Нужен ключ");
+    expect(actions.hasZoneAction("z_test")).toBe(true); // с текстом отказа подсказка «Взаимодействие» есть
+    expect(store.get().progress.counters.n).toBeUndefined();
+  });
+
+  it("валидатор: выход не может срабатывать при выходе из области", () => {
+    const raw = load("case-001.json") as unknown as CaseFile;
+    raw.locations[0].zones = [
+      { id: "z_exit", name: "Выход", cells: [{ x: 1, y: 1 }], actions: [{ kind: "exit", to: raw.locations[0].id, spawn: { x: 2, y: 2 }, trigger: "leave" }] },
+    ];
+    const r = validateCase(raw);
+    expect(r.ok ? "" : r.errors.join("\n")).toContain("не может срабатывать при выходе");
   });
 });

@@ -35,7 +35,7 @@ export function runMigrations(
 
 // ——— Дело ———
 
-export const CASE_FORMAT_VERSION = 6;
+export const CASE_FORMAT_VERSION = 7;
 
 const WALL_CHARS = new Set(["#", "W", "B", "G", "P", "F"]);
 
@@ -185,8 +185,26 @@ function caseV5toV6(data: Raw): Raw {
   return { ...data, locations };
 }
 
+/**
+ * 6 → 7: у действий областей флаг `auto` («при входе, один раз») заменён выбором `trigger`
+ * (`use` / `enter` / `enterEvery` / `leave`): `auto: true` → `trigger: "enter"`.
+ */
+function caseV6toV7(data: Raw): Raw {
+  const locations = ((data.locations as Raw[] | undefined) ?? []).map((loc) => ({
+    ...loc,
+    zones: ((loc.zones as Raw[] | undefined) ?? []).map((zone) => ({
+      ...zone,
+      actions: ((zone.actions as Raw[] | undefined) ?? []).map((raw) => {
+        const { auto, ...action } = raw;
+        return auto ? { ...action, trigger: "enter" } : action;
+      }),
+    })),
+  }));
+  return { ...data, locations };
+}
+
 /** Звенья цепочки: `caseMigrations[v]` переводит дело версии v в v + 1. */
-export const caseMigrations: Record<number, Migration> = { 1: caseV1toV2, 2: caseV2toV3, 3: caseV3toV4, 4: caseV4toV5, 5: caseV5toV6 };
+export const caseMigrations: Record<number, Migration> = { 1: caseV1toV2, 2: caseV2toV3, 3: caseV3toV4, 4: caseV4toV5, 5: caseV5toV6, 6: caseV6toV7 };
 
 export const migrateCase = (raw: unknown, chain = caseMigrations, current = CASE_FORMAT_VERSION): Migrated =>
   runMigrations(raw, "formatVersion", chain, current, "дело");

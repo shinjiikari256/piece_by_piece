@@ -126,7 +126,7 @@ describe("области и их действия: формат и валида�
     const c = base();
     const obj = c.locations[0].objects.find((o) => o.interaction)!;
     c.locations[0].zones = [
-      zone("zone_hall", { actions: [{ kind: "dialogue", dialogueId: c.dialogues[0].id, auto: true }, { kind: "object", objectId: obj.id, requires: { flags: [] } }] }),
+      zone("zone_hall", { actions: [{ kind: "dialogue", dialogueId: c.dialogues[0].id, trigger: "enter" }, { kind: "object", objectId: obj.id, requires: { flags: [] } }] }),
     ];
     expect(errorsOf(c)).toEqual("");
   });
@@ -161,7 +161,7 @@ describe("области и их действия: формат и валида�
     c.locations[0].zones = [
       zone("exit_a", { actions: [{ kind: "exit", to: "нет_такой", spawn: floorCell }] }),
       zone("exit_b", { actions: [{ kind: "exit", to: c.locations[0].id, spawn: { x: 0, y: 0 } }] }), // 0,0 — стена
-      zone("exit_c", { cells: [floorCell], actions: [{ kind: "exit", to: c.locations[0].id, spawn: floorCell, auto: true }] }), // spawn сразу в области с автовыходом
+      zone("exit_c", { cells: [floorCell], actions: [{ kind: "exit", to: c.locations[0].id, spawn: floorCell, trigger: "enter" }] }), // spawn сразу в области с автовыходом
     ];
     const text = errorsOf(c);
     expect(text).toContain("неизвестная ссылка «нет_такой»");
@@ -188,7 +188,7 @@ describe("миграция формата 1 → 2", () => {
     expect(exit.name).toBe("Лестница");
     expect(exit.actions).toEqual([{ kind: "exit", to: loc.id, spawn: { x: 15, y: 13 } }]);
     expect(exit.cells.length).toBeGreaterThan(1); // клетка выхода и проходимые соседи
-    expect(migrated.zones.find((z) => z.id === "z1")!.actions).toEqual([{ kind: "dialogue", dialogueId: (old.dialogues as { id: string }[])[0].id, requires: { flags: ["a"] }, auto: true }]);
+    expect(migrated.zones.find((z) => z.id === "z1")!.actions).toEqual([{ kind: "dialogue", dialogueId: (old.dialogues as { id: string }[])[0].id, requires: { flags: ["a"] }, trigger: "enter" }]);
     expect((data.dialogues as Record<string, unknown>[])[0].trigger).toBeUndefined();
     expect(typeof data.formatVersion).toBe("number");
   });
@@ -528,5 +528,17 @@ describe("миграция 5 → 6: onInteract", () => {
     expect(moved.interaction.effects).toBeUndefined();
     // «только первый осмотр» стало настройкой эффекта
     expect(moved.onInteract).toEqual([{ type: "changeVariable", variableId: "a", action: "on", once: true }]);
+  });
+});
+
+describe("миграция 6 → 7: trigger области", () => {
+  it("auto: true становится trigger: enter", () => {
+    const old = structuredClone(case002) as unknown as Record<string, any>; // eslint-disable-line @typescript-eslint/no-explicit-any
+    old.formatVersion = 6;
+    old.locations[0].zones = [{ id: "z", name: "Z", cells: [{ x: 1, y: 1 }], actions: [{ kind: "effects", effects: [], auto: true }, { kind: "effects", effects: [] }] }];
+    const r = migrateCase(old);
+    expect(r.ok).toBe(true);
+    if (!r.ok) return;
+    expect((r.data.locations as any[])[0].zones[0].actions).toEqual([{ kind: "effects", effects: [], trigger: "enter" }, { kind: "effects", effects: [] }]); // eslint-disable-line @typescript-eslint/no-explicit-any
   });
 });

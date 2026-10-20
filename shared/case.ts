@@ -275,10 +275,19 @@ export const Door = z.object({
 
 const Point = z.object({ x: z.number().int(), y: z.number().int() });
 
+/** Когда срабатывает действие области (`ZoneAction.trigger`; без значения — `use`). */
+export type ZoneTrigger = "use" | "enter" | "enterEvery" | "leave";
+/** Срабатывает само при входе в область. */
+export const isEntryTrigger = (t: ZoneTrigger | undefined): boolean => t === "enter" || t === "enterEvery";
+
 /** Что делает область, когда игрок в ней. Из подходящих (`requires`) срабатывает первое по порядку списка. */
 const actionBase = {
   requires: Condition.optional().describe("Когда действие доступно"),
-  auto: z.boolean().optional().describe("Запускать само, когда игрок входит в область (один раз); иначе — по клавише взаимодействия, пока игрок внутри"),
+  trigger: z
+    .enum(["use", "enter", "enterEvery", "leave"])
+    .optional()
+    .describe("Когда срабатывает: по клавише взаимодействия, пока игрок внутри (по умолчанию); при входе в область (один раз); при каждом входе; при выходе из области"),
+  lockedText: z.string().optional().describe("Что сказать игроку, если условие не выполнено (например, «Нужен ключ от комнаты»); без текста — молча"),
 };
 export const ZoneAction = z.discriminatedUnion("kind", [
   z.object({ kind: z.literal("dialogue"), dialogueId: z.string(), ...actionBase }).describe("Запустить диалог"),

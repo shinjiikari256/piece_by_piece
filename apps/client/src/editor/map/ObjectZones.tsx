@@ -1,10 +1,14 @@
 import { useState } from "react";
 import type { CaseFile, LocationObject, Zone } from "../../../../../shared/case";
 import { Select } from "../../ui/Select";
+import { ENUM_LABELS } from "../labels";
 import { editor } from "../state";
 import { ZoneCreator } from "./ZoneCreator";
 
 const NEW_ZONE = "__new__";
+
+/** Пометка рядом с областью: как запускается действие (по клавише — без пометки). */
+const triggerNote = (a: { trigger?: string } | undefined) => (a?.trigger && a.trigger !== "use" ? <small> · {ENUM_LABELS[a.trigger]}</small> : null);
 
 /**
  * Откуда осматривается предмет: сам предмет на карте (как обычно) и/или области. Действие «предмет» хранит сама область
@@ -29,7 +33,7 @@ export function ObjectZones({ draft, object, locationId }: { draft: CaseFile; ob
         <div key={zone.id} className="row">
           <span className="ellipsis">
             {loc.name} · <b>{zone.name}</b>
-            {zone.actions.some((a) => a.kind === "object" && a.objectId === object.id && a.auto) && <small> · автоматически</small>}
+            {triggerNote(zone.actions.find((a) => a.kind === "object" && a.objectId === object.id))}
           </span>
           <button
             className="btn btn--sm btn--icon"

@@ -252,16 +252,27 @@ const dismissTimers = new Map<string, ReturnType<typeof setTimeout>>();
 const actionKey = (zoneId: string, a: ZoneAction) =>
   `${zoneId}:${a.kind}:${a.kind === "dialogue" ? a.dialogueId : a.kind === "object" ? a.objectId : a.kind === "effects" ? JSON.stringify(a.effects) : a.to}`;
 
-/** Первое подходящее действие области: условие выполнено, цель существует; `auto` — только с автозапуском и ещё не сработавшие. */
-function zoneAction(zoneId: string, auto = false): ZoneAction | undefined {
-  const c = state.caseFile;
-  const zone = c?.locations.flatMap((l) => l.zones).find((z) => z.id === zoneId);
-  return zone?.actions.find(
-    (a) =>
-      meets(a.requires, state.progress, state.locationId) &&
-      (a.kind !== "dialogue" || c!.dialogues.some((d) => d.id === a.dialogueId)) &&
-      (!auto || (a.auto && !state.progress.fired.includes(actionKey(zoneId, a)))),
-  );
+type ZoneMode = "use" | "enter" | "leave";
+
+/** Действия области, подходящие под способ запуска: `use` — по клавише (всё, кроме «при выходе»), `enter` — при входе (разовые — ещё не сработавшие), `leave` — при выходе. */
+function zoneCandidates(zoneId: string, mode: ZoneMode): ZoneAction[] {
+  const zone = state.caseFile?.locations.flatMap((l) => l.zones).find((z) => z.id === zoneId);
+  return (zone?.actions ?? []).filter((a) => {
+    if (a.kind === "dialogue" && !state.caseFile!.dialogues.some((d) => d.id === a.dialogueId)) return false;
+    if (mode === "use") return a.trigger !== "leave";
+    if (mode === "leave") return a.trigger === "leave";
+    return a.trigger === "enterEvery" || (a.trigger === "enter" && !state.progress.fired.includes(actionKey(zoneId, a)));
+  });
+}
+
+/** Первое подходящее действие области: условие выполнено, цель существует. */
+function zoneAction(zoneId: string, mode: ZoneMode = "use"): ZoneAction | undefined {
+  return zoneCandidates(zoneId, mode).find((a) => meets(a.requires, state.progress, state.locationId));
+}
+
+/** Текст отказа первого действия, которому не хватило условия (`lockedText`). */
+function zoneLockedText(zoneId: string, mode: ZoneMode): string | undefined {
+  return zoneCandidates(zoneId, mode).find((a) => a.lockedText && !meets(a.requires, state.progress, state.locationId))?.lockedText;
 }
 
 /** Выполнить действие области: диалог, взаимодействие с предметом или выход. */
@@ -360,16 +371,18 @@ export const actions = {
     });
   },
 
-  /** Есть ли сейчас подходящее действие у области (подсказка «Взаимодействие» показывается только тогда). */
+  /** Есть ли сейчас что делать в области (подсказка «Взаимодействие» показывается только тогда): подходящее действие или текст отказа. */
   hasZoneAction(zoneId: string) {
-    return !!zoneAction(zoneId);
+    return !!zoneAction(zoneId) || !!zoneLockedText(zoneId, "use");
   },
 
-  /** Игрок вошёл в область: срабатывает первое подходящее действие с автозапуском (один раз за прохождение). */
+  /** Игрок вошёл в область: срабатывает первое подходящее действие «при входе» (разовое — один раз за прохождение); нет подходящего, но есть текст отказа — показываем его. */
   enterZone(zoneId: string) {
     if (isWorldBlocked(state)) return;
-    const action = zoneAction(zoneId, true);
+    const action = zoneAction(zoneId, "enter");
     if (!action) {
+      const locked = zoneLockedText(zoneId, "enter");
+      if (locked) toast(locked);
       // область с действиями, из которых сейчас ничего не подходит: спутники постоят и уйдут по своим местам
       const zone = state.caseFile?.locations.flatMap((l) => l.zones).find((z) => z.id === zoneId);
       if (zone?.actions.length && !zoneAction(zoneId) && state.progress.followers.length) {
@@ -393,6 +406,10 @@ export const actions = {
   leaveZone(zoneId: string) {
     clearTimeout(dismissTimers.get(zoneId));
     dismissTimers.delete(zoneId);
+    // действия «при выходе из области»
+    if (isWorldBlocked(state)) return;
+    const action = zoneAction(zoneId, "leave");
+    if (action) runZoneAction(zoneId, action);
   },
 
   /** Отвязать всех спутников: каждый возвращается на своё место пешком (вручную — кнопка «Отпустить», сама — см. `enterZone`). */
@@ -450,8 +467,13 @@ export const actions = {
       return;
     }
     if (targetId.startsWith("zone:")) {
-      const action = zoneAction(targetId.slice(5));
-      if (action) runZoneAction(targetId.slice(5), action);
+      const zoneId = targetId.slice(5);
+      const action = zoneAction(zoneId);
+      if (action) runZoneAction(zoneId, action);
+      else {
+        const locked = zoneLockedText(zoneId, "use");
+        if (locked) toast(locked);
+      }
       return;
     }
     const npc = allNpcs(s.caseFile).find((n) => n.id === targetId);

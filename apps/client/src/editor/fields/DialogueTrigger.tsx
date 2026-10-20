@@ -1,10 +1,14 @@
 import { useState } from "react";
 import type { CaseFile, Dialogue, Zone } from "../../../../../shared/case";
 import { Select } from "../../ui/Select";
+import { ENUM_LABELS } from "../labels";
 import { editor } from "../state";
 import { ZoneCreator } from "../map/ZoneCreator";
 
 const NEW_ZONE = "__new__";
+
+/** Пометка рядом с областью: как запускается действие (по клавише — без пометки). */
+const triggerNote = (a: { trigger?: string } | undefined) => (a?.trigger && a.trigger !== "use" ? <small> · {ENUM_LABELS[a.trigger]}</small> : null);
 
 /**
  * Откуда запускается диалог: персонаж на карте (по умолчанию) и/или области. Действие «диалог» хранит сама область
@@ -30,7 +34,7 @@ export function DialogueTrigger({ draft, dialogue }: { draft: CaseFile; dialogue
         <div key={zone.id} className="row">
           <span className="ellipsis">
             {loc.name} · <b>{zone.name}</b>
-            {zone.actions.some((a) => a.kind === "dialogue" && a.dialogueId === dialogue.id && a.auto) && <small> · автоматически</small>}
+            {triggerNote(zone.actions.find((a) => a.kind === "dialogue" && a.dialogueId === dialogue.id))}
           </span>
           <button
             className="btn btn--sm btn--icon"

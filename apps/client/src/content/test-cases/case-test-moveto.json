@@ -1,5 +1,5 @@
 {
-  "formatVersion": 6,
+  "formatVersion": 7,
   "id": "case-test-moveto",
   "number": "T01",
   "title": "Тест: перемещения персонажей",
@@ -513,7 +513,7 @@
             {
               "kind": "dialogue",
               "dialogueId": "dlg_zone_auto",
-              "auto": true
+              "trigger": "enter"
             }
           ]
         },
@@ -624,7 +624,7 @@
                   "action": "on"
                 }
               ],
-              "auto": true
+              "trigger": "enter"
             }
           ]
         }

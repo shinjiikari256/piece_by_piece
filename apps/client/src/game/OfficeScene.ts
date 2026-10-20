@@ -551,14 +551,14 @@ export class OfficeScene extends Phaser.Scene {
   }
 
   /** Клик по выходу: игрок идёт в область и по приходу проходит (автовыход срабатывает сам при входе); уже стоит внутри — проходит сразу. */
-  private goThroughExit(zone: { id: string; cells: Tile[]; actions: { kind: string; auto?: boolean }[] }) {
+  private goThroughExit(zone: { id: string; cells: Tile[]; actions: { kind: string; trigger?: string }[] }) {
     const here = this.tileOf(this.player);
     if (zone.cells.some((c) => c.x === here.x && c.y === here.y)) {
       this.path = [];
       this.host.onInteract(`zone:${zone.id}`);
       return;
     }
-    if (this.walkTo(zone.cells.filter((c) => this.isFree(c.x, c.y))) && !zone.actions.some((a) => a.kind === "exit" && a.auto)) this.pendingInteraction = `zone:${zone.id}`;
+    if (this.walkTo(zone.cells.filter((c) => this.isFree(c.x, c.y))) && !zone.actions.some((a) => a.kind === "exit" && (a.trigger === "enter" || a.trigger === "enterEvery"))) this.pendingInteraction = `zone:${zone.id}`;
   }
 
   /** Выход под курсором (подпись показана, пока наведён). */

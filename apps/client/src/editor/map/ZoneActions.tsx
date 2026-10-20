@@ -2,6 +2,7 @@ import { useState } from "react";
 import { isInteractive, type CaseFile, type Condition, type Effect, type Zone, type ZoneAction } from "../../../../../shared/case";
 import { EffectsEditor } from "../fields/Effects";
 import { Select } from "../../ui/Select";
+import { ENUM_LABELS } from "../labels";
 import { moveItem } from "../../util/lists";
 import { ConditionEditor } from "../fields/Conditions";
 import { CellPicker } from "./CellPicker";
@@ -73,16 +74,16 @@ export function ZoneActions({ zone, draft, onChange }: { zone: Zone; draft: Case
               </div>
             </>
           )}
-          <label className="ef__toggle" title="Срабатывает при входе в область, один раз; иначе — по клавише взаимодействия, пока игрок внутри">
-            <input
-              type="checkbox"
-              checked={!!a.auto}
-              onChange={(e) => {
-                const { auto: _a, ...rest } = a;
-                set(i, (e.target.checked ? { ...rest, auto: true } : rest) as ZoneAction);
+          <label className="ef">
+            <span className="ef__label">Когда срабатывает</span>
+            <Select
+              value={a.trigger ?? "use"}
+              options={(a.kind === "exit" ? (["use", "enter", "enterEvery"] as const) : (["use", "enter", "enterEvery", "leave"] as const)).map((t) => ({ value: t, label: ENUM_LABELS[t] }))}
+              onChange={(v) => {
+                const { trigger: _t, ...rest } = a;
+                set(i, (v === "use" ? rest : { ...rest, trigger: v }) as ZoneAction);
               }}
             />
-            Автоматически
           </label>
           <ConditionEditor
             value={(a.requires ?? {}) as Condition}
@@ -93,6 +94,17 @@ export function ZoneActions({ zone, draft, onChange }: { zone: Zone; draft: Case
               set(i, (Object.keys(v as object).length ? { ...rest, requires: v as Condition } : rest) as ZoneAction);
             }}
           />
+          {a.requires && (
+            <input
+              className="input"
+              value={a.lockedText ?? ""}
+              placeholder="Что сказать, если условие не выполнено (необязательно)"
+              onChange={(ev) => {
+                const { lockedText: _l, ...rest } = a;
+                set(i, (ev.target.value ? { ...rest, lockedText: ev.target.value } : rest) as ZoneAction);
+              }}
+            />
+          )}
         </div>
       ))}
       <Select
