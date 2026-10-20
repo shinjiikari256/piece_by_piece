@@ -258,15 +258,11 @@
 }
 
 /* панель инструментов над рисунком */
-.sprite-center {
-  grid-template-rows: auto 1fr auto;
-}
 .sprite-toolbar {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 0.3rem;
-  padding: 0.35rem 0.8rem;
-  background: var(--bg-page);
 }
 .sprite-toolbar__gap {
   width: 1px;

@@ -321,7 +321,7 @@ export const SpriteParam = z.object({
 });
 
 /** Состояние спрайта: только вид (кадр, проходимость, цикл); условие — над переменными спрайта (`flags`, `notFlags`, `counters`, `enums`, `allOf`, `anyOf`). */
-export const SpriteState = ObjectState.pick({ id: true, when: true, frame: true, solid: true, loop: true });
+export const SpriteState = ObjectState.pick({ id: true, when: true, frame: true, solid: true, loop: true }).extend({ name: z.string().optional().describe("Название для автора; без него показывается ключ") });
 
 const SpriteOp = z.union([
   z.tuple([z.number().int(), z.number().int(), z.number().int().min(1), z.number().int().min(1), z.string().regex(/^#[0-9a-f]{6}([0-9a-f]{2})?$/i)]),

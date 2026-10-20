@@ -16,7 +16,7 @@ import { frameLabel, moveFrame, newSprite, patchSprite, spriteUses, uniqueKey } 
 
 type Tab = "draw" | "props" | "vars" | "states" | "anims";
 const TABS: { id: Tab; label: string; own: boolean }[] = [
-  { id: "draw", label: "Рисунок", own: true },
+  { id: "draw", label: "Рисунок", own: false },
   { id: "props", label: "Свойства", own: false },
   { id: "vars", label: "Переменные", own: true },
   { id: "states", label: "Состояния", own: true },
@@ -138,8 +138,7 @@ export function SpritesSection() {
                 )
               }
             />
-            <div className="lm__center sprite-center">
-              <SpriteToolbar sprite={sprite} frame={current} tool={tool} setTool={setTool} readOnly={builtin} />
+            <div className="lm__center">
               <div className="lm__stage">
                 <SpriteCanvas sprite={sprite} frame={current} tool={tool} color={color} alpha={alpha} readOnly={builtin} foot={tool === "foot"} onPickColor={(c, a) => (setColor(c), setAlpha(a))} />
               </div>
@@ -173,6 +172,12 @@ export function SpritesSection() {
                 </span>
               </div>
               {builtin && <p className="muted">Встроенный спрайт: смотреть можно, менять и удалять нельзя. Сделайте копию, чтобы править.</p>}
+              {tab === "draw" && (
+                <>
+                  <h3>Инструмент</h3>
+                  <SpriteToolbar sprite={sprite} frame={current} tool={tool} setTool={setTool} readOnly={builtin} />
+                </>
+              )}
               <fieldset className="sprite-ro" disabled={builtin}>
                 {tab === "draw" && <DrawPanel sprite={sprite} frame={current} color={color} alpha={alpha} setColor={(c, a) => (setColor(c), setAlpha(a))} onFrame={setFrame} />}
                 {tab === "props" && <PropsPanel sprite={sprite} />}
