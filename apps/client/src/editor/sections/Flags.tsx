@@ -8,6 +8,7 @@ import { useUrlParam, useWriteDefaultParam } from "../url";
 import { Icon } from "../../ui/icons";
 import { EntityList, ItemText } from "../EntityList";
 import { ask, tell } from "../../ui/dialog";
+import { UsageList } from "../fields/UsageList";
 import { CounterEditor } from "./Counters";
 import { EnumEditor } from "./Enums";
 
@@ -70,9 +71,9 @@ export function FlagsSection() {
         {current?.kind === "flag" ? (
           <FlagEditor key={current.id} id={current.id} name={nameOf(current.id)} uses={usage.get(current.id) ?? []} onRenamed={setSelected} />
         ) : current?.kind === "enum" ? (
-          <EnumEditor key={current.id} def={enums.find((x) => x.id === current.id)!} onRenamed={setSelected} />
+          <EnumEditor key={current.id} def={enums.find((x) => x.id === current.id)!} uses={usage.get(current.id) ?? []} onRenamed={setSelected} />
         ) : current ? (
-          <CounterEditor key={current.id} counter={counters.find((c) => c.id === current.id)!} onRenamed={setSelected} />
+          <CounterEditor key={current.id} counter={counters.find((c) => c.id === current.id)!} uses={usage.get(current.id) ?? []} onRenamed={setSelected} />
         ) : (
           <p className="muted">
             Флаг — пометка «это уже произошло»: его ставят эффекты, а проверяют условия. Счётчик — число (очки доверия, попытки): эффекты прибавляют или задают его, условия проверяют границы. Перечисление — одно значение из списка (сейф: закрыт / открыт / сломан): эффекты выбирают значение, условия проверяют его.
@@ -166,24 +167,7 @@ function FlagEditor({ id, name, uses, onRenamed }: { id: string; name: string; u
         />
         Стоит с начала расследования
       </label>
-      <div className="ef">
-        <span className="ef__label">Где используется ({uses.length})</span>
-        {uses.length ? (
-          <ul className="flag-uses">
-            {uses.map((u, i) => (
-              <li key={i}>
-                <button className="flag-use" onClick={() => editor.goto(u.focus.section, u.focus)} title="Перейти">
-                  <span className="flag-use__kind" data-tone={u.kind === "ставит" ? "good" : undefined}>{u.kind}</span>
-                  <span className="flag-use__where">{u.where}</span>
-                  <Icon name="back" size={14} />
-                </button>
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p className="muted">Нигде не используется.</p>
-        )}
-      </div>
+      <UsageList uses={uses} />
       <button className="btn btn--danger flag-ed__delete" onClick={remove}>
         Удалить флаг
       </button>

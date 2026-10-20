@@ -34,8 +34,6 @@ export type Condition = {
   anyOf?: Omit<Condition, "anyOf">[];
 };
 
-const FLAG_VERB = { on: "ставит", off: "снимает", toggle: "переключает" } as const;
-
 /** Подпись и адрес перехода для места с эффектами (реплика, вариант, сопоставление, осмотр, область). */
 function siteInfo(o: EffectOwner, who: (id: string) => string): { where: string; focus: Focus } {
   switch (o.kind) {
@@ -86,24 +84,34 @@ export function flagsOf(d: FormCtx["draft"]): string[] {
 }
 
 export interface FlagUse {
-  kind: "ставит" | "снимает" | "переключает" | "проверяет" | "проверяет отсутствие";
+  /** Что делает это место с переменной или уликой: «ставит», «прибавляет», «проверяет», «в сопоставлении»… */
+  kind: string;
   where: string;
   focus: Focus;
 }
 
-/** Где используется каждый флаг — с адресом для перехода. */
-export function flagUsage(d: FormCtx["draft"]): Map<string, FlagUse[]> {
-  const out = new Map<string, FlagUse[]>();
-  const add = (f: string, use: FlagUse) => out.set(f, [...(out.get(f) ?? []), use]);
+const ACTION_VERB: Record<string, string> = { on: "ставит", off: "снимает", toggle: "переключает", add: "прибавляет", subtract: "отнимает", set: "задаёт", assign: "выбирает значение" };
+
+/** Где используются переменные (флаги, счётчики, перечисления) и улики — с адресом для перехода. */
+function collectUsage(d: FormCtx["draft"]): { vars: Map<string, FlagUse[]>; evidence: Map<string, FlagUse[]> } {
+  const vars = new Map<string, FlagUse[]>();
+  const evidence = new Map<string, FlagUse[]>();
+  const push = (m: Map<string, FlagUse[]>, id: string, use: FlagUse) => m.set(id, [...(m.get(id) ?? []), use]);
+  const add = (f: string, use: FlagUse) => push(vars, f, use);
   const useOf = (e: Effect, where: string, focus: Focus) => {
-    const f = flagOfEffect(e);
-    if (f) add(f.flag, { kind: FLAG_VERB[f.action], where, focus });
+    if (e.type === "changeVariable") add(e.variableId, { kind: ACTION_VERB[e.action] ?? e.action, where, focus });
+    if (e.type === "removeEvidence") push(evidence, e.evidenceId, { kind: "убирает из дела", where, focus });
+    if (e.type === "addEvidence") push(evidence, e.evidenceId, { kind: "выдаёт", where, focus });
   };
   const who = (id: string) => d.characters.find((c) => c.id === id)?.name ?? id;
   const dialogueFocus = (dialogueId: string, sub: string): Focus => ({ section: "dialogues", id: dialogueId, sub });
   const cond = (c: Condition | undefined, where: string, focus: Focus): void => {
     c?.flags?.forEach((f) => add(f, { kind: "проверяет", where, focus }));
     c?.notFlags?.forEach((f) => add(f, { kind: "проверяет отсутствие", where, focus }));
+    c?.counters?.forEach((r) => add(r.counterId, { kind: "проверяет значение", where, focus }));
+    c?.enums?.forEach((r) => add(r.enumId, { kind: "проверяет значение", where, focus }));
+    c?.evidence?.forEach((id) => push(evidence, id, { kind: "проверяет", where, focus }));
+    c?.notEvidence?.forEach((id) => push(evidence, id, { kind: "проверяет отсутствие", where, focus }));
     c?.anyOf?.forEach((alt) => cond(alt, where, focus));
   };
   for (const dl of d.dialogues)
@@ -117,13 +125,19 @@ export function flagUsage(d: FormCtx["draft"]): Map<string, FlagUse[]> {
       cond(e.requires, `${where} (условие эффекта)`, focus);
     });
   });
+  d.deductions.forEach((x) => x.evidenceIds.forEach((id) => push(evidence, id, { kind: "в сопоставлении", where: `Сопоставление «${x.title}»`, focus: { section: "deductions", id: x.id } })));
   d.locations.forEach((l) => {
     l.doors.forEach((door) => cond(door.requires, `Дверь ${door.id} — ${l.name}`, { section: "locations", sub: l.id, kind: "door", id: door.id }));
     l.npcs.forEach((n) => n.dialogues.forEach((nd) => cond(nd.requires, `Диалог по условию: ${who(n.characterId)} — ${l.name}`, { section: "locations", sub: l.id, kind: "npc", id: n.id })));
     l.zones.forEach((z) => z.actions.forEach((a) => cond(a.requires, `Область «${z.name}» — ${l.name}`, { section: "locations", sub: l.id, kind: "zone", id: z.id })));
   });
-  return out;
+  return { vars, evidence };
 }
+
+/** Где используется каждая переменная (флаг, счётчик, перечисление). */
+export const flagUsage = (d: FormCtx["draft"]): Map<string, FlagUse[]> => collectUsage(d).vars;
+/** Где используется каждая улика: условия, сопоставления, эффекты. */
+export const evidenceUsage = (d: FormCtx["draft"]): Map<string, FlagUse[]> => collectUsage(d).evidence;
 
 /** Удалить флаг полностью: эффекты «поставить флаг», проверки в условиях (пустые условия исчезают), запись в списке. */
 export function deleteFlag(d: CaseFile, flag: string): CaseFile {

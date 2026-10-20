@@ -17,7 +17,7 @@ import { Condition, ConditionEditor, FlagPicker } from "./fields/Conditions";
 const EFFECT_FIELDS = new Set(["effects", "onCollect", "failEffects", "onEnter", "onInteract"]);
 import { EffectsEditor } from "./fields/Effects";
 import { AttachmentSource } from "./fields/Attachment";
-export { FlagDialog, deleteFlag, flagUsage, type FlagUse } from "./fields/Conditions";
+export { FlagDialog, deleteFlag, evidenceUsage, flagUsage, type FlagUse } from "./fields/Conditions";
 
 /**
  * Форма по JSON Schema (из z.toJSONSchema). Понимает объекты, массивы,

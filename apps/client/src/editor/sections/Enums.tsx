@@ -5,7 +5,8 @@ import { countRefs, renameKey, toKey } from "../keys";
 import { Select } from "../../ui/Select";
 import { ask, tell } from "../../ui/dialog";
 import { Dialog } from "../../ui/window";
-import { isVariableKeyTaken } from "../fields/Conditions";
+import { isVariableKeyTaken, type FlagUse } from "../fields/Conditions";
+import { UsageList } from "../fields/UsageList";
 
 type EnumDef = NonNullable<CaseFile["enums"]>[number];
 type Row = { enumId: string; in?: string[]; notIn?: string[] };
@@ -191,7 +192,7 @@ export function EnumDialog({ onDone }: { onDone: (id: string | null) => void }) 
   );
 }
 
-export function EnumEditor({ def, onRenamed }: { def: EnumDef; onRenamed: (id: string) => void }) {
+export function EnumEditor({ def, uses, onRenamed }: { def: EnumDef; uses: FlagUse[]; onRenamed: (id: string) => void }) {
   const draft = useEditor((s) => s.draft);
   const { id, name } = def;
   const [key, setKey] = useState(id);
@@ -290,7 +291,7 @@ export function EnumEditor({ def, onRenamed }: { def: EnumDef; onRenamed: (id: s
         <span className="ef__label">Значение в начале расследования</span>
         <Select value={start ?? ""} options={def.values.map((v) => ({ value: v.id, label: v.name || v.id }))} onChange={(v) => patch({ initial: v })} />
       </label>
-      <p className="muted">Используется в {Math.max(refs, 0)} мест(ах): эффекты «изменить переменную» и условия.</p>
+      <UsageList uses={uses} />
       <button className="btn btn--danger flag-ed__delete" onClick={remove}>
         Удалить перечисление
       </button>

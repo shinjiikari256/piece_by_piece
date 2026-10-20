@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { emptyProgress, applyEffects, choiceKey, meets, startProgress } from "../../../../shared/conditions";
 import case002 from "./cases/case-002.json";
 import { deleteCounter } from "../editor/sections/Counters";
-import { deleteFlag } from "../editor/fields/Conditions";
+import { deleteFlag, evidenceUsage, flagUsage } from "../editor/fields/Conditions";
 import { deleteEnum, deleteEnumValue, renameEnumValue } from "../editor/sections/Enums";
 import { caseWarnings } from "./warnings";
 import { countRefs, renameKey } from "../editor/keys";
@@ -632,5 +632,30 @@ describe("предмет (kind: item): ключ, фонарь — не улик�
     const r = validateCase(c);
     const text = r.ok ? "" : r.errors.join("\n");
     expect(text).not.toContain("нет варианта для улики «key_412»");
+  });
+});
+
+describe("«где используется»: счётчики, перечисления, улики", () => {
+  const base = () => {
+    const c = structuredClone(case001) as unknown as CaseFile;
+    c.counters = [{ id: "hp", name: "Здоровье" }];
+    c.enums = [{ id: "safe", name: "Сейф", values: [{ id: "closed", name: "Закрыт" }, { id: "open", name: "Открыт" }] }];
+    const node = c.dialogues[0].nodes[0];
+    node.effects.push({ type: "changeVariable", variableId: "hp", action: "subtract", value: 1 }, { type: "changeVariable", variableId: "safe", action: "assign", valueId: "open" });
+    node.choices[0].requires = { counters: [{ counterId: "hp", min: 1 }], enums: [{ enumId: "safe", in: ["open"] }], notEvidence: [c.evidence[0].id] };
+    return c;
+  };
+  it("переменные: действия эффектов и проверки условий", () => {
+    const usage = flagUsage(base());
+    expect(usage.get("hp")?.map((u) => u.kind)).toEqual(expect.arrayContaining(["отнимает", "проверяет значение"]));
+    expect(usage.get("safe")?.map((u) => u.kind)).toEqual(expect.arrayContaining(["выбирает значение", "проверяет значение"]));
+  });
+  it("улики: условия, сопоставления, убирание и выдача", () => {
+    const c = base();
+    const id = c.deductions[0].evidenceIds[0];
+    c.dialogues[0].nodes[0].effects.push({ type: "removeEvidence", evidenceId: id });
+    const kinds = (evidenceUsage(c).get(id) ?? []).map((u) => u.kind);
+    expect(kinds).toEqual(expect.arrayContaining(["в сопоставлении", "убирает из дела"]));
+    expect((evidenceUsage(c).get(c.evidence[0].id) ?? []).map((u) => u.kind)).toContain("проверяет отсутствие");
   });
 });

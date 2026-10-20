@@ -5,7 +5,8 @@ import { countRefs, renameKey, toKey } from "../keys";
 import { Icon } from "../../ui/icons";
 import { ask, tell } from "../../ui/dialog";
 import { Dialog } from "../../ui/window";
-import { isVariableKeyTaken } from "../fields/Conditions";
+import { isVariableKeyTaken, type FlagUse } from "../fields/Conditions";
+import { UsageList } from "../fields/UsageList";
 
 type Counter = NonNullable<CaseFile["counters"]>[number];
 
@@ -100,7 +101,7 @@ export function CounterDialog({ onDone }: { onDone: (id: string | null) => void 
   );
 }
 
-export function CounterEditor({ counter, onRenamed }: { counter: Counter; onRenamed: (id: string) => void }) {
+export function CounterEditor({ counter, uses, onRenamed }: { counter: Counter; uses: FlagUse[]; onRenamed: (id: string) => void }) {
   const draft = useEditor((s) => s.draft);
   const { id, name } = counter;
   const [key, setKey] = useState(id);
@@ -174,7 +175,7 @@ export function CounterEditor({ counter, onRenamed }: { counter: Counter; onRena
         ))}
       </div>
       <p className="muted">Эффекты не выведут значение за эти границы: лишнее отбрасывается.</p>
-      <p className="muted">Используется в {Math.max(refs, 0)} мест(ах): эффекты «изменить переменную» и условия.</p>
+      <UsageList uses={uses} />
       <button className="btn btn--danger flag-ed__delete" onClick={remove}>
         Удалить счётчик
       </button>

@@ -1,3 +1,5 @@
+import { UsageList } from "../fields/UsageList";
+import { evidenceUsage } from "../fields/Conditions";
 import { effectSites } from "../../../../../shared/effect-sites";
 import { useEffect } from "react";
 import { CaseFile } from "../../../../../shared/case";
@@ -238,7 +240,10 @@ function EvidencePanel({
           <ObjectFields schema={schema} value={evidence} ctx={{ draft }} only={["reliability", "description", "details"]} onChange={onChange} />
         </div>
       ) : (
-        <ObjectFields schema={schema} value={evidence} ctx={{ draft }} only={[...EVIDENCE_TABS.find((t) => t.id === tab)!.keys]} onChange={onChange} />
+        <>
+          <ObjectFields schema={schema} value={evidence} ctx={{ draft }} only={[...EVIDENCE_TABS.find((t) => t.id === tab)!.keys]} onChange={onChange} />
+          {tab === "links" && <UsageList uses={(evidenceUsage(draft).get(evidence.id) ?? []).filter((u) => u.kind !== "выдаёт")} />}
+        </>
       )}
     </>
   );
