@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { z } from "zod";
+import { formSchema } from "../json-schema";
 import {
   drawTile,
 } from "../../game/art";
@@ -20,10 +20,10 @@ import { T } from "./canvases";
 import { LIST_KEY, type Selection, type Tool } from "./types";
 
 
-const OBJECT_SCHEMA: JS = z.toJSONSchema(LocationObject);
-const NPC_SCHEMA: JS = z.toJSONSchema(NpcPlacement);
-const DOOR_SCHEMA: JS = z.toJSONSchema(Door);
-export const LOCATION_SCHEMA: JS = z.toJSONSchema(Location);
+const OBJECT_SCHEMA: JS = formSchema(LocationObject);
+const NPC_SCHEMA: JS = formSchema(NpcPlacement);
+const DOOR_SCHEMA: JS = formSchema(Door);
+export const LOCATION_SCHEMA: JS = formSchema(Location);
 
 export function ToolButton({ on, onClick, icon, label, keyHint, hint }: { on: boolean; onClick: () => void; icon: string; label: string; keyHint?: string; hint?: string }) {
   return (

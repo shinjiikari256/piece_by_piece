@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { formSchema } from "./json-schema";
 import { CaseFile } from "../../../../shared/case";
 import { type JS } from "./SchemaForm";
 
@@ -17,4 +17,4 @@ export function itemHeading(item: unknown, i: number): string {
   return typeof o.id === "string" ? o.id : `#${i + 1}`;
 }
 
-export const SCHEMA: JS = z.toJSONSchema(CaseFile);
+export const SCHEMA: JS = formSchema(CaseFile);

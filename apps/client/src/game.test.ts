@@ -11,7 +11,7 @@ import { toPublicCase } from "../../../shared/public-case";
 import { RESULT_FORMAT_VERSION, finish as judgeFinish } from "../../../shared/judge";
 import { listResults } from "./state/profile";
 import { toResultFile } from "./state/result-file";
-import { setPlatform } from "./state/platform";
+import { platform, setPlatform } from "./state/platform";
 import { createBrowserPlatform } from "./state/browser-platform";
 import { createMemoryPlatform } from "./state/memory-platform";
 
@@ -182,7 +182,7 @@ describe("прохождение дела №001", () => {
   it("мир заблокирован, пока открыт интерфейс", async () => {
     actions.interact("obj_computer");
     actions.interact("npc_alina");
-    expect(store.get().overlay).toEqual({ kind: "object", objectId: "obj_computer" });
+    expect(store.get().overlay).toMatchObject({ kind: "object", objectId: "obj_computer" });
   });
 
   it("неверная комбинация улик не даёт вывода", async () => {
@@ -979,5 +979,52 @@ describe("условие chosen в игре", () => {
     expect(actions.isChoiceVisible(bye)).toBe(true);
     expect(actions.isChoiceUsed(dlg.id, start.id, pass.id)).toBe(true);
     expect(store.get().progress.chosen).toContain(`${dlg.id}/${start.id}/${pass.id}`);
+  });
+});
+
+describe("эффект failCase", () => {
+  it("показывает окно «Дело провалено», стирает сохранение, не пишет результат; «заново» начинает дело сначала", async () => {
+    const raw = load("case-001.json") as unknown as CaseFile;
+    raw.counters = [{ id: "n", name: "Счёт" }];
+    raw.dialogues.find((d) => d.id === "dlg_alina")!.nodes.find((n) => n.id === "start")!.choices.find((c) => c.id === "pass")!.effects = [
+      { type: "changeVariable", variableId: "n", action: "add", value: 1 },
+      { type: "failCase", text: "Вас поймали" },
+    ];
+    const c = validateCase(raw);
+    if (!c.ok) throw new Error(c.errors.join("; "));
+    setPlatform(createMemoryPlatform());
+    actions.openCase(new LocalAuthority(c.caseFile));
+    actions.beginInvestigation();
+    actions.interact("npc_alina");
+    actions.choose("pass");
+    expect(store.get().overlay).toEqual({ kind: "failed", text: "Вас поймали" });
+    expect(await platform().results.list()).toHaveLength(0);
+    actions.restartAfterFail();
+    expect(store.get().overlay).toBeNull();
+    expect(store.get().progress.counters.n).toBeUndefined();
+  });
+});
+
+describe("осмотр предмета с несколькими уликами", () => {
+  it("окно получает список только что выданных улик; повторный осмотр — пустой список", () => {
+    const raw = load("case-001.json") as unknown as CaseFile;
+    const computer = raw.locations.flatMap((l) => l.objects).find((o) => o.id === "obj_computer")!;
+    const extra = raw.evidence.find((e) => !objectEvidenceIds(computer).includes(e.id) && !raw.locations.flatMap((l) => l.objects).some((o) => objectEvidenceIds(o).includes(e.id)));
+    // вторая улика у того же предмета: берём любую, которую выдаёт только диалог — она станет доступна и через предмет
+    const second = extra ?? raw.evidence.find((e) => !objectEvidenceIds(computer).includes(e.id))!;
+    computer.onInteract = [...computer.onInteract, { type: "addEvidence", evidenceId: second.id }];
+    const c = validateCase(raw);
+    if (!c.ok) throw new Error(c.errors.join("; "));
+    setPlatform(createMemoryPlatform());
+    actions.openCase(new LocalAuthority(c.caseFile));
+    actions.beginInvestigation();
+    actions.interact("obj_computer");
+    const first = store.get().overlay;
+    expect(first?.kind === "object" && [...(first.gained ?? [])].sort()).toEqual([...objectEvidenceIds(computer)].sort());
+    expect(first?.kind === "object" && first.gained).toContain(second.id);
+    actions.close();
+    actions.interact("obj_computer");
+    const again = store.get().overlay;
+    expect(again?.kind === "object" && again.gained).toEqual([]);
   });
 });

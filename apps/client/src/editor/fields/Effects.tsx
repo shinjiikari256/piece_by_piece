@@ -3,6 +3,7 @@ import { Select } from "../../ui/Select";
 import { CellPicker } from "../map/CellPicker";
 import type { Effect } from "../../../../../shared/case";
 import { ENUM_LABELS } from "../labels";
+import { editorStore } from "../state";
 import { FormCtx, charOption } from "../SchemaForm";
 import { ConditionEditor, flagLabel, flagsOf, type Condition } from "./Conditions";
 import { NewVariableDialog } from "./NewVariable";
@@ -12,7 +13,7 @@ const cellOf = (l: Parameters<typeof firstFloorCell>[0] | undefined) => (l ? l.p
 
 // ---------- эффекты ----------
 
-const EFFECT_TYPES: Effect["type"][] = ["addEvidence", "removeEvidence", "changeVariable", "message", "startDialogue", "travel", "follow", "stay", "returnHome", "moveTo", "addCharacterNote"];
+const EFFECT_TYPES: Effect["type"][] = ["addEvidence", "removeEvidence", "changeVariable", "message", "startDialogue", "travel", "failCase", "follow", "stay", "returnHome", "moveTo", "addCharacterNote"];
 
 const blankEffect = (type: Effect["type"], d: FormCtx["draft"]): Effect => {
   const ch = d.characters[0]?.id ?? "";
@@ -23,6 +24,8 @@ const blankEffect = (type: Effect["type"], d: FormCtx["draft"]): Effect => {
       return { type, variableId: "", action: "on" };
     case "message":
       return { type, text: "" };
+    case "failCase":
+      return { type };
     case "removeEvidence":
       return { type, evidenceId: "" };
     case "startDialogue":
@@ -50,14 +53,17 @@ function VariableEffect({ effect, ctx, onChange }: { effect: Extract<Effect, { t
   const [creating, setCreating] = useState(false);
   const counters = d.counters ?? [];
   const enums = d.enums ?? [];
-  const kindOf = (id: string) => (counters.some((c) => c.id === id) ? "counter" : enums.some((x) => x.id === id) ? "enum" : "flag");
+  const kindIn = (draft: FormCtx["draft"], id: string) => (draft.counters?.some((c) => c.id === id) ? "counter" : draft.enums?.some((x) => x.id === id) ? "enum" : "flag");
+  const kindOf = (id: string) => kindIn(d, id);
   const kind = kindOf(effect.variableId);
   const actions = kind === "counter" ? COUNTER_ACTIONS : FLAG_ACTIONS;
+  // вид берём из актуального дела: только что созданная переменная в снимке этого рендера ещё не видна
   const pick = (id: string) => {
-    const next = kindOf(id);
+    const live = editorStore.get().draft;
+    const next = kindIn(live, id);
     if (next === kind && effect.variableId) return onChange({ ...effect, variableId: id });
     if (next === "counter") return onChange({ type: "changeVariable", variableId: id, action: "add", value: 1 });
-    if (next === "enum") return onChange({ type: "changeVariable", variableId: id, action: "assign", valueId: enums.find((x) => x.id === id)?.values[0]?.id });
+    if (next === "enum") return onChange({ type: "changeVariable", variableId: id, action: "assign", valueId: live.enums?.find((x) => x.id === id)?.values[0]?.id });
     onChange({ type: "changeVariable", variableId: id, action: "on" });
   };
   const values = enums.find((x) => x.id === effect.variableId)?.values ?? [];
@@ -111,6 +117,17 @@ export function EffectsEditor({ value, onChange, ctx }: { value: Effect[]; onCha
           <div className="fx__arg stack">
             {e.type === "addEvidence" && (
               <Select value={e.evidenceId} placeholder="какую улику" options={evidence} onChange={(v) => set(i, { ...e, evidenceId: v })} />
+            )}
+            {e.type === "failCase" && (
+              <textarea
+                rows={2}
+                value={e.text ?? ""}
+                placeholder="Что увидит игрок в окне «Дело провалено» (необязательно)"
+                onChange={(ev) => {
+                  const { text: _t, ...rest } = e;
+                  set(i, (ev.target.value ? { ...rest, text: ev.target.value } : rest) as Effect);
+                }}
+              />
             )}
             {e.type === "removeEvidence" && (
               <Select value={e.evidenceId} placeholder="какую улику убрать" options={evidence} onChange={(v) => set(i, { ...e, evidenceId: v })} />

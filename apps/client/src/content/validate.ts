@@ -102,6 +102,7 @@ function checkIntegrity(c: CaseFile): string[] {
       });
     });
     cond?.anyOf?.forEach((alt) => checkCondition(alt, where));
+    cond?.allOf?.forEach((part) => checkCondition(part, where));
   };
   const checkEffects = (effects: Effect[], where: string) => {
     for (const e of effects) {
@@ -330,6 +331,7 @@ function checkIntegrity(c: CaseFile): string[] {
   const condFlags = (cond?: Condition): void => {
     [...(cond?.flags ?? []), ...(cond?.notFlags ?? [])].forEach((f) => usedFlags.add(f));
     cond?.anyOf?.forEach(condFlags);
+    cond?.allOf?.forEach(condFlags);
   };
   for (const dl of c.dialogues)
     for (const n of dl.nodes) {

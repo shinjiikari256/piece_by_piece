@@ -44,7 +44,8 @@ export const emptyProgress = (): Progress => ({
 /** Ключ выбранного варианта ответа в `Progress.chosen`. */
 export const choiceKey = (dialogueId: string, nodeId: string, choiceId: string) => `${dialogueId}/${nodeId}/${choiceId}`;
 
-function meetsAll(cond: Omit<Condition, "anyOf">, p: Progress, locationId?: string): boolean {
+/** Строки условия (без вложенных условий). */
+function meetsRows(cond: Condition, p: Progress, locationId?: string): boolean {
   return (
     (cond.evidence ?? []).every((id) => p.collected.includes(id)) &&
     (cond.flags ?? []).every((f) => p.flags.includes(f)) &&
@@ -107,7 +108,11 @@ export const clampCounter = (v: number, def?: { min?: number; max?: number }): n
 
 export function meets(cond: Condition | undefined, p: Progress, locationId?: string): boolean {
   if (!cond) return true;
-  return meetsAll(cond, p, locationId) && (!cond.anyOf?.length || cond.anyOf.some((alt) => meetsAll(alt, p, locationId)));
+  return (
+    meetsRows(cond, p, locationId) &&
+    (cond.allOf ?? []).every((part) => meets(part, p, locationId)) &&
+    (!cond.anyOf?.length || cond.anyOf.some((alt) => meets(alt, p, locationId)))
+  );
 }
 
 export interface EffectOutcome {
@@ -118,7 +123,7 @@ export interface EffectOutcome {
   /** Улики, убранные эффектами `removeEvidence` (были в деле). */
   removedEvidence: string[];
   /** Что вызывающий должен сделать после применения: перенести игрока, запустить диалог (побеждает последний такой эффект). */
-  followUp: { dialogueId?: string; travel?: { to: string; spawn: { x: number; y: number } } };
+  followUp: { dialogueId?: string; travel?: { to: string; spawn: { x: number; y: number } }; failCase?: { text?: string } };
 }
 
 /**
@@ -209,6 +214,9 @@ export function applyEffects(effects: Effect[], p: Progress, ctx: EffectContext 
           next.collected = next.collected.filter((id) => id !== e.evidenceId);
           removedEvidence.push(e.evidenceId);
         }
+        break;
+      case "failCase":
+        followUp.failCase = { text: e.text };
         break;
       case "startDialogue":
         followUp.dialogueId = e.dialogueId;

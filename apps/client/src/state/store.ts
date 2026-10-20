@@ -22,7 +22,7 @@ export type JournalTab = "brief" | "materials" | "characters" | "law";
 export type Mark = "important" | "unimportant";
 
 export type Overlay =
-  | { kind: "object"; objectId: string }
+  | { kind: "object"; objectId: string; /** Улики, выданные именно этим осмотром (закладки помечаются «новое»). */ gained?: string[] }
   | {
       kind: "dialogue";
       npcId: string;
@@ -38,6 +38,7 @@ export type Overlay =
       /** что открыть: ключ материала или id персонажа */
       focus?: string;
     }
+  | { kind: "failed"; text?: string }
   | { kind: "hints" }
   | { kind: "howto" }
   | { kind: "exit" };
@@ -180,12 +181,17 @@ function announce(newEvidence: string[], messages: string[], removedEvidence: st
 let followDepth = 0;
 /** Перенос игрока и запуск диалога, которые потребовали эффекты. Глубина ограничена: локации с взаимным переносом не зациклят игру. */
 function runFollowUp(f: EffectOutcome["followUp"]) {
-  if ((!f.travel && !f.dialogueId) || followDepth >= 5) return;
+  if ((!f.travel && !f.dialogueId && !f.failCase) || followDepth >= 5) return;
   followDepth++;
   try {
     if (f.travel) moveToLocation(f.travel.to, f.travel.spawn);
     const dialogue = f.dialogueId ? state.caseFile?.dialogues.find((d) => d.id === f.dialogueId) : undefined;
     if (dialogue) enterNode(`effect:${dialogue.id}`, dialogue.id, dialogue.startNodeId);
+    // дело провалено: прохождение стирается, результат не пишется; окно перекрывает всё остальное
+    if (f.failCase && state.caseFile) {
+      void platform().saves.clear(state.caseFile.id);
+      set({ overlay: { kind: "failed", text: f.failCase.text } });
+    }
   } finally {
     followDepth--;
   }
@@ -463,6 +469,13 @@ export const actions = {
     if (state.spawn) set({ spawn: null });
   },
 
+  /** Начать провалившееся дело заново (окно «Дело провалено»). */
+  restartAfterFail() {
+    if (state.overlay?.kind !== "failed") return;
+    set({ overlay: null });
+    actions.beginInvestigation();
+  },
+
   /** Выход в главное меню; без сохранения — расследование сбрасывается. */
   exitToMenu(keepProgress: boolean) {
     if (!keepProgress && state.caseFile) void platform().saves.clear(state.caseFile.id);
@@ -508,7 +521,7 @@ export const actions = {
       set({
         progress,
         // окно осмотра — только у предмета с `interaction`; без него эффекты срабатывают молча (или сообщением)
-        ...(obj.interaction ? { overlay: { kind: "object" as const, objectId: obj.id }, examined: s.examined.includes(obj.id) ? s.examined : [...s.examined, obj.id] } : {}),
+        ...(obj.interaction ? { overlay: { kind: "object" as const, objectId: obj.id, gained: newEvidence.filter((id) => objectEvidenceIds(obj).includes(id)) }, examined: s.examined.includes(obj.id) ? s.examined : [...s.examined, obj.id] } : {}),
       });
       announce(newEvidence, messages, removedEvidence, followUp);
     }
@@ -570,6 +583,8 @@ export const actions = {
       announce(newEvidence, messages, removedEvidence, followUp);
       // эффект запустил другой диалог — обычный переход по варианту не нужен
       if (followUp.dialogueId && state.caseFile?.dialogues.some((d) => d.id === followUp.dialogueId)) return;
+      // дело провалено — окно уже открыто, дальше диалог не идёт
+      if (followUp.failCase) return;
     }
     if (choice.next === null) set({ overlay: null });
     else enterNode(o.npcId, o.dialogueId, choice.next);

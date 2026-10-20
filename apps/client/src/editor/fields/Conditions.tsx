@@ -1,9 +1,10 @@
-import { useState, type ReactNode } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { editor, useEditor, type Focus } from "../state";
 import { countRefs, renameKey, toKey } from "../keys";
 import { Dialog } from "../../ui/window";
 import { Select } from "../../ui/Select";
-import type { CaseFile, Effect } from "../../../../../shared/case";
+import type { CaseFile, Condition, Effect } from "../../../../../shared/case";
+import { ARRAY_KEYS, LIST_KEYS, addAtom, conditionToModel, describeFormula, formulaOf, modelToCondition, parseFormula, removeAtom, replaceAtom, type ConditionModel, type ListKey } from "../../../../../shared/condition-formula";
 import { flagOfEffect } from "../../../../../shared/conditions";
 import { effectSites, mapEffectSites, type EffectOwner } from "../../../../../shared/effect-sites";
 import { ask } from "../../ui/dialog";
@@ -13,26 +14,7 @@ import { RefMulti } from "./RefChips";
 
 // ---------- условия показа и флаги ----------
 
-export type Condition = {
-  evidence?: string[];
-  notEvidence?: string[];
-  deductions?: string[];
-  notDeductions?: string[];
-  flags?: string[];
-  notFlags?: string[];
-  following?: string[];
-  notFollowing?: string[];
-  inLocation?: string[];
-  notInLocation?: string[];
-  /** Варианты ответа, которые уже выбирались (с `not` — ещё не выбирались). */
-  chosen?: { dialogueId: string; nodeId: string; choiceId: string; not?: boolean }[];
-  /** Значения счётчиков в границах (пустая граница — без ограничения). */
-  counters?: { counterId: string; min?: number; max?: number }[];
-  /** Значения перечислений: одно из / не одно из. */
-  enums?: { enumId: string; in?: string[]; notIn?: string[] }[];
-  /** «Или»: хотя бы один из вариантов (каждый — набор строк «и»). */
-  anyOf?: Omit<Condition, "anyOf">[];
-};
+export type { Condition };
 
 /** Подпись и адрес перехода для места с эффектами (реплика, вариант, сопоставление, осмотр, область). */
 function siteInfo(o: EffectOwner, who: (id: string) => string): { where: string; focus: Focus } {
@@ -63,6 +45,7 @@ export function flagsOf(d: FormCtx["draft"]): string[] {
     c?.flags?.forEach((f) => out.add(f));
     c?.notFlags?.forEach((f) => out.add(f));
     c?.anyOf?.forEach(cond);
+    c?.allOf?.forEach(cond);
   };
   for (const dl of d.dialogues)
     for (const n of dl.nodes) {
@@ -113,6 +96,7 @@ function collectUsage(d: FormCtx["draft"]): { vars: Map<string, FlagUse[]>; evid
     c?.evidence?.forEach((id) => push(evidence, id, { kind: "проверяет", where, focus }));
     c?.notEvidence?.forEach((id) => push(evidence, id, { kind: "проверяет отсутствие", where, focus }));
     c?.anyOf?.forEach((alt) => cond(alt, where, focus));
+    c?.allOf?.forEach((part) => cond(part, where, focus));
   };
   for (const dl of d.dialogues)
     for (const n of dl.nodes) {
@@ -152,6 +136,11 @@ export function deleteFlag(d: CaseFile, flag: string): CaseFile {
       const alts = r.anyOf.map(cleanCond).filter((a) => Object.keys(a).length);
       if (alts.length) r.anyOf = alts;
       else delete r.anyOf;
+    }
+    if (r.allOf) {
+      const parts = r.allOf.map(cleanCond).filter((a) => Object.keys(a).length);
+      if (parts.length) r.allOf = parts;
+      else delete r.allOf;
     }
     return r;
   };
@@ -275,57 +264,47 @@ export function FlagDialog({ initial, onDone }: { initial?: { id: string; name: 
   );
 }
 
-type ListKey = Exclude<keyof Condition, "anyOf" | "counters" | "enums" | "chosen">;
-
-/** Условие показа: только заполненные строки + «+ условие». Строки — «и»; варианты «или» — отдельные вложенные условия. */
-export function ConditionEditor({ value, onChange, ctx, label, nested }: { value: Condition; onChange: (v: unknown) => void; ctx: FormCtx; label: ReactNode; nested?: boolean }) {
-  const set = (key: ListKey, list: string[]) => {
-    const next = { ...value };
-    if (list.length) next[key] = list;
-    else delete next[key];
-    onChange(next);
-  };
-  const [added, setAdded] = useState<ListKey[]>([]);
-  const d = ctx.draft;
+/** Названия и варианты выбора для строк-списков условия. */
+function listRows(d: FormCtx["draft"]): Record<ListKey, { title: string; options: Option[] | "flags" }> {
   const chars = d.characters.map(charOption);
-  const rows: { key: ListKey; title: string; options: Option[] | "flags" }[] = [
-    { key: "evidence", title: "Есть улики (все)", options: d.evidence.map((e) => ({ value: e.id, label: e.title })) },
-    { key: "notEvidence", title: "Улик нет (ни одной из)", options: d.evidence.map((e) => ({ value: e.id, label: e.title })) },
-    { key: "deductions", title: "Установлены выводы (все)", options: d.deductions.map((x) => ({ value: x.id, label: x.title })) },
-    { key: "notDeductions", title: "Выводы не установлены (ни одного из)", options: d.deductions.map((x) => ({ value: x.id, label: x.title })) },
-    { key: "flags", title: "Флаги поставлены", options: "flags" },
-    { key: "notFlags", title: "Флагов нет", options: "flags" },
-    { key: "following", title: "Идут за игроком", options: chars },
-    { key: "notFollowing", title: "Не идут за игроком", options: chars },
-    { key: "inLocation", title: "Игрок в локации (любой из)", options: d.locations.map((l) => ({ value: l.id, label: l.name })) },
-    { key: "notInLocation", title: "Игрок не в локациях", options: d.locations.map((l) => ({ value: l.id, label: l.name })) },
-  ];
-  const shown = rows.filter((r) => value[r.key]?.length || added.includes(r.key));
-  const addCounters = "__counters__";
-  const addEnums = "__enums__";
-  const addChosen = "__chosen__";
-  const free = rows.filter((r) => !shown.includes(r));
-  const removeRow = (key: ListKey) => {
-    setAdded((a) => a.filter((k) => k !== key));
-    set(key, []);
+  const locations = d.locations.map((l) => ({ value: l.id, label: l.name }));
+  const evidence = d.evidence.map((e) => ({ value: e.id, label: e.title }));
+  const deductions = d.deductions.map((x) => ({ value: x.id, label: x.title }));
+  return {
+    evidence: { title: "Есть улики (все)", options: evidence },
+    notEvidence: { title: "Улик нет (ни одной из)", options: evidence },
+    deductions: { title: "Установлены выводы (все)", options: deductions },
+    notDeductions: { title: "Выводы не установлены (ни одного из)", options: deductions },
+    flags: { title: "Флаги поставлены", options: "flags" },
+    notFlags: { title: "Флагов нет", options: "flags" },
+    following: { title: "Идут за игроком", options: chars },
+    notFollowing: { title: "Не идут за игроком", options: chars },
+    inLocation: { title: "Игрок в локации (любой из)", options: locations },
+    notInLocation: { title: "Игрок не в локациях", options: locations },
   };
-  const counterRows = value.counters ?? [];
-  const [countersOpen, setCountersOpen] = useState(false);
-  const showCounters = counterRows.length > 0 || countersOpen;
-  const setCounters = (list: NonNullable<Condition["counters"]>) => {
-    const next = { ...value };
-    if (list.length) next.counters = list;
-    else delete next.counters;
-    onChange(next);
-  };
-  const chosenRows = value.chosen ?? [];
-  const [chosenOpen, setChosenOpen] = useState(false);
-  const showChosen = chosenRows.length > 0 || chosenOpen;
-  const setChosen = (list: NonNullable<Condition["chosen"]>) => {
-    const next = { ...value };
-    if (list.length) next.chosen = list;
-    else delete next.chosen;
-    onChange(next);
+}
+
+const ADD_COUNTER = "__counters__";
+const ADD_ENUM = "__enums__";
+const ADD_CHOSEN = "__chosen__";
+
+/**
+ * Условие: пронумерованные строки и, когда их больше одной, формула связки (`1 && (2 || 3)`; можно писать и / или).
+ * Без формулы выполняются все строки сразу. Номера — только здесь, в деле их нет (см. `shared/condition-formula.ts`).
+ */
+export function ConditionEditor({ value, onChange, ctx, label }: { value: Condition; onChange: (v: unknown) => void; ctx: FormCtx; label: ReactNode; nested?: boolean }) {
+  const d = ctx.draft;
+  const model = useMemo(() => conditionToModel(value), [value]);
+  const apply = (m: ConditionModel) => onChange(modelToCondition(m));
+  const rows = listRows(d);
+  const formula = formulaOf(model.ast);
+  const [text, setText] = useState<string | null>(null); // что набирает автор; null — показываем формулу из условия
+  useEffect(() => setText(null), [formula]);
+  const parsed = text !== null ? parseFormula(text, model.atoms.length) : null;
+  const commit = () => {
+    if (text === null) return;
+    if (parsed?.ok) apply({ atoms: model.atoms, ast: parsed.ast });
+    else setText(null);
   };
   const choiceOptions = d.dialogues.flatMap((dl) =>
     dl.nodes.flatMap((n) =>
@@ -335,190 +314,157 @@ export function ConditionEditor({ value, onChange, ctx, label, nested }: { value
       })),
     ),
   );
-  const enumRows = value.enums ?? [];
-  const [enumsOpen, setEnumsOpen] = useState(false);
-  const showEnums = enumRows.length > 0 || enumsOpen;
-  const setEnums = (list: NonNullable<Condition["enums"]>) => {
-    const next = { ...value };
-    if (list.length) next.enums = list;
-    else delete next.enums;
-    onChange(next);
-  };
   const bound = (v: string) => (v === "" ? undefined : Math.trunc(Number(v)));
-  const alts = value.anyOf ?? [];
-  const setAlts = (list: Omit<Condition, "anyOf">[]) => {
-    const next = { ...value };
-    if (list.length) next.anyOf = list;
-    else delete next.anyOf;
-    onChange(next);
+
+  /** Одна строка условия под номером n. */
+  const atomRow = (atom: Condition, n: number) => {
+    const remove = (
+      <button className="cond__remove" onClick={() => apply(removeAtom(model, n))} title="Убрать строку условия">
+        ✕
+      </button>
+    );
+    const num = <span className="cond__num">{n}.</span>;
+    const listKey = LIST_KEYS.find((k) => atom[k] !== undefined);
+    if (listKey) {
+      const row = rows[listKey];
+      const title = (
+        <span className="cond__title">
+          {num} {row.title}
+        </span>
+      );
+      const set = (list: unknown) => apply(replaceAtom(model, n, { [listKey]: list as string[] }));
+      return row.options === "flags" ? (
+        <FlagMulti label={title} value={atom[listKey] ?? []} onChange={set} ctx={ctx} extra={remove} />
+      ) : (
+        <RefMulti label={title} options={row.options} value={atom[listKey] ?? []} onChange={set} extra={remove} />
+      );
+    }
+    const arrayKey = ARRAY_KEYS.find((k) => atom[k]?.length);
+    if (arrayKey === "counters") {
+      const r = atom.counters![0];
+      const set = (p: Partial<typeof r>) => apply(replaceAtom(model, n, { counters: [{ ...r, ...p }] }));
+      return (
+        <>
+          <span className="cond__title">{num} Значение счётчика</span>
+          <div className="cond__counter">
+            <Select value={r.counterId} placeholder="какой счётчик" options={(d.counters ?? []).map((x) => ({ value: x.id, label: x.name || x.id }))} onChange={(v) => set({ counterId: v })} />
+            <input type="number" value={r.min ?? ""} placeholder="от" onChange={(e) => set({ min: bound(e.target.value) })} />
+            <input type="number" value={r.max ?? ""} placeholder="до" onChange={(e) => set({ max: bound(e.target.value) })} />
+            {remove}
+          </div>
+        </>
+      );
+    }
+    if (arrayKey === "enums") {
+      const r = atom.enums![0];
+      const mode = r.notIn !== undefined ? "notIn" : "in";
+      const list = (mode === "in" ? r.in : r.notIn) ?? [];
+      const values = (d.enums ?? []).find((x) => x.id === r.enumId)?.values ?? [];
+      const set = (next: NonNullable<Condition["enums"]>[number]) => apply(replaceAtom(model, n, { enums: [next] }));
+      return (
+        <div className="stack">
+          <span className="cond__title">{num} Значение перечисления</span>
+          <div className="cond__counter">
+            <Select value={r.enumId} placeholder="какое перечисление" options={(d.enums ?? []).map((x) => ({ value: x.id, label: x.name || x.id }))} onChange={(v) => set({ enumId: v })} />
+            <Select
+              value={mode}
+              options={[
+                { value: "in", label: "одно из" },
+                { value: "notIn", label: "не одно из" },
+              ]}
+              onChange={(m) => set({ enumId: r.enumId, [m]: list })}
+            />
+            {remove}
+          </div>
+          <RefMulti label="" options={values.map((v) => ({ value: v.id, label: v.name || v.id }))} value={list} onChange={(v) => set({ enumId: r.enumId, [mode]: v as string[] })} />
+        </div>
+      );
+    }
+    if (arrayKey === "chosen") {
+      const r = atom.chosen![0];
+      const set = (next: NonNullable<Condition["chosen"]>[number]) => apply(replaceAtom(model, n, { chosen: [next] }));
+      return (
+        <>
+          <span className="cond__title">{num} Вариант ответа в разговоре</span>
+          <div className="cond__counter">
+            <Select
+              value={`${r.dialogueId}/${r.nodeId}/${r.choiceId}`}
+              placeholder="какой вариант"
+              options={choiceOptions}
+              onChange={(v) => {
+                const [dialogueId, nodeId, choiceId] = v.split("/");
+                set({ ...r, dialogueId, nodeId, choiceId });
+              }}
+            />
+            <Select
+              value={r.not ? "not" : "yes"}
+              options={[
+                { value: "yes", label: "уже выбирался" },
+                { value: "not", label: "ещё не выбирался" },
+              ]}
+              onChange={(m) => set({ dialogueId: r.dialogueId, nodeId: r.nodeId, choiceId: r.choiceId, ...(m === "not" ? { not: true } : {}) })}
+            />
+            {remove}
+          </div>
+        </>
+      );
+    }
+    return null;
   };
+
+  const addOptions = [
+    ...LIST_KEYS.map((k) => ({ value: k as string, label: rows[k].title })),
+    { value: ADD_COUNTER, label: "Значение счётчика" },
+    ...(d.enums?.length ? [{ value: ADD_ENUM, label: "Значение перечисления" }] : []),
+    ...(choiceOptions.length ? [{ value: ADD_CHOSEN, label: "Вариант ответа в разговоре" }] : []),
+  ];
+  const addRow = (k: string) => {
+    const row: Condition =
+      k === ADD_COUNTER
+        ? { counters: [{ counterId: d.counters?.[0]?.id ?? "" }] }
+        : k === ADD_ENUM
+          ? { enums: [{ enumId: d.enums?.[0]?.id ?? "", in: [] }] }
+          : k === ADD_CHOSEN
+            ? { chosen: [{ dialogueId: "", nodeId: "", choiceId: "" }] }
+            : { [k]: [] };
+    apply(addAtom(model, row));
+  };
+
   return (
     <fieldset className="ef ef--object cond">
       <legend>{label ?? "Условие показа"}</legend>
-      {shown.length === 0 && <p className="cond__hint">Без условия — доступно всегда.</p>}
-      {shown.map((r) => {
-        const remove = (
-          <button className="cond__remove" onClick={() => removeRow(r.key)} title="Убрать строку условия">
-            ✕
-          </button>
-        );
-        const title = <span className="cond__title">{r.title}</span>;
-        return (
-          <div key={r.key} className="cond__row">
-            {r.options === "flags" ? (
-              <FlagMulti label={title} value={value[r.key] ?? []} onChange={(v) => set(r.key, v)} ctx={ctx} extra={remove} />
-            ) : (
-              <RefMulti label={title} options={r.options} value={value[r.key] ?? []} onChange={(v) => set(r.key, v as string[])} extra={remove} />
-            )}
-          </div>
-        );
-      })}
-      {showCounters && (
-        <div className="cond__row">
-          <span className="cond__title">Счётчики в границах</span>
-          {counterRows.map((r, i) => (
-            <div key={i} className="cond__counter">
-              <Select
-                value={r.counterId}
-                placeholder="какой счётчик"
-                options={(d.counters ?? []).map((x) => ({ value: x.id, label: x.name || x.id }))}
-                onChange={(v) => setCounters(counterRows.map((x, k) => (k === i ? { ...x, counterId: v } : x)))}
-              />
-              <input type="number" value={r.min ?? ""} placeholder="от" onChange={(e) => setCounters(counterRows.map((x, k) => (k === i ? { ...x, min: bound(e.target.value) } : x)))} />
-              <input type="number" value={r.max ?? ""} placeholder="до" onChange={(e) => setCounters(counterRows.map((x, k) => (k === i ? { ...x, max: bound(e.target.value) } : x)))} />
-              <button className="cond__remove" onClick={() => setCounters(counterRows.filter((_, k) => k !== i))} title="Убрать строку">
-                ✕
-              </button>
-            </div>
-          ))}
-          <button className="btn btn--sm cond__or" onClick={() => setCounters([...counterRows, { counterId: d.counters?.[0]?.id ?? "" }])}>
-            + счётчик
-          </button>
+      {model.atoms.length === 0 && <p className="cond__hint">Без условия — доступно всегда.</p>}
+      {model.atoms.map((atom, i) => (
+        <div key={i} className="cond__row">
+          {atomRow(atom, i + 1)}
         </div>
+      ))}
+      <Select className="sel--add" value="" placeholder={model.atoms.length ? "+ ещё условие" : "+ условие"} options={addOptions} onChange={addRow} />
+      {model.atoms.length > 1 && (
+        <label className="cond__formula ef">
+          <span className="cond__title">Связка условий</span>
+          <input
+            className="flag-input"
+            value={text ?? formula}
+            spellCheck={false}
+            placeholder="1 && 2"
+            aria-invalid={parsed && !parsed.ok ? true : undefined}
+            onChange={(e) => setText(e.target.value)}
+            onBlur={commit}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") commit();
+              if (e.key === "Escape") setText(null);
+            }}
+          />
+          {parsed && !parsed.ok ? (
+            <span className="ef__hint is-bad">{parsed.error}</span>
+          ) : (
+            <span className="cond__hint">
+              {describeFormula(parsed?.ok ? parsed.ast : model.ast)}. «&&» или «и» — все сразу, «||» или «или» — хотя бы одно; скобки группируют. Каждое условие — один раз.
+            </span>
+          )}
+        </label>
       )}
-      {showChosen && (
-        <div className="cond__row">
-          <span className="cond__title">Варианты ответа в разговорах</span>
-          {chosenRows.map((r, i) => (
-            <div key={i} className="cond__counter">
-              <Select
-                value={`${r.dialogueId}/${r.nodeId}/${r.choiceId}`}
-                placeholder="какой вариант"
-                options={choiceOptions}
-                onChange={(v) => {
-                  const [dialogueId, nodeId, choiceId] = v.split("/");
-                  setChosen(chosenRows.map((x, k) => (k === i ? { ...x, dialogueId, nodeId, choiceId } : x)));
-                }}
-              />
-              <Select
-                value={r.not ? "not" : "yes"}
-                options={[
-                  { value: "yes", label: "уже выбирался" },
-                  { value: "not", label: "ещё не выбирался" },
-                ]}
-                onChange={(m) => setChosen(chosenRows.map((x, k) => (k === i ? { dialogueId: x.dialogueId, nodeId: x.nodeId, choiceId: x.choiceId, ...(m === "not" ? { not: true } : {}) } : x)))}
-              />
-              <button className="cond__remove" onClick={() => setChosen(chosenRows.filter((_, k) => k !== i))} title="Убрать строку">
-                ✕
-              </button>
-            </div>
-          ))}
-          <button className="btn btn--sm cond__or" onClick={() => setChosen([...chosenRows, { dialogueId: "", nodeId: "", choiceId: "" }])}>
-            + вариант
-          </button>
-        </div>
-      )}
-      {showEnums && (
-        <div className="cond__row">
-          <span className="cond__title">Значения перечислений</span>
-          {enumRows.map((r, i) => {
-            const mode = r.notIn !== undefined ? "notIn" : "in";
-            const list = (mode === "in" ? r.in : r.notIn) ?? [];
-            const values = (d.enums ?? []).find((x) => x.id === r.enumId)?.values ?? [];
-            const patchRow = (p: Partial<typeof r>) => setEnums(enumRows.map((x, k) => (k === i ? { ...x, ...p } : x)));
-            return (
-              <div key={i} className="stack">
-                <div className="cond__counter">
-                  <Select
-                    value={r.enumId}
-                    placeholder="какое перечисление"
-                    options={(d.enums ?? []).map((x) => ({ value: x.id, label: x.name || x.id }))}
-                    onChange={(v) => setEnums(enumRows.map((x, k) => (k === i ? { enumId: v } : x)))}
-                  />
-                  <Select
-                    value={mode}
-                    options={[
-                      { value: "in", label: "одно из" },
-                      { value: "notIn", label: "не одно из" },
-                    ]}
-                    onChange={(m) => setEnums(enumRows.map((x, k) => (k === i ? { enumId: x.enumId, [m]: list } : x)))}
-                  />
-                  <button className="cond__remove" onClick={() => setEnums(enumRows.filter((_, k) => k !== i))} title="Убрать строку">
-                    ✕
-                  </button>
-                </div>
-                <RefMulti
-                  label=""
-                  options={values.map((v) => ({ value: v.id, label: v.name || v.id }))}
-                  value={list}
-                  onChange={(v) => patchRow({ [mode]: v as string[] })}
-                />
-              </div>
-            );
-          })}
-          <button className="btn btn--sm cond__or" onClick={() => setEnums([...enumRows, { enumId: d.enums?.[0]?.id ?? "", in: [] }])}>
-            + перечисление
-          </button>
-        </div>
-      )}
-      {(free.length > 0 || !showCounters || (!showEnums && !!d.enums?.length) || (!showChosen && choiceOptions.length > 0)) && (
-        <Select
-          className="sel--add"
-          value=""
-          placeholder={shown.length || showCounters ? "+ ещё условие" : "+ условие"}
-          options={[
-            ...free.map((r) => ({ value: r.key as string, label: r.title })),
-            ...(showCounters ? [] : [{ value: addCounters, label: "Значение счётчика" }]),
-            ...(showEnums || !d.enums?.length ? [] : [{ value: addEnums, label: "Значение перечисления" }]),
-            ...(showChosen || !choiceOptions.length ? [] : [{ value: addChosen, label: "Выбранные варианты ответа" }]),
-          ]}
-          onChange={(k) =>
-            k === addCounters
-              ? (setCountersOpen(true), setCounters([...counterRows, { counterId: d.counters?.[0]?.id ?? "" }]))
-              : k === addChosen
-                ? (setChosenOpen(true), setChosen([...chosenRows, { dialogueId: "", nodeId: "", choiceId: "" }]))
-              : k === addEnums
-                ? (setEnumsOpen(true), setEnums([...enumRows, { enumId: d.enums?.[0]?.id ?? "", in: [] }]))
-                : setAdded((a) => [...a, k as ListKey])
-          }
-        />
-      )}
-      {!nested && (
-        <>
-          {alts.map((alt, i) => (
-            <div key={i} className="cond__alt">
-              <ConditionEditor
-                nested
-                value={alt}
-                ctx={ctx}
-                onChange={(v) => setAlts(alts.map((x, j) => (j === i ? (v as Omit<Condition, "anyOf">) : x)))}
-                label={
-                  <span className="cond__alt-head">
-                    {i === 0 ? "Одно из: вариант 1" : `или вариант ${i + 1}`}
-                    <button className="cond__remove" onClick={() => setAlts(alts.filter((_, j) => j !== i))} title="Убрать вариант">
-                      ✕
-                    </button>
-                  </span>
-                }
-              />
-            </div>
-          ))}
-          <button className="btn btn--sm cond__or" onClick={() => setAlts([...alts, {}])} title="Условие выполнится, если подойдёт хотя бы один вариант">
-            + вариант «или»
-          </button>
-        </>
-      )}
-      {shown.length + alts.length > 1 && <p className="cond__hint">Строки вне вариантов должны выполняться все{alts.length ? "; из вариантов — хотя бы один" : ""}.</p>}
     </fieldset>
   );
 }

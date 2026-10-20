@@ -246,6 +246,24 @@ function TouchControls() {
   );
 }
 
+/** Эффект «провалить дело»: текст автора и два выхода — заново или к списку дел. */
+function FailedWindow({ text }: { text?: string }) {
+  return (
+    <TabbedModal tabs={[{ id: "failed", label: "Дело провалено", icon: "alert" }]} size="narrow" onClose={() => actions.exitToMenu(false)}>
+      <h2 className="modal__title">Дело провалено</h2>
+      {text ? <p>{text}</p> : <p>Расследование не удалось довести до конца.</p>}
+      <div className="modal__actions">
+        <button className="btn btn--primary" onClick={actions.restartAfterFail}>
+          Начать заново
+        </button>
+        <button className="btn" onClick={() => actions.exitToMenu(false)}>
+          {FROM_EDITOR ? "Вернуться в конструктор" : "К списку дел"}
+        </button>
+      </div>
+    </TabbedModal>
+  );
+}
+
 function ExitDialog() {
   return (
     <TabbedModal tabs={[{ id: "exit", label: "Выход", icon: "home" }]} size="narrow">
@@ -283,7 +301,7 @@ export function GameView() {
         <TouchControls />
       </div>
       <BottomBar />
-      {overlay?.kind === "object" && <ObjectPanel objectId={overlay.objectId} />}
+      {overlay?.kind === "object" && <ObjectPanel objectId={overlay.objectId} gained={overlay.gained ?? []} />}
       {overlay?.kind === "dialogue" && <DialogueWindow {...overlay} />}
       {overlay?.kind === "journal" && <Journal tab={overlay.tab} match={overlay.match} focus={overlay.focus} />}
       <SelectionToNotes />
@@ -291,6 +309,7 @@ export function GameView() {
       {overlay?.kind === "howto" && <HowToWindow onClose={actions.close} />}
       <NotesWindow />
       {overlay?.kind === "exit" && <ExitDialog />}
+      {overlay?.kind === "failed" && <FailedWindow text={overlay.text} />}
     </div>
   );
 }

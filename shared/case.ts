@@ -35,7 +35,7 @@ export const Appearance = z.enum([
   "sport_m",
 ]);
 
-const BaseCondition = z.object({
+const conditionRows = {
   evidence: z.array(z.string()).optional().describe("Все эти улики должны быть в журнале"),
   flags: z.array(z.string()).optional().describe("Все эти флаги должны быть установлены"),
   notFlags: z.array(z.string()).optional().describe("Ни один из этих флагов не должен быть установлен"),
@@ -70,13 +70,21 @@ const BaseCondition = z.object({
     )
     .optional()
     .describe("Значения перечислений: одно из / не одно из"),
-});
+};
 
-export const Condition = BaseCondition.extend({
-  anyOf: z
-    .array(BaseCondition)
-    .optional()
-    .describe("«Или»: должен выполняться хотя бы один из этих вариантов (каждый вариант — «и» своих строк); остальные строки условия тоже должны выполняться"),
+/**
+ * Условие: строки (все сразу) ∧ каждое из `allOf` ∧ хотя бы одно из `anyOf`. Вложенные условия — тоже условия, глубина не ограничена.
+ * Автор собирает его формулой над пронумерованными строками (`1 && (2 || 3)`, см. `shared/condition-formula.ts`).
+ */
+export type Condition = z.infer<z.ZodObject<typeof conditionRows>> & { anyOf?: Condition[]; allOf?: Condition[] };
+export const Condition: z.ZodType<Condition> = z.object({
+  ...conditionRows,
+  get anyOf() {
+    return z.array(Condition).optional().describe("«Или»: должно выполняться хотя бы одно из этих условий; остальные строки условия тоже должны выполняться");
+  },
+  get allOf() {
+    return z.array(Condition).optional().describe("«И»: должны выполняться все эти условия (нужно, когда в «и» стоят несколько групп «или»)");
+  },
 });
 
 /** Необязательное условие эффекта: проверяется в момент применения, по состоянию после предыдущих эффектов списка. */
@@ -102,6 +110,9 @@ export const Effect = z.discriminatedUnion("type", [
   z
     .object({ type: z.literal("travel"), locationId: z.string(), x: z.number().int(), y: z.number().int(), ...effectWhen })
     .describe("Перенести игрока в локацию, на клетку x, y"),
+  z
+    .object({ type: z.literal("failCase"), text: z.string().optional().describe("Что увидит игрок в окне «Дело провалено»"), ...effectWhen })
+    .describe("Неудачное завершение дела: игрок видит окно и начинает заново; результат не записывается"),
   z.object({ type: z.literal("message"), text: z.string(), ...effectWhen }).describe("Показать игроку короткое сообщение (без диалога)"),
   z.object({ type: z.literal("addCharacterNote"), characterId: z.string(), text: z.string(), ...effectWhen }),
   z.object({ type: z.literal("follow"), characterId: z.string(), ...effectWhen }).describe("Персонаж идёт за игроком"),
@@ -569,7 +580,6 @@ export type Evidence = z.infer<typeof Evidence>;
 export type Dialogue = z.infer<typeof Dialogue>;
 export type DialogueNode = z.infer<typeof DialogueNode>;
 export type DialogueChoice = z.infer<typeof DialogueChoice>;
-export type Condition = z.infer<typeof Condition>;
 export type Effect = z.infer<typeof Effect>;
 export type Deduction = z.infer<typeof Deduction>;
 export type Question = z.infer<typeof Question>;

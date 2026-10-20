@@ -11,6 +11,8 @@ export function effectLabel(e: Effect): string {
         return e.action === "assign" ? `${e.variableId} = ${e.valueId ?? "?"}` : `${e.variableId}: ${ENUM_LABELS[e.action]}${e.value === undefined ? "" : ` ${e.value}`}`;
       case "removeEvidence":
         return `убрать улику ${e.evidenceId}`;
+      case "failCase":
+        return "дело провалено";
       case "startDialogue":
         return `диалог ${e.dialogueId}`;
       case "travel":

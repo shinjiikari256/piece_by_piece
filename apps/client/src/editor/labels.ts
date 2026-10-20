@@ -197,6 +197,7 @@ export const ENUM_LABELS: Record<string, string> = {
   message: "показать сообщение",
   removeEvidence: "убрать улику из дела",
   startDialogue: "запустить диалог",
+  failCase: "провалить дело",
   travel: "перенести игрока",
   on: "поставить",
   off: "снять",

@@ -39,6 +39,7 @@ export function caseWarnings(c: CaseFile): string[] {
     cnd?.flags?.forEach((f) => needsSetting.add(f));
     cnd?.enums?.forEach((r) => r.in?.forEach((v) => needsValue.add(`${r.enumId}:${v}`)));
     cnd?.anyOf?.forEach(positive);
+    cnd?.allOf?.forEach(positive);
   };
   effectSites(c).forEach((site) => {
     effects(site.effects);

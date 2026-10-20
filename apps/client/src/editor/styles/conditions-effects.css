@@ -55,6 +55,21 @@
   font-weight: 500;
   color: var(--text-soft);
 }
+/* номер строки условия — на него ссылается формула */
+.cond__num {
+  display: inline-block;
+  min-width: 1.2em;
+  font-weight: 700;
+  color: var(--accent-ink);
+}
+.cond__formula {
+  margin-top: 0.4rem;
+  border-top: 1px dashed var(--border);
+  padding-top: 0.4rem;
+}
+.cond__formula input[aria-invalid="true"] {
+  border-color: var(--bad);
+}
 .cond__remove:hover {
   color: var(--bad);
 }

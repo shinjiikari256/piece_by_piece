@@ -6,7 +6,7 @@ import { CHAR_H, CHAR_W, drawCharacter, resolveLook, type CharFrame, type Look }
 import { actions, useGame } from "../state/store";
 import { findObject } from "../content/case-utils";
 import { objectEvidenceIds } from "../../../../shared/case";
-import { TabbedModal } from "./common";
+import { KIND_ICON, TabbedModal } from "./common";
 import { FolderTabs } from "./folder";
 import { EvidenceDetail } from "./journal/materials";
 import { Icon } from "./icons";
@@ -38,76 +38,109 @@ export function Portrait({ look, talking }: { look: Look; talking?: boolean }) {
 
 // ---------- Осмотр объекта ----------
 
-export function ObjectPanel({ objectId }: { objectId: string }) {
+export function ObjectPanel({ objectId, gained = [] }: { objectId: string; gained?: string[] }) {
   const caseFile = useCase();
   const marks = useGame((s) => s.marks);
   const collected = useGame((s) => s.progress.collected);
+  const [tab, setTab] = useState("inspect");
+  const [seen, setSeen] = useState<string[]>([]); // закладки «новое», которые игрок уже открыл
   const obj = findObject(caseFile, objectId);
   if (!obj?.interaction) return null;
   const it = obj.interaction;
-  // улики, которые этот предмет выдаёт и которые уже в деле (условия выдачи уже сработали при осмотре)
-  const gained = objectEvidenceIds(obj)
+  // улики, которые этот предмет выдаёт и которые уже в деле (условия выдачи сработали при осмотре)
+  const items = objectEvidenceIds(obj)
     .filter((id) => collected.includes(id))
     .map((id) => caseFile.evidence.find((e) => e.id === id))
     .filter((e): e is NonNullable<typeof e> => !!e);
-  // одна улика — карточка с кнопками «Важно» / «Неважно» (они закрывают окно); несколько — список с отметками по каждой
-  const single = gained.length === 1 ? gained[0] : null;
-  const mark = single ? marks[single.id] : undefined;
+  const present = items.find((e) => e.id === tab);
+  const markButtons = (e: (typeof items)[number], closes: boolean) => (
+    <>
+      <button
+        className={`btn ${closes ? "mark-close mark-close--important" : ""}`}
+        aria-pressed={marks[e.id] === "important"}
+        onClick={() => {
+          actions.setMark(e.id, "important");
+          if (closes) actions.close();
+        }}
+        title={closes ? "Пометить важным и закрыть" : "Пометить важным"}
+      >
+        <Icon name="star" size={15} /> Важно
+      </button>
+      <button
+        className={`btn ${closes ? "mark-close" : ""}`}
+        aria-pressed={marks[e.id] === "unimportant"}
+        onClick={() => {
+          actions.setMark(e.id, "unimportant");
+          if (closes) actions.close();
+        }}
+        title={closes ? "Пометить неважным и закрыть" : "Пометить неважным"}
+      >
+        <Icon name="dim" size={15} /> Неважно
+      </button>
+    </>
+  );
+  const closeButton = (
+    <button className="btn btn--primary" onClick={actions.close}>
+      Закрыть
+    </button>
+  );
+
+  // несколько улик: закладки — «Осмотр» и по закладке на каждую улику; свежевыданные помечены «новое», пока закладка не открыта
+  if (items.length > 1) {
+    const tabs = [
+      { id: "inspect", label: "Осмотр", icon: "search" as const },
+      ...items.map((e) => ({ id: e.id, label: gained.includes(e.id) && !seen.includes(e.id) ? `${e.title} · новое` : e.title, icon: KIND_ICON[e.kind] })),
+    ];
+    return (
+      <TabbedModal
+        tabs={tabs}
+        active={tab}
+        onTab={(id) => {
+          setTab(id);
+          setSeen((s) => (s.includes(id) ? s : [...s, id]));
+        }}
+        size="narrow"
+        className="inspect"
+      >
+        {present ? (
+          <>
+            <EvidenceDetail evidence={present} mark={marks[present.id]} hideMarks />
+            <div className="modal__actions inspect__actions">
+              {markButtons(present, false)}
+              {closeButton}
+            </div>
+          </>
+        ) : (
+          <>
+            <h2 className="modal__title">{it.title}</h2>
+            {it.description && <Md className="lead" text={it.description} />}
+            <p className="muted inspect__note">
+              <Icon name="check" size={14} /> Добавлено в материалы дела: {items.map((e) => e.title).join(", ")}
+            </p>
+            <div className="modal__actions inspect__actions">{closeButton}</div>
+          </>
+        )}
+      </TabbedModal>
+    );
+  }
+
+  // одна улика или ни одной: окно одной страницей, «Важно / Неважно» закрывают окно
+  const single = items[0];
   return (
     <TabbedModal tabs={[{ id: "inspect", label: "Осмотр", icon: "search" }]} size="narrow" className="inspect">
       <h2 className="modal__title">{it.title}</h2>
       {it.description && <Md className="lead" text={it.description} />}
-      {single && <EvidenceDetail evidence={single} mark={mark} hideMarks />}
-      {gained.length > 1 && (
-        <ul className="stack list-reset">
-          {gained.map((e) => (
-            <li key={e.id} className="row">
-              <span className="ellipsis">
-                <Icon name="check" size={14} /> {e.title}
-              </span>
-              <button className="btn btn--sm" aria-pressed={marks[e.id] === "important"} onClick={() => actions.setMark(e.id, "important")} title="Пометить важным">
-                <Icon name="star" size={14} /> Важно
-              </button>
-              <button className="btn btn--sm" aria-pressed={marks[e.id] === "unimportant"} onClick={() => actions.setMark(e.id, "unimportant")} title="Пометить неважным">
-                <Icon name="dim" size={14} /> Неважно
-              </button>
-            </li>
-          ))}
-        </ul>
-      )}
+      {single && <EvidenceDetail evidence={single} mark={marks[single.id]} hideMarks />}
       <div className="modal__actions inspect__actions">
-        {gained.length > 0 && (
-          <span className="muted inspect__note">
-            <Icon name="check" size={14} /> {gained.length === 1 ? "Добавлено в материалы дела" : "Добавлено в материалы дела: " + gained.length}
-          </span>
-        )}
         {single && (
           <>
-            <button
-              className="btn mark-close mark-close--important" aria-pressed={mark === "important"}
-              onClick={() => {
-                actions.setMark(single.id, "important");
-                actions.close();
-              }}
-              title="Пометить важным и закрыть"
-            >
-              <Icon name="star" size={15} /> Важно
-            </button>
-            <button
-              className="btn mark-close" aria-pressed={mark === "unimportant"}
-              onClick={() => {
-                actions.setMark(single.id, "unimportant");
-                actions.close();
-              }}
-              title="Пометить неважным и закрыть"
-            >
-              <Icon name="dim" size={15} /> Неважно
-            </button>
+            <span className="muted inspect__note">
+              <Icon name="check" size={14} /> Добавлено в материалы дела
+            </span>
+            {markButtons(single, true)}
           </>
         )}
-        <button className="btn btn--primary" onClick={actions.close}>
-          Закрыть
-        </button>
+        {closeButton}
       </div>
     </TabbedModal>
   );

@@ -1,6 +1,6 @@
 import { readJson, writeJson } from "../state/storage";
+import { formSchema } from "./json-schema";
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
-import { z } from "zod";
 import { Dialogue as DialogueSchema, DialogueNode as NodeSchema } from "../../../../shared/case";
 import type { CaseFile, Dialogue, DialogueNode } from "../../../../shared/case";
 import { editor, useEditor } from "./state";
@@ -18,8 +18,8 @@ import { useUrlParam, useWriteDefaultParam } from "./url";
 import { resolveLook } from "../game/art";
 import { ask } from "../ui/dialog";
 
-const NODE_SCHEMA: JS = z.toJSONSchema(NodeSchema);
-const DIALOGUE_SCHEMA: JS = z.toJSONSchema(DialogueSchema);
+const NODE_SCHEMA: JS = formSchema(NodeSchema);
+const DIALOGUE_SCHEMA: JS = formSchema(DialogueSchema);
 
 const NODE_W = 240;
 const COL_GAP = 90;
