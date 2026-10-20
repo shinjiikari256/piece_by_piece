@@ -29,6 +29,7 @@ export type SectionId =
   | "authorship"
   | "settings"
   | "flags"
+  | "sprites"
   | "json"
   | "errors";
 

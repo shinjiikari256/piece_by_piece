@@ -432,7 +432,7 @@ export function ObjectFields({
 }) {
   const obj = (value ?? {}) as Record<string, unknown>;
   const required: string[] = schema.required ?? [];
-  const keys = Object.keys(schema.properties ?? {}).filter((k) => !skip.includes(k) && (!only || only.includes(k)));
+  const keys = Object.keys(schema.properties ?? {}).filter((k) => !skip.includes(k) && k !== "bindings" && (!only || only.includes(k))); // привязки спрайта — свой редактор (map/ObjectBindings)
   // координаты x и y — одной строкой
   const isCell = (k: string) => (k === "x" || k === "y") && schema.properties[k]?.type === "integer";
   const paired = keys.includes("x") && keys.includes("y") && isCell("x") && isCell("y");

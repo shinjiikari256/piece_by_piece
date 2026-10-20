@@ -1,0 +1,29 @@
+.sprite-draw__canvas {
+  image-rendering: pixelated;
+  border: 1px solid var(--border-strong);
+  background:
+    repeating-conic-gradient(var(--bg-paper-dim) 0% 25%, var(--bg-paper) 0% 50%) 0 0 / 16px 16px;
+  cursor: crosshair;
+  touch-action: none;
+  max-width: 100%;
+}
+.sprite-draw__swatch {
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: 1px solid var(--border-strong);
+  border-radius: 4px;
+  cursor: pointer;
+}
+.sprite-foot {
+  display: grid;
+  width: max-content;
+  gap: 2px;
+}
+.sprite-foot__cell {
+  height: 36px;
+  border: 1px solid var(--tone-line, var(--border-strong));
+  background: var(--tone-soft, var(--bg-paper-dim));
+  color: var(--tone-ink, inherit);
+  cursor: pointer;
+}

@@ -13,6 +13,7 @@ import { GeneralSection } from "./sections/General";
 import { SettingsSection } from "./sections/Settings";
 import { AuthorshipSection } from "./sections/Authorship";
 import { FlagsSection } from "./sections/Flags";
+import { SpritesSection } from "./sprites/SpritesSection";
 import { LawSection } from "./sections/Law";
 import { SolutionSection } from "./sections/Solution";
 import { ListSection } from "./sections/List";
@@ -77,6 +78,7 @@ const SECTIONS: { id: SectionId; label: string; hint: string }[] = [
   { id: "questions", label: "Вопросы и баллы", hint: "Финальная квалификация" },
   { id: "solution", label: "Решение", hint: "Разбор и источники" },
   { id: "flags", label: "Переменные", hint: "Флаги («произошло или нет») счётчики (числа) и перечисления (одно значение из списка)" },
+  { id: "sprites", label: "Спрайты", hint: "Свои предметы: рисунок, опора, состояния и привязка к переменным" },
   { id: "law", label: "Закон", hint: "Что игрок видит во вкладке «Закон»" },
   { id: "settings", label: "Настройки", hint: "Базовый год событий и бонус за время" },
   { id: "authorship", label: "Авторство", hint: "Автор, почта, лицензия" },
@@ -192,6 +194,7 @@ export function EditorApp() {
         {section === "settings" && <SettingsSection />}
         {section === "authorship" && <AuthorshipSection />}
         {section === "flags" && <FlagsSection />}
+        {section === "sprites" && <SpritesSection />}
         {section === "json" && <JsonSection />}
         {section === "errors" && <ErrorsSection />}
       </main>
@@ -210,6 +213,7 @@ function countFor(d: CaseFile, id: SectionId): string {
     events: d.events.length,
     dialogues: d.dialogues.length,
     flags: (d.flags ?? []).length,
+    sprites: (d.sprites ?? []).length,
     deductions: d.deductions.length,
     hints: d.hints.length,
     questions: d.questions.length,
