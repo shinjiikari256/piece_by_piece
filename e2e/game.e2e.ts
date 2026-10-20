@@ -302,6 +302,32 @@ describe("игра в браузере", () => {
     await page.close();
   });
 
+  it("moveTo: после перезагрузки персонаж сразу стоит на новом месте", async () => {
+    const page = await h.page();
+    await page.goto(`${BASE}/play/case-test-moveto`);
+    await page.getByRole("button", { name: /Приступить к расследованию/ }).click();
+    await page.waitForFunction(() => (window as any).__game.store.get().screen === "play" && (window as any).__scene);
+    await page.evaluate(() => {
+      const { actions } = (window as any).__game;
+      actions.interact("npc_timur");
+      actions.choose("t_menu");
+      actions.choose("t1"); // Тимур идёт в клетку 22,14
+      actions.close();
+    });
+    await page.waitForFunction(() => (window as any).__scene.npcs.get("timur").mode === "static", null, { timeout: 25_000 });
+    await page.waitForTimeout(600); // автосохранение
+    await page.reload();
+    await page.waitForFunction(() => (window as any).__game.store.get().screen === "play" && (window as any).__scene?.npcs.get("timur"));
+    const after = await page.evaluate(() => {
+      const n = (window as any).__scene.npcs.get("timur");
+      return { mode: n.mode, tile: [n.tile.x, n.tile.y], place: (window as any).__game.store.get().progress.npcPlaces.timur };
+    });
+    expect(after.mode).toBe("static"); // не идёт заново, а стоит
+    expect(after.tile).toEqual([22, 14]);
+    expect(after.place).toMatchObject({ x: 22, y: 14 });
+    await page.close();
+  });
+
   it("выход — область с действием exit: внутри неё подсказка, E переводит в другую локацию; стрелок и постоянных подписей нет", async () => {
     const page = await h.page();
     await page.goto(`${BASE}/play/case-test-moveto`);

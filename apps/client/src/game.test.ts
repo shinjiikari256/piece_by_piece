@@ -1158,3 +1158,69 @@ describe("узел-переход (auto)", () => {
     expect(store.get().progress.counters.n).toBe(1);
   });
 });
+
+describe("запасной ответ области (Zone.fallback)", () => {
+  const withFallback = () => {
+    const raw = load("case-001.json") as unknown as CaseFile;
+    raw.flags = [...(raw.flags ?? []), { id: "key", name: "Ключ" }];
+    raw.counters = [{ id: "n", name: "Счёт" }];
+    const loc = raw.locations[0];
+    const cell = loc.tiles.flatMap((row, y) => [...row].map((ch, x) => ({ ch, x, y }))).find((t) => t.ch === ".")!;
+    loc.zones = [
+      {
+        id: "z_fb",
+        name: "Запас",
+        cells: [{ x: cell.x, y: cell.y }],
+        actions: [{ kind: "effects", requires: { flags: ["key"] }, effects: [] }],
+        fallback: { text: "Тут пока нечего делать", effects: [{ type: "changeVariable", variableId: "n", action: "add", value: 1 }] },
+      },
+    ];
+    const c = validateCase(raw);
+    if (!c.ok) throw new Error(c.errors.join("; "));
+    setPlatform(createMemoryPlatform());
+    actions.openCase(new LocalAuthority(c.caseFile));
+    actions.beginInvestigation();
+  };
+
+  it("срабатывает при входе, когда ни одно действие не подошло: эффекты применены, подсказка «Взаимодействие» есть", () => {
+    withFallback();
+    expect(actions.hasZoneAction("z_fb")).toBe(true);
+    actions.enterZone("z_fb");
+    expect(store.get().progress.counters.n).toBe(1);
+  });
+});
+
+describe("условия доступности у подсказок и сопоставлений", () => {
+  const open = (patch: (c: CaseFile) => void) => {
+    const raw = load("case-001.json") as unknown as CaseFile;
+    raw.flags = [...(raw.flags ?? []), { id: "ready", name: "Готов" }];
+    patch(raw);
+    const c = validateCase(raw);
+    if (!c.ok) throw new Error(c.errors.join("; "));
+    setPlatform(createMemoryPlatform());
+    actions.openCase(new LocalAuthority(c.caseFile));
+    actions.beginInvestigation();
+  };
+  const gate = (c: CaseFile) => {
+    c.hints.sort((a, b) => a.level - b.level)[0].requires = { flags: ["ready"] };
+    c.deductions.find((d) => d.id === "d_who")!.requires = { flags: ["ready"] };
+  };
+
+  it("пока условие не выполнено: подсказку не открыть, материалы не связываются", async () => {
+    open(gate);
+    await actions.revealHint();
+    expect(store.get().hintsUsed).toBe(0);
+    expect(actions.findDeduction(["mail_log", "key_log"])).toBeUndefined();
+    expect(actions.findDeduction(["mail_log", "alina_testimony"])?.id).toBe("d_access"); // без условия — как раньше
+  });
+
+  it("условие выполнено (флаг стоит с начала): подсказка открывается, сопоставление находится", async () => {
+    open((c) => {
+      gate(c);
+      c.flags!.find((f) => f.id === "ready")!.initial = true;
+    });
+    await actions.revealHint();
+    expect(store.get().hintsUsed).toBe(1);
+    expect(actions.findDeduction(["mail_log", "key_log"])?.id).toBe("d_who");
+  });
+});
