@@ -1,0 +1,2832 @@
+{
+  "formatVersion": 11,
+  "legend": {
+    "#": "wall",
+    "W": "window",
+    "B": "brick",
+    "G": "glass",
+    "P": "painted_wall",
+    "F": "fence",
+    ".": "tile",
+    ",": "carpet",
+    "_": "parquet",
+    "w": "dark_parquet",
+    "b": "linoleum",
+    "k": "ceramic",
+    "m": "marble",
+    "r": "runner",
+    "S": "stairs",
+    "Z": "stairs_side",
+    "D": "doorway",
+    "g": "grass",
+    "a": "asphalt",
+    "p": "sidewalk"
+  },
+  "id": "case-005",
+  "number": "005",
+  "title": "Ночное предложение",
+  "tagline": "Кто втянул школьника в кражу — и чем «он сам согласился» не оправдание?",
+  "introduction": "Из дома Громова пропала жилетка со 280 000 рублей. Рабочие сознались, что украли деньги вдвоём, но один из них — школьник. Вы — дознаватель: изучите материалы в следственном отделе, побывайте в доме потерпевшего, поговорите с участниками и решите, кто отвечает за вовлечение несовершеннолетнего.",
+  "difficulty": "medium",
+  "timeBonus": {
+    "minutes": 20,
+    "points": 10
+  },
+  "published": true,
+  "updatedAt": "2026-10-20T20:15:39Z",
+  "locations": [
+    {
+      "id": "dept",
+      "name": "Следственный отдел",
+      "tiles": [
+        "###WW#######WW#######WW###",
+        "#________#_______#_______#",
+        "#________#_______#_______#",
+        "#________#_______#_______#",
+        "#________#_______#_______#",
+        "#________#_______#_______#",
+        "#________#_______#_______#",
+        "#________#_______#_______#",
+        "#________#_______#_______#",
+        "####D########D#######D####",
+        "#kkkkkkkkkkkkkkkkkkkkkkkk#",
+        "#k,,,,,,,kkkkkkkkkkkkkkkk#",
+        "#k,,,,,,,kkkkkkkkkkkkkkkk#",
+        "#k,,,,,,,kkkkkkkkkkkkkkkk#",
+        "####WW######DD######WW####"
+      ],
+      "areas": [
+        {
+          "name": "Кабинет следователя",
+          "x": 4,
+          "y": 5
+        },
+        {
+          "name": "Кабинет допросов",
+          "x": 13,
+          "y": 5
+        },
+        {
+          "name": "Комната для несовершеннолетних",
+          "x": 21,
+          "y": 5
+        },
+        {
+          "name": "Вестибюль",
+          "x": 12,
+          "y": 12
+        }
+      ],
+      "playerStart": {
+        "x": 12,
+        "y": 12
+      },
+      "objects": [
+        {
+          "id": "door_a",
+          "sprite": "door_h",
+          "x": 4,
+          "y": 9,
+          "label": "Дверь",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "door_b",
+          "sprite": "door_h",
+          "x": 13,
+          "y": 9,
+          "label": "Дверь",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "door_c",
+          "sprite": "door_h",
+          "x": 21,
+          "y": 9,
+          "label": "Дверь",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "door_street",
+          "sprite": "door_h",
+          "x": 12,
+          "y": 14,
+          "label": "Дверь",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "obj_rapport",
+          "sprite": "cabinet",
+          "x": 2,
+          "y": 1,
+          "label": "Рапорты",
+          "interaction": {
+            "title": "Папка с рапортами",
+            "description": "Рапорт следователя об обнаружении признаков преступления: взрослый вовлёк несовершеннолетнего в совершение тяжкого преступления."
+          },
+          "onInteract": [
+            {
+              "type": "addEvidence",
+              "evidenceId": "rapport"
+            }
+          ]
+        },
+        {
+          "id": "obj_law",
+          "sprite": "bookshelf",
+          "x": 5,
+          "y": 1,
+          "label": "Уголовный кодекс",
+          "interaction": {
+            "title": "Уголовный кодекс с закладками",
+            "description": "Раскрыты примечание 4 к ст. 158 УК РФ и ст. 15 УК РФ о категориях преступлений."
+          },
+          "onInteract": [
+            {
+              "type": "addEvidence",
+              "evidenceId": "law_note"
+            }
+          ]
+        },
+        {
+          "id": "obj_plenum",
+          "sprite": "bookshelf",
+          "x": 7,
+          "y": 1,
+          "label": "Разъяснения Пленума",
+          "interaction": {
+            "title": "Постановления Пленума Верховного Суда",
+            "description": "Постановление Пленума Верховного Суда о практике применения законодательства об ответственности несовершеннолетних, пункт про вовлечение отчёркнут."
+          },
+          "onInteract": [
+            {
+              "type": "addEvidence",
+              "evidenceId": "plenum_note"
+            }
+          ]
+        },
+        {
+          "id": "obj_insp_house",
+          "sprite": "desk_papers",
+          "x": 2,
+          "y": 7,
+          "label": "Протокол осмотра дома",
+          "interaction": {
+            "title": "Протокол осмотра дома",
+            "description": "Бумаги на столе: протоколы осмотров, составленные с участием несовершеннолетнего подозреваемого и его законного представителя."
+          },
+          "onInteract": [
+            {
+              "type": "addEvidence",
+              "evidenceId": "insp_house"
+            }
+          ]
+        },
+        {
+          "id": "obj_insp_road",
+          "sprite": "desk_papers",
+          "x": 6,
+          "y": 7,
+          "label": "Протокол осмотра дороги",
+          "interaction": {
+            "title": "Протокол осмотра участка у дороги",
+            "description": "Осмотр места, где один из подозреваемых ждал и где делили деньги."
+          },
+          "onInteract": [
+            {
+              "type": "addEvidence",
+              "evidenceId": "insp_road"
+            }
+          ]
+        },
+        {
+          "id": "dec_a_chair",
+          "sprite": "chair",
+          "x": 4,
+          "y": 3,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "obj_a_desk",
+          "sprite": "desk",
+          "x": 4,
+          "y": 4,
+          "label": "Стол следователя",
+          "interaction": {
+            "title": "Стол следователя",
+            "description": "Рабочий стол следователя: бланки, штамп, настольная лампа."
+          },
+          "onInteract": []
+        },
+        {
+          "id": "obj_vest",
+          "sprite": "lockers",
+          "x": 15,
+          "y": 1,
+          "label": "Вещественные доказательства",
+          "interaction": {
+            "title": "Шкафчик с вещдоками",
+            "description": "Протокол выемки: у подозреваемого изъяты чёрная стёганая жилетка и кроссовки."
+          },
+          "onInteract": [
+            {
+              "type": "addEvidence",
+              "evidenceId": "vest_seized"
+            }
+          ]
+        },
+        {
+          "id": "obj_receipts",
+          "sprite": "desk_papers",
+          "x": 11,
+          "y": 7,
+          "label": "Расписки",
+          "interaction": {
+            "title": "Расписки о возмещении",
+            "description": "Две расписки по 15 000 рублей — оставшаяся часть ущерба возвращена потерпевшему."
+          },
+          "onInteract": [
+            {
+              "type": "addEvidence",
+              "evidenceId": "receipts"
+            }
+          ]
+        },
+        {
+          "id": "dec_b_chair",
+          "sprite": "chair",
+          "x": 13,
+          "y": 3,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "obj_b_desk",
+          "sprite": "desk",
+          "x": 13,
+          "y": 4,
+          "label": "Стол допроса",
+          "interaction": {
+            "title": "Стол допроса",
+            "description": "Протокол допроса и ручка. Присутствует защитник."
+          },
+          "onInteract": []
+        },
+        {
+          "id": "obj_age",
+          "sprite": "cabinet",
+          "x": 23,
+          "y": 1,
+          "label": "Личное дело",
+          "interaction": {
+            "title": "Справка из школы",
+            "description": "Справка учебного заведения: Зуев А.В. — ученик, полных 17 лет на дату событий."
+          },
+          "onInteract": [
+            {
+              "type": "addEvidence",
+              "evidenceId": "age_cert"
+            }
+          ]
+        },
+        {
+          "id": "obj_phone_zuev",
+          "sprite": "desk_papers",
+          "x": 19,
+          "y": 7,
+          "label": "Протокол осмотра телефона Зуева",
+          "interaction": {
+            "title": "Протокол осмотра телефона",
+            "description": "В телефоне осталась одна запись переписки с контактом «Кир», остальное удалено."
+          },
+          "onInteract": [
+            {
+              "type": "addEvidence",
+              "evidenceId": "phone_zuev"
+            }
+          ]
+        },
+        {
+          "id": "obj_phone_bra",
+          "sprite": "desk_papers",
+          "x": 23,
+          "y": 7,
+          "label": "Протокол осмотра телефона Бражникова",
+          "interaction": {
+            "title": "Протокол осмотра второго телефона",
+            "description": "Телефон добровольно выдан взрослым подозреваемым. Переписка в нужном мессенджере не обнаружена."
+          },
+          "onInteract": [
+            {
+              "type": "addEvidence",
+              "evidenceId": "phone_bra"
+            }
+          ]
+        },
+        {
+          "id": "f_dept_clock_1",
+          "sprite": "clock",
+          "x": 8,
+          "y": 0,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_dept_poster_1",
+          "sprite": "poster",
+          "x": 1,
+          "y": 0,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_dept_plant_1",
+          "sprite": "plant",
+          "x": 1,
+          "y": 4,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_dept_printer_1",
+          "sprite": "printer",
+          "x": 7,
+          "y": 6,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_dept_computer_desk_1",
+          "sprite": "computer_desk",
+          "x": 6,
+          "y": 3,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_dept_chair_1",
+          "sprite": "chair",
+          "x": 6,
+          "y": 2,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_dept_trash_bin_1",
+          "sprite": "trash_bin",
+          "x": 1,
+          "y": 8,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_dept_clock_2",
+          "sprite": "clock",
+          "x": 16,
+          "y": 0,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_dept_poster_2",
+          "sprite": "poster",
+          "x": 10,
+          "y": 0,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_dept_plant_2",
+          "sprite": "plant",
+          "x": 10,
+          "y": 1,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_dept_cabinet_1",
+          "sprite": "cabinet",
+          "x": 12,
+          "y": 1,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_dept_water_cooler_1",
+          "sprite": "water_cooler",
+          "x": 16,
+          "y": 8,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_dept_trash_bin_2",
+          "sprite": "trash_bin",
+          "x": 10,
+          "y": 8,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_dept_floor_lamp_1",
+          "sprite": "floor_lamp",
+          "x": 16,
+          "y": 6,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_dept_chair_2",
+          "sprite": "chair",
+          "x": 13,
+          "y": 7,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_dept_sofa_1",
+          "sprite": "sofa",
+          "x": 19,
+          "y": 2,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_dept_coffee_table_1",
+          "sprite": "coffee_table",
+          "x": 20,
+          "y": 4,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_dept_armchair_1",
+          "sprite": "armchair",
+          "x": 23,
+          "y": 4,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_dept_plant_3",
+          "sprite": "plant",
+          "x": 24,
+          "y": 8,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_dept_poster_3",
+          "sprite": "poster",
+          "x": 19,
+          "y": 0,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_dept_floor_lamp_2",
+          "sprite": "floor_lamp",
+          "x": 24,
+          "y": 2,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_dept_rug_1",
+          "sprite": "rug",
+          "x": 21,
+          "y": 6,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_dept_bookshelf_1",
+          "sprite": "bookshelf",
+          "x": 21,
+          "y": 1,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_dept_sofa_2",
+          "sprite": "sofa",
+          "x": 3,
+          "y": 12,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_dept_coffee_table_2",
+          "sprite": "coffee_table",
+          "x": 5,
+          "y": 12,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_dept_plant_4",
+          "sprite": "plant",
+          "x": 1,
+          "y": 11,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_dept_plant_5",
+          "sprite": "plant",
+          "x": 1,
+          "y": 13,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_dept_water_cooler_2",
+          "sprite": "water_cooler",
+          "x": 10,
+          "y": 10,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_dept_trash_bin_3",
+          "sprite": "trash_bin",
+          "x": 24,
+          "y": 10,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_dept_bench_1",
+          "sprite": "bench",
+          "x": 16,
+          "y": 12,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_dept_poster_4",
+          "sprite": "poster",
+          "x": 22,
+          "y": 14,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_dept_coat_rack_1",
+          "sprite": "coat_rack",
+          "x": 24,
+          "y": 12,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_dept_clock_3",
+          "sprite": "clock",
+          "x": 15,
+          "y": 14,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_dept_floor_lamp_3",
+          "sprite": "floor_lamp",
+          "x": 8,
+          "y": 13,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_dept_vending_1",
+          "sprite": "vending",
+          "x": 20,
+          "y": 10,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        }
+      ],
+      "npcs": [
+        {
+          "id": "npc_vereshchagina",
+          "characterId": "vereshchagina",
+          "dialogueId": "dlg_vereshchagina",
+          "x": 7,
+          "y": 4,
+          "dialogues": []
+        },
+        {
+          "id": "npc_brazhnikov",
+          "characterId": "brazhnikov",
+          "dialogueId": "dlg_brazhnikov",
+          "x": 13,
+          "y": 6,
+          "dialogues": []
+        },
+        {
+          "id": "npc_zuev",
+          "characterId": "zuev",
+          "dialogueId": "dlg_zuev",
+          "x": 21,
+          "y": 5,
+          "dialogues": []
+        }
+      ],
+      "zones": [
+        {
+          "id": "to_house",
+          "name": "Выезд к дому Громова",
+          "cells": [
+            {
+              "x": 12,
+              "y": 14
+            },
+            {
+              "x": 13,
+              "y": 14
+            }
+          ],
+          "actions": [
+            {
+              "kind": "exit",
+              "to": "house",
+              "spawn": {
+                "x": 14,
+                "y": 13
+              }
+            }
+          ]
+        }
+      ],
+      "onEnter": []
+    },
+    {
+      "id": "house",
+      "name": "Дом Громова",
+      "tiles": [
+        "BBBWWBBBBBBBWWBBBBFFFFFFFFFFFF",
+        "BwwwwwwwBbbbbbbbbBgggggggggggF",
+        "BwwwwwwwBbbbbbbbbBgggggggggggF",
+        "BwwwwwwwBbbbbbbbbDgggggggggggF",
+        "BwwwwwwwBbbbbbbbbBgggggggggggF",
+        "BwwwwwwwBBBBDBBBBBgggggggggggF",
+        "BwwwwwwwD________BgggggggggggF",
+        "BwwwwwwwB________BgggggggggggF",
+        "BwwwwwwwB________BgggggggggggF",
+        "BBBBBBBBBBBDBBBBBBgggggggggggF",
+        "FggggggggggggggggggggggggggggF",
+        "FggggggggggggggggggggggggggggF",
+        "FFFFFFFFFFggFFFFFFFFFFFFFFFFFF",
+        "FppppppppppppppppppppppppppppF",
+        "FaaaaaaaaaaaaaaaaaaaaaaaaaaaaF",
+        "FaaaaaaaaaaaaaaaaaaaaaaaaaaaaF",
+        "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFF"
+      ],
+      "areas": [
+        {
+          "name": "Спальня",
+          "x": 4,
+          "y": 5
+        },
+        {
+          "name": "Комната",
+          "x": 12,
+          "y": 7
+        },
+        {
+          "name": "Котельная",
+          "x": 12,
+          "y": 3
+        },
+        {
+          "name": "Огород",
+          "x": 23,
+          "y": 5
+        },
+        {
+          "name": "Двор",
+          "x": 12,
+          "y": 11
+        },
+        {
+          "name": "Улица",
+          "x": 14,
+          "y": 14
+        }
+      ],
+      "objects": [
+        {
+          "id": "door_h_bed",
+          "sprite": "door_v",
+          "x": 8,
+          "y": 6,
+          "label": "Дверь",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "door_h_boiler",
+          "sprite": "door_h",
+          "x": 12,
+          "y": 5,
+          "label": "Дверь",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "door_h_front",
+          "sprite": "door_h",
+          "x": 11,
+          "y": 9,
+          "label": "Дверь",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "door_h_back",
+          "sprite": "door_v",
+          "x": 17,
+          "y": 3,
+          "label": "Дверь",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "obj_hanger",
+          "sprite": "coat_rack",
+          "x": 6,
+          "y": 1,
+          "label": "Вешалка в спальне",
+          "interaction": {
+            "title": "Вешалка в спальне",
+            "description": "Здесь висела чёрная стёганая жилетка. Левый карман застёгивался на молнию, в нём хранились деньги."
+          },
+          "onInteract": []
+        },
+        {
+          "id": "obj_rake",
+          "sprite": "crate",
+          "x": 16,
+          "y": 4,
+          "label": "Ящик с инструментом",
+          "interaction": {
+            "title": "Ящик с инструментом",
+            "description": "Среди инструмента грабли. Ими подпирали заднюю дверь котельной: замка на ней до октября не было."
+          },
+          "onInteract": []
+        },
+        {
+          "id": "obj_table",
+          "sprite": "kitchen_table",
+          "x": 13,
+          "y": 7,
+          "label": "Стол в комнате",
+          "interaction": {
+            "title": "Стол в комнате",
+            "description": "Рабочие обедали здесь. На стуле висит куртка, на столе записи расчётов с рабочими."
+          },
+          "onInteract": []
+        },
+        {
+          "id": "obj_bath",
+          "sprite": "crate",
+          "x": 24,
+          "y": 3,
+          "label": "Баня (строится)",
+          "interaction": {
+            "title": "Баня (строится)",
+            "description": "Стройматериалы для бани. Здесь Громов в начале сентября показывал рабочим пачку денег."
+          },
+          "onInteract": []
+        },
+        {
+          "id": "f_house_bed_1",
+          "sprite": "bed",
+          "x": 2,
+          "y": 2,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_house_nightstand_1",
+          "sprite": "nightstand",
+          "x": 4,
+          "y": 2,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_house_floor_lamp_1",
+          "sprite": "floor_lamp",
+          "x": 1,
+          "y": 6,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_house_rug_1",
+          "sprite": "rug",
+          "x": 4,
+          "y": 6,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_house_boxes_1",
+          "sprite": "boxes",
+          "x": 1,
+          "y": 8,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_house_fridge_1",
+          "sprite": "fridge",
+          "x": 15,
+          "y": 6,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_house_stove_1",
+          "sprite": "stove",
+          "x": 15,
+          "y": 1,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_house_sink_1",
+          "sprite": "sink",
+          "x": 10,
+          "y": 1,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_house_boxes_2",
+          "sprite": "boxes",
+          "x": 10,
+          "y": 4,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_house_kitchen_counter_1",
+          "sprite": "kitchen_counter",
+          "x": 12,
+          "y": 1,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_house_chair_1",
+          "sprite": "chair",
+          "x": 12,
+          "y": 7,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_house_chair_2",
+          "sprite": "chair",
+          "x": 14,
+          "y": 7,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_house_crate_1",
+          "sprite": "crate",
+          "x": 10,
+          "y": 7,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_house_tree_1",
+          "sprite": "tree",
+          "x": 27,
+          "y": 8,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_house_tree_2",
+          "sprite": "tree",
+          "x": 20,
+          "y": 8,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_house_bench_1",
+          "sprite": "bench",
+          "x": 22,
+          "y": 6,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_house_crate_2",
+          "sprite": "crate",
+          "x": 26,
+          "y": 3,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_house_boxes_3",
+          "sprite": "boxes",
+          "x": 26,
+          "y": 5,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_house_tree_3",
+          "sprite": "tree",
+          "x": 3,
+          "y": 11,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_house_mailbox_1",
+          "sprite": "mailbox",
+          "x": 6,
+          "y": 11,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_house_tree_4",
+          "sprite": "tree",
+          "x": 27,
+          "y": 11,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_house_bench_2",
+          "sprite": "bench",
+          "x": 14,
+          "y": 10,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_house_street_lamp_1",
+          "sprite": "street_lamp",
+          "x": 5,
+          "y": 13,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_house_street_lamp_2",
+          "sprite": "street_lamp",
+          "x": 25,
+          "y": 13,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_house_car_1",
+          "sprite": "car",
+          "x": 22,
+          "y": 14,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        },
+        {
+          "id": "f_house_bus_stop_1",
+          "sprite": "bus_stop",
+          "x": 8,
+          "y": 13,
+          "label": "",
+          "interaction": null,
+          "onInteract": []
+        }
+      ],
+      "npcs": [
+        {
+          "id": "npc_gromov",
+          "characterId": "gromov",
+          "dialogueId": "dlg_gromov",
+          "x": 10,
+          "y": 8,
+          "dialogues": []
+        },
+        {
+          "id": "npc_demin",
+          "characterId": "demin",
+          "dialogueId": "dlg_demin",
+          "x": 21,
+          "y": 5,
+          "dialogues": []
+        },
+        {
+          "id": "npc_lukin",
+          "characterId": "lukin",
+          "dialogueId": "dlg_lukin",
+          "x": 19,
+          "y": 13,
+          "dialogues": []
+        }
+      ],
+      "zones": [
+        {
+          "id": "to_dept",
+          "name": "Возвращение в следственный отдел",
+          "cells": [
+            {
+              "x": 14,
+              "y": 15
+            },
+            {
+              "x": 15,
+              "y": 15
+            }
+          ],
+          "actions": [
+            {
+              "kind": "exit",
+              "to": "dept",
+              "spawn": {
+                "x": 12,
+                "y": 12
+              }
+            }
+          ]
+        }
+      ],
+      "onEnter": []
+    }
+  ],
+  "characters": [
+    {
+      "id": "brazhnikov",
+      "name": "Кирилл Бражников",
+      "look": "casual_m",
+      "position": "подозреваемый, 19 лет, подрабатывал у Громова на ремонте",
+      "description": "Не учится и не работает, живёт на временные заработки. Трудился у Громова вместе с Зуевым и Дёминым."
+    },
+    {
+      "id": "zuev",
+      "name": "Артём Зуев",
+      "look": "student_m",
+      "position": "несовершеннолетний подозреваемый, 17 лет",
+      "description": "Школьник, подрабатывал у Громова. Вызван на допрос с законным представителем; дело в его отношении выделено в отдельное производство."
+    },
+    {
+      "id": "gromov",
+      "name": "Николай Громов",
+      "look": "worker_m",
+      "position": "потерпевший, делает ремонт арендованного дома",
+      "description": "Получает пенсию по инвалидности. Занял деньги на покупку дома и ремонт; по вечерам расплачивался с рабочими."
+    },
+    {
+      "id": "demin",
+      "name": "Руслан Дёмин",
+      "look": "sport_m",
+      "position": "свидетель, студент лицея",
+      "description": "Подрабатывал у Громова вместе с Бражниковым и Зуевым. О краже ничего не знал."
+    },
+    {
+      "id": "lukin",
+      "name": "Игорь Лукин",
+      "look": "official_m_senior",
+      "position": "свидетель, друг потерпевшего",
+      "description": "Занял Громову деньги наличными без расписки и заехал за ним вечером 19 сентября."
+    },
+    {
+      "id": "vereshchagina",
+      "name": "Мария Верещагина",
+      "look": "official_f",
+      "position": "следователь",
+      "description": "Ведёт дело. Объяснит, из чего складывается ответственность по ст. 150 УК РФ."
+    }
+  ],
+  "events": [
+    {
+      "id": "ev_money",
+      "title": "Громов занял 300 000 рублей и показал рабочим пачку денег",
+      "at": "2025-09-06",
+      "showInTimeline": true
+    },
+    {
+      "id": "ev_evening",
+      "title": "Громов рассчитался с рабочими и уехал в баню к другу",
+      "at": "2025-09-19T20:00",
+      "showInTimeline": true
+    },
+    {
+      "id": "ev_offer",
+      "title": "Бражников в Telegram предложил Зуеву украсть деньги из дома",
+      "at": "2025-09-19T23:30",
+      "showInTimeline": true
+    },
+    {
+      "id": "ev_theft",
+      "title": "Бражников зашёл в дом и вынес жилетку с деньгами, Зуев ждал у дороги",
+      "at": "2025-09-20T01:00",
+      "showInTimeline": true
+    },
+    {
+      "id": "ev_noticed",
+      "title": "Громов обнаружил пропажу жилетки",
+      "at": "2025-09-20T12:00",
+      "showInTimeline": true
+    },
+    {
+      "id": "ev_confess",
+      "title": "Приехала полиция, оба рабочих сознались",
+      "at": "2025-09-20T15:00",
+      "showInTimeline": true
+    },
+    {
+      "id": "ev_return",
+      "title": "Остаток ущерба и жилетка возвращены Громову",
+      "at": "2025-11-05",
+      "showInTimeline": true
+    }
+  ],
+  "evidence": [
+    {
+      "id": "rapport",
+      "title": "Рапорт об обнаружении признаков преступления",
+      "description": "Следователь сообщила о вовлечении несовершеннолетнего взрослым в совершение кражи в крупном размере.",
+      "details": "РАПОРТ следователя\n\nУстановлено: в ночь с 19 на 20 сентября 2025 года Бражников К.И., достигший 18 лет, вовлёк несовершеннолетнего Зуева А.В. в совершение кражи 280 000 рублей и жилетки стоимостью 2 000 рублей из жилого дома Громова Н.П. В действиях Бражникова усматриваются признаки преступлений, предусмотренных пп. «а», «в» ч. 3 ст. 158 и п. «б» ч. 4 ст. 150 УК РФ.",
+      "kind": "evidence",
+      "subtype": "Рапорт",
+      "relatedCharacters": [
+        "vereshchagina",
+        "brazhnikov",
+        "zuev"
+      ],
+      "relatedEvents": [
+        "ev_offer",
+        "ev_theft"
+      ],
+      "reliability": "high",
+      "onCollect": []
+    },
+    {
+      "id": "bank_statement",
+      "title": "Справка банка о снятии 300 000 рублей",
+      "description": "Лукин снял в банкомате 300 000 рублей купюрами по 5 000 рублей 6 сентября 2025 года.",
+      "details": "СПРАВКА ПАО «Региональный банк»\n\nПо карте Лукина И.С. 06.09.2025 в банкомате выдано 300 000 рублей (60 купюр по 5 000 рублей).\n\nПримечание следователя: суммы хватает для определения размера ущерба по расчёту потерпевшего: из 300 000 рублей 20 000 Громов потратил на цемент и расчёт с рабочими, осталось 280 000 рублей.",
+      "kind": "evidence",
+      "subtype": "Документ",
+      "relatedCharacters": [
+        "lukin",
+        "gromov"
+      ],
+      "relatedEvents": [
+        "ev_money"
+      ],
+      "reliability": "high",
+      "onCollect": []
+    },
+    {
+      "id": "insp_house",
+      "title": "Протокол осмотра дома",
+      "description": "Зуев с законным представителем указал, где получил предложение в Telegram; во дворе обнаружен его мопед.",
+      "details": "ПРОТОКОЛ осмотра жилого дома и территории · 04.11.2025\n\nУчаствуют: следователь, несовершеннолетний подозреваемый Зуев А.В., законный представитель (мать), защитник.\n\nНа территории по месту жительства Зуева обнаружен мопед «Racer Oreon» чёрного цвета без регистрационных знаков, принадлежащий Зуеву. В комнате Зуев указал на кровать и пояснил, что лежал на ней, когда Бражников написал ему в Telegram с предложением украсть деньги из дома Громова.",
+      "kind": "evidence",
+      "subtype": "Протокол осмотра",
+      "relatedCharacters": [
+        "zuev",
+        "vereshchagina"
+      ],
+      "relatedEvents": [
+        "ev_offer"
+      ],
+      "reliability": "high",
+      "onCollect": []
+    },
+    {
+      "id": "insp_road",
+      "title": "Протокол осмотра участка у дороги",
+      "description": "Зуев показал место в 300 м от дома, где ждал и где подельники делили деньги.",
+      "details": "ПРОТОКОЛ осмотра участка местности · 04.11.2025\n\nОсмотрен перекрёсток грунтовой дороги и автодороги. Зуев пояснил: на расстоянии около 300 метров от дома Громова он наблюдал за обстановкой, пока Бражников находился в доме. На этом же месте они поделили деньги и уехали на мопеде.",
+      "kind": "evidence",
+      "subtype": "Протокол осмотра",
+      "relatedCharacters": [
+        "zuev",
+        "brazhnikov"
+      ],
+      "relatedEvents": [
+        "ev_theft"
+      ],
+      "reliability": "high",
+      "onCollect": []
+    },
+    {
+      "id": "phone_zuev",
+      "title": "Протокол осмотра телефона Зуева",
+      "description": "Сохранилось одно сообщение «Не» от 21:19 в переписке с контактом «Кир»; остальное удалено.",
+      "details": "ПРОТОКОЛ осмотра телефона · 28.10.2025\n\nПри осмотре мессенджера обнаружена переписка с пользователем «Кир». За 19.09.2025 установлено одно сообщение в 21:19: «Не».\n\nУчаствующий Зуев пояснил, что удалил остальную переписку, касающуюся совершения кражи с Бражниковым, чтобы не оставлять следов.",
+      "kind": "evidence",
+      "subtype": "Протокол осмотра",
+      "relatedCharacters": [
+        "zuev",
+        "brazhnikov"
+      ],
+      "relatedEvents": [
+        "ev_offer"
+      ],
+      "reliability": "high",
+      "onCollect": []
+    },
+    {
+      "id": "phone_bra",
+      "title": "Протокол осмотра телефона Бражникова",
+      "description": "У взрослого подозреваемого нужной переписки нет; он объяснил это сообщениями разового просмотра.",
+      "details": "ПРОТОКОЛ осмотра телефона · 27.10.2025\n\nБражников добровольно выдал телефон. В галерее, журнале звонков и сообщениях значимой информации нет; чатов с Зуевым в мессенджере нет.\n\nПояснение Бражникова: предложение он отправил сообщениями разового просмотра, которые исчезают после прочтения.",
+      "kind": "evidence",
+      "subtype": "Протокол осмотра",
+      "relatedCharacters": [
+        "brazhnikov",
+        "zuev"
+      ],
+      "relatedEvents": [
+        "ev_offer"
+      ],
+      "reliability": "medium",
+      "onCollect": []
+    },
+    {
+      "id": "vest_seized",
+      "title": "Протокол выемки жилетки и обуви",
+      "description": "У Бражникова изъяты жилетка с карманами на молнии и кроссовки.",
+      "details": "ПРОТОКОЛ выемки · 27.10.2025\n\nУ Бражникова К.И. изъята чёрная стёганая жилетка (полиэстер, синтепон), карманы с обеих сторон закрываются на молнию. Бражников пояснил: жилетку с деньгами он взял с вешалки в спальне дома Громова.\n\nИзъяты кроссовки, в которых он был в ту ночь. Длина подошвы 308 мм.",
+      "kind": "evidence",
+      "subtype": "Протокол выемки",
+      "relatedCharacters": [
+        "brazhnikov",
+        "gromov"
+      ],
+      "relatedEvents": [
+        "ev_theft"
+      ],
+      "reliability": "high",
+      "onCollect": []
+    },
+    {
+      "id": "receipts",
+      "title": "Расписки о возмещении ущерба",
+      "description": "Каждый из участников вернул Громову по 15 000 рублей; ранее передали 250 000 рублей.",
+      "details": "РАСПИСКИ от 05.11.2025\n\n— Бражников К.И. передал Громову Н.П. 15 000 рублей в счёт возмещения ущерба.\n— Зуев А.В. передал Громову Н.П. 15 000 рублей в счёт возмещения ущерба.\n\nРанее следователем возвращено 250 000 рублей; жилетка возвращена 05.11.2025. Громов претензий по имущественному ущербу не имеет.",
+      "kind": "evidence",
+      "subtype": "Документ",
+      "relatedCharacters": [
+        "brazhnikov",
+        "zuev",
+        "gromov"
+      ],
+      "relatedEvents": [
+        "ev_return"
+      ],
+      "reliability": "high",
+      "onCollect": []
+    },
+    {
+      "id": "age_cert",
+      "title": "Справка из школы о возрасте Зуева",
+      "description": "Зуеву полных 17 лет, он ученик школы.",
+      "details": "СПРАВКА\n\nЗуев Артём В., 17 лет, ученик 11 класса. На момент событий (19–20 сентября 2025 года) не достиг 18 лет.\n\nПримечание следователя: рабочие знали о школе, так как Зуев сам рассказывал при них.",
+      "kind": "evidence",
+      "subtype": "Документ",
+      "relatedCharacters": [
+        "zuev"
+      ],
+      "relatedEvents": [
+        "ev_offer"
+      ],
+      "reliability": "high",
+      "onCollect": []
+    },
+    {
+      "id": "law_note",
+      "title": "Примечание 4 к ст. 158 УК РФ и ст. 15 УК РФ",
+      "description": "Крупный размер — свыше 250 000 рублей; кража по ч. 3 ст. 158 относится к тяжким преступлениям.",
+      "details": "Примечание 4 к ст. 158 УК РФ: крупным размером признаётся стоимость имущества, превышающая двести пятьдесят тысяч рублей.\n\nСт. 15 УК РФ: тяжкими преступлениями признаются умышленные деяния, за которые максимальное наказание не превышает десяти лет лишения свободы. Наказание по ч. 3 ст. 158 УК РФ — до шести лет, то есть кража по этой части — тяжкое преступление.",
+      "kind": "evidence",
+      "subtype": "Нормативный акт",
+      "relatedCharacters": [],
+      "relatedEvents": [
+        "ev_theft"
+      ],
+      "reliability": "high",
+      "onCollect": []
+    },
+    {
+      "id": "plenum_note",
+      "title": "Разъяснения Пленума о вовлечении несовершеннолетнего",
+      "description": "Вовлечение — действия взрослого, направленные на возбуждение желания совершить преступление; форма — в том числе предложение.",
+      "details": "Постановление Пленума Верховного Суда РФ от 01.02.2011 № 1, п. 42:\n\nПод вовлечением несовершеннолетнего в совершение преступления следует понимать действия взрослого лица, направленные на возбуждение желания совершить преступление. Они могут выражаться в форме обещаний, обмана и угроз, а также в форме предложения совершить преступление, разжигания чувства зависти, мести и иных действий.",
+      "kind": "evidence",
+      "subtype": "Нормативный акт",
+      "relatedCharacters": [],
+      "relatedEvents": [
+        "ev_offer"
+      ],
+      "reliability": "high",
+      "onCollect": []
+    },
+    {
+      "id": "t_bra_lie",
+      "title": "Показания Бражникова: «это он предложил»",
+      "description": "Бражников уверяет, что идею выдвинул сам Зуев, возраста он не знал, жилетку сожгли.",
+      "details": "Бражников: «Это Зуев сказал, что есть где взять денег. Я просто пошёл за компанию. Сколько ему лет, не знал — выглядит взрослым, у него свой мопед. Жилетку мы вообще сожгли».",
+      "kind": "testimony",
+      "subtype": "Показания",
+      "relatedCharacters": [
+        "brazhnikov",
+        "zuev"
+      ],
+      "relatedEvents": [
+        "ev_offer",
+        "ev_theft"
+      ],
+      "reliability": "low",
+      "onCollect": []
+    },
+    {
+      "id": "t_bra_admit",
+      "title": "Показания Бражникова: признание",
+      "description": "Бражников признал, что сам предложил Зуеву кражу и знал, что тот несовершеннолетний.",
+      "details": "Бражников: «Предложил я. Написал ему в Telegram, сообщением разового просмотра. Знал, что он школьник: сам говорил, мы знакомы года три. Договорились делить деньги пополам. Жилетка у меня дома, я соврал, что сжёг. Деньги вернули».",
+      "kind": "testimony",
+      "subtype": "Показания",
+      "relatedCharacters": [
+        "brazhnikov",
+        "zuev"
+      ],
+      "relatedEvents": [
+        "ev_offer",
+        "ev_theft"
+      ],
+      "reliability": "high",
+      "onCollect": []
+    },
+    {
+      "id": "t_zuev",
+      "title": "Показания Зуева",
+      "description": "Зуев сообщил, что предложение поступило от Бражникова; о его возрасте Бражников знал.",
+      "details": "Зуев (в присутствии законного представителя и защитника): «19 сентября около половины двенадцатого Кирилл написал мне в Telegram, что надо съездить к дому Громова и забрать деньги. Он знал, что мне 17: я сам ему говорил, да и по школе знал. Сумму не называл, но я понимал, что больше 200 тысяч. Он должен был зайти, я — стоять и смотреть. Деньги делили пополам. Я согласился, потому что нужны были деньги. Потом удалил переписку».",
+      "kind": "testimony",
+      "subtype": "Показания",
+      "relatedCharacters": [
+        "zuev",
+        "brazhnikov"
+      ],
+      "relatedEvents": [
+        "ev_offer",
+        "ev_theft"
+      ],
+      "reliability": "high",
+      "onCollect": []
+    },
+    {
+      "id": "t_gromov",
+      "title": "Показания Громова",
+      "description": "Рабочие знали, что задняя дверь не запирается, но заходить без него им не разрешалось.",
+      "details": "Громов: «Мы занимали у Лукина 300 тысяч, я хранил деньги в жилетке на вешалке. Заднюю дверь я подпирал граблями, замка не было — парни это знали. Но в дом без меня им заходить не разрешалось. Деньги и жилетку вернули. Лично претензий нет, но пережил я крепко».",
+      "kind": "testimony",
+      "subtype": "Показания",
+      "relatedCharacters": [
+        "gromov"
+      ],
+      "relatedEvents": [
+        "ev_money",
+        "ev_noticed"
+      ],
+      "reliability": "high",
+      "onCollect": []
+    },
+    {
+      "id": "t_demin",
+      "title": "Показания Дёмина",
+      "description": "Дёмин подтвердил, что Бражников знал о школьном возрасте Зуева; о краже рабочие не знали.",
+      "details": "Дёмин: «Зуев при всех рассказывал про школу, Бражников это слышал. Громов в сентябре показывал нам пачку денег у бани. 20-го Громов спросил про жилетку, Кирилл с Артёмом сказали, что не знают, а потом приехала полиция».",
+      "kind": "testimony",
+      "subtype": "Показания",
+      "relatedCharacters": [
+        "demin",
+        "zuev",
+        "brazhnikov"
+      ],
+      "relatedEvents": [
+        "ev_money",
+        "ev_noticed"
+      ],
+      "reliability": "medium",
+      "onCollect": []
+    },
+    {
+      "id": "t_lukin",
+      "title": "Показания Лукина",
+      "description": "Лукин передал Громову 300 000 рублей, 19 сентября заехал за ним, рабочие слышали разговор.",
+      "details": "Лукин: «Деньги я снял и отдал без расписки, он хотел обновить жильё. Вечером 19-го я приехал за ним в баню; рабочие стояли рядом и слышали, что мы едем отдыхать, а дома никого не будет».",
+      "kind": "testimony",
+      "subtype": "Показания",
+      "relatedCharacters": [
+        "lukin",
+        "gromov"
+      ],
+      "relatedEvents": [
+        "ev_money",
+        "ev_evening"
+      ],
+      "reliability": "high",
+      "onCollect": []
+    }
+  ],
+  "dialogues": [
+    {
+      "id": "dlg_vereshchagina",
+      "characterId": "vereshchagina",
+      "startNodeId": "start",
+      "nodes": [
+        {
+          "id": "start",
+          "text": "Материалы на столе и в шкафах. Что вас интересует?",
+          "mood": "neutral",
+          "effects": [],
+          "choices": [
+            {
+              "id": "case",
+              "text": "С чего началось дело?",
+              "next": "case",
+              "effects": []
+            },
+            {
+              "id": "elements",
+              "text": "Что нужно установить по ст. 150 УК РФ?",
+              "next": "elements",
+              "effects": []
+            },
+            {
+              "id": "minor",
+              "text": "Как допрашивали несовершеннолетнего?",
+              "next": "minor",
+              "effects": []
+            },
+            {
+              "id": "bye",
+              "text": "Спасибо, пока всё.",
+              "next": null,
+              "effects": []
+            }
+          ]
+        },
+        {
+          "id": "case",
+          "text": "Утром 20 сентября Громов обнаружил пропажу жилетки с деньгами. Приехала полиция, рабочие сознались: взрослый с подростком проникли в дом ночью.",
+          "mood": "neutral",
+          "effects": [],
+          "choices": [
+            {
+              "id": "back",
+              "text": "Понятно.",
+              "next": "start",
+              "effects": []
+            }
+          ]
+        },
+        {
+          "id": "elements",
+          "text": "Три вещи. Взрослый ли виновный. Знал ли он, что собеседнику нет 18. И то, что он возбудил у него желание совершить преступление — предложением, обещанием, обманом. Тяжесть преступления влияет на часть статьи.",
+          "mood": "neutral",
+          "effects": [
+            {
+              "type": "changeVariable",
+              "variableId": "elements_explained",
+              "action": "on"
+            }
+          ],
+          "choices": [
+            {
+              "id": "back",
+              "text": "Понятно.",
+              "next": "start",
+              "effects": []
+            }
+          ]
+        },
+        {
+          "id": "minor",
+          "text": "С законным представителем и защитником. Протоколы осмотров он подписывал с матерью. Его дело выделено отдельно, а Бражникова допрашиваем как взрослого.",
+          "mood": "neutral",
+          "effects": [],
+          "choices": [
+            {
+              "id": "back",
+              "text": "Понятно.",
+              "next": "start",
+              "effects": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "dlg_brazhnikov",
+      "characterId": "brazhnikov",
+      "startNodeId": "start",
+      "nodes": [
+        {
+          "id": "start",
+          "text": "Я уже всё рассказывал. Что ещё?",
+          "mood": "nervous",
+          "effects": [],
+          "choices": [
+            {
+              "id": "work",
+              "text": "Как вы оказались у Громова?",
+              "next": "work",
+              "effects": []
+            },
+            {
+              "id": "who",
+              "text": "Кто предложил съездить к дому Громова?",
+              "next": "lie",
+              "requires": {
+                "notFlags": [
+                  "bra_admitted",
+                  "bra_closed"
+                ]
+              },
+              "effects": []
+            },
+            {
+              "id": "press",
+              "text": "Телефон Зуева, справка о его возрасте и его показания: предложение отправили вы, и вы знали о возрасте.",
+              "next": "admit",
+              "requires": {
+                "evidence": [
+                  "phone_zuev",
+                  "age_cert",
+                  "t_zuev"
+                ],
+                "flags": [
+                  "bra_lied"
+                ],
+                "notFlags": [
+                  "bra_admitted",
+                  "bra_closed"
+                ]
+              },
+              "effects": []
+            },
+            {
+              "id": "rude",
+              "text": "Вы ребёнка втянули в кражу и теперь врёте.",
+              "next": "closed",
+              "requires": {
+                "flags": [
+                  "bra_lied"
+                ],
+                "notFlags": [
+                  "bra_admitted",
+                  "bra_closed"
+                ]
+              },
+              "effects": []
+            },
+            {
+              "id": "bye",
+              "text": "Продолжим позже.",
+              "next": null,
+              "effects": []
+            }
+          ]
+        },
+        {
+          "id": "work",
+          "text": "Нашёл через знакомых: ремонт, сдельно. Работали втроём: я, Артём и Руслан. С Артёмом знакомы года три, в одной компании.",
+          "mood": "neutral",
+          "effects": [],
+          "choices": [
+            {
+              "id": "back",
+              "text": "Понятно.",
+              "next": "start",
+              "effects": []
+            }
+          ]
+        },
+        {
+          "id": "lie",
+          "text": "Это Артём сказал, что можно взять денег. Я просто поехал за компанию. Сколько ему лет — не знаю, выглядит взрослым, у него свой мопед. Жилетку мы сожгли.",
+          "mood": "nervous",
+          "effects": [
+            {
+              "type": "changeVariable",
+              "variableId": "bra_lied",
+              "action": "on"
+            },
+            {
+              "type": "addEvidence",
+              "evidenceId": "t_bra_lie"
+            },
+            {
+              "type": "addCharacterNote",
+              "characterId": "brazhnikov",
+              "text": "Сначала свалил идею на Зуева и сказал, что не знал о возрасте."
+            }
+          ],
+          "choices": [
+            {
+              "id": "back",
+              "text": "Запишу.",
+              "next": "start",
+              "effects": []
+            }
+          ]
+        },
+        {
+          "id": "admit",
+          "text": "…Ладно. Предложил я. Написал ему ночью в Telegram, сообщением разового просмотра. Знал, что он школьник: он сам об этом говорил, мы три года знакомы. Договорились делить пополам. Жилетка у меня дома, я соврал, что сжёг.",
+          "mood": "sad",
+          "effects": [
+            {
+              "type": "changeVariable",
+              "variableId": "bra_admitted",
+              "action": "on"
+            },
+            {
+              "type": "addEvidence",
+              "evidenceId": "t_bra_admit"
+            },
+            {
+              "type": "addCharacterNote",
+              "characterId": "brazhnikov",
+              "text": "Признал: предложение отправил он, о возрасте знал."
+            }
+          ],
+          "choices": [
+            {
+              "id": "back",
+              "text": "Спасибо, что сказали честно.",
+              "next": "start",
+              "effects": []
+            }
+          ]
+        },
+        {
+          "id": "closed",
+          "text": "Дальше буду говорить только с защитником.",
+          "mood": "angry",
+          "effects": [
+            {
+              "type": "changeVariable",
+              "variableId": "bra_closed",
+              "action": "on"
+            }
+          ],
+          "choices": [
+            {
+              "id": "back",
+              "text": "Как хотите.",
+              "next": null,
+              "effects": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "dlg_zuev",
+      "characterId": "zuev",
+      "startNodeId": "start",
+      "nodes": [
+        {
+          "id": "start",
+          "text": "Мама рядом, она разрешила разговаривать. Что спросите?",
+          "mood": "nervous",
+          "effects": [],
+          "choices": [
+            {
+              "id": "age",
+              "text": "Сколько вам лет, и знал ли об этом Кирилл?",
+              "next": "age",
+              "effects": []
+            },
+            {
+              "id": "offer",
+              "text": "Расскажите, как всё произошло.",
+              "next": "offer",
+              "effects": []
+            },
+            {
+              "id": "why",
+              "text": "Почему вы согласились?",
+              "next": "why",
+              "requires": {
+                "flags": [
+                  "zuev_told"
+                ]
+              },
+              "effects": []
+            },
+            {
+              "id": "bye",
+              "text": "Спасибо, пока всё.",
+              "next": null,
+              "effects": []
+            }
+          ]
+        },
+        {
+          "id": "age",
+          "text": "Мне 17, я учусь в школе. Кириллу это известно: я говорил и при Руслане, и один на один.",
+          "mood": "neutral",
+          "effects": [
+            {
+              "type": "changeVariable",
+              "variableId": "zuev_age",
+              "action": "on"
+            }
+          ],
+          "choices": [
+            {
+              "id": "back",
+              "text": "Понятно.",
+              "next": "start",
+              "effects": []
+            }
+          ]
+        },
+        {
+          "id": "offer",
+          "text": "19 сентября вечером Кирилл написал мне в Telegram: поехать к дому Громова, зайти и забрать деньги. Я понял, что сумма большая. Он должен был зайти, я стоять и смотреть. Потом мы делили деньги у дороги. Переписку я удалил.",
+          "mood": "sad",
+          "effects": [
+            {
+              "type": "addEvidence",
+              "evidenceId": "t_zuev"
+            },
+            {
+              "type": "changeVariable",
+              "variableId": "zuev_told",
+              "action": "on"
+            },
+            {
+              "type": "addCharacterNote",
+              "characterId": "zuev",
+              "text": "Сказал, что предложение пришло от Бражникова, который знал о его возрасте."
+            }
+          ],
+          "choices": [
+            {
+              "id": "back",
+              "text": "Понятно.",
+              "next": "start",
+              "effects": []
+            }
+          ]
+        },
+        {
+          "id": "why",
+          "text": "Нужны были деньги, особенно на свои расходы. Раньше я о таком не думал, но он убеждал, что всё просто: дом пустой, дверь открыта.",
+          "mood": "sad",
+          "effects": [],
+          "choices": [
+            {
+              "id": "back",
+              "text": "Понятно.",
+              "next": "start",
+              "effects": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "dlg_gromov",
+      "characterId": "gromov",
+      "startNodeId": "start",
+      "nodes": [
+        {
+          "id": "start",
+          "text": "Пропала жилетка с деньгами. Я думал, на ребят можно положиться.",
+          "mood": "sad",
+          "effects": [],
+          "choices": [
+            {
+              "id": "what",
+              "text": "Расскажите, что случилось.",
+              "next": "what",
+              "effects": []
+            },
+            {
+              "id": "door",
+              "text": "Задняя дверь была заперта?",
+              "next": "door",
+              "effects": []
+            },
+            {
+              "id": "back",
+              "text": "Деньги вам вернули?",
+              "next": "money",
+              "effects": []
+            },
+            {
+              "id": "bye",
+              "text": "Спасибо, пока всё.",
+              "next": null,
+              "effects": []
+            }
+          ]
+        },
+        {
+          "id": "what",
+          "text": "Деньги я занимал у Лукина, 300 тысяч по пять тысяч. Хранил в левом кармане жилетки в спальне. Вечером расплатился с рабочими и уехал в баню. Утром жилетки не было.",
+          "mood": "sad",
+          "effects": [
+            {
+              "type": "addEvidence",
+              "evidenceId": "t_gromov"
+            }
+          ],
+          "choices": [
+            {
+              "id": "back",
+              "text": "Понятно.",
+              "next": "start",
+              "effects": []
+            }
+          ]
+        },
+        {
+          "id": "door",
+          "text": "Заднюю дверь я подпирал граблями: замка не было. Парни про это знали. Но входить без меня им нельзя было, кроме работы.",
+          "mood": "neutral",
+          "effects": [],
+          "choices": [
+            {
+              "id": "back",
+              "text": "Понятно.",
+              "next": "start",
+              "effects": []
+            }
+          ]
+        },
+        {
+          "id": "money",
+          "text": "250 тысяч вернули сразу, остальное и жилетку позже. Теперь я поставил замок. А ребятам верил.",
+          "mood": "neutral",
+          "effects": [],
+          "choices": [
+            {
+              "id": "back",
+              "text": "Понятно.",
+              "next": "start",
+              "effects": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "dlg_demin",
+      "characterId": "demin",
+      "startNodeId": "start",
+      "nodes": [
+        {
+          "id": "start",
+          "text": "Я Руслан, работал у Громова. Спрашивайте.",
+          "mood": "neutral",
+          "effects": [],
+          "choices": [
+            {
+              "id": "who",
+              "text": "Что вы знали о Бражникове и Зуеве?",
+              "next": "who",
+              "effects": []
+            },
+            {
+              "id": "bye",
+              "text": "Спасибо, пока всё.",
+              "next": null,
+              "effects": []
+            }
+          ]
+        },
+        {
+          "id": "who",
+          "text": "Зуев при нас говорил про школу, Кирилл слышал. В сентябре Громов показывал деньги возле бани. 20-го оба сказали, что про жилетку не знают, потом приехала полиция.",
+          "mood": "neutral",
+          "effects": [
+            {
+              "type": "addEvidence",
+              "evidenceId": "t_demin"
+            }
+          ],
+          "choices": [
+            {
+              "id": "back",
+              "text": "Понятно.",
+              "next": "start",
+              "effects": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "dlg_lukin",
+      "characterId": "lukin",
+      "startNodeId": "start",
+      "nodes": [
+        {
+          "id": "start",
+          "text": "Я Громова давно знаю. Чем могу?",
+          "mood": "neutral",
+          "effects": [],
+          "choices": [
+            {
+              "id": "money",
+              "text": "Откуда у Громова была такая сумма?",
+              "next": "money",
+              "effects": []
+            },
+            {
+              "id": "bye",
+              "text": "Спасибо, пока всё.",
+              "next": null,
+              "effects": []
+            }
+          ]
+        },
+        {
+          "id": "money",
+          "text": "Я одолжил ему 300 тысяч, снял в банкомате купюрами по пять тысяч. Вот справка. Вечером я заехал за ним в баню, рабочие слышали, что дома никого не будет.",
+          "mood": "neutral",
+          "effects": [
+            {
+              "type": "addEvidence",
+              "evidenceId": "t_lukin"
+            },
+            {
+              "type": "addEvidence",
+              "evidenceId": "bank_statement"
+            }
+          ],
+          "choices": [
+            {
+              "id": "back",
+              "text": "Спасибо.",
+              "next": "start",
+              "effects": []
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "deductions": [
+    {
+      "id": "d_age",
+      "title": "Знал о возрасте",
+      "evidenceIds": [
+        "age_cert",
+        "t_zuev"
+      ],
+      "question": "Что показывают справка и показания Зуева о знании Бражникова?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Бражников не мог знать о возрасте",
+          "correct": false,
+          "feedback": "Зуев говорил о школе при всех и лично Бражникову."
+        },
+        {
+          "id": "b",
+          "text": "Бражников заведомо знал, что Зуев не достиг 18 лет",
+          "correct": true,
+          "feedback": "Справка подтверждает 17 лет, а Зуев и Дёмин подтверждают, что Бражников был в курсе."
+        },
+        {
+          "id": "c",
+          "text": "Возраст не имеет значения",
+          "correct": false,
+          "feedback": "Для ст. 150 УК РФ важно, что виновный взрослый, а вовлечённый — несовершеннолетний."
+        }
+      ],
+      "conclusion": "Бражников знал, что Зуеву нет 18 лет.",
+      "effects": [
+        {
+          "type": "changeVariable",
+          "variableId": "d_age",
+          "action": "on"
+        }
+      ],
+      "failEffects": []
+    },
+    {
+      "id": "d_proposal",
+      "title": "Предложение",
+      "evidenceIds": [
+        "phone_zuev",
+        "insp_house"
+      ],
+      "question": "Что показывают осмотры о том, как возникло намерение совершить кражу?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Идея пришла от Зуева",
+          "correct": false,
+          "feedback": "Зуев указал место, где получил сообщение от Бражникова."
+        },
+        {
+          "id": "b",
+          "text": "Предложение отправил Бражников в Telegram, Зуев согласился",
+          "correct": true,
+          "feedback": "Остаток переписки с «Кир», слова Зуева и осмотр дома показывают, откуда пришло предложение."
+        },
+        {
+          "id": "c",
+          "text": "Они сговорились при встрече у дома",
+          "correct": false,
+          "feedback": "Договорились до встречи, ночью в мессенджере."
+        }
+      ],
+      "conclusion": "Бражников предложил Зуеву совершить кражу.",
+      "effects": [
+        {
+          "type": "changeVariable",
+          "variableId": "d_proposal",
+          "action": "on"
+        }
+      ],
+      "failEffects": []
+    },
+    {
+      "id": "d_will",
+      "title": "Согласие подростка",
+      "evidenceIds": [
+        "plenum_note",
+        "t_zuev"
+      ],
+      "question": "Снимает ли ответственность с взрослого то, что подросток сам согласился?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Да, раз согласился добровольно",
+          "correct": false,
+          "feedback": "Вовлечение — это возбуждение желания; согласие подростка и есть результат."
+        },
+        {
+          "id": "b",
+          "text": "Нет: вовлечением считается и простое предложение",
+          "correct": true,
+          "feedback": "Пленум относит к вовлечению действия, направленные на возбуждение желания, в том числе предложение."
+        },
+        {
+          "id": "c",
+          "text": "Да, если у подростка есть свой мопед",
+          "correct": false,
+          "feedback": "Свой транспорт не меняет ответственность взрослого."
+        }
+      ],
+      "conclusion": "Согласие Зуева не освобождает Бражникова от ответственности.",
+      "effects": [
+        {
+          "type": "changeVariable",
+          "variableId": "d_will",
+          "action": "on"
+        }
+      ],
+      "failEffects": []
+    },
+    {
+      "id": "d_size",
+      "title": "Тяжесть кражи",
+      "evidenceIds": [
+        "law_note",
+        "bank_statement"
+      ],
+      "question": "Как квалифицируется преступление, в которое вовлечён подросток?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Небольшая кража",
+          "correct": false,
+          "feedback": "282 000 рублей — не небольшая сумма."
+        },
+        {
+          "id": "b",
+          "text": "Кража в крупном размере (свыше 250 000 рублей), тяжкое преступление",
+          "correct": true,
+          "feedback": "Размер превышает порог по примечанию к ст. 158, а ч. 3 ст. 158 — тяжкое преступление."
+        },
+        {
+          "id": "c",
+          "text": "Кража в особо крупном размере",
+          "correct": false,
+          "feedback": "Особо крупный размер — свыше миллиона рублей."
+        }
+      ],
+      "conclusion": "Кража — тяжкое преступление.",
+      "effects": [
+        {
+          "type": "changeVariable",
+          "variableId": "d_size",
+          "action": "on"
+        }
+      ],
+      "failEffects": []
+    },
+    {
+      "id": "d_vovlech",
+      "title": "Вовлечение",
+      "evidenceIds": [
+        "d_age",
+        "d_proposal"
+      ],
+      "question": "К какому выводу ведут знание возраста и предложение?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Бражников лишь знал о краже, но никого не вовлекал",
+          "correct": false,
+          "feedback": "Он сам предложил её несовершеннолетнему."
+        },
+        {
+          "id": "b",
+          "text": "Взрослый Бражников вовлёк заведомо несовершеннолетнего в преступление путём предложения",
+          "correct": true,
+          "feedback": "Все признаки состава вовлечения налицо."
+        },
+        {
+          "id": "c",
+          "text": "Вовлёк Зуев Бражникова",
+          "correct": false,
+          "feedback": "Зуев моложе и предложения не делал."
+        }
+      ],
+      "conclusion": "Бражников вовлёк несовершеннолетнего в преступление.",
+      "effects": [
+        {
+          "type": "changeVariable",
+          "variableId": "d_vovlech",
+          "action": "on"
+        }
+      ],
+      "failEffects": []
+    },
+    {
+      "id": "d_serious",
+      "title": "Часть статьи",
+      "evidenceIds": [
+        "d_vovlech",
+        "d_size"
+      ],
+      "question": "Какая часть ст. 150 УК РФ подходит?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Простое вовлечение без квалифицирующих признаков (ч. 1)",
+          "correct": false,
+          "feedback": "Подростка вовлекли в тяжкое преступление."
+        },
+        {
+          "id": "b",
+          "text": "Вовлечение в тяжкое преступление взрослым лицом: п. «б» ч. 4 ст. 150 УК РФ",
+          "correct": true,
+          "feedback": "Так квалифицировал суд."
+        },
+        {
+          "id": "c",
+          "text": "Ст. 150 не применяется, достаточно кражи",
+          "correct": false,
+          "feedback": "Вовлечение — отдельное преступление."
+        }
+      ],
+      "conclusion": "Действия Бражникова образуют п. «б» ч. 4 ст. 150 УК РФ.",
+      "effects": [
+        {
+          "type": "changeVariable",
+          "variableId": "d_serious",
+          "action": "on"
+        }
+      ],
+      "failEffects": []
+    },
+    {
+      "id": "d_pardon",
+      "title": "Ущерб возмещён",
+      "evidenceIds": [
+        "receipts",
+        "t_gromov"
+      ],
+      "question": "Отменяет ли ответственность возмещение ущерба?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Да, вред возмещён",
+          "correct": false,
+          "feedback": "Возмещение не отменяет преступления."
+        },
+        {
+          "id": "b",
+          "text": "Нет: суд учитывает возмещение как смягчающее обстоятельство",
+          "correct": true,
+          "feedback": "Деньги и жилетку вернули, но моральный вред остался; это учтено при наказании."
+        },
+        {
+          "id": "c",
+          "text": "Нет, возмещение вообще не учитывается",
+          "correct": false,
+          "feedback": "Оно учитывается при назначении наказания."
+        }
+      ],
+      "conclusion": "Возмещение ущерба снижает наказание, но не отменяет вину.",
+      "effects": [
+        {
+          "type": "changeVariable",
+          "variableId": "d_pardon",
+          "action": "on"
+        }
+      ],
+      "failEffects": []
+    }
+  ],
+  "hints": [
+    {
+      "level": 1,
+      "text": "Выясните, кто и чем предложил совершить кражу и знал ли предлагавший, сколько лет собеседнику.",
+      "penalty": 5
+    },
+    {
+      "level": 2,
+      "text": "Сопоставьте справку о возрасте, показания Зуева и телефон: Бражников сначала отрицает, потом признаётся.",
+      "penalty": 7
+    },
+    {
+      "level": 3,
+      "text": "Для ст. 150 важны: взрослый возраст, заведомое знание о возрасте, возбуждение желания совершить преступление. Тяжесть кражи влияет на часть статьи.",
+      "penalty": 10
+    }
+  ],
+  "questions": [
+    {
+      "id": "q_right",
+      "category": "right",
+      "prompt": "Какое право затронуто?",
+      "kind": "single",
+      "source": "inline",
+      "maxPoints": 30,
+      "options": [
+        {
+          "id": "childhood",
+          "label": "Защита детства и несовершеннолетних",
+          "mark": "ч. 1 ст. 38 Конституции РФ",
+          "points": 30,
+          "feedback": "Верно: взрослый вовлёк подростка в преступление, нарушив интересы ребёнка."
+        },
+        {
+          "id": "property",
+          "label": "Право частной собственности",
+          "mark": "ст. 35 Конституции РФ",
+          "points": 18,
+          "feedback": "Нарушено и оно, потерпевшим по краже, но дело о вовлечении касается прежде всего подростка."
+        },
+        {
+          "id": "home",
+          "label": "Неприкосновенность жилища",
+          "mark": "ст. 25 Конституции РФ",
+          "points": 12,
+          "feedback": "Жилище Громова тоже нарушено, но не это центральный вопрос дела."
+        },
+        {
+          "id": "privacy",
+          "label": "Тайна частной жизни",
+          "mark": "ст. 23 Конституции РФ",
+          "points": 0,
+          "feedback": "Тайна частной жизни не нарушалась."
+        },
+        {
+          "id": "labor",
+          "label": "Право на труд",
+          "mark": "ст. 37 Конституции РФ",
+          "points": 0,
+          "feedback": "Трудовые права не затронуты."
+        }
+      ]
+    },
+    {
+      "id": "q_violation",
+      "category": "violation",
+      "prompt": "Было ли нарушение?",
+      "kind": "single",
+      "source": "inline",
+      "maxPoints": 15,
+      "options": [
+        {
+          "id": "yes",
+          "label": "Да",
+          "mark": "",
+          "points": 15,
+          "feedback": "Верно: вовлечение и кража подтверждены."
+        },
+        {
+          "id": "no",
+          "label": "Нет",
+          "mark": "",
+          "points": 0,
+          "feedback": "Нарушение есть: подросток согласился на предложение взрослого."
+        },
+        {
+          "id": "insufficient",
+          "label": "Данных недостаточно",
+          "mark": "",
+          "points": 4,
+          "feedback": "Данных достаточно: переписка, осмотры, показания."
+        }
+      ]
+    },
+    {
+      "id": "q_qualification",
+      "category": "qualification",
+      "prompt": "Как можно квалифицировать действия виновного?",
+      "kind": "single",
+      "source": "inline",
+      "maxPoints": 15,
+      "options": [
+        {
+          "id": "both",
+          "label": "Признаки преступлений: пп. «а», «в» ч. 3 ст. 158 УК РФ и п. «б» ч. 4 ст. 150 УК РФ",
+          "mark": "",
+          "points": 15,
+          "feedback": "Верно как возможная квалификация. Окончательную оценку дают следствие и суд."
+        },
+        {
+          "id": "only_150",
+          "label": "Признаки преступления: п. «б» ч. 4 ст. 150 УК РФ",
+          "mark": "",
+          "points": 9,
+          "feedback": "Часть верна, но кража в крупном размере с проникновением в жилище тоже вменяется."
+        },
+        {
+          "id": "only_158",
+          "label": "Признаки преступления: пп. «а», «в» ч. 3 ст. 158 УК РФ",
+          "mark": "",
+          "points": 6,
+          "feedback": "Кража верна, но вы не учли вовлечение подростка."
+        },
+        {
+          "id": "part1",
+          "label": "Вовлечение без квалифицирующих признаков (ч. 1 ст. 150 УК РФ)",
+          "mark": "",
+          "points": 4,
+          "feedback": "Подростка вовлекли в тяжкое преступление, это отдельный квалифицирующий признак."
+        },
+        {
+          "id": "admin",
+          "label": "Административное правонарушение",
+          "mark": "",
+          "points": 1,
+          "feedback": "Речь о преступлениях."
+        },
+        {
+          "id": "none",
+          "label": "Состава нет: согласие подростка исключает ответственность",
+          "mark": "",
+          "points": 0,
+          "feedback": "Согласие вовлечённого не освобождает взрослого."
+        }
+      ]
+    },
+    {
+      "id": "q_responsible",
+      "category": "responsible",
+      "prompt": "Кто несёт ответственность за вовлечение?",
+      "kind": "single",
+      "source": "characters",
+      "maxPoints": 20,
+      "options": [
+        {
+          "id": "brazhnikov",
+          "label": "",
+          "mark": "",
+          "points": 20,
+          "feedback": "Верно: взрослый Бражников предложил кражу несовершеннолетнему."
+        },
+        {
+          "id": "zuev",
+          "label": "",
+          "mark": "",
+          "points": 4,
+          "feedback": "Зуев отвечает за кражу, но не за вовлечение: дело в его отношении выделено отдельно."
+        },
+        {
+          "id": "gromov",
+          "label": "",
+          "mark": "",
+          "points": 0,
+          "feedback": "Потерпевший: пусть дверь и не запиралась, это не вина."
+        },
+        {
+          "id": "demin",
+          "label": "",
+          "mark": "",
+          "points": 0,
+          "feedback": "Свидетель, в сговоре не участвовал."
+        },
+        {
+          "id": "lukin",
+          "label": "",
+          "mark": "",
+          "points": 0,
+          "feedback": "Свидетель по происхождению денег."
+        },
+        {
+          "id": "vereshchagina",
+          "label": "",
+          "mark": "",
+          "points": 0,
+          "feedback": "Следователь, ведущий дело."
+        }
+      ]
+    },
+    {
+      "id": "q_evidence",
+      "category": "evidence",
+      "prompt": "Какие доказательства это подтверждают?",
+      "kind": "multi",
+      "source": "evidence",
+      "maxPoints": 20,
+      "options": [
+        {
+          "id": "age_cert",
+          "label": "",
+          "mark": "",
+          "points": 3,
+          "feedback": "Подтверждает несовершеннолетний возраст."
+        },
+        {
+          "id": "phone_zuev",
+          "label": "",
+          "mark": "",
+          "points": 3,
+          "feedback": "Остаток переписки и признание удаления."
+        },
+        {
+          "id": "t_zuev",
+          "label": "",
+          "mark": "",
+          "points": 3,
+          "feedback": "Показывает, кто предложил и знал ли о возрасте."
+        },
+        {
+          "id": "t_bra_admit",
+          "label": "",
+          "mark": "",
+          "points": 3,
+          "feedback": "Признание в предложении и знании возраста."
+        },
+        {
+          "id": "plenum_note",
+          "label": "",
+          "mark": "",
+          "points": 2,
+          "feedback": "Определяет, что считается вовлечением."
+        },
+        {
+          "id": "insp_house",
+          "label": "",
+          "mark": "",
+          "points": 1,
+          "feedback": "Зуев указал место, где получил предложение."
+        },
+        {
+          "id": "law_note",
+          "label": "",
+          "mark": "",
+          "points": 1,
+          "feedback": "Порог крупного размера и тяжесть кражи."
+        },
+        {
+          "id": "bank_statement",
+          "label": "",
+          "mark": "",
+          "points": 1,
+          "feedback": "Подтверждает сумму денег."
+        },
+        {
+          "id": "insp_road",
+          "label": "",
+          "mark": "",
+          "points": 1,
+          "feedback": "Фиксирует роли и деление денег."
+        },
+        {
+          "id": "vest_seized",
+          "label": "",
+          "mark": "",
+          "points": 1,
+          "feedback": "Подтверждает вынос жилетки."
+        },
+        {
+          "id": "t_demin",
+          "label": "",
+          "mark": "",
+          "points": 1,
+          "feedback": "Подтверждает, что Бражников слышал о школе."
+        },
+        {
+          "id": "t_bra_lie",
+          "label": "",
+          "mark": "",
+          "points": -3,
+          "feedback": "Ложная версия: опровергнута Зуевым и протоколами."
+        },
+        {
+          "id": "rapport",
+          "label": "",
+          "mark": "",
+          "points": 0,
+          "feedback": "Повод для проверки, не доказательство."
+        },
+        {
+          "id": "phone_bra",
+          "label": "",
+          "mark": "",
+          "points": 0,
+          "feedback": "Не содержит нужной переписки."
+        },
+        {
+          "id": "receipts",
+          "label": "",
+          "mark": "",
+          "points": 0,
+          "feedback": "Возмещение ущерба, не вовлечение."
+        },
+        {
+          "id": "t_gromov",
+          "label": "",
+          "mark": "",
+          "points": 0,
+          "feedback": "Потерпевший, но не знает о предложении."
+        },
+        {
+          "id": "t_lukin",
+          "label": "",
+          "mark": "",
+          "points": 0,
+          "feedback": "Подтверждает займ, не вовлечение."
+        }
+      ]
+    }
+  ],
+  "solution": {
+    "right": "childhood",
+    "rightText": "Защита детства и несовершеннолетних (ч. 1 ст. 38 Конституции РФ); также затронуты собственность (ст. 35) и жилище (ст. 25).",
+    "violation": true,
+    "responsibleCharacter": "brazhnikov",
+    "correctAnswer": "Бражников, будучи взрослым, заведомо зная о несовершеннолетии Зуева, предложил ему в Telegram совершить кражу денег из дома Громова. Кража совершена группой лиц по предварительному сговору, с проникновением в жилище, в крупном размере (282 000 рублей). Возможная квалификация — пп. «а», «в» ч. 3 ст. 158 и п. «б» ч. 4 ст. 150 УК РФ.",
+    "whatHappened": "Громов занял 300 000 рублей и хранил деньги в жилетке на вешалке. 19 сентября он расплатился с рабочими и уехал в баню к другу; рабочие это слышали. Бражников около половины двенадцатого ночи написал Зуеву в Telegram с предложением украсть деньги, тот согласился. На мопеде Зуева они поехали к дому, Зуев остался у дороги наблюдать, а Бражников через незапертую заднюю дверь вынес жилетку с деньгами. Деньги поделили пополам. Утром Громов обнаружил пропажу, полиция быстро установила виновных. Деньги и жилетку вернули.",
+    "explanation": "Вовлечение несовершеннолетнего в преступление — действия взрослого, направленные на возбуждение желания совершить преступление, в том числе предложение (п. 42 Постановления Пленума ВС РФ от 01.02.2011 № 1). Бражников был взрослым, знал о возрасте Зуева (тот говорил об этом, о школе знали все рабочие), и сам предложил кражу, определил способ и раздел денег. Кража — тяжкое преступление (ч. 3 ст. 158 УК РФ), поэтому подходит п. «б» ч. 4 ст. 150. То, что Зуев согласился, что мопед его, что дверь была без замка и Громов показывал деньги, не снимает ответственности. Возмещение ущерба и раскаяние суд учёл как смягчающие обстоятельства. В реальном деле суд назначил по пп. «а», «в» ч. 3 ст. 158 УК РФ лишение свободы на 2 года, по п. «б» ч. 4 ст. 150 УК РФ — на 5 лет 2 месяца, окончательно — 5 лет 6 месяцев условно с испытательным сроком 3 года. Алкогольное опьянение отягчающим обстоятельством не признано.",
+    "legalQualification": "Действия Бражникова содержат признаки преступлений, предусмотренных пп. «а», «в» ч. 3 ст. 158 УК РФ (кража группой лиц по предварительному сговору, с проникновением в жилище, в крупном размере) и п. «б» ч. 4 ст. 150 УК РФ (вовлечение несовершеннолетнего в совершение тяжкого преступления лицом, достигшим 18 лет). Виновность определяет только суд.",
+    "qualificationNotes": [
+      {
+        "kind": "right",
+        "applies": "yes",
+        "text": "Затронута защита детства (ч. 1 ст. 38 Конституции РФ), а также собственность и неприкосновенность жилища."
+      },
+      {
+        "kind": "violation",
+        "applies": "yes",
+        "text": "Подросток вовлечён взрослым в тяжкое преступление."
+      },
+      {
+        "kind": "criminal",
+        "applies": "possible",
+        "text": "Признаки пп. «а», «в» ч. 3 ст. 158 и п. «б» ч. 4 ст. 150 УК РФ. Вывод о виновности делает суд."
+      },
+      {
+        "kind": "administrative",
+        "applies": "no",
+        "text": "Совершены преступления, а не административное правонарушение."
+      },
+      {
+        "kind": "civil",
+        "applies": "possible",
+        "text": "Потерпевший вправе требовать компенсацию морального вреда (ст. 151, 1099 ГК РФ)."
+      },
+      {
+        "kind": "disciplinary",
+        "applies": "no",
+        "text": "Дисциплинарной ответственности нет: стороны не связаны трудовыми отношениями."
+      }
+    ],
+    "keyEvidence": [
+      {
+        "evidenceId": "age_cert",
+        "why": "Подтверждает несовершеннолетний возраст Зуева."
+      },
+      {
+        "evidenceId": "phone_zuev",
+        "why": "Остаток переписки и пояснение об удалении."
+      },
+      {
+        "evidenceId": "t_zuev",
+        "why": "Предложение пришло от Бражникова, возраст ему был известен."
+      },
+      {
+        "evidenceId": "t_bra_admit",
+        "why": "Признание Бражникова в предложении и знании возраста."
+      },
+      {
+        "evidenceId": "plenum_note",
+        "why": "Определяет вовлечение и допускает форму предложения."
+      }
+    ],
+    "sources": [
+      "Конституция РФ, ст. 25, 35, ч. 1 ст. 38",
+      "УК РФ, ст. 15, 150, 158 и примечание 4 к ней",
+      "Постановление Пленума Верховного Суда РФ от 01.02.2011 № 1, п. 42",
+      "Организации, места и люди в деле вымышлены; основа — обстоятельства судебной практики"
+    ]
+  },
+  "flags": [
+    {
+      "id": "elements_explained",
+      "name": "Следователь объяснила состав ст. 150"
+    },
+    {
+      "id": "bra_lied",
+      "name": "Бражников свалил идею на Зуева"
+    },
+    {
+      "id": "bra_admitted",
+      "name": "Бражников признал, что предложил кражу"
+    },
+    {
+      "id": "bra_closed",
+      "name": "Бражников отказался говорить"
+    },
+    {
+      "id": "zuev_age",
+      "name": "Зуев рассказал о своём возрасте"
+    },
+    {
+      "id": "zuev_told",
+      "name": "Зуев рассказал о ночи"
+    },
+    {
+      "id": "d_age",
+      "name": "Решено: Знал о возрасте"
+    },
+    {
+      "id": "d_proposal",
+      "name": "Решено: Предложение"
+    },
+    {
+      "id": "d_will",
+      "name": "Решено: Согласие подростка"
+    },
+    {
+      "id": "d_size",
+      "name": "Решено: Тяжесть кражи"
+    },
+    {
+      "id": "d_vovlech",
+      "name": "Решено: Вовлечение"
+    },
+    {
+      "id": "d_serious",
+      "name": "Решено: Часть статьи"
+    },
+    {
+      "id": "d_pardon",
+      "name": "Решено: Ущерб возмещён"
+    }
+  ],
+  "lawReference": {
+    "basis": [
+      {
+        "article": "ч. 1 ст. 38 Конституции РФ",
+        "title": "Защита детства",
+        "text": "Материнство и детство, семья находятся под защитой государства.",
+        "url": "http://www.consultant.ru/document/cons_doc_LAW_28399/"
+      },
+      {
+        "article": "п. «б» ч. 4 ст. 150 УК РФ",
+        "title": "Вовлечение несовершеннолетнего в совершение преступления",
+        "text": "Вовлечение несовершеннолетнего в совершение преступления лицом, достигшим 18 лет, связанное с вовлечением в тяжкое преступление.",
+        "url": "http://www.consultant.ru/document/cons_doc_LAW_10699/"
+      },
+      {
+        "article": "пп. «а», «в» ч. 3 ст. 158 УК РФ",
+        "title": "Кража",
+        "text": "Кража с незаконным проникновением в жилище, в крупном размере.",
+        "url": "http://www.consultant.ru/document/cons_doc_LAW_10699/"
+      },
+      {
+        "article": "Примечание 4 к ст. 158 УК РФ",
+        "title": "Крупный размер",
+        "text": "Крупным размером признаётся стоимость имущества, превышающая двести пятьдесят тысяч рублей."
+      },
+      {
+        "article": "ст. 15 УК РФ",
+        "title": "Категории преступлений",
+        "text": "Тяжкими признаются умышленные деяния, за которые максимальное наказание не превышает десяти лет лишения свободы."
+      },
+      {
+        "article": "п. 42 Постановления Пленума ВС РФ от 01.02.2011 № 1",
+        "title": "Что такое вовлечение",
+        "text": "Действия взрослого лица, направленные на возбуждение желания совершить преступление, в том числе в форме предложения."
+      }
+    ],
+    "notes": [
+      {
+        "title": "Согласие подростка",
+        "text": "То, что несовершеннолетний согласился добровольно, не освобождает взрослого от ответственности: вовлечением считается и простое предложение."
+      },
+      {
+        "title": "Вина потерпевшего",
+        "text": "Громов не запирал заднюю дверь и показывал рабочим деньги. Это не оправдывает кражу и вовлечение подростка."
+      },
+      {
+        "title": "Опьянение",
+        "text": "Суд не признал алкогольное опьянение отягчающим обстоятельством: оно не обязательно влияет на ответственность."
+      },
+      {
+        "title": "Возмещение ущерба",
+        "text": "Возмещение ущерба и извинения учитываются при назначении наказания, но преступления не отменяют."
+      }
+    ]
+  }
+}
