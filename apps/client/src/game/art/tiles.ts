@@ -4,17 +4,17 @@ import { TILES, drawTileKey, type TileNeighbors } from "./tiles/model";
 // ---------- Тайлы ----------
 
 /** Символы карты встроенных тайлов → ключи тайлов. */
-export const TILE_LEGEND: Record<string, string> = {
+export const DEFAULT_TILE_LEGEND: Readonly<Record<string, string>> = {
   "#": "wall", W: "window", B: "brick", G: "glass", P: "painted_wall", F: "fence",
   ".": "tile", ",": "carpet", _: "parquet", w: "dark_parquet", b: "linoleum", k: "ceramic", m: "marble", r: "runner",
   S: "stairs", Z: "stairs_side", D: "doorway", g: "grass", a: "asphalt", p: "sidewalk",
 };
-/** Символы встроенных тайлов по проходимости (флаг `solid` в данных тайла). */
-const charsWhere = (solid: boolean) => Object.entries(TILE_LEGEND).filter(([, key]) => TILES[key].solid === solid).map(([ch]) => ch);
-/** Непроходимые клетки: стены, окна, перегородки, забор. */
-export const WALL_TILES = new Set(charsWhere(true));
-/** Пол — всё, по чему можно ходить. */
-export const FLOOR_TILES = new Set(charsWhere(false));
+/** Легенда текущего дела: символ карты → ключ тайла (меняется на месте при `registerCaseTiles`). */
+export const TILE_LEGEND: Record<string, string> = { ...DEFAULT_TILE_LEGEND };
+/** Непроходимые клетки (флаг `solid` тайла): стены, окна, перегородки, забор. Меняется на месте. */
+export const WALL_TILES = new Set<string>();
+/** Пол — всё, по чему можно ходить. Меняется на месте. */
+export const FLOOR_TILES = new Set<string>();
 /** Названия предметов для конструктора. */
 export const SPRITE_NAMES: Record<string, string> = {
   door_h: "Дверь ─ (в горизонтальной стене)",
@@ -123,37 +123,29 @@ export const LOOK_NAMES: Record<string, string> = {
   sport_m: "Спортсмен",
 };
 
-/** Подписи для конструктора. */
-export const TILE_NAMES: Record<string, string> = {
-  "#": "Стена",
-  W: "Окно",
-  B: "Кирпич",
-  G: "Стекло",
-  P: "Крашеная стена",
-  F: "Забор",
-  ".": "Плитка",
-  ",": "Ковролин",
-  _: "Паркет",
-  w: "Тёмный паркет",
-  b: "Линолеум",
-  k: "Кафель",
-  m: "Мрамор",
-  r: "Ковровая дорожка",
-  S: "Лестница",
-  Z: "Лестница вбок",
-  D: "Проём",
-  g: "Трава",
-  a: "Асфальт",
-  p: "Тротуар",
-};
+/** Подписи клеток для конструктора (по легенде текущего дела; меняется на месте). */
+export const TILE_NAMES: Record<string, string> = {};
 
-/** Деление клеток в палитре редактора карты — по роли: пол и стены (каждая клетка — ровно в одной группе; проверяет тест). */
-export const FLOOR_GROUPS: { id: string; label: string; chars: string[] }[] = [
-  { id: "floor", label: "Пол", chars: [".", ",", "_", "w", "b", "k", "m", "r", "S", "Z", "D", "g", "a", "p"] },
-];
-export const WALL_GROUPS: { id: string; label: string; chars: string[] }[] = [
-  { id: "walls", label: "Стены", chars: ["#", "B", "P", "W", "G", "F"] },
-];
+/** Деление клеток в палитре редактора карты — по роли: пол и стены (каждая клетка — ровно в одной группе). Меняется на месте. */
+export const FLOOR_GROUPS: { id: string; label: string; chars: string[] }[] = [{ id: "floor", label: "Пол", chars: [] }];
+export const WALL_GROUPS: { id: string; label: string; chars: string[] }[] = [{ id: "walls", label: "Стены", chars: [] }];
+
+/** Пересобрать производные таблицы из легенды `TILE_LEGEND` и тайлов `TILES`. */
+export function rebuildTileTables() {
+  WALL_TILES.clear();
+  FLOOR_TILES.clear();
+  for (const k of Object.keys(TILE_NAMES)) delete TILE_NAMES[k];
+  FLOOR_GROUPS[0].chars = [];
+  WALL_GROUPS[0].chars = [];
+  for (const [ch, key] of Object.entries(TILE_LEGEND)) {
+    const spec = TILES[key];
+    if (!spec) continue;
+    TILE_NAMES[ch] = spec.name;
+    (spec.solid ? WALL_TILES : FLOOR_TILES).add(ch);
+    (spec.solid ? WALL_GROUPS : FLOOR_GROUPS)[0].chars.push(ch);
+  }
+}
+rebuildTileTables();
 
 const keyOf = (ch: string | undefined): string | undefined => (ch === undefined ? undefined : (TILE_LEGEND[ch] ?? ch));
 

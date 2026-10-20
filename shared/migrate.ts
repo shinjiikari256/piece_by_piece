@@ -35,7 +35,7 @@ export function runMigrations(
 
 // ——— Дело ———
 
-export const CASE_FORMAT_VERSION = 10;
+export const CASE_FORMAT_VERSION = 11;
 
 const WALL_CHARS = new Set(["#", "W", "B", "G", "P", "F"]);
 
@@ -278,8 +278,20 @@ function caseV9toV10(data: Raw): Raw {
   return { ...data, locations };
 }
 
+/** Легенда карты формата 10: символы встроенных тайлов (как в `DEFAULT_TILE_LEGEND` клиента). */
+const LEGEND_V10: Record<string, string> = {
+  "#": "wall", W: "window", B: "brick", G: "glass", P: "painted_wall", F: "fence",
+  ".": "tile", ",": "carpet", _: "parquet", w: "dark_parquet", b: "linoleum", k: "ceramic", m: "marble", r: "runner",
+  S: "stairs", Z: "stairs_side", D: "doorway", g: "grass", a: "asphalt", p: "sidewalk",
+};
+
+/** 10 → 11: у дела появилась легенда карты (символ → ключ тайла); добавляется со встроенными символами. */
+function caseV10toV11(data: Raw): Raw {
+  return { ...data, legend: (data.legend as Raw | undefined) ?? { ...LEGEND_V10 } };
+}
+
 /** Звенья цепочки: `caseMigrations[v]` переводит дело версии v в v + 1. */
-export const caseMigrations: Record<number, Migration> = { 1: caseV1toV2, 2: caseV2toV3, 3: caseV3toV4, 4: caseV4toV5, 5: caseV5toV6, 6: caseV6toV7, 7: caseV7toV8, 8: caseV8toV9, 9: caseV9toV10 };
+export const caseMigrations: Record<number, Migration> = { 1: caseV1toV2, 2: caseV2toV3, 3: caseV3toV4, 4: caseV4toV5, 5: caseV5toV6, 6: caseV6toV7, 7: caseV7toV8, 8: caseV8toV9, 9: caseV9toV10, 10: caseV10toV11 };
 
 export const migrateCase = (raw: unknown, chain = caseMigrations, current = CASE_FORMAT_VERSION): Migrated =>
   runMigrations(raw, "formatVersion", chain, current, "дело");

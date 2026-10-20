@@ -393,6 +393,32 @@ export const CustomPart = z.object({
   frames: z.record(z.string(), z.array(PartOp)).refine((f) => Array.isArray(f.default), "нужен кадр default"),
 });
 
+const TileColor = z.string().regex(/^#[0-9a-f]{6}([0-9a-f]{2})?$/);
+const TileRectOp = z.tuple([z.number().int(), z.number().int(), z.number().int().min(1), z.number().int().min(1), TileColor]);
+const TileOp = z.union([
+  TileRectOp,
+  z.object({ checker: z.tuple([TileColor, TileColor]) }),
+  z.object({ noise: z.object({ step: z.number().int().min(1), rules: z.array(z.object({ gt: z.number().optional(), lt: z.number().optional(), size: z.tuple([z.number().int().min(1), z.number().int().min(1)]), color: TileColor })) }) }),
+  z.object({ chance: z.object({ gt: z.number(), ops: z.array(TileRectOp) }) }),
+  z.object({ planks: z.object({ line: TileColor, step: z.number().int().min(1), shiftOdd: z.number().int() }) }),
+]);
+const TileNeighbor = z.union([z.string(), z.array(z.string())]);
+
+/** Тайл клетки карты, нарисованный автором: рисунок 16×16 слоями (слой может зависеть от соседних клеток). */
+export const CustomTile = z.object({
+  key: z.string().regex(/^[a-z][a-z0-9_]*$/).describe("Ключ: латиница, цифры, _; не совпадает со встроенным"),
+  name: z.string().describe("Название в палитре карты"),
+  solid: z.boolean().describe("Непроходимая клетка (стена, забор)"),
+  base: z.string().optional().describe("Тайл, рисуемый под этим (ключ)"),
+  baseFrom: z.literal("below").optional().describe("Под тайлом рисуется пол соседа снизу"),
+  layers: z.array(
+    z.object({
+      when: z.object({ above: TileNeighbor.optional(), below: TileNeighbor.optional(), left: TileNeighbor.optional(), right: TileNeighbor.optional() }).optional(),
+      ops: z.array(TileOp),
+    }),
+  ),
+});
+
 export const LocationObject = z.object({
   id: z.string(),
   sprite: z.string().describe("Ключ спрайта: встроенный или из спрайтов дела"),
@@ -649,6 +675,8 @@ export const CaseMeta = z.object({
 
 export const CaseFile = z.object({
   sprites: z.array(CustomSprite).optional().describe("Спрайты, нарисованные в деле"),
+  tiles: z.array(CustomTile).optional().describe("Тайлы карты, нарисованные в деле"),
+  legend: z.record(z.string().length(1), z.string()).optional().describe("Легенда карты: символ в строках карты → ключ тайла (встроенного или из тайлов дела)"),
   parts: z.array(CustomPart).optional().describe("Части персонажей, нарисованные в деле: причёски, детали одежды, лицо, низ"),
   formatVersion: z.number().int().optional().describe("Версия формата файла дела (ставится само; нет поля = 1)"),
   id: z.string(),
@@ -758,6 +786,7 @@ export type SpriteKey = z.infer<typeof SpriteKey>;
 export type SpriteParam = z.infer<typeof SpriteParam>;
 export type CustomSprite = z.infer<typeof CustomSprite>;
 export type CustomPart = z.infer<typeof CustomPart>;
+export type CustomTile = z.infer<typeof CustomTile>;
 export type PartSlot = z.infer<typeof PartSlot>;
 export type Appearance = z.infer<typeof Appearance>;
 export type CustomLook = z.infer<typeof CustomLook>;

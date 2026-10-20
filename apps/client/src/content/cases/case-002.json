@@ -1,5 +1,27 @@
 {
-  "formatVersion": 10,
+  "formatVersion": 11,
+  "legend": {
+    "#": "wall",
+    "W": "window",
+    "B": "brick",
+    "G": "glass",
+    "P": "painted_wall",
+    "F": "fence",
+    ".": "tile",
+    ",": "carpet",
+    "_": "parquet",
+    "w": "dark_parquet",
+    "b": "linoleum",
+    "k": "ceramic",
+    "m": "marble",
+    "r": "runner",
+    "S": "stairs",
+    "Z": "stairs_side",
+    "D": "doorway",
+    "g": "grass",
+    "a": "asphalt",
+    "p": "sidewalk"
+  },
   "id": "case-002",
   "number": "002",
   "title": "Комната 412",
@@ -12,7 +34,7 @@
     "points": 10
   },
   "published": true,
-  "updatedAt": "2026-10-20T15:12:48Z",
+  "updatedAt": "2026-10-20T18:12:24Z",
   "locations": [
     {
       "id": "dorm_floor",

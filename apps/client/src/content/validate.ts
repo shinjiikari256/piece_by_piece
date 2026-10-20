@@ -5,7 +5,7 @@ import { isRangeOrdered, parseEventTime } from "../../../../shared/events";
 import { isEntryTrigger, isInteractive } from "../../../../shared/case";
 import { conditionParams } from "../../../../shared/sprite-bindings";
 import { parseCase } from "../../../../shared/migrate";
-import { FLOOR_TILES, SPRITES, SPRITE_GROUPS, registerCaseArt, WALL_TILES, partOf, PART_ROLES, PART_SLOTS, BUILTIN_PARTS, CHAR_W, CHAR_H, resolveLook, solidCells } from "../game/art";
+import { FLOOR_TILES, SPRITES, SPRITE_GROUPS, registerCaseArt, WALL_TILES, partOf, PART_ROLES, PART_SLOTS, BUILTIN_PARTS, CHAR_W, CHAR_H, resolveLook, solidCells, TILE_GROUPS, TILES } from "../game/art";
 import { zoneTargetCell } from "./case-utils";
 import { findPath } from "../game/scene/navigation";
 
@@ -42,6 +42,29 @@ function checkIntegrity(c: CaseFile): string[] {
     for (const cell of sp.cells ?? [])
       if (cell.dx < 0 || cell.dx >= sp.footprint.w || cell.dy < 0 || cell.dy >= sp.footprint.h) err(`${W}: клетка ${cell.dx},${cell.dy} вне опоры`);
   }
+  // тайлы дела и легенда карты
+  const builtinTiles = new Set(TILE_GROUPS.flatMap((g) => g.keys));
+  const seenTiles = new Set<string>();
+  for (const t of c.tiles ?? []) {
+    const W = `tile ${t.key}`;
+    if (builtinTiles.has(t.key)) err(`${W}: ключ совпадает со встроенным тайлом`);
+    if (seenTiles.has(t.key)) err(`${W}: повторяющийся ключ`);
+    seenTiles.add(t.key);
+    if (!t.name.trim()) err(`${W}: не задано название`);
+    if (t.base && !TILES[t.base]) err(`${W}: основа «${t.base}» — нет такого тайла`);
+    if (t.base === t.key) err(`${W}: тайл не может быть основой самому себе`);
+    const rect = (r: readonly (number | string)[], where: string) => {
+      const [x, y, w, h] = r as number[];
+      if (x < 0 || y < 0 || x + w > 16 || y + h > 16) err(`${W}: ${where}: прямоугольник выходит за размер 16×16`);
+    };
+    t.layers.forEach((l, i) => {
+      for (const op of l.ops) {
+        if (Array.isArray(op)) rect(op, `слой ${i + 1}`);
+        else if ("chance" in op) for (const r of op.chance.ops) rect(r, `слой ${i + 1}`);
+      }
+    });
+  }
+  for (const [ch, key] of Object.entries(c.legend ?? {})) if (!TILES[key]) err(`legend: символ «${ch}» ведёт на неизвестный тайл «${key}»`);
   // части персонажей дела
   const builtinParts = new Set(PART_SLOTS.flatMap((slot) => BUILTIN_PARTS[slot].map((k) => `${slot}/${k}`)));
   const seenParts = new Set<string>();
