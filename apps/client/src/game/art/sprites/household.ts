@@ -7,7 +7,7 @@ export const household: SpriteGroup = {
   label: "Быт и кухня",
   sprites: {
     fridge: {
-      w: 16, h: 30, footprint: 1, solid: true,
+      w: 16, h: 30, footprint: { w: 1, h: 1 }, solid: true,
       draw(ctx) {
         outlineBox(ctx, 1, 0, 14, 30, "#eef1f4", "#5c6670");
         rect(ctx, 2, 10, 12, 1, "#5c6670");
@@ -18,7 +18,7 @@ export const household: SpriteGroup = {
       },
     },
     stove: {
-      w: 16, h: 20, footprint: 1, solid: true,
+      w: 16, h: 20, footprint: { w: 1, h: 1 }, solid: true,
       draw(ctx) {
         outlineBox(ctx, 1, 2, 14, 18, "#e6e9ed", "#5c6670");
         rect(ctx, 3, 4, 4, 3, "#2b2b2b");
@@ -28,7 +28,7 @@ export const household: SpriteGroup = {
       },
     },
     sink: {
-      w: 16, h: 20, footprint: 1, solid: true,
+      w: 16, h: 20, footprint: { w: 1, h: 1 }, solid: true,
       draw(ctx) {
         outlineBox(ctx, 1, 6, 14, 14, "#e6e9ed", "#5c6670");
         outlineBox(ctx, 3, 7, 10, 5, "#c9d1d9", "#7f8c99");
@@ -38,7 +38,7 @@ export const household: SpriteGroup = {
       },
     },
     kitchen_counter: {
-      w: 32, h: 22, footprint: 2, solid: true,
+      w: 32, h: 22, footprint: { w: 2, h: 1 }, solid: true,
       draw(ctx) {
         outlineBox(ctx, 0, 6, 32, 6, "#d9cdb8", "#6e5a40");
         outlineBox(ctx, 0, 11, 32, 11, "#b08a5a", "#6e5a40");
@@ -53,7 +53,7 @@ export const household: SpriteGroup = {
       },
     },
     trash_bin: {
-      w: 16, h: 14, footprint: 1, solid: true,
+      w: 16, h: 14, footprint: { w: 1, h: 1 }, solid: true,
       draw(ctx) {
         outlineBox(ctx, 3, 2, 10, 12, "#6f7c88", "#353d45");
         rect(ctx, 2, 2, 12, 2, "#353d45");
@@ -64,7 +64,7 @@ export const household: SpriteGroup = {
       },
     },
     boxes: {
-      w: 32, h: 22, footprint: 2, solid: true,
+      w: 32, h: 22, footprint: { w: 2, h: 1 }, solid: true,
       draw(ctx) {
         outlineBox(ctx, 0, 8, 15, 14, "#c49a6c", "#6e4824");
         outlineBox(ctx, 14, 11, 17, 11, "#b8894f", "#6e4824");
@@ -76,7 +76,7 @@ export const household: SpriteGroup = {
       },
     },
     floor_lamp: {
-      w: 16, h: 30, footprint: 1, solid: true,
+      w: 16, h: 30, footprint: { w: 1, h: 1 }, solid: true,
       draw(ctx) {
         rect(ctx, 3, 0, 10, 7, "#f6d55c");
         rect(ctx, 4, 1, 8, 1, "#fff2b3");
@@ -85,7 +85,7 @@ export const household: SpriteGroup = {
       },
     },
     rug: {
-      w: 32, h: 16, footprint: 2, solid: false, flat: true,
+      w: 32, h: 16, footprint: { w: 2, h: 1 }, solid: false, flat: true,
       draw(ctx) {
         outlineBox(ctx, 0, 2, 32, 13, "#a8433a", "#6e2a24");
         rect(ctx, 3, 5, 26, 7, "#c75a4f");
@@ -94,7 +94,7 @@ export const household: SpriteGroup = {
       },
     },
     plant: {
-      w: 16, h: 24, footprint: 1, solid: true,
+      w: 16, h: 24, footprint: { w: 1, h: 1 }, solid: true,
       draw(ctx) {
         const leaves = "#3f8f4f";
         rect(ctx, 6, 2, 4, 6, leaves);
@@ -110,7 +110,7 @@ export const household: SpriteGroup = {
       },
     },
     fire_extinguisher: {
-      w: 16, h: 18, footprint: 1, solid: true,
+      w: 16, h: 18, footprint: { w: 1, h: 1 }, solid: true,
       draw(ctx) {
         outlineBox(ctx, 5, 4, 6, 13, "#d63c3c", "#6e1a14");
         rect(ctx, 6, 5, 1, 9, "#ff8a80");

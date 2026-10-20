@@ -44,7 +44,7 @@ type Door = LocationT["doors"][number];
 /** Где предмет нарисован: картинка стоит низом по центру занимаемых клеток, настенные приподняты. */
 export const objectRect = (o: Obj): PxRect => {
   const spec = SPRITES[o.sprite];
-  return { x: (o.x + spec.footprint / 2) * T - spec.w / 2, y: (o.y + 1) * T - spec.h - (spec.mount ?? 0), w: spec.w, h: spec.h };
+  return { x: (o.x + spec.footprint.w / 2) * T - spec.w / 2, y: (o.y + 1) * T - spec.h - (spec.mount ?? 0), w: spec.w, h: spec.h };
 };
 export const npcRect = (n: Npc): PxRect => ({ x: n.x * T, y: (n.y + 1) * T - CHAR_H - 1, w: CHAR_W, h: CHAR_H });
 export const doorRect = (d: Door): PxRect => {

@@ -7,7 +7,7 @@ export const street: SpriteGroup = {
   label: "Улица",
   sprites: {
     street_lamp: {
-      w: 16, h: 36, footprint: 1, solid: true,
+      w: 16, h: 36, footprint: { w: 1, h: 1 }, solid: true,
       draw(ctx) {
         // фонарь на столбе: основание, столб, кронштейн, плафон и свет
         rect(ctx, 5, 30, 6, 6, "#3d4650");
@@ -18,7 +18,7 @@ export const street: SpriteGroup = {
       },
     },
     tree: {
-      w: 32, h: 40, footprint: 2, solid: true,
+      w: 32, h: 40, footprint: { w: 2, h: 1 }, solid: true,
       draw(ctx) {
         // дерево: ствол и крона из нескольких слоёв
         rect(ctx, 14, 26, 4, 14, "#6e4824");
@@ -33,7 +33,7 @@ export const street: SpriteGroup = {
       },
     },
     car: {
-      w: 48, h: 24, footprint: 3, solid: true,
+      w: 48, h: 24, footprint: { w: 3, h: 1 }, solid: true,
       draw(ctx) {
         // легковая машина, вид сбоку: кузов, салон со стёклами, колёса, фары
         outlineBox(ctx, 0, 10, 48, 10, "#2f5fa8", "#16294a");
@@ -50,7 +50,7 @@ export const street: SpriteGroup = {
       },
     },
     bus_stop: {
-      w: 32, h: 34, footprint: 2, solid: true,
+      w: 32, h: 34, footprint: { w: 2, h: 1 }, solid: true,
       draw(ctx) {
         // остановка: крыша, стойки, стекло, скамья и знак
         outlineBox(ctx, 0, 0, 32, 4, "#4a525c", "#1d2229");
@@ -64,7 +64,7 @@ export const street: SpriteGroup = {
       },
     },
     mailbox: {
-      w: 16, h: 22, footprint: 1, solid: true,
+      w: 16, h: 22, footprint: { w: 1, h: 1 }, solid: true,
       draw(ctx) {
         // почтовый ящик на столбе с флажком
         outlineBox(ctx, 2, 2, 12, 10, "#2f5fa8", "#16294a");

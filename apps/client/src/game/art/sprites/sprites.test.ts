@@ -44,7 +44,8 @@ describe("спрайты предметов", () => {
       expect(r.x + r.w, `${key} правый край`).toBeLessThanOrEqual(spec.w);
       expect(r.y + r.h, `${key} низ`).toBeLessThanOrEqual(spec.h);
     }
-    expect(spec.footprint).toBeGreaterThanOrEqual(1);
-    expect(spec.w).toBeLessThanOrEqual(spec.footprint * 16 + 16); // картинка не шире занимаемых клеток более чем на клетку
+    expect(spec.footprint.w).toBeGreaterThanOrEqual(1);
+    expect(spec.footprint.h).toBeGreaterThanOrEqual(1);
+    expect(spec.w).toBeLessThanOrEqual(spec.footprint.w * 16 + 16); // картинка не шире занимаемых клеток более чем на клетку
   });
 });

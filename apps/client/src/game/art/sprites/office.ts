@@ -7,7 +7,7 @@ export const office: SpriteGroup = {
   label: "Офис и техника",
   sprites: {
     printer: {
-      w: 16, h: 14, footprint: 1, solid: true,
+      w: 16, h: 14, footprint: { w: 1, h: 1 }, solid: true,
       draw(ctx) {
         outlineBox(ctx, 1, 3, 14, 10, "#d9dde2", "#4a525c");
         rect(ctx, 3, 1, 10, 3, "#f7f4ec");
@@ -16,7 +16,7 @@ export const office: SpriteGroup = {
       },
     },
     server_rack: {
-      w: 16, h: 30, footprint: 1, solid: true,
+      w: 16, h: 30, footprint: { w: 1, h: 1 }, solid: true,
       draw(ctx) {
         outlineBox(ctx, 1, 0, 14, 30, "#2b2f36", "#111418");
         for (let y = 2; y < 27; y += 4) {
@@ -27,7 +27,7 @@ export const office: SpriteGroup = {
       },
     },
     cctv_desk: {
-      w: 32, h: 28, footprint: 2, solid: true,
+      w: 32, h: 28, footprint: { w: 2, h: 1 }, solid: true,
       draw(ctx) {
         outlineBox(ctx, 0, 14, 32, 7, "#556270", "#2f3a46");
         outlineBox(ctx, 1, 20, 30, 8, "#47525e", "#2f3a46");
@@ -39,7 +39,7 @@ export const office: SpriteGroup = {
       },
     },
     guard_post: {
-      w: 32, h: 22, footprint: 2, solid: true,
+      w: 32, h: 22, footprint: { w: 2, h: 1 }, solid: true,
       draw(ctx) {
         outlineBox(ctx, 0, 6, 32, 8, "#8395a7", "#2f3a46");
         outlineBox(ctx, 1, 13, 30, 9, "#556270", "#2f3a46");
@@ -56,7 +56,7 @@ export const office: SpriteGroup = {
       },
     },
     coffee_machine: {
-      w: 16, h: 22, footprint: 1, solid: true,
+      w: 16, h: 22, footprint: { w: 1, h: 1 }, solid: true,
       draw(ctx) {
         outlineBox(ctx, 2, 0, 12, 22, "#2b2f36", "#111418");
         rect(ctx, 4, 2, 8, 4, "#8fd0f0");
@@ -68,7 +68,7 @@ export const office: SpriteGroup = {
       },
     },
     vending: {
-      w: 16, h: 30, footprint: 1, solid: true,
+      w: 16, h: 30, footprint: { w: 1, h: 1 }, solid: true,
       draw(ctx) {
         outlineBox(ctx, 0, 0, 16, 30, "#c0392b", "#5a1a14");
         outlineBox(ctx, 2, 3, 9, 18, "#cfe8f2", "#5a1a14");
@@ -81,7 +81,7 @@ export const office: SpriteGroup = {
       },
     },
     water_cooler: {
-      w: 16, h: 26, footprint: 1, solid: true,
+      w: 16, h: 26, footprint: { w: 1, h: 1 }, solid: true,
       draw(ctx) {
         outlineBox(ctx, 4, 0, 8, 9, "#8fd0f0", "#2e6d8e");
         rect(ctx, 5, 1, 2, 6, "#c9ecfb");
@@ -91,7 +91,7 @@ export const office: SpriteGroup = {
       },
     },
     safe: {
-      w: 16, h: 18, footprint: 1, solid: true,
+      w: 16, h: 18, footprint: { w: 1, h: 1 }, solid: true,
       draw(ctx) {
         outlineBox(ctx, 1, 2, 14, 16, "#4a525c", "#1d2229");
         outlineBox(ctx, 3, 4, 10, 12, "#5c6670", "#1d2229");

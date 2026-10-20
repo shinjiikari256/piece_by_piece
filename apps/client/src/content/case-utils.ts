@@ -1,5 +1,5 @@
 import type { Location, LocationObject, NpcPlacement } from "../../../../shared/case";
-import { FLOOR_TILES, SPRITES } from "../game/art";
+import { FLOOR_TILES, SPRITES, footprintHas } from "../game/art";
 import type { PublicCase } from "../../../../shared/public-case";
 import { effectSites } from "../../../../shared/effect-sites";
 
@@ -57,7 +57,7 @@ export function sourceOf(c: PublicCase, evidenceId: string): EvidenceSource | nu
  */
 export function cellFree(loc: Location, x: number, y: number, characterId?: string): boolean {
   if (!FLOOR_TILES.has(loc.tiles[y]?.[x] ?? "")) return false;
-  const solid = loc.objects.some((o) => SPRITES[o.sprite].solid && y === o.y && x >= o.x && x < o.x + SPRITES[o.sprite].footprint);
+  const solid = loc.objects.some((o) => SPRITES[o.sprite].solid && footprintHas(o.x, o.y, SPRITES[o.sprite].footprint, x, y));
   const person = loc.npcs.some((n) => n.x === x && n.y === y && n.characterId !== characterId);
   return !solid && !person;
 }

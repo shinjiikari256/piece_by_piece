@@ -7,7 +7,7 @@ export const wall: SpriteGroup = {
   label: "Настенное",
   sprites: {
     board: {
-      w: 32, h: 11, footprint: 2, solid: false, mount: 5,
+      w: 32, h: 11, footprint: { w: 2, h: 1 }, solid: false, mount: 5,
       draw(ctx) {
         outlineBox(ctx, 2, 0, 28, 10, "#c49a6c", "#5e4128");
         for (let i = 0; i < 30; i++) rect(ctx, 4 + ((i * 7) % 24), 2 + ((i * 5) % 6), 1, 1, "#b0855a");
@@ -25,7 +25,7 @@ export const wall: SpriteGroup = {
       },
     },
     clock: {
-      w: 16, h: 9, footprint: 1, solid: false, mount: 6,
+      w: 16, h: 9, footprint: { w: 1, h: 1 }, solid: false, mount: 6,
       draw(ctx) {
         rect(ctx, 6, 0, 4, 9, "#3b2f25");
         rect(ctx, 4, 2, 8, 5, "#3b2f25");
@@ -38,7 +38,7 @@ export const wall: SpriteGroup = {
       },
     },
     poster: {
-      w: 16, h: 11, footprint: 1, solid: false, mount: 4,
+      w: 16, h: 11, footprint: { w: 1, h: 1 }, solid: false, mount: 4,
       draw(ctx) {
         outlineBox(ctx, 4, 0, 8, 11, "#fdf8ec", "#9aa5b1");
         rect(ctx, 5, 1, 6, 4, "#2f6fd6");
@@ -49,7 +49,7 @@ export const wall: SpriteGroup = {
       },
     },
     whiteboard: {
-      w: 32, h: 11, footprint: 2, solid: false, mount: 5,
+      w: 32, h: 11, footprint: { w: 2, h: 1 }, solid: false, mount: 5,
       draw(ctx) {
         outlineBox(ctx, 2, 0, 28, 9, "#fbfbfb", "#9aa5b1");
         rect(ctx, 5, 2, 10, 1, "#2f6fd6");
@@ -62,7 +62,7 @@ export const wall: SpriteGroup = {
       },
     },
     air_conditioner: {
-      w: 32, h: 8, footprint: 2, solid: false, mount: 8,
+      w: 32, h: 8, footprint: { w: 2, h: 1 }, solid: false, mount: 8,
       draw(ctx) {
         outlineBox(ctx, 4, 0, 24, 7, "#f4f6f8", "#9aa5b1");
         rect(ctx, 6, 4, 20, 1, "#c9d1d9");
@@ -72,14 +72,14 @@ export const wall: SpriteGroup = {
       },
     },
     window: {
-      w: 16, h: 16, footprint: 1, solid: false,
+      w: 16, h: 16, footprint: { w: 1, h: 1 }, solid: false,
       draw(ctx) {
         rect(ctx, 1, 1, 14, 12, "#f4f1ea");
         rect(ctx, 2, 2, 12, 10, "#9fd3e8");
       },
     },
     door: {
-      w: 16, h: 16, footprint: 1, solid: false,
+      w: 16, h: 16, footprint: { w: 1, h: 1 }, solid: false,
       draw(ctx) {
         // дверная коробка и открытая створка
         rect(ctx, 0, 0, 2, 16, "#6b4a2b");

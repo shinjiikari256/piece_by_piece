@@ -3,6 +3,7 @@ import { useWindowKey } from "../ui/hooks";
 import {
   LOOKS,
   SPRITES,
+  footprintHas,
   resolveLook,
   SPRITE_NAMES,
   TILE_NAMES,
@@ -121,7 +122,7 @@ export function MapEditor() {
     if (npc) return { kind: "npc", id: npc.id };
     const door = loc.doors.find((d) => doorTiles(d).some((p) => p.x === t.x && p.y === t.y));
     if (door) return { kind: "door", id: door.id };
-    const obj = [...loc.objects].reverse().find((o) => t.y === o.y && t.x >= o.x && t.x < o.x + SPRITES[o.sprite].footprint);
+    const obj = [...loc.objects].reverse().find((o) => footprintHas(o.x, o.y, SPRITES[o.sprite].footprint, t.x, t.y));
     if (obj) return { kind: "object", id: obj.id };
     // область — самый нижний слой: выбирается, если в клетке больше ничего нет
     const zone = loc.zones.find((z) => z.cells.some((c) => c.x === t.x && c.y === t.y));

@@ -1,10 +1,12 @@
 import type { SpriteKey } from "../../../../../../shared/case";
 import type { Ctx } from "../common";
+import type { Footprint } from "./cells";
 
 export interface SpriteSpec {
   w: number; // ширина в базовых пикселях
   h: number;
-  footprint: number; // ширина в тайлах
+  /** Опора в тайлах: ширина вправо и высота вверх от точки предмета (нижний левый угол). */
+  footprint: Footprint;
   solid: boolean;
   /** Лежит на полу (ковёр) — всегда рисуется под персонажами. */
   flat?: boolean;

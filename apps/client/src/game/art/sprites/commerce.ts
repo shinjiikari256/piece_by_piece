@@ -7,7 +7,7 @@ export const commerce: SpriteGroup = {
   label: "Магазин и кафе",
   sprites: {
     shop_shelf: {
-      w: 32, h: 28, footprint: 2, solid: true,
+      w: 32, h: 28, footprint: { w: 2, h: 1 }, solid: true,
       draw(ctx) {
         // стеллаж с товаром на трёх полках
         outlineBox(ctx, 0, 0, 32, 28, "#7f8c99", "#3d4650");
@@ -29,7 +29,7 @@ export const commerce: SpriteGroup = {
       },
     },
     cash_register: {
-      w: 32, h: 22, footprint: 2, solid: true,
+      w: 32, h: 22, footprint: { w: 2, h: 1 }, solid: true,
       draw(ctx) {
         // прилавок с кассовым аппаратом и корзинкой
         outlineBox(ctx, 0, 10, 32, 12, "#8a5c31", "#3b2a18");
@@ -42,7 +42,7 @@ export const commerce: SpriteGroup = {
       },
     },
     bar_counter: {
-      w: 32, h: 24, footprint: 2, solid: true,
+      w: 32, h: 24, footprint: { w: 2, h: 1 }, solid: true,
       draw(ctx) {
         // барная стойка с бутылками и стаканами
         outlineBox(ctx, 0, 6, 32, 5, "#5c3d22", "#2b1c10");
@@ -58,7 +58,7 @@ export const commerce: SpriteGroup = {
       },
     },
     cafe_table: {
-      w: 32, h: 22, footprint: 2, solid: true,
+      w: 32, h: 22, footprint: { w: 2, h: 1 }, solid: true,
       draw(ctx) {
         // столик с чашкой и два стула по бокам
         outlineBox(ctx, 1, 10, 6, 8, "#c0643f", "#6e3420");
@@ -71,7 +71,7 @@ export const commerce: SpriteGroup = {
       },
     },
     atm: {
-      w: 16, h: 28, footprint: 1, solid: true,
+      w: 16, h: 28, footprint: { w: 1, h: 1 }, solid: true,
       draw(ctx) {
         // банкомат: экран, клавиатура, щель выдачи
         outlineBox(ctx, 1, 0, 14, 28, "#4a525c", "#1d2229");

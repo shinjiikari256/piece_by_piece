@@ -93,11 +93,12 @@ export function renderMap(cv: HTMLCanvasElement, s: MapRenderState) {
       ctx.fillRect(hover.x * T, hover.y * T, T, T);
     }
     ctx.restore();
-    const fw = tool.kind === "object" ? SPRITES[tool.sprite].footprint : tool.kind === "door" && tool.orientation === "h" ? 2 : 1;
-    const fh = tool.kind === "door" && tool.orientation === "v" ? 2 : 1;
+    const objFp = tool.kind === "object" ? SPRITES[tool.sprite].footprint : null;
+    const fw = objFp ? objFp.w : tool.kind === "door" && tool.orientation === "h" ? 2 : 1;
+    const fh = objFp ? objFp.h : tool.kind === "door" && tool.orientation === "v" ? 2 : 1;
     ctx.strokeStyle = "rgba(255,255,255,0.9)";
     ctx.lineWidth = 1;
-    ctx.strokeRect(hover.x * T + 0.5, hover.y * T + 0.5, fw * T - 1, fh * T - 1);
+    ctx.strokeRect(hover.x * T + 0.5, (hover.y - (objFp ? objFp.h - 1 : 0)) * T + 0.5, fw * T - 1, fh * T - 1);
   }
   if (rect && tool.kind === "zone") {
     const r = normRect(rect);
@@ -127,7 +128,7 @@ export function renderMap(cv: HTMLCanvasElement, s: MapRenderState) {
   function drawObject(c: CanvasRenderingContext2D, o: LocationObject) {
     const spec = SPRITES[o.sprite];
     const img = art.sprites.get(o.sprite)!;
-    const cx = (o.x + spec.footprint / 2) * T;
+    const cx = (o.x + spec.footprint.w / 2) * T;
     c.drawImage(img, cx - spec.w / 2, (o.y + 1) * T - spec.h - (spec.mount ?? 0));
   }
   function drawDoorAt(c: CanvasRenderingContext2D, d: DoorT) {

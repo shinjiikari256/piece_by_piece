@@ -7,7 +7,7 @@ export const court: SpriteGroup = {
   label: "Суд и полиция",
   sprites: {
     judge_bench: {
-      w: 32, h: 30, footprint: 2, solid: true,
+      w: 32, h: 30, footprint: { w: 2, h: 1 }, solid: true,
       draw(ctx) {
         // высокая трибуна судьи: верхняя кромка, фасад с тремя панелями, табличка и молоток
         outlineBox(ctx, 0, 6, 32, 5, "#8f6a40", "#3b2a18");
@@ -22,7 +22,7 @@ export const court: SpriteGroup = {
       },
     },
     witness_stand: {
-      w: 16, h: 22, footprint: 1, solid: true,
+      w: 16, h: 22, footprint: { w: 1, h: 1 }, solid: true,
       draw(ctx) {
         // трибуна свидетеля с микрофоном
         rect(ctx, 7, 2, 2, 5, "#2b2b2b");
@@ -33,7 +33,7 @@ export const court: SpriteGroup = {
       },
     },
     justice_statue: {
-      w: 16, h: 30, footprint: 1, solid: true,
+      w: 16, h: 30, footprint: { w: 1, h: 1 }, solid: true,
       draw(ctx) {
         // Фемида с весами на постаменте
         outlineBox(ctx, 2, 23, 12, 7, "#c9c4b8", "#6b665c");
@@ -49,7 +49,7 @@ export const court: SpriteGroup = {
       },
     },
     flag: {
-      w: 16, h: 30, footprint: 1, solid: true,
+      w: 16, h: 30, footprint: { w: 1, h: 1 }, solid: true,
       draw(ctx) {
         // флагшток на подставке и триколор
         outlineBox(ctx, 0, 26, 8, 4, "#555d66", "#2b2f36");
@@ -61,7 +61,7 @@ export const court: SpriteGroup = {
       },
     },
     holding_cell: {
-      w: 32, h: 30, footprint: 2, solid: true,
+      w: 32, h: 30, footprint: { w: 2, h: 1 }, solid: true,
       draw(ctx) {
         // решётка камеры: рамка и прутья, за ними видно пол
         rect(ctx, 0, 0, 32, 3, "#3d4650");

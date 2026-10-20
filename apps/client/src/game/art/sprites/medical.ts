@@ -7,7 +7,7 @@ export const medical: SpriteGroup = {
   label: "Больница",
   sprites: {
     hospital_bed: {
-      w: 32, h: 18, footprint: 2, solid: true,
+      w: 32, h: 18, footprint: { w: 2, h: 1 }, solid: true,
       draw(ctx) {
         // койка: изголовье слева, подушка, одеяло с крестом
         outlineBox(ctx, 0, 4, 32, 12, "#cfd6dd", "#4a525c");
@@ -22,7 +22,7 @@ export const medical: SpriteGroup = {
       },
     },
     iv_stand: {
-      w: 16, h: 30, footprint: 1, solid: false,
+      w: 16, h: 30, footprint: { w: 1, h: 1 }, solid: false,
       draw(ctx) {
         // стойка капельницы с пакетом и трубкой
         rect(ctx, 3, 2, 10, 1, "#cfd6dd");

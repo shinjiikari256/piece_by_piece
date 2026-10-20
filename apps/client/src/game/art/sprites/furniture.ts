@@ -18,7 +18,7 @@ export const furniture: SpriteGroup = {
   label: "Мебель",
   sprites: {
     desk: {
-      w: 32, h: 22, footprint: 2, solid: true,
+      w: 32, h: 22, footprint: { w: 2, h: 1 }, solid: true,
       draw(ctx) {
         drawDeskBase(ctx, 32, 22);
         // бумаги
@@ -31,7 +31,7 @@ export const furniture: SpriteGroup = {
       },
     },
     computer_desk: {
-      w: 32, h: 26, footprint: 2, solid: true,
+      w: 32, h: 26, footprint: { w: 2, h: 1 }, solid: true,
       draw(ctx) {
         drawDeskBase(ctx, 32, 26);
         // монитор повёрнут к сидящему за столом — нам видна задняя крышка
@@ -47,7 +47,7 @@ export const furniture: SpriteGroup = {
       },
     },
     chair: {
-      w: 16, h: 16, footprint: 1, solid: false,
+      w: 16, h: 16, footprint: { w: 1, h: 1 }, solid: false,
       draw(ctx) {
         outlineBox(ctx, 3, 1, 10, 8, "#3c4f66", "#1f2a36");
         outlineBox(ctx, 2, 8, 12, 5, "#4c6380", "#1f2a36");
@@ -56,7 +56,7 @@ export const furniture: SpriteGroup = {
       },
     },
     armchair: {
-      w: 16, h: 20, footprint: 1, solid: true,
+      w: 16, h: 20, footprint: { w: 1, h: 1 }, solid: true,
       draw(ctx) {
         outlineBox(ctx, 1, 0, 14, 10, "#2e6b5a", "#173a30");
         outlineBox(ctx, 0, 8, 16, 9, "#3f8f78", "#173a30");
@@ -67,7 +67,7 @@ export const furniture: SpriteGroup = {
       },
     },
     sofa: {
-      w: 32, h: 20, footprint: 2, solid: true,
+      w: 32, h: 20, footprint: { w: 2, h: 1 }, solid: true,
       draw(ctx) {
         outlineBox(ctx, 0, 0, 32, 9, "#7d4b6e", "#3f2338");
         outlineBox(ctx, 0, 8, 32, 9, "#955a83", "#3f2338");
@@ -79,7 +79,7 @@ export const furniture: SpriteGroup = {
       },
     },
     bed: {
-      w: 16, h: 30, footprint: 1, solid: true,
+      w: 16, h: 30, footprint: { w: 1, h: 1 }, solid: true,
       draw(ctx) {
         // изголовье у стены, вид сверху
         outlineBox(ctx, 0, 0, 16, 30, "#8a5c31");
@@ -92,7 +92,7 @@ export const furniture: SpriteGroup = {
       },
     },
     bench: {
-      w: 32, h: 14, footprint: 2, solid: true,
+      w: 32, h: 14, footprint: { w: 2, h: 1 }, solid: true,
       draw(ctx) {
         outlineBox(ctx, 0, 0, 32, 5, "#a8743f");
         outlineBox(ctx, 0, 5, 32, 5, "#bf8a52");
@@ -101,7 +101,7 @@ export const furniture: SpriteGroup = {
       },
     },
     round_table: {
-      w: 32, h: 22, footprint: 2, solid: true,
+      w: 32, h: 22, footprint: { w: 2, h: 1 }, solid: true,
       draw(ctx) {
         rect(ctx, 4, 4, 24, 12, "#6e4824");
         rect(ctx, 2, 6, 28, 8, "#6e4824");
@@ -114,7 +114,7 @@ export const furniture: SpriteGroup = {
       },
     },
     cabinet: {
-      w: 16, h: 30, footprint: 1, solid: true,
+      w: 16, h: 30, footprint: { w: 1, h: 1 }, solid: true,
       draw(ctx) {
         outlineBox(ctx, 0, 0, 16, 30, "#9c7a4e");
         rect(ctx, 1, 1, 14, 2, "#b58f5e");
@@ -125,7 +125,7 @@ export const furniture: SpriteGroup = {
       },
     },
     bookshelf: {
-      w: 32, h: 30, footprint: 2, solid: true,
+      w: 32, h: 30, footprint: { w: 2, h: 1 }, solid: true,
       draw(ctx) {
         outlineBox(ctx, 0, 0, 32, 30, "#7a5432");
         const colors = ["#c0392b", "#2f6fd6", "#e0b23c", "#2e9e5b", "#8e5ea2", "#e8e2d0", "#d35400"];
@@ -144,7 +144,7 @@ export const furniture: SpriteGroup = {
       },
     },
     lockers: {
-      w: 32, h: 30, footprint: 2, solid: true,
+      w: 32, h: 30, footprint: { w: 2, h: 1 }, solid: true,
       draw(ctx) {
         for (const x of [0, 8, 16, 24]) {
           outlineBox(ctx, x, 0, 8, 30, "#7f8c99", "#3d4650");
@@ -156,7 +156,7 @@ export const furniture: SpriteGroup = {
       },
     },
     coat_rack: {
-      w: 16, h: 28, footprint: 1, solid: true,
+      w: 16, h: 28, footprint: { w: 1, h: 1 }, solid: true,
       draw(ctx) {
         rect(ctx, 7, 4, 2, 22, "#5c3d22");
         rect(ctx, 4, 25, 8, 2, "#5c3d22");

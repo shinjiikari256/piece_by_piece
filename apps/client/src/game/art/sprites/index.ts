@@ -10,6 +10,7 @@ import { street } from "./street";
 import type { SpriteGroup, SpriteSpec } from "./types";
 
 export type { SpriteGroup, SpriteSpec } from "./types";
+export { footprintCells, footprintHas, type Footprint } from "./cells";
 
 /** Группы предметов в порядке показа в палитре редактора карты. */
 export const SPRITE_GROUPS: SpriteGroup[] = [furniture, office, wall, household, court, commerce, medical, street];

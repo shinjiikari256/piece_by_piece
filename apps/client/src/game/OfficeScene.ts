@@ -8,6 +8,7 @@ import {
   CHAR_H,
   SCALE,
   SPRITES,
+  footprintCells,
   TILE,
   WALL_TILES,
   doorMirrored,
@@ -237,14 +238,14 @@ export class OfficeScene extends Phaser.Scene {
   private buildObjects() {
     for (const o of this.location.objects) {
       const spec = SPRITES[o.sprite];
-      const cx = (o.x + spec.footprint / 2) * TILE;
+      const cx = (o.x + spec.footprint.w / 2) * TILE;
       const bottom = (o.y + 1) * TILE - (spec.mount ?? 0) * SCALE;
       const img = this.add
         .image(cx, bottom, `obj_${o.sprite}`)
         .setOrigin(0.5, 1)
         .setScale(SCALE)
         .setDepth(spec.flat ? 0 : bottom);
-      const footprint = Array.from({ length: spec.footprint }, (_, i) => ({ x: o.x + i, y: o.y }));
+      const footprint = footprintCells(o.x, o.y, spec.footprint);
       if (spec.solid) footprint.forEach((t) => this.setSolid(t.x, t.y));
       if (!isInteractive(o)) continue;
 
@@ -256,7 +257,7 @@ export class OfficeScene extends Phaser.Scene {
         y: bottom - TILE / 2,
         footprint,
         // висящий на стене предмет читается только спереди (клетка под ним), а не с обратной стороны стены
-        access: spec.mount !== undefined ? footprint.map((t) => ({ x: t.x, y: t.y + 1 })) : undefined,
+        access: spec.mount !== undefined ? footprint.filter((t) => t.y === o.y).map((t) => ({ x: t.x, y: t.y + 1 })) : undefined,
         sprite: img,
         labelText: this.makeLabel(o.label).setPosition(cx, top - 4),
         check: this.add
