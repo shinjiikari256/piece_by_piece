@@ -5,8 +5,8 @@ export type Op = CustomSprite["frames"][string][number];
 /** Цвет с прозрачностью: `#rrggbb` или `#rrggbbaa` (255 — сплошной). */
 export const withAlpha = (color: string, alpha: number): string => (alpha >= 255 ? color.slice(0, 7) : `${color.slice(0, 7)}${Math.max(1, alpha).toString(16).padStart(2, "0")}`);
 
-/** Во сколько раз увеличить холст рисования, чтобы он помещался примерно в 480 px. */
-export const spriteMaxScale = (w: number, h: number): number => Math.max(2, Math.min(32, Math.floor(480 / Math.max(w, h))));
+/** Во сколько раз увеличить холст рисования, чтобы он помещался примерно в 560 px. */
+export const spriteMaxScale = (w: number, h: number): number => Math.max(2, Math.min(32, Math.floor(560 / Math.max(w, h))));
 
 const mapSprite = (d: CaseFile, key: string, fn: (s: CustomSprite) => CustomSprite): CaseFile => ({ ...d, sprites: d.sprites?.map((s) => (s.key === key ? fn(s) : s)) });
 
@@ -72,4 +72,66 @@ export function conditionOf(old: Condition | undefined, rules: Record<string, Pa
     ...(enums.length ? { enums } : {}),
   };
   return Object.keys(out).length ? out : undefined;
+}
+
+/** Подписи стандартных кадров; остальные показываются как названы автором. */
+const FRAME_NAMES: Record<string, string> = { default: "Основной", open: "Открыт", closed: "Закрыт", locked: "Заперт", on: "Включён", off: "Выключен" };
+export const frameLabel = (key: string): string => FRAME_NAMES[key] ?? key;
+
+/** Свободный ключ из названия: `toKey`-подобный `base`, при занятости — с номером. */
+export function uniqueKey(base: string, taken: (k: string) => boolean): string {
+  const root = base || "item";
+  if (!taken(root)) return root;
+  let n = 2;
+  while (taken(`${root}_${n}`)) n++;
+  return `${root}_${n}`;
+}
+
+/** Сменить имя кадра спрайта дела: сам кадр, состояния и клипы спрайта и всех его предметов на картах. */
+export function renameFrame(d: CaseFile, spriteKey: string, from: string, to: string): CaseFile {
+  const fix = (v: unknown): unknown =>
+    Array.isArray(v)
+      ? v.map(fix)
+      : v && typeof v === "object"
+        ? Object.fromEntries(Object.entries(v).map(([k, x]) => [k, k === "frame" && x === from ? to : fix(x)]))
+        : v;
+  return {
+    ...d,
+    sprites: d.sprites?.map((s) => {
+      if (s.key !== spriteKey) return s;
+      const frames = Object.fromEntries(Object.entries(s.frames).map(([k, ops]) => [k === from ? to : k, ops])) as CustomSprite["frames"];
+      return { ...(fix({ ...s, frames: undefined }) as CustomSprite), frames };
+    }),
+    locations: d.locations.map((l) => ({ ...l, objects: l.objects.map((o) => (o.sprite === spriteKey ? (fix(o) as typeof o) : o)) })),
+  };
+}
+
+/** Убрать переменную спрайта и её ограничения из условий состояний. */
+export function withoutParam(s: CustomSprite, id: string): Partial<CustomSprite> {
+  const params = (s.params ?? []).filter((q) => q.id !== id);
+  return {
+    params: params.length ? params : undefined,
+    states: s.states?.map((st) => {
+      const rules = rulesOf(st.when);
+      delete rules[id];
+      return { ...st, when: conditionOf(st.when, rules, params) };
+    }),
+  };
+}
+
+/** Условие состояния словами: «Горит — да; Заряд от 2». */
+export function describeRules(params: SpriteParam[], rules: Record<string, ParamRule>): string {
+  const parts = params.flatMap((q) => {
+    const r = rules[q.id];
+    if (!r) return [];
+    const n = q.name || q.id;
+    if (q.kind === "flag") return r.flag === undefined ? [] : [`${n} — ${r.flag ? "да" : "нет"}`];
+    if (q.kind === "counter") {
+      const lim = [r.min !== undefined ? `от ${r.min}` : "", r.max !== undefined ? `до ${r.max}` : ""].filter(Boolean).join(" ");
+      return lim ? [`${n} ${lim}`] : [];
+    }
+    const names = (r.values ?? []).map((v) => q.values?.find((x) => x.id === v)?.name || v);
+    return names.length ? [`${n}: ${names.join(" или ")}`] : [];
+  });
+  return parts.length ? parts.join("; ") : "всегда";
 }

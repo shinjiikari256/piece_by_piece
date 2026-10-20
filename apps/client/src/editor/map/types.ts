@@ -1,9 +1,8 @@
-import type { SpriteKey as SpriteKeyT } from "../../../../../shared/case";
 
 export type Tool =
   | { kind: "select" }
   | { kind: "tile"; ch: string }
-  | { kind: "object"; sprite: SpriteKeyT }
+  | { kind: "object"; sprite: string }
   | { kind: "npc" }
   | { kind: "start" }
   /** Рисование области (клетки выбранной области; если не выбрана — создаётся новая); `erase` — стирание. */

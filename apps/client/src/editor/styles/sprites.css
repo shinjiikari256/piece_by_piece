@@ -1,29 +1,181 @@
-.sprite-draw__canvas {
+/* раздел «Спрайты»: раскладка берётся у «Локаций» (.lm), здесь — только свои части */
+.sprite-stage {
+  position: relative;
+  flex: none;
+  background: repeating-conic-gradient(var(--bg-paper-dim) 0% 25%, var(--bg-paper) 0% 50%) 0 0 / 16px 16px;
+  box-shadow: var(--elev-3);
+}
+.sprite-stage__canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
   image-rendering: pixelated;
-  border: 1px solid var(--border-strong);
-  background:
-    repeating-conic-gradient(var(--bg-paper-dim) 0% 25%, var(--bg-paper) 0% 50%) 0 0 / 16px 16px;
+}
+.sprite-stage__canvas[data-draw] {
   cursor: crosshair;
   touch-action: none;
-  max-width: 100%;
 }
-.sprite-draw__swatch {
-  width: 22px;
-  height: 22px;
+.sprite-stage__cell {
+  position: absolute;
+  padding: 0;
+  border: 2px solid var(--tone-line, var(--border-strong));
+  background: color-mix(in srgb, var(--tone-soft, transparent) 55%, transparent);
+  color: var(--tone-ink, inherit);
+  font-size: var(--fs-lg);
+  font-weight: 700;
+  cursor: pointer;
+}
+.sprite-stage__cell:disabled {
+  cursor: default;
+}
+.sprite-head {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.sprite-head__title {
+  flex: 1;
+  min-width: 0;
+  font-weight: 700;
+}
+.sprite-ro {
+  border: 0;
+  padding: 0;
+  margin: 0;
+  min-width: 0;
+}
+.sprite-ro:disabled {
+  opacity: 0.75;
+}
+.sprite-tools {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+}
+.sprite-check {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  cursor: pointer;
+}
+.sprite-card {
+  display: grid;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0.6rem;
+  min-width: 0;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg-surface);
+}
+.sprite-card--new {
+  border-style: dashed;
+}
+.sprite-card__head {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+.sprite-card__head input {
+  flex: 1;
+  min-width: 0;
+}
+.sprite-card__icon {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 1.8rem;
+  height: 1.8rem;
+  border-radius: 6px;
+  background: var(--accent-soft);
+  color: var(--accent-ink);
+}
+.sprite-state-view {
+  display: flex;
+  gap: 0.6rem;
+  align-items: flex-start;
+}
+.sprite-state-view > .stack {
+  flex: 1;
+  min-width: 0;
+}
+.sprite-thumb {
+  flex: none;
+  image-rendering: pixelated;
+  background: var(--bg-paper-dim);
+  border-radius: 6px;
+}
+.sprite-chips {
+  flex-wrap: wrap;
+}
+.sprite-legend {
+  display: flex;
+  gap: 0.8rem;
+  font-size: var(--fs-sm);
+}
+.sprite-legend span {
+  padding: 0.1rem 0.5rem;
+  border-radius: 4px;
+  background: var(--tone-soft);
+  color: var(--tone-ink);
+}
+.colorpick {
+  display: grid;
+  gap: 0.5rem;
+}
+.colorpick__row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.colorpick__sample {
+  flex: none;
+  width: 2.2rem;
+  height: 2.2rem;
+  border: 1px solid var(--border-strong);
+  border-radius: 6px;
+  background: repeating-conic-gradient(var(--bg-paper-dim) 0% 25%, var(--bg-paper) 0% 50%) 0 0 / 8px 8px;
+  overflow: hidden;
+}
+.colorpick__sample > span {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.colorpick__native {
+  flex: none;
+  width: 2.2rem;
+  height: 2.2rem;
+  padding: 0;
+}
+.colorpick__hex {
+  width: 7rem;
+  font-family: var(--font-mono);
+}
+.colorpick__alpha {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: var(--fs-sm);
+}
+.colorpick__alpha input {
+  flex: 1;
+  min-width: 0;
+}
+.colorpick__swatches {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+}
+.colorpick__swatch {
+  width: 1.4rem;
+  height: 1.4rem;
   padding: 0;
   border: 1px solid var(--border-strong);
   border-radius: 4px;
   cursor: pointer;
 }
-.sprite-foot {
-  display: grid;
-  width: max-content;
-  gap: 2px;
-}
-.sprite-foot__cell {
-  height: 36px;
-  border: 1px solid var(--tone-line, var(--border-strong));
-  background: var(--tone-soft, var(--bg-paper-dim));
-  color: var(--tone-ink, inherit);
-  cursor: pointer;
+.colorpick__swatch[aria-pressed="true"] {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
 }

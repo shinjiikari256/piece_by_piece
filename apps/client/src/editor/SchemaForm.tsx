@@ -20,6 +20,7 @@ import { Condition, ConditionEditor, FlagPicker } from "./fields/Conditions";
 const EFFECT_FIELDS = new Set(["effects", "onCollect", "failEffects", "onEnter", "onInteract"]);
 import { EffectsEditor } from "./fields/Effects";
 import { AttachmentSource } from "./fields/Attachment";
+import { frameLabel } from "./sprites/helpers";
 export { FlagDialog, deleteFlag, evidenceUsage, flagUsage, type FlagUse } from "./fields/Conditions";
 
 /**
@@ -194,7 +195,7 @@ export function Field({ name, schema, value, onChange, ctx, bare }: FieldProps):
     return (
       <div className="ef">
         {label}
-        <Select value={String(value ?? "")} options={frames.map((f) => ({ value: f, label: f }))} onChange={onChange} />
+        <Select value={String(value ?? "")} options={frames.map((f) => ({ value: f, label: frameLabel(f) }))} onChange={onChange} />
       </div>
     );
   }
