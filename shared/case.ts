@@ -381,6 +381,10 @@ export const DialogueNode = z.object({
   id: z.string(),
   speaker: z.string().optional().describe("Кто говорит (id персонажа); по умолчанию — хозяин диалога"),
   text: z.string(),
+  textVariants: z
+    .array(z.object({ requires: Condition, text: z.string() }))
+    .optional()
+    .describe("Другой текст реплики по условию: показывается первый, чьё условие выполнено, иначе — основной текст"),
   mood: z.enum(["neutral", "friendly", "nervous", "angry", "sad"]),
   effects: z.array(Effect),
   choices: z.array(DialogueChoice),

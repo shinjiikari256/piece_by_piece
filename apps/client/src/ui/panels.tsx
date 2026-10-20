@@ -1,4 +1,4 @@
-import { meets } from "../../../../shared/conditions";
+import { meets, nodeText } from "../../../../shared/conditions";
 import { useEffect, useRef, useState } from "react";
 import { useWindowKey } from "./hooks";
 import { MOOD_TONE } from "./tone";
@@ -170,12 +170,14 @@ export function DialogueWindow({
 }) {
   const caseFile = useCase();
   // подписка, чтобы список вариантов пересчитывался при изменении прогресса
-  useGame((s) => s.progress);
+  const progress = useGame((s) => s.progress);
+  const locationId = useGame((s) => s.locationId);
   const dialogue = caseFile.dialogues.find((d) => d.id === dialogueId)!;
   const node = dialogue.nodes.find((n) => n.id === nodeId)!;
   const speakerOf = (id?: string) => caseFile.characters.find((c) => c.id === (id ?? dialogue.characterId))!;
   const character = speakerOf(node.speaker);
   const mood = node.mood;
+  const text = nodeText(node, progress, locationId);
   // в разговоре нескольких персонажей видно, что сказали перед этим
   const multi = dialogue.nodes.some((n) => n.speaker && n.speaker !== dialogue.characterId);
   const [history, setHistory] = useState<{ key: string; speaker: string; text: string }[]>([]);
@@ -187,7 +189,7 @@ export function DialogueWindow({
     shown.current = key;
     if (!multi || prevDialogue !== dialogueId) return setHistory([]);
     const prev = dialogue.nodes.find((n) => n.id === prevNode);
-    if (prev) setHistory((h) => [...h, { key: `${h.length}`, speaker: speakerOf(prev.speaker).name, text: prev.text }].slice(-3));
+    if (prev) setHistory((h) => [...h, { key: `${h.length}`, speaker: speakerOf(prev.speaker).name, text: nodeText(prev, progress, locationId) }].slice(-3));
   }, [dialogueId, nodeId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Заданные вопросы остаются на своих местах с отметкой — нумерация не прыгает
@@ -253,7 +255,7 @@ export function DialogueWindow({
           </ol>
         )}
         <p className="dialogue__text" key={`text:${dialogueId}/${node.id}`}>
-          {node.text}
+          {text}
         </p>
         <ol className="dialogue__choices list-reset" ref={list} key={`choices:${dialogueId}/${nodeId}`}>
           {choices.map((c, i) => (

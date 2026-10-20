@@ -8,6 +8,7 @@ import testCaseJson from "./content/test-cases/case-test-moveto.json";
 import { isSaveOutdated, listSaves, readSave } from "./state/persistence";
 import { objectEvidenceIds, type CaseFile, type Effect } from "../../../shared/case";
 import { LocalAuthority } from "./content/local-authority";
+import { nodeText, startProgress } from "../../../shared/conditions";
 import { toPublicCase } from "../../../shared/public-case";
 import { RESULT_FORMAT_VERSION, finish as judgeFinish } from "../../../shared/judge";
 import { listResults } from "./state/profile";
@@ -1089,6 +1090,17 @@ describe("человек, скрытый условием", () => {
     actions.interact("npc_alina");
     expect(store.get().overlay).toBeNull();
     actions.close();
+  });
+});
+
+describe("текст реплики по условию", () => {
+  it("nodeText берёт первый вариант с выполненным условием, иначе основной", () => {
+    const node = { text: "Здравствуйте.", textVariants: [{ requires: { flags: ["a"] }, text: "Снова вы?" }, { requires: { flags: ["b"] }, text: "Вы вернулись." }] };
+    const p = (flags: string[]) => ({ ...startProgress(testCaseJson as unknown as CaseFile), flags });
+    expect(nodeText(node, p([]))).toBe("Здравствуйте.");
+    expect(nodeText(node, p(["b"]))).toBe("Вы вернулись.");
+    expect(nodeText(node, p(["a", "b"]))).toBe("Снова вы?");
+    expect(nodeText({ text: "Ок" }, p(["a"]))).toBe("Ок");
   });
 });
 

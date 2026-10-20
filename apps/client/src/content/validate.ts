@@ -283,6 +283,7 @@ function checkIntegrity(c: CaseFile): string[] {
         if (ch.next !== null) ref(nodes, ch.next, `${where}/${ch.id}.next`);
         checkCondition(ch.requires, `${where}/${ch.id}.requires`);
       }
+      n.textVariants?.forEach((tv, i) => checkCondition(tv.requires, `${where}.textVariants[${i}].requires`));
     }
   }
 
@@ -339,6 +340,7 @@ function checkIntegrity(c: CaseFile): string[] {
   for (const dl of c.dialogues)
     for (const n of dl.nodes) {
       n.choices.forEach((ch) => condFlags(ch.requires));
+      n.textVariants?.forEach((tv) => condFlags(tv.requires));
     }
   effectSites(c).forEach((site) =>
     site.effects.forEach((e) => {

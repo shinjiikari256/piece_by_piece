@@ -52,6 +52,7 @@ export function flagsOf(d: FormCtx["draft"]): string[] {
   for (const dl of d.dialogues)
     for (const n of dl.nodes) {
       n.choices.forEach((ch) => cond(ch.requires));
+      n.textVariants?.forEach((v) => cond(v.requires));
     }
   effectSites(d).forEach((site) =>
     site.effects.forEach((e) => {
@@ -107,6 +108,7 @@ function collectUsage(d: FormCtx["draft"]): { vars: Map<string, FlagUse[]>; evid
   };
   for (const dl of d.dialogues)
     for (const n of dl.nodes) {
+      n.textVariants?.forEach((v) => cond(v.requires, `Разговор: ${who(dl.characterId)} — текст реплики по условию`, dialogueFocus(dl.id, n.id)));
       n.choices.forEach((ch) => cond(ch.requires, `Разговор: ${who(dl.characterId)} — вариант «${ch.text.slice(0, 50)}»`, dialogueFocus(dl.id, n.id)));
     }
   effectSites(d).forEach((site) => {

@@ -476,6 +476,11 @@ function Graph({
                   <span className={`dg-node__speaker ${multi ? "is-other" : ""}`}>{speakerName(n.speaker)}</span>
                 </div>
                 <div className="dg-node__text">{n.text}</div>
+                {n.textVariants && n.textVariants.length > 0 && (
+                  <div className="dg-node__effects" title="Текст реплики меняется по условию">
+                    ✎ вариантов текста: {n.textVariants.length}
+                  </div>
+                )}
                 {n.effects.length > 0 && (
                   <div className="dg-node__effects" title="Что произойдёт, когда прозвучит реплика">
                     ⚡ {n.effects.map(effectLabel).join("; ")}

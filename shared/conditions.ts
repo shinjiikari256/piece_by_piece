@@ -115,6 +115,11 @@ export function meets(cond: Condition | undefined, p: Progress, locationId?: str
   );
 }
 
+/** Текст реплики: первый вариант `textVariants` с выполненным условием, иначе основной. */
+export function nodeText(node: { text: string; textVariants?: { requires: Condition; text: string }[] }, p: Progress, locationId?: string): string {
+  return node.textVariants?.find((v) => meets(v.requires, p, locationId))?.text ?? node.text;
+}
+
 export interface EffectOutcome {
   progress: Progress;
   newEvidence: string[];
