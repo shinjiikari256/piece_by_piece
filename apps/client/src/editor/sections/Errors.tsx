@@ -1,6 +1,6 @@
 import { editor, useEditor } from "../state";
 import { Alert } from "../../ui/alert";
-import { locateError } from "../errors";
+import { humanizeMessage, locateError } from "../errors";
 
 export function ErrorsSection() {
   const draft = useEditor((s) => s.draft);
@@ -32,7 +32,7 @@ export function ErrorsSection() {
               }
               onClick={() => editor.goto(e.focus.section, e.focus)}
             >
-              {e.message}
+              {humanizeMessage(e.message)}
             </Alert>
           </li>
         );

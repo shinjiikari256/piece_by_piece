@@ -1,3 +1,4 @@
+import { effectSites } from "../../../../../shared/effect-sites";
 import { useEffect } from "react";
 import { CaseFile } from "../../../../../shared/case";
 import { editor, editorStore, useEditor } from "../state";
@@ -148,15 +149,21 @@ const EVIDENCE_TABS = [
 ] as const;
 type EvidenceTab = (typeof EVIDENCE_TABS)[number]["id"];
 
-/** Где игрок получает улику: предметы и реплики, которые её выдают. */
+/** Где игрок получает улику: любое место дела, где есть эффект «добавить улику в дело» с ней. */
 function evidenceOrigins(d: CaseFile, id: string): string[] {
+  const who = (characterId: string) => d.characters.find((c) => c.id === characterId)?.name ?? characterId;
   const out: string[] = [];
-  for (const l of d.locations)
-    for (const o of l.objects) if (o.interaction?.evidenceId === id) out.push(`осмотр «${o.interaction.title}» — ${l.name}`);
-  for (const dl of d.dialogues) {
-    const who = d.characters.find((c) => c.id === dl.characterId)?.name ?? dl.characterId;
-    for (const n of dl.nodes)
-      if (n.effects.some((e) => e.type === "addEvidence" && e.evidenceId === id)) out.push(`разговор с ${who}, реплика «${n.id}»`);
+  for (const site of effectSites(d)) {
+    if (!site.effects.some((e) => e.type === "addEvidence" && e.evidenceId === id)) continue;
+    const o = site.owner;
+    if (o.kind === "node") out.push(`разговор с ${who(o.characterId)}, реплика «${o.nodeId}»`);
+    else if (o.kind === "choice") out.push(`разговор с ${who(o.characterId)}, вариант «${o.text.slice(0, 40)}»`);
+    else if (o.kind === "object") out.push(`осмотр «${o.label}» — ${o.locationName}`);
+    else if (o.kind === "zone") out.push(`область «${o.zoneName}» — ${o.locationName}`);
+    else if (o.kind === "enter") out.push(`вход в локацию «${o.locationName}»`);
+    else if (o.kind === "deduction") out.push(`сопоставление «${o.title}»`);
+    else if (o.kind === "deductionFail") out.push(`ошибка в сопоставлении «${o.title}»`);
+    else if (o.kind === "evidence") out.push(`получение улики «${o.title}»`);
   }
   return out;
 }
@@ -209,9 +216,9 @@ function EvidencePanel({
             <div className="ef">
               <span className="ef__label">Вид</span>
               <div className="seg">
-                {(["evidence", "testimony"] as const).map((k) => (
+                {(["evidence", "testimony", "item"] as const).map((k) => (
                   <button key={k} className="seg__btn" aria-pressed={evidence.kind === k} onClick={() => onChange({ ...evidence, kind: k })}>
-                    {k === "evidence" ? "Улика" : "Показания"}
+                    {k === "evidence" ? "Улика" : k === "testimony" ? "Показания" : "Предмет"}
                   </button>
                 ))}
               </div>
@@ -220,7 +227,7 @@ function EvidencePanel({
               <span className="ef__label">Подпись</span>
               <input
                 value={evidence.subtype ?? ""}
-                placeholder={evidence.kind === "evidence" ? "Документ" : "—"}
+                placeholder={evidence.kind === "evidence" ? "Документ" : evidence.kind === "item" ? "Ключ" : "—"}
                 onChange={(e) => {
                   const { subtype: _old, ...rest } = evidence;
                   onChange(e.target.value ? { ...rest, subtype: e.target.value } : rest);

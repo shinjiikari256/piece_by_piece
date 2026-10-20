@@ -7,7 +7,7 @@ import {
   SPRITE_NAMES,
   TILE_NAMES,
 } from "../game/art";
-import type { Location as LocationT } from "../../../../shared/case";
+import { objectEvidenceIds, type Location as LocationT } from "../../../../shared/case";
 import { editor, editorStore, useEditor } from "./state";
 import { ObjectFields } from "./SchemaForm";
 import { ask } from "../ui/dialog";
@@ -322,9 +322,9 @@ export function MapEditor() {
     const o = loc.objects.find((x) => x.id === h.id)!;
     const name = o.label || SPRITE_NAMES[o.sprite] || o.sprite;
     if (!o.interaction) return o.onInteract?.length ? `${name} · только эффекты, без окна осмотра` : `${name} · декорация`;
-    const evId = o.interaction.evidenceId;
-    if (!evId) return `${name} → только текст осмотра`;
-    return `${name} → материал «${draft.evidence.find((e) => e.id === evId)?.title ?? evId}»`;
+    const ids = objectEvidenceIds(o);
+    if (!ids.length) return `${name} → только текст осмотра`;
+    return `${name} → ${ids.length === 1 ? `материал «${draft.evidence.find((e) => e.id === ids[0])?.title ?? ids[0]}»` : `материалов: ${ids.length}`}`;
   })();
 
   const toolHint =

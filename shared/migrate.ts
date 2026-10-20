@@ -35,7 +35,7 @@ export function runMigrations(
 
 // ——— Дело ———
 
-export const CASE_FORMAT_VERSION = 7;
+export const CASE_FORMAT_VERSION = 8;
 
 const WALL_CHARS = new Set(["#", "W", "B", "G", "P", "F"]);
 
@@ -203,8 +203,26 @@ function caseV6toV7(data: Raw): Raw {
   return { ...data, locations };
 }
 
+/**
+ * 7 → 8: улика осмотра предмета (`interaction.evidenceId`) стала обычным эффектом «добавить улику в дело» в начале `onInteract`:
+ * один объект может выдавать несколько улик, а выдача подчиняется условиям и `once`, как любой эффект.
+ */
+function caseV7toV8(data: Raw): Raw {
+  const locations = ((data.locations as Raw[] | undefined) ?? []).map((loc) => ({
+    ...loc,
+    objects: ((loc.objects as Raw[] | undefined) ?? []).map((obj) => {
+      if (!obj.interaction || typeof obj.interaction !== "object") return obj;
+      const { evidenceId, ...interaction } = obj.interaction as Raw;
+      if (typeof evidenceId !== "string") return { ...obj, interaction };
+      const own = Array.isArray(obj.onInteract) ? (obj.onInteract as unknown[]) : [];
+      return { ...obj, interaction, onInteract: [{ type: "addEvidence", evidenceId }, ...own] };
+    }),
+  }));
+  return { ...data, locations };
+}
+
 /** Звенья цепочки: `caseMigrations[v]` переводит дело версии v в v + 1. */
-export const caseMigrations: Record<number, Migration> = { 1: caseV1toV2, 2: caseV2toV3, 3: caseV3toV4, 4: caseV4toV5, 5: caseV5toV6, 6: caseV6toV7 };
+export const caseMigrations: Record<number, Migration> = { 1: caseV1toV2, 2: caseV2toV3, 3: caseV3toV4, 4: caseV4toV5, 5: caseV5toV6, 6: caseV6toV7, 7: caseV7toV8 };
 
 export const migrateCase = (raw: unknown, chain = caseMigrations, current = CASE_FORMAT_VERSION): Migrated =>
   runMigrations(raw, "formatVersion", chain, current, "дело");

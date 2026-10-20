@@ -1,6 +1,7 @@
 import type { Location, LocationObject, NpcPlacement } from "../../../../shared/case";
 import { FLOOR_TILES, SPRITES } from "../game/art";
 import type { PublicCase } from "../../../../shared/public-case";
+import { effectSites } from "../../../../shared/effect-sites";
 
 /** Удобные выборки по делу с несколькими локациями. */
 
@@ -34,14 +35,17 @@ export interface EvidenceSource {
   characterId?: string;
 }
 
-/** Источник улики: предмет, при осмотре которого она находится, или персонаж, в чьём диалоге она появляется. */
+/** Источник улики: предмет, при осмотре которого она находится, или персонаж, в чьём диалоге (реплика или вариант ответа) она появляется. */
 export function sourceOf(c: PublicCase, evidenceId: string): EvidenceSource | null {
-  const obj = allObjects(c).find((o) => o.interaction?.evidenceId === evidenceId);
-  if (obj) return { text: obj.label || obj.interaction!.title };
-  for (const d of c.dialogues) {
-    const node = d.nodes.find((n) => n.effects.some((ef) => ef.type === "addEvidence" && ef.evidenceId === evidenceId));
-    if (!node) continue;
-    const who = c.characters.find((ch) => ch.id === (node.speaker ?? d.characterId));
+  const sites = effectSites(c as never).filter((s) => s.effects.some((e) => e.type === "addEvidence" && e.evidenceId === evidenceId));
+  const obj = sites.find((s) => s.owner.kind === "object");
+  if (obj && obj.owner.kind === "object") return { text: obj.owner.label };
+  for (const s of sites) {
+    const o = s.owner;
+    if (o.kind !== "node" && o.kind !== "choice") continue;
+    const dialogue = c.dialogues.find((d) => d.id === o.dialogueId);
+    const node = dialogue?.nodes.find((n) => n.id === o.nodeId);
+    const who = c.characters.find((ch) => ch.id === (node?.speaker ?? dialogue?.characterId));
     if (who) return { text: who.name, characterId: who.id };
   }
   return null;

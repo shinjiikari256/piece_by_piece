@@ -62,6 +62,7 @@ function checkIntegrity(c: CaseFile): string[] {
     if (e.initial !== undefined && !e.values.some((x) => x.id === e.initial)) err(`enums: начальное значение «${e.initial}» перечисления «${e.id}» не из списка значений`);
   }
   const evidence = unique("evidence", c.evidence.map((x) => x.id));
+  const itemIds = new Set(c.evidence.filter((x) => x.kind === "item").map((x) => x.id));
   const events = unique("events", c.events.map((x) => x.id));
   const dialogues = unique("dialogues", c.dialogues.map((x) => x.id));
   const deductions = unique("deductions", c.deductions.map((x) => x.id));
@@ -113,8 +114,8 @@ function checkIntegrity(c: CaseFile): string[] {
       }
       if (e.type === "startDialogue") ref(dialogues, e.dialogueId, where);
       if (e.type === "travel") {
-        if (!locationIds.has(e.locationId)) err(`${where}: travel — неизвестная локация «${e.locationId}»`);
-        else if (!floorOf.get(e.locationId)?.(e.x, e.y)) err(`${where}: travel — клетка ${e.x},${e.y} в «${e.locationId}» не пол`);
+        if (!locationIds.has(e.locationId)) err(`${where}: перенос игрока — неизвестная локация «${e.locationId}»`);
+        else if (!floorOf.get(e.locationId)?.(e.x, e.y)) err(`${where}: перенос игрока — клетка ${e.x},${e.y} в «${e.locationId}» не пол`);
       }
       if (e.type === "message" && !e.text.trim()) err(`${where}: у сообщения нет текста`);
       if (e.type === "addEvidence") ref(evidence, e.evidenceId, where);
@@ -181,10 +182,6 @@ function checkIntegrity(c: CaseFile): string[] {
 
     for (const o of loc.objects) {
       if (!inBounds(o.x, o.y)) err(`${L}/object ${o.id}: вне карты`);
-      if (o.interaction?.evidenceId) {
-        ref(evidence, o.interaction.evidenceId, `object ${o.id}`);
-        obtainable.add(o.interaction.evidenceId);
-      }
     }
     // Твёрдые объекты и NPC не должны стоять друг на друге и на стенах
     const occupied = new Map<string, string>();
@@ -303,6 +300,7 @@ function checkIntegrity(c: CaseFile): string[] {
     d.evidenceIds.forEach((id) => {
       if (!evidence.has(id) && !deductions.has(id)) err(`deduction ${d.id}: неизвестная ссылка «${id}»`);
       if (evidence.has(id) && deductions.has(id)) err(`deduction ${d.id}: «${id}» — и улика, и вывод; переименуйте одно из них`);
+      if (itemIds.has(id)) err(`deduction ${d.id}: «${id}» — предмет, а не улика; в сопоставление берут улики, показания и выводы`);
     });
     if (d.evidenceIds.length !== 2) err(`deduction ${d.id}: сопоставляются ровно два материала`);
     if (d.evidenceIds.includes(d.id)) err(`deduction ${d.id}: вывод не может опираться сам на себя`);
@@ -367,7 +365,9 @@ function checkIntegrity(c: CaseFile): string[] {
     }
     if (q.source === "evidence") {
       ids.forEach((id) => ref(evidence, id, where));
-      evidence.forEach((id) => ids.includes(id) || err(`${where}: нет варианта для улики «${id}»`));
+      // предметы (ключ, фонарь) уликами не считаются и в вопросах не участвуют
+      ids.forEach((id) => itemIds.has(id) && err(`${where}: «${id}» — предмет, а не улика; убери его из вариантов`));
+      evidence.forEach((id) => itemIds.has(id) || ids.includes(id) || err(`${where}: нет варианта для улики «${id}»`));
     }
     const best =
       q.kind === "multi"

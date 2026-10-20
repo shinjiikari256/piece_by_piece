@@ -51,6 +51,7 @@ export function MaterialsTab({ match, focus }: { match: boolean; focus?: string 
 
   const shown = items
     .filter((it) => kind === "all" || it.kind === kind)
+    .filter((it) => !(match && it.kind === "item")) // предметы в сопоставления не берут
     .filter((it) => reliability === "all" || it.evidence?.reliability === reliability)
     .filter((it) => person === "all" || peopleOf(it).has(person))
     .sort((a, b) => MARK_ORDER[marks[a.key] ?? "none"] - MARK_ORDER[marks[b.key] ?? "none"]);
@@ -99,7 +100,7 @@ export function MaterialsTab({ match, focus }: { match: boolean; focus?: string 
           onChange={(v) => setKind(v as MaterialKind | "all")}
           options={[
             { value: "all", label: "все" },
-            ...(["evidence", "testimony", "fact"] as const).map((k) => ({ value: k, label: KIND_LABEL[k], art: <Icon name={KIND_ICON[k]} size={14} /> })),
+            ...(["evidence", "testimony", "item", "fact"] as const).map((k) => ({ value: k, label: KIND_LABEL[k], art: <Icon name={KIND_ICON[k]} size={14} /> })),
           ]}
         />
         <Select

@@ -576,7 +576,7 @@ describe("эффекты removeEvidence, startDialogue, travel", () => {
     })();
     expect(text).toContain("нельзя убрать");
     expect(text).toContain("нет_диалога");
-    expect(text).toContain("travel — неизвестная локация");
+    expect(text).toContain("перенос игрока — неизвестная локация");
     expect(text).toContain("не пол");
   });
 });
@@ -604,5 +604,33 @@ describe("условия chosen и notInLocation", () => {
     const text = r.ok ? "" : r.errors.join("\n");
     expect(text).toContain("не найден");
     expect(text).toContain("нет_локации");
+  });
+});
+
+describe("предмет (kind: item): ключ, фонарь — не улика", () => {
+  const withItem = () => {
+    const c = structuredClone(case001) as unknown as CaseFile;
+    c.evidence.push({ id: "key_412", title: "Ключ от 412", description: "", details: "", kind: "item", relatedCharacters: [], relatedEvents: [], reliability: "high", onCollect: [] });
+    c.dialogues[0].nodes[0].effects.push({ type: "addEvidence", evidenceId: "key_412" });
+    return c;
+  };
+  it("предмет можно выдавать и проверять в условиях как любой материал", () => {
+    const c = withItem();
+    c.dialogues[0].nodes[0].choices[0].requires = { evidence: ["key_412"] };
+    expect(validateCase(c).ok).toBe(true);
+  });
+  it("валидатор: предмет нельзя класть в сопоставление и в варианты вопроса про улики", () => {
+    const c = withItem();
+    c.deductions[0].evidenceIds = [c.deductions[0].evidenceIds[0], "key_412"];
+    const r = validateCase(c);
+    expect(r.ok ? "" : r.errors.join("\n")).toContain("предмет, а не улика");
+  });
+  it("вопрос про улики не требует варианта для предмета", () => {
+    const c = withItem();
+    const q = c.questions.find((x) => x.source === "evidence");
+    if (!q) return; // в деле нет такого вопроса — проверять нечего
+    const r = validateCase(c);
+    const text = r.ok ? "" : r.errors.join("\n");
+    expect(text).not.toContain("нет варианта для улики «key_412»");
   });
 });

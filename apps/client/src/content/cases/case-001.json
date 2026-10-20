@@ -1,5 +1,5 @@
 {
-  "formatVersion": 7,
+  "formatVersion": 8,
   "id": "case-001",
   "number": "001",
   "title": "Чужие письма",
@@ -12,7 +12,7 @@
     "points": 10
   },
   "published": true,
-  "updatedAt": "2026-10-20T00:08:21Z",
+  "updatedAt": "2026-10-20T00:30:09Z",
   "locations": [
     {
       "id": "admin_building",
@@ -66,9 +66,14 @@
           "label": "Компьютер деканата",
           "interaction": {
             "title": "Рабочий компьютер, кабинет 214",
-            "description": "На экране открыта панель администратора почтовой системы факультета. Журнал событий не очищен.",
-            "evidenceId": "mail_log"
-          }
+            "description": "На экране открыта панель администратора почтовой системы факультета. Журнал событий не очищен."
+          },
+          "onInteract": [
+            {
+              "type": "addEvidence",
+              "evidenceId": "mail_log"
+            }
+          ]
         },
         {
           "id": "obj_desk",
@@ -78,9 +83,14 @@
           "label": "Стол Крылова",
           "interaction": {
             "title": "Стол специалиста деканата",
-            "description": "Среди служебных бумаг — распечатка, совсем не похожая на служебную. Сверху приклеен стикер.",
-            "evidenceId": "printout"
-          }
+            "description": "Среди служебных бумаг — распечатка, совсем не похожая на служебную. Сверху приклеен стикер."
+          },
+          "onInteract": [
+            {
+              "type": "addEvidence",
+              "evidenceId": "printout"
+            }
+          ]
         },
         {
           "id": "obj_cabinet",
@@ -90,9 +100,14 @@
           "label": "Шкаф",
           "interaction": {
             "title": "Шкаф с папками",
-            "description": "В папке «Входящие — разное» лежит распечатка с университетского форума с пометками от руки.",
-            "evidenceId": "complaint_copy"
-          }
+            "description": "В папке «Входящие — разное» лежит распечатка с университетского форума с пометками от руки."
+          },
+          "onInteract": [
+            {
+              "type": "addEvidence",
+              "evidenceId": "complaint_copy"
+            }
+          ]
         },
         {
           "id": "obj_board",
@@ -102,9 +117,14 @@
           "label": "Доска объявлений",
           "interaction": {
             "title": "Доска объявлений",
-            "description": "Расписание, объявление о конференции и приколотое официальное Положение о корпоративной почте факультета. В углу — памятка: «Ключи от кабинетов выдаются на посту охраны под подпись».",
-            "evidenceId": "mail_policy"
-          }
+            "description": "Расписание, объявление о конференции и приколотое официальное Положение о корпоративной почте факультета. В углу — памятка: «Ключи от кабинетов выдаются на посту охраны под подпись»."
+          },
+          "onInteract": [
+            {
+              "type": "addEvidence",
+              "evidenceId": "mail_policy"
+            }
+          ]
         },
         {
           "id": "obj_guard_post",
@@ -114,9 +134,14 @@
           "label": "Пост охраны",
           "interaction": {
             "title": "Пост охраны",
-            "description": "На стойке лежит раскрытый журнал выдачи ключей. Рядом — опечатанный ящик с запасными ключами, печать цела.",
-            "evidenceId": "key_log"
-          }
+            "description": "На стойке лежит раскрытый журнал выдачи ключей. Рядом — опечатанный ящик с запасными ключами, печать цела."
+          },
+          "onInteract": [
+            {
+              "type": "addEvidence",
+              "evidenceId": "key_log"
+            }
+          ]
         },
         {
           "id": "dec_chair_krylov",
@@ -134,9 +159,14 @@
           "label": "Принтер",
           "interaction": {
             "title": "Принтер PRN-214",
-            "description": "",
-            "evidenceId": "doc_printer"
-          }
+            "description": ""
+          },
+          "onInteract": [
+            {
+              "type": "addEvidence",
+              "evidenceId": "doc_printer"
+            }
+          ]
         },
         {
           "id": "dec_bin",
@@ -170,9 +200,14 @@
           "label": "Стол в учительской",
           "interaction": {
             "title": "Стол в учительской",
-            "description": "",
-            "evidenceId": "doc_teacher_table"
-          }
+            "description": ""
+          },
+          "onInteract": [
+            {
+              "type": "addEvidence",
+              "evidenceId": "doc_teacher_table"
+            }
+          ]
         },
         {
           "id": "dec_chair_t1",
@@ -254,9 +289,14 @@
           "label": "Плакат",
           "interaction": {
             "title": "Плакат в коридоре",
-            "description": "",
-            "evidenceId": "doc_poster"
-          }
+            "description": ""
+          },
+          "onInteract": [
+            {
+              "type": "addEvidence",
+              "evidenceId": "doc_poster"
+            }
+          ]
         },
         {
           "id": "obj_vending",
@@ -266,9 +306,14 @@
           "label": "Автомат",
           "interaction": {
             "title": "Автомат со снеками",
-            "description": "",
-            "evidenceId": "doc_vending"
-          }
+            "description": ""
+          },
+          "onInteract": [
+            {
+              "type": "addEvidence",
+              "evidenceId": "doc_vending"
+            }
+          ]
         },
         {
           "id": "dec_clock",

@@ -5,6 +5,7 @@ import { Backdrop } from "./window";
 import { CHAR_H, CHAR_W, drawCharacter, resolveLook, type CharFrame, type Look } from "../game/art";
 import { actions, useGame } from "../state/store";
 import { findObject } from "../content/case-utils";
+import { objectEvidenceIds } from "../../../../shared/case";
 import { TabbedModal } from "./common";
 import { FolderTabs } from "./folder";
 import { EvidenceDetail } from "./journal/materials";
@@ -40,27 +41,52 @@ export function Portrait({ look, talking }: { look: Look; talking?: boolean }) {
 export function ObjectPanel({ objectId }: { objectId: string }) {
   const caseFile = useCase();
   const marks = useGame((s) => s.marks);
+  const collected = useGame((s) => s.progress.collected);
   const obj = findObject(caseFile, objectId);
   if (!obj?.interaction) return null;
   const it = obj.interaction;
-  // осмотр без материала: только текст
-  const evidence = it.evidenceId ? caseFile.evidence.find((e) => e.id === it.evidenceId) : undefined;
-  const mark = evidence ? marks[evidence.id] : undefined;
+  // улики, которые этот предмет выдаёт и которые уже в деле (условия выдачи уже сработали при осмотре)
+  const gained = objectEvidenceIds(obj)
+    .filter((id) => collected.includes(id))
+    .map((id) => caseFile.evidence.find((e) => e.id === id))
+    .filter((e): e is NonNullable<typeof e> => !!e);
+  // одна улика — карточка с кнопками «Важно» / «Неважно» (они закрывают окно); несколько — список с отметками по каждой
+  const single = gained.length === 1 ? gained[0] : null;
+  const mark = single ? marks[single.id] : undefined;
   return (
     <TabbedModal tabs={[{ id: "inspect", label: "Осмотр", icon: "search" }]} size="narrow" className="inspect">
       <h2 className="modal__title">{it.title}</h2>
       {it.description && <Md className="lead" text={it.description} />}
-      {evidence && <EvidenceDetail evidence={evidence} mark={mark} hideMarks />}
+      {single && <EvidenceDetail evidence={single} mark={mark} hideMarks />}
+      {gained.length > 1 && (
+        <ul className="stack list-reset">
+          {gained.map((e) => (
+            <li key={e.id} className="row">
+              <span className="ellipsis">
+                <Icon name="check" size={14} /> {e.title}
+              </span>
+              <button className="btn btn--sm" aria-pressed={marks[e.id] === "important"} onClick={() => actions.setMark(e.id, "important")} title="Пометить важным">
+                <Icon name="star" size={14} /> Важно
+              </button>
+              <button className="btn btn--sm" aria-pressed={marks[e.id] === "unimportant"} onClick={() => actions.setMark(e.id, "unimportant")} title="Пометить неважным">
+                <Icon name="dim" size={14} /> Неважно
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
       <div className="modal__actions inspect__actions">
-        {evidence && (
+        {gained.length > 0 && (
+          <span className="muted inspect__note">
+            <Icon name="check" size={14} /> {gained.length === 1 ? "Добавлено в материалы дела" : "Добавлено в материалы дела: " + gained.length}
+          </span>
+        )}
+        {single && (
           <>
-            <span className="muted inspect__note">
-              <Icon name="check" size={14} /> Добавлено в материалы дела
-            </span>
             <button
               className="btn mark-close mark-close--important" aria-pressed={mark === "important"}
               onClick={() => {
-                actions.setMark(evidence.id, "important");
+                actions.setMark(single.id, "important");
                 actions.close();
               }}
               title="Пометить важным и закрыть"
@@ -70,7 +96,7 @@ export function ObjectPanel({ objectId }: { objectId: string }) {
             <button
               className="btn mark-close" aria-pressed={mark === "unimportant"}
               onClick={() => {
-                actions.setMark(evidence.id, "unimportant");
+                actions.setMark(single.id, "unimportant");
                 actions.close();
               }}
               title="Пометить неважным и закрыть"

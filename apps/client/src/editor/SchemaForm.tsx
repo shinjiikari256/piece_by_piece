@@ -61,8 +61,8 @@ function refOptions(name: string, ctx: FormCtx, isArrayItem: boolean): Option[] 
     case "evidenceId":
       return ev();
     case "evidenceIds":
-      // в сопоставлении можно брать и установленные факты — цепочкой
-      return [...ev(), ...d.deductions.map((x) => ({ value: x.id, label: `Вывод: ${x.title} (${x.id})` }))];
+      // в сопоставлении можно брать и установленные факты — цепочкой; предметы (ключ, фонарь) уликами не считаются
+      return [...d.evidence.filter((e) => e.kind !== "item").map((e) => ({ value: e.id, label: `${e.title} (${e.id})` })), ...d.deductions.map((x) => ({ value: x.id, label: `Вывод: ${x.title} (${x.id})` }))];
     case "evidence":
     case "notEvidence":
       return isArrayItem ? ev() : null;

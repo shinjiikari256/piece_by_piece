@@ -33,7 +33,9 @@ const OPTION = "button.answer-opt, button.suspect, button.evidence-card";
 export function FinalScreen() {
   const caseFile = useGame((s) => s.caseFile)!;
   const answers = useGame((s) => s.answers);
-  const collected = useGame((s) => s.progress.collected);
+  // предметы (ключ, фонарь) уликами не считаются и в вопросах не участвуют
+  const collectedAll = useGame((s) => s.progress.collected);
+  const collected = collectedAll.filter((id) => caseFile.evidence.find((e) => e.id === id)?.kind !== "item");
   const questions = caseFile.questions;
   const [step, setStep] = useState(0); // questions.length — экран проверки
   const isReview = step === questions.length;

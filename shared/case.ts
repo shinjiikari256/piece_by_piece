@@ -169,7 +169,7 @@ export const Evidence = z.object({
   title: z.string(),
   description: z.string().describe("Короткое описание для карточки"),
   details: z.string().describe("Полный текст: содержимое документа, показания и т.п."),
-  kind: z.enum(["evidence", "testimony"]).describe("Улика (документ, вещь, цифровой след…) или показания"),
+  kind: z.enum(["evidence", "testimony", "item"]).describe("Улика (документ, вещь, цифровой след…), показания или предмет (ключ, фонарь: лежит в журнале, но уликой не считается — в сопоставления и вопросы не попадает)"),
   subtype: z.string().optional().describe("Вид улики для подписи: «Документ», «Цифровой след», «Вещь»"),
   relatedCharacters: z.array(z.string()),
   relatedEvents: z.array(z.string()),
@@ -178,11 +178,10 @@ export const Evidence = z.object({
   onCollect: z.array(Effect).default([]).describe("Эффекты в момент, когда улика попала в дело (один раз)"),
 });
 
-/** Окно осмотра предмета: что видит игрок. Эффекты осмотра — отдельно, `LocationObject.onInteract`. */
+/** Окно осмотра предмета: что видит игрок. Улики и прочие эффекты осмотра — отдельно, `LocationObject.onInteract` (эффект «добавить улику в дело»). */
 export const ObjectInteraction = z.object({
   title: z.string(),
   description: z.string().describe("Что видно при осмотре"),
-  evidenceId: z.string().optional().describe("Материал дела, который попадает в журнал при осмотре; без него — только текст"),
 });
 
 export const SpriteKey = z.enum([
@@ -251,6 +250,11 @@ export const LocationObject = z.object({
   interaction: ObjectInteraction.nullable().describe("Окно осмотра; null — без окна (декорация или предмет только с эффектами)"),
   onInteract: z.array(Effect).default([]).meta({ always: true }).describe("Эффекты осмотра предмета (при каждом осмотре; «только один раз» — у самого эффекта); выдача улики — в окне осмотра"),
 });
+
+/** Улики, которые может выдать осмотр предмета (эффекты «добавить улику в дело» в `onInteract`, независимо от условий). */
+export const objectEvidenceIds = (o: { onInteract?: { type: string; evidenceId?: string }[] }): string[] => [
+  ...new Set((o.onInteract ?? []).flatMap((e) => (e.type === "addEvidence" && e.evidenceId ? [e.evidenceId] : []))),
+];
 
 /** Предмет, с которым можно взаимодействовать: есть окно осмотра или эффекты. */
 export const isInteractive = (o: { interaction?: unknown; onInteract?: unknown[] }): boolean => !!o.interaction || !!o.onInteract?.length;

@@ -1,7 +1,8 @@
 /* ---------- Тоны: разметка задаёт data-tone, компонент рисует себя через --tone* ---------- */
 /* --tone — основной цвет, --tone-soft — заливка, --tone-line — рамка, --tone-strong — насыщенный, --tone-ink — текст на заливке, --tone-on — текст на основном цвете */
 
-[data-tone="accent"] {
+[data-tone="accent"],
+[data-tone="item"] {
   --tone: var(--accent);
   --tone-soft: var(--accent-soft);
   --tone-line: var(--accent-line);

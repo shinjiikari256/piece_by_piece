@@ -81,3 +81,18 @@ export function locateError(message: string, c: CaseFile): LocatedError {
   if (/^enums/.test(message)) return make("flags");
   return make("general");
 }
+
+/** Служебные слова в сообщениях проверки (разбор адреса идёт по ним) → русские слова для показа. */
+const WORDS: Record<string, string> = {
+  dialogue: "диалог", dialogues: "диалоги", evidence: "улика", deduction: "сопоставление", deductions: "сопоставления",
+  question: "вопрос", questions: "вопросы", flag: "флаг", flags: "флаги", counters: "счётчики", enum: "перечисление", enums: "перечисления",
+  location: "локация", locations: "локации", characters: "персонажи", events: "события", hints: "подсказки", solution: "решение",
+  lawReference: "закон", timeBonus: "бонус за время", object: "предмет", zone: "область", door: "дверь", npc: "человек",
+  moveTo: "перемещение", addEvidence: "выдача улики", spawn: "точка появления", playerStart: "старт игрока", startNodeId: "первая реплика", speaker: "говорящий", requires: "условие", choices: "варианты ответа",
+};
+
+/** Сообщение проверки для показа: служебные английские слова заменены русскими (сами сообщения остаются прежними — по ним ищется место). */
+export function humanizeMessage(message: string): string {
+  const out = message.replace(/(?<![\w«])([A-Za-z]+)(?![\w»])/g, (word) => WORDS[word] ?? word);
+  return out.charAt(0).toUpperCase() + out.slice(1);
+}

@@ -1,6 +1,6 @@
 import { editorPathOfPlaytest } from "../content/drafts";
 import { useSyncExternalStore } from "react";
-import { isInteractive, type Effect, type Solution, type ZoneAction } from "../../../../shared/case";
+import { isInteractive, objectEvidenceIds, type Effect, type Solution, type ZoneAction } from "../../../../shared/case";
 import type { PublicCase, PublicDeduction } from "../../../../shared/public-case";
 import { RESULT_FORMAT_VERSION, type CaseAuthority, type DeductionVerdict, type FinishInput, type RevealedHint } from "../../../../shared/judge";
 import { APP_NAME, FROM_EDITOR, GAME_VERSION } from "../env";
@@ -503,25 +503,23 @@ export const actions = {
     // осмотренное сразу попадает в дело
     const obj = findObject(s.caseFile, targetId);
     if (obj && isInteractive(obj)) {
-      // улика из окна осмотра выдаётся всегда; эффекты `onInteract` — при каждом осмотре (разово — настройкой `once` у эффекта)
-      const evidenceId = obj.interaction?.evidenceId;
-      const first = evidenceId ? applyEffects([{ type: "addEvidence", evidenceId }], s.progress, fxCtx()) : { progress: s.progress, newEvidence: [] as string[], messages: [] as string[], removedEvidence: [] as string[], followUp: {} };
-      const own = applyEffects(withZoneTargets(obj.onInteract ?? []), first.progress, fxCtx(`object:${obj.id}`));
+      // всё, что даёт осмотр (улики, флаги, сообщения…), — эффекты `onInteract`: при каждом осмотре, разово — настройкой `once`
+      const { progress, newEvidence, messages, removedEvidence, followUp } = applyEffects(withZoneTargets(obj.onInteract ?? []), s.progress, fxCtx(`object:${obj.id}`));
       set({
-        progress: own.progress,
+        progress,
         // окно осмотра — только у предмета с `interaction`; без него эффекты срабатывают молча (или сообщением)
         ...(obj.interaction ? { overlay: { kind: "object" as const, objectId: obj.id }, examined: s.examined.includes(obj.id) ? s.examined : [...s.examined, obj.id] } : {}),
       });
-      announce([...first.newEvidence, ...own.newEvidence], [...first.messages, ...own.messages], [...first.removedEvidence, ...own.removedEvidence], own.followUp);
+      announce(newEvidence, messages, removedEvidence, followUp);
     }
   },
 
-  /** Совместимость: осмотр и так добавляет материал в дело. */
+  /** Положить в дело все улики, которые выдаёт предмет (в обход условий осмотра): для тестов и быстрой подготовки состояния. */
   addObjectToJournal(objectId: string) {
     const obj = state.caseFile && findObject(state.caseFile, objectId);
-    const evidenceId = obj?.interaction?.evidenceId;
-    if (!evidenceId) return;
-    const { progress, newEvidence, messages, removedEvidence, followUp } = applyEffects([{ type: "addEvidence", evidenceId }], state.progress, fxCtx());
+    const ids = obj ? objectEvidenceIds(obj) : [];
+    if (!ids.length) return;
+    const { progress, newEvidence, messages, removedEvidence, followUp } = applyEffects(ids.map((evidenceId) => ({ type: "addEvidence" as const, evidenceId })), state.progress, fxCtx());
     set({ progress });
     announce(newEvidence, messages, removedEvidence, followUp);
   },

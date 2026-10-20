@@ -32,8 +32,8 @@ export const DIFFICULTY = { easy: "лёгкое", medium: "среднее", hard
 
 /** Вид материала: одна иконка и подпись на вид. */
 export type MaterialKind = Evidence["kind"] | "fact";
-export const KIND_LABEL: Record<MaterialKind, string> = { evidence: "Улика", testimony: "Показания", fact: "Вывод" };
-export const KIND_ICON: Record<MaterialKind, IconName> = { evidence: "evidence", testimony: "testimony", fact: "fact" };
+export const KIND_LABEL: Record<MaterialKind, string> = { evidence: "Улика", testimony: "Показания", item: "Предмет", fact: "Вывод" };
+export const KIND_ICON: Record<MaterialKind, IconName> = { evidence: "evidence", testimony: "testimony", item: "key", fact: "fact" };
 
 /** «Улика · Документ», «Показания». */
 export const kindTitle = (e: Evidence) => (e.subtype ? `${KIND_LABEL[e.kind]} · ${e.subtype}` : KIND_LABEL[e.kind]);

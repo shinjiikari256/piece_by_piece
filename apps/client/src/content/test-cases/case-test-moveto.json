@@ -1,5 +1,5 @@
 {
-  "formatVersion": 7,
+  "formatVersion": 8,
   "id": "case-test-moveto",
   "number": "T01",
   "title": "Тест: перемещения персонажей",
@@ -71,9 +71,14 @@
           "label": "Стол коменданта",
           "interaction": {
             "title": "Стол коменданта",
-            "description": "Сверху лежит свежий акт с приколотыми распечатками фотографий.",
-            "evidenceId": "inspection_act"
-          }
+            "description": "Сверху лежит свежий акт с приколотыми распечатками фотографий."
+          },
+          "onInteract": [
+            {
+              "type": "addEvidence",
+              "evidenceId": "inspection_act"
+            }
+          ]
         },
         {
           "id": "obj_cabinet",
@@ -83,9 +88,14 @@
           "label": "Шкаф с журналами",
           "interaction": {
             "title": "Шкаф с журналами",
-            "description": "На полке — «Журнал аварийных заявок» общежития. Раскрыт на октябре.",
-            "evidenceId": "repair_log"
-          }
+            "description": "На полке — «Журнал аварийных заявок» общежития. Раскрыт на октябре."
+          },
+          "onInteract": [
+            {
+              "type": "addEvidence",
+              "evidenceId": "repair_log"
+            }
+          ]
         },
         {
           "id": "obj_computer",
@@ -95,9 +105,14 @@
           "label": "Компьютер коменданта",
           "interaction": {
             "title": "Компьютер коменданта",
-            "description": "Открыта служебная почта. Последнее входящее — от проректора по хозяйственной части.",
-            "evidenceId": "memo"
-          }
+            "description": "Открыта служебная почта. Последнее входящее — от проректора по хозяйственной части."
+          },
+          "onInteract": [
+            {
+              "type": "addEvidence",
+              "evidenceId": "memo"
+            }
+          ]
         },
         {
           "id": "obj_board",
@@ -107,9 +122,14 @@
           "label": "Доска объявлений",
           "interaction": {
             "title": "Доска объявлений",
-            "description": "Расписание дежурств, объявление о субботнике и выдержка из Правил проживания в общежитии.",
-            "evidenceId": "dorm_rules"
-          }
+            "description": "Расписание дежурств, объявление о субботнике и выдержка из Правил проживания в общежитии."
+          },
+          "onInteract": [
+            {
+              "type": "addEvidence",
+              "evidenceId": "dorm_rules"
+            }
+          ]
         },
         {
           "id": "obj_timur_desk",
@@ -119,9 +139,14 @@
           "label": "Стол Тимура",
           "interaction": {
             "title": "Записка на столе Тимура",
-            "description": "",
-            "evidenceId": "doc_timur_desk"
-          }
+            "description": ""
+          },
+          "onInteract": [
+            {
+              "type": "addEvidence",
+              "evidenceId": "doc_timur_desk"
+            }
+          ]
         },
         {
           "id": "dec_bed",
@@ -171,10 +196,13 @@
           "label": "Холодильник",
           "interaction": {
             "title": "Общий холодильник",
-            "description": "",
-            "evidenceId": "doc_fridge"
+            "description": ""
           },
           "onInteract": [
+            {
+              "type": "addEvidence",
+              "evidenceId": "doc_fridge"
+            },
             {
               "type": "changeVariable",
               "variableId": "test_fridge_seen",
@@ -294,9 +322,14 @@
           "label": "Объявление",
           "interaction": {
             "title": "Объявление в коридоре",
-            "description": "",
-            "evidenceId": "doc_poster"
-          }
+            "description": ""
+          },
+          "onInteract": [
+            {
+              "type": "addEvidence",
+              "evidenceId": "doc_poster"
+            }
+          ]
         },
         {
           "id": "dec_stove",
@@ -673,9 +706,14 @@
           "label": "Вахта",
           "interaction": {
             "title": "Вахта",
-            "description": "Журнал вахты: кто входит и выходит, кому выдаются дубликаты ключей.",
-            "evidenceId": "vakhta_log"
-          }
+            "description": "Журнал вахты: кто входит и выходит, кому выдаются дубликаты ключей."
+          },
+          "onInteract": [
+            {
+              "type": "addEvidence",
+              "evidenceId": "vakhta_log"
+            }
+          ]
         },
         {
           "id": "obj_mailboxes",
@@ -685,9 +723,14 @@
           "label": "Почтовые ящики",
           "interaction": {
             "title": "Почтовые ящики",
-            "description": "",
-            "evidenceId": "doc_mailboxes"
-          }
+            "description": ""
+          },
+          "onInteract": [
+            {
+              "type": "addEvidence",
+              "evidenceId": "doc_mailboxes"
+            }
+          ]
         },
         {
           "id": "obj_lobby_poster",
@@ -697,9 +740,14 @@
           "label": "Объявление",
           "interaction": {
             "title": "Объявление в холле",
-            "description": "",
-            "evidenceId": "doc_lobby_poster"
-          }
+            "description": ""
+          },
+          "onInteract": [
+            {
+              "type": "addEvidence",
+              "evidenceId": "doc_lobby_poster"
+            }
+          ]
         },
         {
           "id": "lobby_mail2",
@@ -797,9 +845,14 @@
           "label": "Выход",
           "interaction": {
             "title": "Входная дверь",
-            "description": "",
-            "evidenceId": "doc_entrance"
-          }
+            "description": ""
+          },
+          "onInteract": [
+            {
+              "type": "addEvidence",
+              "evidenceId": "doc_entrance"
+            }
+          ]
         },
         {
           "id": "lobby_lockers",

@@ -5,7 +5,7 @@ import { validateCase } from "./content/validate";
 import { scoreCase } from "../../../shared/scoring";
 import { actions, store } from "./state/store";
 import { isSaveOutdated, listSaves, readSave } from "./state/persistence";
-import type { CaseFile, Effect } from "../../../shared/case";
+import { objectEvidenceIds, type CaseFile, type Effect } from "../../../shared/case";
 import { LocalAuthority } from "./content/local-authority";
 import { toPublicCase } from "../../../shared/public-case";
 import { RESULT_FORMAT_VERSION, finish as judgeFinish } from "../../../shared/judge";
@@ -698,6 +698,7 @@ describe("эффекты осмотра предмета (onInteract)", () => {
     raw.counters = [{ id: "looks", name: "Осмотры" }];
     const obj = raw.locations.flatMap((l) => l.objects).find((o) => o.id === "obj_computer")!;
     obj.onInteract = [
+      ...obj.onInteract,
       { type: "changeVariable", variableId: "seen_pc", action: "on" },
       { type: "changeVariable", variableId: "looks", action: "add", value: 1, once: true },
     ];
@@ -782,7 +783,7 @@ describe("события: вход в локацию, получение ули�
 
   it("onCollect: эффекты улики срабатывают сразу после её выдачи, один раз", () => {
     const obj = (load("case-001.json") as unknown as CaseFile).locations.flatMap((l) => l.objects).find((o) => o.id === "obj_computer")!;
-    const ev = obj.interaction!.evidenceId;
+    const ev = objectEvidenceIds(obj)[0];
     start((c) => (c.evidence.find((e) => e.id === ev)!.onCollect = [{ type: "changeVariable", variableId: "entered", action: "on" }, inc]));
     expect(store.get().progress.flags).not.toContain("entered");
     actions.interact("obj_computer");
@@ -819,7 +820,7 @@ describe("осмотр без окна и повторные эффекты", ()
   const computer = (c: CaseFile) => c.locations.flatMap((l) => l.objects).find((o) => o.id === "obj_computer")!;
 
   it("эффекты осмотра срабатывают при каждом осмотре, once — только при первом", () => {
-    start((c) => (computer(c).onInteract = [inc, { ...inc, once: true }]));
+    start((c) => (computer(c).onInteract = [...computer(c).onInteract, inc, { ...inc, once: true }]));
     for (let i = 0; i < 3; i++) {
       actions.interact("obj_computer");
       actions.close();
@@ -829,7 +830,7 @@ describe("осмотр без окна и повторные эффекты", ()
 
   it("предмет без окна осмотра (interaction: null) срабатывает молча, один раз", () => {
     start((c) => {
-      const ev = computer(c).interaction!.evidenceId!;
+      const ev = objectEvidenceIds(computer(c))[0];
       computer(c).interaction = null;
       // улика теперь выдаётся эффектом, иначе она недостижима
       computer(c).onInteract = [{ type: "addEvidence", evidenceId: ev }, { ...inc, once: true }, { type: "message", text: "Щёлк", once: true }];
@@ -844,7 +845,7 @@ describe("осмотр без окна и повторные эффекты", ()
 
   it("осмотр без улики: окно с текстом, материал в дело не попадает", () => {
     start((c) => {
-      const ev = computer(c).interaction!.evidenceId!;
+      const ev = objectEvidenceIds(computer(c))[0];
       computer(c).interaction = { title: "Экран", description: "Просто экран" };
       // улику выдаёт другой источник — эффект предмета с условием «никогда»
       computer(c).onInteract = [{ type: "addEvidence", evidenceId: ev, requires: { flags: ["never"] } }];
@@ -931,7 +932,7 @@ describe("эффекты: startDialogue, travel, removeEvidence в игре", ()
 
   it("removeEvidence убирает улику из дела и показывает сообщение", () => {
     start((c) => {
-      const ev = c.locations.flatMap((l) => l.objects).find((o) => o.id === "obj_computer")!.interaction!.evidenceId!;
+      const ev = c.locations.flatMap((l) => l.objects).find((o) => o.id === "obj_computer")!.onInteract.flatMap((e) => (e.type === "addEvidence" ? [e.evidenceId] : []))[0];
       c.dialogues.find((d) => d.id === "dlg_alina")!.nodes.find((n) => n.id === "start")!.choices.find((ch) => ch.id === "pass")!.effects = [{ type: "removeEvidence", evidenceId: ev }];
       // сопоставление на этой улике запретило бы убирать её — берём улику, которой нет в сопоставлениях
       c.deductions.forEach((d) => (d.evidenceIds = d.evidenceIds.map((id) => (id === ev ? c.evidence.find((e) => e.id !== ev && !d.evidenceIds.includes(e.id))!.id : id))));

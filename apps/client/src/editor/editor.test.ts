@@ -3,6 +3,7 @@ import { validateCase } from "../content/validate";
 import { blankCase } from "./template";
 import { editor, editorStore, getIn, setIn } from "./state";
 import { renameKey } from "./keys";
+import { humanizeMessage } from "./errors";
 import testCase from "../content/test-cases/case-test-moveto.json";
 
 describe("конструктор", () => {
@@ -63,5 +64,14 @@ describe("конструктор", () => {
     const renamedCharacter = renameKey(structuredClone(testCase) as Record<string, unknown>, "vika", "viktoria");
     expect(moves(renamedCharacter).filter((e) => e.characterId === "viktoria").length).toBeGreaterThan(0);
     expect(moves(renamedCharacter).some((e) => e.characterId === "vika")).toBe(false);
+  });
+});
+
+describe("humanizeMessage: сообщения проверки без английских слов", () => {
+  it("заменяет служебные слова, оставляет ключи в «…» и русский текст", () => {
+    expect(humanizeMessage("dialogue dlg_a/start: нет вариантов ответа")).toBe("Диалог dlg_a/start: нет вариантов ответа");
+    expect(humanizeMessage("location l1/zone z1: действие №1 (выход): spawn не на полу")).toBe("Локация l1/область z1: действие №1 (выход): точка появления не на полу");
+    expect(humanizeMessage("enums: у перечисления «safe» нет значений")).toBe("Перечисления: у перечисления «safe» нет значений");
+    expect(humanizeMessage("flag intro: условия ждут")).toBe("Флаг intro: условия ждут");
   });
 });
