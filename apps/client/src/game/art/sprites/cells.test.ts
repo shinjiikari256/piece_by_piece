@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { SpriteKey } from "../../../../../../shared/case";
-import { footprintCells, footprintHas } from "./cells";
+import { footprintCells, footprintHas, solidCells } from "./cells";
 import { SPRITES } from "./index";
 
 describe("опора предмета", () => {
@@ -21,9 +21,27 @@ describe("опора предмета", () => {
       for (let y = 0; y < 8; y++) expect(footprintHas(2, 4, fp, x, y), `${x},${y}`).toBe(cells.some((c) => c.x === x && c.y === y));
   });
 
+  it("solidCells: общее solid, исключения cells и явное значение состояния", () => {
+    const spec = { footprint: { w: 2, h: 2 }, solid: true, cells: [{ dx: 1, dy: 1, solid: false }] };
+    expect(solidCells(0, 3, spec)).toHaveLength(3);
+    expect(solidCells(0, 3, spec)).not.toContainEqual({ x: 1, y: 2 });
+    expect(solidCells(0, 3, spec, false)).toEqual([]);
+    expect(solidCells(0, 3, { ...spec, cells: undefined }, true)).toHaveLength(4);
+  });
+
   it.each(SpriteKey.options)("%s: опора — целые положительные размеры", (key) => {
     const { w, h } = SPRITES[key].footprint;
     expect(Number.isInteger(w) && w >= 1).toBe(true);
     expect(Number.isInteger(h) && h >= 1).toBe(true);
+  });
+
+  it.each(SpriteKey.options)("%s: клетки cells лежат внутри опоры и не повторяются", (key) => {
+    const { footprint, cells = [] } = SPRITES[key];
+    const seen = new Set<string>();
+    for (const c of cells) {
+      expect(c.dx >= 0 && c.dx < footprint.w && c.dy >= 0 && c.dy < footprint.h).toBe(true);
+      expect(seen.has(`${c.dx},${c.dy}`)).toBe(false);
+      seen.add(`${c.dx},${c.dy}`);
+    }
   });
 });

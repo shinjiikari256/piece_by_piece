@@ -6,6 +6,7 @@ import { cellFree } from "./case-utils";
 const original = SPRITES.desk.footprint;
 afterEach(() => {
   SPRITES.desk.footprint = original;
+  delete SPRITES.desk.cells;
 });
 
 const loc = (): Location =>
@@ -30,5 +31,19 @@ describe("двумерная опора и свободные клетки", () 
     expect(cellFree(loc(), 2, 2)).toBe(false);
     expect(cellFree(loc(), 1, 1)).toBe(true);
     expect(cellFree(loc(), 1, 4)).toBe(true);
+  });
+});
+
+describe("проходимость по частям (cells)", () => {
+  it("клетка с solid: false свободна, остальные заняты; cells может и закрыть клетку при solid: false", () => {
+    SPRITES.desk.cells = [{ dx: 1, dy: 0, solid: false }];
+    expect(cellFree(loc(), 1, 3)).toBe(false);
+    expect(cellFree(loc(), 2, 3)).toBe(true);
+    const keep = SPRITES.desk.solid;
+    SPRITES.desk.solid = false;
+    SPRITES.desk.cells = [{ dx: 0, dy: 0, solid: true }];
+    expect(cellFree(loc(), 1, 3)).toBe(false);
+    expect(cellFree(loc(), 2, 3)).toBe(true);
+    SPRITES.desk.solid = keep;
   });
 });

@@ -10,6 +10,7 @@ import {
   SCALE,
   SPRITES,
   footprintCells,
+  solidCells,
   TILE,
   WALL_TILES,
     drawTile,
@@ -249,7 +250,7 @@ export class OfficeScene extends Phaser.Scene {
       if (spec.mirrorRight && o.x >= this.location.tiles[0].length / 2) img.setFlipX(true);
       if (o.states?.length || spec.opensNear) this.stateful.push(entry);
       else {
-        if (spec.solid) footprint.forEach((t) => this.setSolid(t.x, t.y));
+        solidCells(o.x, o.y, spec).forEach((t) => this.setSolid(t.x, t.y));
         if (isInteractive(o)) this.addObjectItem(entry, o.label);
       }
     }
@@ -311,7 +312,7 @@ export class OfficeScene extends Phaser.Scene {
       const spec = SPRITES[e.o.sprite];
       const tex = ensureObjectFrameTexture(this.textures, e.o.sprite, view.state?.frame);
       if (e.img.texture.key !== tex) e.img.setTexture(tex);
-      if (view.state?.solid ?? spec.solid) e.footprint.forEach((t) => this.objectTiles.add(`${t.x},${t.y}`));
+      solidCells(e.o.x, e.o.y, spec, view.state?.solid ?? spec.solid).forEach((t) => this.objectTiles.add(`${t.x},${t.y}`));
       if (view.interactive && !e.item) this.addObjectItem(e, view.label);
       else if (!view.interactive) this.removeObjectItem(e);
       else if (e.item && e.item.label !== view.label) {

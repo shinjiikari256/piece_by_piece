@@ -4,7 +4,7 @@ import { effectSites } from "../../../../shared/effect-sites";
 import { isRangeOrdered, parseEventTime } from "../../../../shared/events";
 import { isEntryTrigger, isInteractive } from "../../../../shared/case";
 import { parseCase } from "../../../../shared/migrate";
-import { FLOOR_TILES, SPRITES, WALL_TILES, footprintCells, resolveLook } from "../game/art";
+import { FLOOR_TILES, SPRITES, WALL_TILES, resolveLook, solidCells } from "../game/art";
 import { zoneTargetCell } from "./case-utils";
 import { findPath } from "../game/scene/navigation";
 
@@ -196,7 +196,7 @@ function checkIntegrity(c: CaseFile): string[] {
     };
     for (const o of loc.objects) {
       const spec = SPRITES[o.sprite];
-      if (spec.solid) for (const c of footprintCells(o.x, o.y, spec.footprint)) occupy(c.x, c.y, `object ${o.id}`);
+      for (const c of solidCells(o.x, o.y, spec)) occupy(c.x, c.y, `object ${o.id}`);
       if (o.states?.length) {
         unique(`${L}/object ${o.id}.states`, o.states.map((st) => st.id));
         for (const st of o.states) {

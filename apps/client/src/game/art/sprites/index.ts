@@ -11,7 +11,7 @@ import doors from "./data/doors.json";
 import type { SpriteGroup, SpriteSpec } from "./types";
 
 export { SPRITE_COLOR, drawSprite, type SpriteFrames, type SpriteGroup, type SpriteOp, type SpriteSpec } from "./types";
-export { footprintCells, footprintHas, type Footprint } from "./cells";
+export { footprintCells, footprintHas, solidCells, type Footprint } from "./cells";
 
 /** Группы предметов в порядке показа в палитре редактора карты. */
 export const SPRITE_GROUPS: SpriteGroup[] = [furniture, office, wall, household, court, commerce, medical, street, doors] as unknown as SpriteGroup[]; // JSON даёт кортежи как массивы: форму проверяет sprites.test.ts

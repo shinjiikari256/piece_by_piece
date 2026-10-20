@@ -19,19 +19,13 @@ export interface SpriteSpec {
   /** Опора в тайлах: ширина вправо и высота вверх от точки предмета (нижний левый угол). */
   footprint: Footprint;
   solid: boolean;
+  /** Исключения из `solid` по клеткам опоры (`dx` вправо, `dy` вверх от точки предмета): например, место сидящего за столом. */
+  cells?: { dx: number; dy: number; solid: boolean }[];
   /** Лежит на полу (ковёр) — всегда рисуется под персонажами. */
   flat?: boolean;
   /** Висит на стене: на сколько базовых пикселей низ поднят над полом клетки. */
   mount?: number;
-  /** Распахивается (кадр xdg-open - opens a file or URL in the user's preferred application
-
-Synopsis
-
-xdg-open { file | URL }
-
-xdg-open { --help | --manual | --version }
-
-Use 'man xdg-open' or 'xdg-open --manual' for additional info.), когда рядом игрок или сопровождающий, если предмет в этот момент проходим. */
+  /** Распахивается (кадр `open`), когда рядом игрок или сопровождающий, если предмет в этот момент проходим. */
   opensNear?: boolean;
   /** В правой половине карты рисуется зеркально (боковая дверь: притолока всегда у внешней стены). */
   mirrorRight?: boolean;
