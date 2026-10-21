@@ -121,3 +121,23 @@ describe("мероприятия", () => {
     expect(fin.json.debrief).not.toBeNull();
   });
 });
+
+describe("выгрузка CSV", () => {
+  it("персоналу — с фильтрами, студенту нельзя, формулы экранируются", async () => {
+    const ev = await makeEvent({ title: "=HYPERLINK(1)" });
+    await play(ev.id);
+    expect((await call("GET", "/results/export.csv")).status).toBe(403);
+    await asAdmin();
+    const res = await app.request("/api/results/export.csv", { headers: { cookie } });
+    expect(res.headers.get("content-type")).toContain("text/csv");
+    const text = await res.text();
+    const lines = text.trim().split("\r\n");
+    expect(lines).toHaveLength(2);
+    expect(lines[0]).toContain("ФИО;Логин");
+    expect(lines[1]).toContain("Иванова;ivanova;Группа А;");
+    expect(lines[1]).toContain("'=HYPERLINK(1)");
+    expect(lines[1]).toContain(";сервер;");
+    const none = await (await app.request("/api/results/export.csv?case=zzz", { headers: { cookie } })).text();
+    expect(none.trim().split("\r\n")).toHaveLength(1);
+  });
+});

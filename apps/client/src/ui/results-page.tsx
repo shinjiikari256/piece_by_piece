@@ -73,6 +73,11 @@ function ServerResults({ staff }: { staff: boolean }) {
         <button className="btn" onClick={() => setStats(true)} disabled={!data?.total}>
           <Icon name="scale" size={16} /> Статистика
         </button>
+        {staff && (
+          <a className="btn" href={`/api/results/export.csv?${query(filters)}`} download="results.csv">
+            Выгрузить CSV
+          </a>
+        )}
       </header>
       <div className="toolbar">
         <Select

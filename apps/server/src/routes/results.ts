@@ -9,8 +9,8 @@ import {
   type UserStats,
 } from "../../../../shared/api";
 import type { Db } from "../db";
-import { groups, results, users } from "../db/schema";
-import { requireUser, type AppEnv, type UserRow } from "../http";
+import { events, groups, results, users } from "../db/schema";
+import { requireStaff, requireUser, type AppEnv, type UserRow } from "../http";
 import { ownGroupIds, visibleUsers } from "./admin";
 import { resultsStats } from "../../../../shared/results-stats";
 
@@ -49,6 +49,15 @@ export function userStats(rows: ResultRow[]): UserStats {
     lastAt: rows.length ? rows.reduce((a, r) => (r.finishedAt > a ? r.finishedAt : a), rows[0].finishedAt).toISOString() : null,
   };
 }
+
+/** Ячейка CSV: кавычки удваиваются; значения, которые Excel принял бы за формулу, получают апостроф. */
+export const csvCell = (v: string | number | null): string => {
+  let s = v == null ? "" : String(v);
+  if (/^[=+\-@\t\r]/.test(s) && typeof v === "string") s = `'${s}`;
+  return /[";\n\r]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+};
+
+const CSV_HEAD = ["ФИО", "Логин", "Группа", "Дело №", "Дело", "Баллы", "Максимум", "Процент", "Подсказок", "Ошибок", "Минут", "Источник", "Мероприятие", "Дата"];
 
 export const userResults = (db: AppEnv["Variables"]["db"], userId: number) =>
   db.select().from(results).where(eq(results.userId, userId)).orderBy(desc(results.finishedAt)).limit(500);
@@ -94,6 +103,31 @@ export const resultRoutes = new Hono<AppEnv>()
       .offset((q.page - 1) * q.pageSize);
     const items: ResultListItem[] = rows.map(({ r, u, g }) => ({ ...toServerResult(r), user: { ...u, group: g?.id ? g : null } }));
     return c.json({ items, total: n, page: q.page, pageSize: q.pageSize } satisfies ResultsPage);
+  })
+
+  /** Выгрузка выбранных прохождений в CSV (разделитель «;», UTF-8 с BOM — открывается в Excel). Только персоналу. */
+  .get("/results/export.csv", async (c) => {
+    const db = c.var.db;
+    const viewer = requireStaff(c);
+    const q = ResultsQuery.parse(c.req.query());
+    const rows = await db
+      .select({ r: results, u: { fullName: users.fullName, login: users.login }, g: { name: groups.name }, e: { title: events.title } })
+      .from(results)
+      .innerJoin(users, eq(users.id, results.userId))
+      .leftJoin(groups, eq(groups.id, users.groupId))
+      .leftJoin(events, eq(events.id, results.eventId))
+      .where(await resultsWhere(db, viewer, q))
+      .orderBy(desc(results.finishedAt))
+      .limit(50_000);
+    const lines = [CSV_HEAD, ...rows.map(({ r, u, g, e }) => [
+      u.fullName, u.login, g?.name ?? "", r.caseNumber, r.caseTitle, r.total, r.max,
+      r.max > 0 ? Math.round((r.total / r.max) * 100) : "", r.hintsUsed, r.wrongDeductions,
+      r.elapsedMs == null ? "" : Math.round(r.elapsedMs / 600) / 100,
+      r.source === "server" ? "сервер" : r.source === "offline" ? "офлайн" : "клиентский",
+      e?.title ?? "", r.finishedAt.toISOString(),
+    ])];
+    const body = "\uFEFF" + lines.map((l) => l.map(csvCell).join(";")).join("\r\n") + "\r\n";
+    return new Response(body, { headers: { "content-type": "text/csv; charset=utf-8", "content-disposition": 'attachment; filename="results.csv"' } });
   })
 
   /** Аналитика по той же выборке (без пагинации). */
