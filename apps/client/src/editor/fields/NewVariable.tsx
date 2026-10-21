@@ -3,7 +3,7 @@ import { Dialog } from "../../ui/window";
 import { Icon } from "../../ui/icons";
 import { CounterDialog } from "../sections/Counters";
 import { EnumDialog } from "../sections/Enums";
-import { FlagDialog } from "./Conditions";
+import { FlagDialog } from "./FlagDialog";
 
 /** Новая переменная: сначала тип (флаг или счётчик), затем окно создания выбранного типа. `onDone` — ключ созданной или `null`. */
 export function NewVariableDialog({ onDone }: { onDone: (id: string | null) => void }) {

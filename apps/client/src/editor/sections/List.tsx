@@ -1,5 +1,5 @@
 import { UsageList } from "../fields/UsageList";
-import { evidenceUsage } from "../fields/Conditions";
+import { evidenceUsage } from "../fields/variables";
 import { effectSites } from "../../../../../shared/effect-sites";
 import { useEffect } from "react";
 import { CaseFile } from "../../../../../shared/case";

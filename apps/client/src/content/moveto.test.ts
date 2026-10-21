@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { emptyProgress, applyEffects, choiceKey, meets, startProgress } from "../../../../shared/conditions";
 import case002 from "./cases/case-002.json";
 import { deleteCounter } from "../editor/sections/Counters";
-import { deleteFlag, evidenceUsage, flagUsage } from "../editor/fields/Conditions";
+import { deleteFlag, evidenceUsage, flagUsage } from "../editor/fields/variables";
 import { deleteEnum, deleteEnumValue, renameEnumValue } from "../editor/sections/Enums";
 import { caseWarnings } from "./warnings";
 import { countRefs, renameKey } from "../editor/keys";

@@ -17,7 +17,8 @@ const EFFECT_FIELDS = new Set(["effects", "onCollect", "failEffects", "onEnter",
 import { EffectsEditor } from "./fields/Effects";
 import { AttachmentSource } from "./fields/Attachment";
 import { frameLabel } from "./sprites/helpers";
-export { FlagDialog, deleteFlag, evidenceUsage, flagUsage, type FlagUse } from "./fields/Conditions";
+export { FlagDialog } from "./fields/FlagDialog";
+export { deleteFlag, evidenceUsage, flagUsage, type FlagUse } from "./fields/variables";
 
 export { type JS, defaultFor, itemTitle } from "./schema-utils";
 export { type FormCtx, type Option, charOption } from "./ref-options";

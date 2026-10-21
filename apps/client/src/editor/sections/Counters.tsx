@@ -4,7 +4,7 @@ import { editor, useEditor } from "../state";
 import { countRefs, renameKey, toKey } from "../keys";
 import { ask, tell } from "../../ui/dialog";
 import { Dialog } from "../../ui/window";
-import { isVariableKeyTaken, type FlagUse } from "../fields/Conditions";
+import { isVariableKeyTaken, type FlagUse } from "../fields/variables";
 import { UsageList } from "../fields/UsageList";
 import { KeyInput, keyChars } from "../fields/KeyInput";
 

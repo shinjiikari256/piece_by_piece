@@ -1,6 +1,6 @@
 import { editor } from "../state";
 import { Icon } from "../../ui/icons";
-import type { FlagUse } from "./Conditions";
+import type { FlagUse } from "./variables";
 
 /** «Где используется (N)»: список мест с переходом по клику. */
 export function UsageList({ uses }: { uses: FlagUse[] }) {

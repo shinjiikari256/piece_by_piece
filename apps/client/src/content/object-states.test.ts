@@ -5,7 +5,7 @@ import { applyEffects, startProgress } from "../../../../shared/conditions";
 import { activeState, currentInteraction, objectView } from "../../../../shared/object-state";
 import testCase from "./test-cases/case-test-moveto.json";
 import { effectSites } from "../../../../shared/effect-sites";
-import { flagUsage, deleteFlag } from "../editor/fields/Conditions";
+import { flagUsage, deleteFlag } from "../editor/fields/variables";
 import { validateCase } from "./validate";
 
 const base = testCase as unknown as CaseFile;
