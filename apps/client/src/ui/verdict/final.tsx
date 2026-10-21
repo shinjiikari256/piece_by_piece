@@ -113,22 +113,25 @@ export function FinalScreen() {
       className="final-window"
     >
       <div className="final2__main col" ref={main}>
+        <p className="sr-only" aria-live="polite">
+          {q ? `Вопрос ${step + 1} из ${questions.length}. ${q.prompt}` : "Решение: все ответы"}
+        </p>
         {q && (
           <>
             <p className="final2__kicker">
               Вопрос {step + 1} из {questions.length}
               {q.kind === "multi" && " · можно выбрать несколько"}
             </p>
-            <h2 className="final2__q" tabIndex={-1}>{q.prompt}</h2>
+            <h2 className="final2__q" id="final-q" tabIndex={-1}>{q.prompt}</h2>
 
             {q.source === "inline" && (
-              <ol className="answers list-reset">
+              <ol className="answers list-reset" aria-labelledby="final-q">
                 {q.options.map((o, i) => {
                   const on = (answers[q.id] ?? []).includes(o.id);
                   return (
                     <li key={o.id}>
                       <button className="answer-opt" data-selected={on || undefined} aria-pressed={on} onClick={() => toggle(q, o.id)}>
-                        <span className="answer-opt__key">{i + 1}</span>
+                        <span className="answer-opt__key" aria-hidden="true">{i < 9 ? i + 1 : ""}</span>
                         <span className="answer-opt__text">
                           {o.label}
                           {o.mark && <small>{o.mark}</small>}
@@ -142,12 +145,12 @@ export function FinalScreen() {
             )}
 
             {q.source === "characters" && (
-              <div className="suspects">
+              <div className="suspects" role="group" aria-labelledby="final-q">
                 {caseFile.characters.map((c, i) => {
                   const on = (answers[q.id] ?? []).includes(c.id);
                   return (
                     <button key={c.id} className="option suspect" data-selected={on || undefined} aria-pressed={on} onClick={() => toggle(q, c.id)}>
-                      <span className="suspect__key">{i + 1}</span>
+                      <span className="suspect__key" aria-hidden="true">{i < 9 ? i + 1 : ""}</span>
                       <Portrait look={resolveLook(c)} />
                       <strong>{c.name}</strong>
                       <span className="muted">{c.position}</span>
@@ -162,10 +165,10 @@ export function FinalScreen() {
                 <p className="muted">В деле нет ни одной улики.</p>
               ) : (
                 <>
-                  <p className="muted">
+                  <p className="muted" aria-live="polite">
                     Выбрано: {(answers[q.id] ?? []).length} из {collected.length}. Ложные показания снижают балл.
                   </p>
-                  <div className="card-grid">
+                  <div className="card-grid" role="group" aria-labelledby="final-q">
                     {collected.map((id) => (
                       <EvidenceCard
                         key={id}
