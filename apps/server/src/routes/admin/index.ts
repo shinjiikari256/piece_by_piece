@@ -4,7 +4,7 @@ import { groupsRoutes } from "./groups";
 import { settingsRoutes } from "./settings";
 import { usersRoutes } from "./users";
 
-export { ownGroupIds, visibleUsers } from "./access";
+export { ownGroupIds, viewerGroupIds, visibleUsers } from "./access";
 
 /** Права: администратор — всё; преподаватель — студенты своих групп и без группы (подробнее — в `access.ts`). */
 export const adminRoutes = new Hono<AppEnv>()

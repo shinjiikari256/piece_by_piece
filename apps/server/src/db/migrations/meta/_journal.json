@@ -50,6 +50,13 @@
       "when": 1792589958213,
       "tag": "0006_soft_tinkerer",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1792591248836,
+      "tag": "0007_marvelous_forge",
+      "breakpoints": true
     }
   ]
 }

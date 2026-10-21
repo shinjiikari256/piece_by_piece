@@ -95,6 +95,20 @@ export const groupTeachers = pgTable(
   (t) => [primaryKey({ columns: [t.groupId, t.userId] })],
 );
 
+/** Преподаватель видит студентов группы (только просмотр: списки и результаты), не будучи её преподавателем. */
+export const groupViewers = pgTable(
+  "group_viewers",
+  {
+    groupId: integer("group_id")
+      .notNull()
+      .references(() => groups.id, { onDelete: "cascade" }),
+    userId: integer("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+  },
+  (t) => [primaryKey({ columns: [t.groupId, t.userId] })],
+);
+
 /** Ссылка регистрации с группой (/?join=<token>, можно QR). */
 export const joinLinks = pgTable("join_links", {
   id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
@@ -161,14 +175,32 @@ export const results = pgTable(
   (t) => [index("results_user_idx").on(t.userId), index("results_case_idx").on(t.caseId)],
 );
 
+export type CaseVisibility = "all" | "groups";
+
 /** Дело на сервере; само содержимое — в версиях, `current_version_id` указывает на действующую. */
 export const cases = pgTable("cases", {
   id: text("id").primaryKey(),
+  /** `all` — опубликованное дело видят все студенты; `groups` — только группы из `case_groups`. */
+  visibility: text("visibility").$type<CaseVisibility>().notNull().default("all"),
   currentVersionId: integer("current_version_id").references((): AnyPgColumn => caseVersions.id, {
     onDelete: "set null",
   }),
   createdAt: createdAt(),
 });
+
+/** Группы, которым открыто дело при `cases.visibility = 'groups'`. */
+export const caseGroups = pgTable(
+  "case_groups",
+  {
+    caseId: text("case_id")
+      .notNull()
+      .references((): AnyPgColumn => cases.id, { onDelete: "cascade" }),
+    groupId: integer("group_id")
+      .notNull()
+      .references(() => groups.id, { onDelete: "cascade" }),
+  },
+  (t) => [primaryKey({ columns: [t.caseId, t.groupId] })],
+);
 
 /** Неизменяемая версия дела: полный `CaseFile` (с ответами). Одинаковое содержимое второй раз не пишется. */
 export const caseVersions = pgTable(

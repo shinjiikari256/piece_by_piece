@@ -38,7 +38,7 @@ export const importRoutes = new Hono<AppEnv>().post("/admin/results/import", asy
   const staff = requireStaff(c);
   const { dryRun, items } = await parseBody(c, ImportBody);
   const db = c.var.db;
-  const visible = await visibleUsers(db, staff);
+  const visible = await visibleUsers(db, staff, "write");
   const people: Candidate[] = (
     await db
       .select({ id: users.id, fullName: users.fullName, group: groups.name })

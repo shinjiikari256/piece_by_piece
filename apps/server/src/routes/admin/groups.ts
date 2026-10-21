@@ -6,7 +6,7 @@ import {
   type AdminGroup,
 } from "../../../../../shared/api";
 import { randomToken } from "../../auth";
-import { groupTeachers, groups, joinLinks, users } from "../../db/schema";
+import { groupTeachers, groupViewers, groups, joinLinks, users } from "../../db/schema";
 import {
   ApiError,
   parseBody,
@@ -36,6 +36,7 @@ export const groupsRoutes = new Hono<AppEnv>()
       )
       .orderBy(asc(groups.name));
     const teachers = await db.select().from(groupTeachers);
+    const viewers = await db.select().from(groupViewers);
     const counts = await db
       .select({ groupId: users.groupId, status: users.status, n: count() })
       .from(users)
@@ -47,6 +48,7 @@ export const groupsRoutes = new Hono<AppEnv>()
       teacherIds: teachers
         .filter((t) => t.groupId === g.id)
         .map((t) => t.userId),
+      viewerIds: viewers.filter((t) => t.groupId === g.id).map((t) => t.userId),
       students: counts
         .filter((x) => x.groupId === g.id)
         .reduce((s, x) => s + x.n, 0),
@@ -76,6 +78,10 @@ export const groupsRoutes = new Hono<AppEnv>()
       await db
         .insert(groupTeachers)
         .values(body.teacherIds.map((userId) => ({ groupId: g.id, userId })));
+    if (body.viewerIds?.length)
+      await db
+        .insert(groupViewers)
+        .values(body.viewerIds.map((userId) => ({ groupId: g.id, userId })));
     await audit(db, admin.id, "groups.create", { id: g.id, ...body });
     return c.json({ id: g.id, name: g.name }, 201);
   })
@@ -104,6 +110,13 @@ export const groupsRoutes = new Hono<AppEnv>()
         await db
           .insert(groupTeachers)
           .values(body.teacherIds.map((userId) => ({ groupId: id, userId })));
+    }
+    if (body.viewerIds) {
+      await db.delete(groupViewers).where(eq(groupViewers.groupId, id));
+      if (body.viewerIds.length)
+        await db
+          .insert(groupViewers)
+          .values(body.viewerIds.map((userId) => ({ groupId: id, userId })));
     }
     await audit(db, admin.id, "groups.update", { id, ...body });
     return c.json({ id: g.id, name: g.name });

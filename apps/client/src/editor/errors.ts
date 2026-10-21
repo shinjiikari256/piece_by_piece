@@ -26,6 +26,7 @@ const SECTION_LABEL: Record<SectionId, string> = {
   law: "Закон для игрока",
   authorship: "Авторство",
   settings: "Настройки",
+  visibility: "Видимость",
   flags: "Переменные",
   sprites: "Спрайты",
   json: "JSON",

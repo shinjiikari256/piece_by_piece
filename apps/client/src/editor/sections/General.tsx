@@ -10,7 +10,7 @@ export function GeneralSection() {
     <section className="ed__panel ed__panel--narrow">
       <h2>Основное</h2>
       <p className="muted">
-        id дела должен быть уникальным: под ним дело появится в игре. Когда дело готово, включите «Показывать в списке дел».
+        id дела должен быть уникальным: под ним дело появится в игре. Когда дело готово, включите показ в списке в разделе «Видимость».
         {draft.updatedAt && ` Последнее изменение: ${formatDate(draft.updatedAt, true)}.`}
       </p>
       <ObjectFields

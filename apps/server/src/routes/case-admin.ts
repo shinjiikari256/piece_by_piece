@@ -1,10 +1,12 @@
 import { Hono } from "hono";
-import { asc, desc, eq } from "drizzle-orm";
+import { asc, desc, eq, inArray } from "drizzle-orm";
+import { CaseVisibilityBody } from "../../../../shared/api";
 import type { CaseFile } from "../../../../shared/case";
 import { parseCase } from "../../../../shared/migrate";
 import { saveCaseVersion } from "../cases";
-import { auditLog, caseVersions, cases } from "../db/schema";
-import { ApiError, requireStaff, type AppEnv } from "../http";
+import { auditLog, caseGroups, caseVersions, cases, groups } from "../db/schema";
+import { ApiError, parseBody, requireStaff, type AppEnv } from "../http";
+import { ownGroupIds } from "./admin";
 
 /** JSON с отсортированными ключами: jsonb в базе переставляет ключи, обычное сравнение строк врёт. */
 const canonical = (v: unknown): string =>
@@ -19,6 +21,13 @@ async function ownerOf(db: AppEnv["Variables"]["db"], caseId: string): Promise<n
     .orderBy(asc(caseVersions.id))
     .limit(1);
   return first ? first.createdBy : undefined;
+}
+
+/** Править дело и его видимость может админ, автор и — для посеянных дел без автора — только админ. */
+async function assertCaseOwner(db: AppEnv["Variables"]["db"], staff: { id: number; role: string }, caseId: string) {
+  const owner = await ownerOf(db, caseId);
+  if (owner === undefined) throw new ApiError(404, "not_found", "Дело не найдено");
+  if (staff.role !== "admin" && owner !== staff.id) throw new ApiError(403, "forbidden", "Это дело создал другой автор");
 }
 
 /** Дела для конструктора: полный текст с ответами, версии, запись новой версии. Только преподаватель и админ. */
@@ -55,6 +64,43 @@ export const caseAdminRoutes = new Hono<AppEnv>()
       .where(eq(caseVersions.caseId, c.req.param("id")))
       .orderBy(desc(caseVersions.id));
     return c.json(rows);
+  })
+  /** Кому видно дело: всем студентам или группам из списка. Преподаватель видит весь список, но меняет только свои группы. */
+  .get("/cases/:id/visibility", async (c) => {
+    const db = c.var.db;
+    const staff = requireStaff(c);
+    const id = c.req.param("id");
+    const [row] = await db.select({ visibility: cases.visibility }).from(cases).where(eq(cases.id, id));
+    if (!row) throw new ApiError(404, "not_found", "Дело не найдено");
+    const list = (await db.select({ id: caseGroups.groupId }).from(caseGroups).where(eq(caseGroups.caseId, id))).map((r) => r.id);
+    const own = staff.role === "admin" ? null : await ownGroupIds(db, staff.id);
+    return c.json({ mode: row.visibility, groupIds: list, lockedGroupIds: own ? list.filter((g) => !own.includes(g)) : [] });
+  })
+  .put("/cases/:id/visibility", async (c) => {
+    const db = c.var.db;
+    const staff = requireStaff(c);
+    const id = c.req.param("id");
+    const body = await parseBody(c, CaseVisibilityBody);
+    await assertCaseOwner(db, staff, id);
+    const wanted = [...new Set(body.groupIds)];
+    if (wanted.length) {
+      const found = await db.select({ id: groups.id }).from(groups).where(inArray(groups.id, wanted));
+      if (found.length !== wanted.length) throw new ApiError(400, "invalid", "Есть неизвестная группа");
+    }
+    let groupIds = wanted;
+    if (staff.role !== "admin") {
+      // чужие группы преподаватель не может ни добавить, ни убрать: они остаются как были
+      const own = await ownGroupIds(db, staff.id);
+      const before = (await db.select({ id: caseGroups.groupId }).from(caseGroups).where(eq(caseGroups.caseId, id))).map((r) => r.id);
+      const locked = before.filter((g) => !own.includes(g));
+      if (wanted.some((g) => !own.includes(g) && !locked.includes(g))) throw new ApiError(403, "forbidden", "Это не ваша группа");
+      groupIds = [...new Set([...wanted.filter((g) => own.includes(g)), ...locked])];
+    }
+    await db.delete(caseGroups).where(eq(caseGroups.caseId, id));
+    if (groupIds.length) await db.insert(caseGroups).values(groupIds.map((groupId) => ({ caseId: id, groupId })));
+    await db.update(cases).set({ visibility: body.mode }).where(eq(cases.id, id));
+    await db.insert(auditLog).values({ userId: staff.id, action: "cases.visibility", payload: { id, mode: body.mode, groupIds } });
+    return c.json({ mode: body.mode, groupIds });
   })
   /** Записать дело новой версией (она сразу действующая). Чужое дело преподаватель править не может. */
   .put("/cases/:id", async (c) => {

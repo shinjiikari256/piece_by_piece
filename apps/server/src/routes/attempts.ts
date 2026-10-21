@@ -7,6 +7,7 @@ import * as judge from "../../../../shared/judge";
 import { RESULT_FORMAT_VERSION, type CaseResult, type Revealed } from "../../../../shared/judge";
 import { toPublicCase } from "../../../../shared/public-case";
 import { bindSprites } from "../../../../shared/sprite-bindings";
+import { studentSeesCase } from "../case-access";
 import type { Db } from "../db";
 import { attemptEvents, attempts, caseVersions, cases, eventAccess, eventCases, events, results } from "../db/schema";
 import { ApiError, parseBody, requireUser, type AppEnv, type Ctx } from "../http";
@@ -98,12 +99,13 @@ export const attemptRoutes = new Hono<AppEnv>()
     for (const s of stale) await log(db, s.id, "abandoned", null, now);
 
     const [current] = await db
-      .select({ id: cases.currentVersionId })
+      .select({ id: cases.currentVersionId, visibility: cases.visibility })
       .from(cases)
       .where(eq(cases.id, caseId));
     if (!current?.id) throw new ApiError(404, "not_found", "Дело не найдено");
     const currentBody = await caseBody(db, current.id);
-    if (!currentBody.published && user.role === "student") throw new ApiError(404, "not_found", "Дело не найдено");
+    if (user.role === "student" && (!currentBody.published || !(await studentSeesCase(db, user, caseId, current.visibility, !fresh))))
+      throw new ApiError(404, "not_found", "Дело не найдено");
 
     let [a] = await db
       .select()

@@ -4,21 +4,24 @@ import type { ServerCaseSummary, ServerPublicCase } from "../../../../shared/api
 import type { CaseFile } from "../../../../shared/case";
 import { toPublicCase } from "../../../../shared/public-case";
 import { bindSprites } from "../../../../shared/sprite-bindings";
+import { studentCaseIds, studentSeesCase } from "../case-access";
 import { caseVersions, cases, events, results } from "../db/schema";
 import { ApiError, requireUser, type AppEnv, type Ctx } from "../http";
 import { debriefAllowed } from "./attempts";
 
 const notFound = () => new ApiError(404, "not_found", "Дело не найдено");
 
-/** Действующая версия дела. Скрытые дела (`published: false`) студентам недоступны. */
+/** Действующая версия дела. Студентам недоступны скрытые дела (`published: false`) и дела, не открытые их группе. */
 async function currentCase(c: Ctx, caseId: string): Promise<{ versionId: number; body: CaseFile }> {
   const [row] = await c.var.db
-    .select({ id: caseVersions.id, body: caseVersions.body })
+    .select({ id: caseVersions.id, body: caseVersions.body, visibility: cases.visibility })
     .from(cases)
     .innerJoin(caseVersions, eq(caseVersions.id, cases.currentVersionId))
     .where(eq(cases.id, caseId));
   const body = row?.body as CaseFile | undefined;
-  if (!row || !body || (!body.published && c.var.user?.role === "student")) throw notFound();
+  if (!row || !body) throw notFound();
+  const user = c.var.user;
+  if (user?.role === "student" && (!body.published || !(await studentSeesCase(c.var.db, user, caseId, row.visibility)))) throw notFound();
   return { versionId: row.id, body };
 }
 
@@ -39,13 +42,15 @@ const summarize = (c: CaseFile): ServerCaseSummary => ({
 /** Дела: список, дело без ответов, разбор. Прохождение, проверки и сдача — в `routes/attempts.ts`. */
 export const caseRoutes = new Hono<AppEnv>()
   .get("/cases", async (c) => {
-    requireUser(c);
+    const user = requireUser(c);
     const rows = await c.var.db
-      .select({ body: caseVersions.body })
+      .select({ body: caseVersions.body, visibility: cases.visibility })
       .from(cases)
       .innerJoin(caseVersions, eq(caseVersions.id, cases.currentVersionId));
+    const opened = user.role === "student" ? await studentCaseIds(c.var.db, user.groupId) : null;
     return c.json(
       rows
+        .filter((r) => !opened || r.visibility === "all" || opened.has((r.body as CaseFile).id))
         .map((r) => r.body as CaseFile)
         .filter((x) => x.published)
         .map(summarize)

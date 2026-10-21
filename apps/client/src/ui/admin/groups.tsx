@@ -80,9 +80,13 @@ function GroupDetail({ group, isAdmin, staff, reload }: { group: AdminGroup; isA
   const loadLinks = useCallback(() => api<JoinLink[]>("GET", `/admin/groups/${group.id}/links`).then(setLinks, fail), [group.id]);
   useEffect(() => void loadLinks(), [loadLinks]);
 
-  const save = async (patch: { name?: string; teacherIds?: number[] }) => {
+  const save = async (patch: { name?: string; teacherIds?: number[]; viewerIds?: number[] }) => {
     try {
-      await api("PATCH", `/admin/groups/${group.id}`, { name: patch.name ?? group.name, teacherIds: patch.teacherIds ?? group.teacherIds });
+      await api("PATCH", `/admin/groups/${group.id}`, {
+        name: patch.name ?? group.name,
+        teacherIds: patch.teacherIds ?? group.teacherIds,
+        viewerIds: patch.viewerIds ?? group.viewerIds,
+      });
       reload();
     } catch (e) {
       fail(e);
@@ -97,6 +101,7 @@ function GroupDetail({ group, isAdmin, staff, reload }: { group: AdminGroup; isA
       fail(e);
     }
   };
+  const teachersOnly = staff.filter((u) => u.role === "teacher");
   const live = links.filter((l) => !l.revokedAt && (!l.expiresAt || new Date(l.expiresAt) > new Date()));
   const dead = links.filter((l) => !live.includes(l));
 
@@ -114,6 +119,30 @@ function GroupDetail({ group, isAdmin, staff, reload }: { group: AdminGroup; isA
                   key={t.id}
                   className="toggle-chip" aria-pressed={on}
                   onClick={() => void save({ teacherIds: on ? group.teacherIds.filter((id) => id !== t.id) : [...group.teacherIds, t.id] })}
+                >
+                  {on ? "✓ " : ""}
+                  {t.fullName}
+                </button>
+              );
+            })}
+          </div>
+        </section>
+      )}
+      {isAdmin && (
+        <section className="group__section">
+          <h3>Видят студентов группы</h3>
+          <p className="muted small">Преподаватели, которым открыт просмотр студентов и результатов группы. Менять студентов, выдавать пароли и создавать ссылки они не могут.</p>
+          <div className="chips-row">
+            {teachersOnly.length === 0 && <span className="muted small">Нет преподавателей.</span>}
+            {teachersOnly.map((t) => {
+              const own = group.teacherIds.includes(t.id);
+              const on = own || group.viewerIds.includes(t.id);
+              return (
+                <button
+                  key={t.id}
+                  className="toggle-chip" aria-pressed={on} disabled={own}
+                  title={own ? "Преподаватель группы и так видит студентов" : undefined}
+                  onClick={() => void save({ viewerIds: on ? group.viewerIds.filter((id) => id !== t.id) : [...group.viewerIds, t.id] })}
                 >
                   {on ? "✓ " : ""}
                   {t.fullName}

@@ -11,6 +11,7 @@ import { refTarget } from "./refs";
 import { ContextMenu, copyText, type MenuContext, type MenuItem } from "../ui/contextmenu";
 import { GeneralSection } from "./sections/General";
 import { SettingsSection } from "./sections/Settings";
+import { VisibilitySection } from "./sections/Visibility";
 import { AuthorshipSection } from "./sections/Authorship";
 import { FlagsSection } from "./sections/Flags";
 import { SpritesSection } from "./sprites/SpritesSection";
@@ -67,7 +68,8 @@ function editorMenu({ target, selection }: MenuContext): MenuItem[] {
 }
 
 const SECTIONS: { id: SectionId; label: string; hint: string }[] = [
-  { id: "general", label: "Основное", hint: "Название, вводная, показывать ли в списке" },
+  { id: "general", label: "Основное", hint: "Название, вводная, сложность" },
+  { id: "visibility", label: "Видимость", hint: "Кому дело видно в списке: всем или выбранным группам" },
   { id: "characters", label: "Персонажи", hint: "Кто участвует и как выглядит" },
   { id: "locations", label: "Локации", hint: "Карта, предметы, люди, области" },
   { id: "evidence", label: "Улики", hint: "Что можно найти" },
@@ -192,6 +194,7 @@ export function EditorApp() {
         {section === "solution" && <SolutionSection />}
         {section === "law" && <LawSection />}
         {section === "settings" && <SettingsSection />}
+        {section === "visibility" && <VisibilitySection />}
         {section === "authorship" && <AuthorshipSection />}
         {section === "flags" && <FlagsSection />}
         {section === "sprites" && <SpritesSection />}
