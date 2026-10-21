@@ -54,11 +54,16 @@ const summarize = (c: CaseFile, isDraft = false): CaseSummary => ({
 
 class BundledCaseRepository implements CaseRepository {
   private cases = new Map<string, CaseFile>();
+  /** Тестовые дела разработки: на сервере их нет, играются локально даже у вошедшего игрока. */
+  private devIds = new Set<string>();
 
-  constructor(modules: Record<string, unknown>) {
-    for (const [path, raw] of Object.entries(modules)) {
+  constructor(modules: Record<string, unknown>, devModules: Record<string, unknown> = {}) {
+    for (const [path, raw] of Object.entries({ ...modules, ...devModules })) {
       const result = validateCase(raw);
-      if (result.ok) this.cases.set(result.caseFile.id, result.caseFile);
+      if (result.ok) {
+        this.cases.set(result.caseFile.id, result.caseFile);
+        if (path in devModules) this.devIds.add(result.caseFile.id);
+      }
       else console.error(`Сценарий ${path} пропущен:\n  ${result.errors.join("\n  ")}`);
     }
   }
@@ -79,7 +84,8 @@ class BundledCaseRepository implements CaseRepository {
     if (server) {
       const ids = new Set(server.map((c) => c.id));
       const drafts = [...this.drafts().values()].filter((c) => !ids.has(c.id)).map((c) => summarize(c, true));
-      return [...server.map((c) => ({ ...c, isDraft: false })), ...drafts].sort((a, b) => a.id.localeCompare(b.id));
+      const dev = [...this.devIds].filter((id) => !ids.has(id)).map((id) => summarize(this.cases.get(id)!));
+      return [...server.map((c) => ({ ...c, isDraft: false })), ...dev, ...drafts].sort((a, b) => a.id.localeCompare(b.id));
     }
     // скрытые дела (published: false) игрокам не показываем; открыть их можно из конструктора
     const bundled = [...this.cases.values()].filter((c) => c.published).map((c) => summarize(c));
@@ -88,7 +94,7 @@ class BundledCaseRepository implements CaseRepository {
   }
 
   async open(id: string, eventId?: number): Promise<CaseAuthority> {
-    if (fromServer() && !this.drafts().has(id)) return ApiAuthority.open(id, eventId);
+    if (fromServer() && !this.drafts().has(id) && !this.devIds.has(id)) return ApiAuthority.open(id, eventId);
     return new LocalAuthority(await this.get(id));
   }
 
@@ -113,13 +119,14 @@ class BundledCaseRepository implements CaseRepository {
 }
 
 /** Дела сборки: в офлайн-файле — вшитые при экспорте, иначе — JSON из src/content/cases. */
-function bundledSources(): Record<string, unknown> {
-  if (OFFLINE) return Object.fromEntries((embeddedCases()?.cases ?? []).map((c, i) => [`embedded #${i + 1}`, c]));
+function bundledSources(): { cases: Record<string, unknown>; tests: Record<string, unknown> } {
+  if (OFFLINE) return { cases: Object.fromEntries((embeddedCases()?.cases ?? []).map((c, i) => [`embedded #${i + 1}`, c])), tests: {} };
   const cases = import.meta.glob("./cases/*.json", { eager: true, import: "default" });
   // тестовые дела для разработки (`content/test-cases`): в сборку не попадают
   const devMode = import.meta.env.MODE === "development" || import.meta.env.MODE === "test"; // не DEV: при NODE_ENV=production в оболочке он ложен и в dev-сервере
   const tests = devMode ? import.meta.glob("./test-cases/*.json", { eager: true, import: "default" }) : {};
-  return { ...cases, ...tests };
+  return { cases, tests };
 }
 
-export const caseRepository = new BundledCaseRepository(bundledSources());
+const sources = bundledSources();
+export const caseRepository = new BundledCaseRepository(sources.cases, sources.tests);
