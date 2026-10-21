@@ -33,7 +33,7 @@ for (const f of seeded.failed) console.error(`Дело пропущено — ${
 const app = createApp(db, {
   secureCookies: env.SECURE_COOKIES === "1",
   trustProxy: env.TRUST_PROXY === "1",
-  offlineFile: env.OFFLINE_FILE,
+  offlineDir: env.OFFLINE_DIR,
 });
 void sweepRateHits(db);
 setInterval(() => void sweepRateHits(db), 3_600_000).unref();

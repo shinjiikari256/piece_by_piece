@@ -143,6 +143,18 @@ export const GroupBody = z.object({
   teacherIds: z.array(z.number().int()).optional(),
 });
 
+/** Вариант офлайн-файла: только игра или игра с конструктором. */
+export const OFFLINE_VARIANTS = ["game", "editor"] as const;
+export type OfflineVariant = (typeof OFFLINE_VARIANTS)[number];
+export const OFFLINE_VARIANT_LABEL: Record<OfflineVariant, string> = { game: "Только игра", editor: "Игра и конструктор" };
+
+/** Собрать офлайн-файл с выбранными делами (`POST /admin/offline`). */
+export const OfflineBuildBody = z.object({
+  variant: z.enum(OFFLINE_VARIANTS),
+  caseIds: z.array(z.string().min(1)).min(1).max(500),
+});
+export type OfflineBuildBody = z.infer<typeof OfflineBuildBody>;
+
 /** Кому видно дело: всем студентам или только группам из списка. */
 export const CaseVisibilityBody = z.object({
   mode: z.enum(["all", "groups"]),

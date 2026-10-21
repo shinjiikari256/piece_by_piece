@@ -3,6 +3,7 @@ import { setMapDock, useMapDock } from "./layout";
 import { editor, useEditor, type SectionId } from "./state";
 import { Alert } from "../ui/alert";
 import { Icon } from "../ui/icons";
+import { OFFLINE } from "../env";
 import { publishToServer, startPlaytest } from "./actions";
 import { isStaff, useAccount } from "../state/account";
 
@@ -204,9 +205,11 @@ export function Toolbar() {
             <Icon name="alert" size={15} /> {errors.length}
           </button>
         )}
-        <button className="btn ed__play" onClick={startPlaytest} title={errors.length ? "Сначала исправьте ошибки" : "Открыть дело в игре"}>
-          <Icon name="play" size={15} /> Запустить
-        </button>
+        {!OFFLINE && (
+          <button className="btn ed__play" onClick={startPlaytest} title={errors.length ? "Сначала исправьте ошибки" : "Открыть дело в игре"}>
+            <Icon name="play" size={15} /> Запустить
+          </button>
+        )}
         {online && (
           <button className="btn" onClick={() => void publishToServer()} title={errors.length ? "Сначала исправьте ошибки" : "Записать дело на сервер новой версией"}>
             <Icon name="upload" size={15} /> На сервер

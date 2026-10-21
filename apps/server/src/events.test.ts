@@ -205,13 +205,6 @@ describe("импорт офлайн-результатов", () => {
     expect((await call("POST", `/admin/users/9999/merge`, { intoId: dup.id })).status).toBe(404);
   });
 
-  it("офлайн-версия: персоналу, если файл подготовлен", async () => {
-    await asStudent();
-    expect((await call("GET", "/admin/offline")).status).toBe(403);
-    await asAdmin();
-    expect((await call("GET", "/admin/offline")).status).toBe(404);
-  });
-
   it("конструктор: версии дел, автор и права", async () => {
     await asStudent();
     expect((await call("GET", "/admin/cases")).status).toBe(403);

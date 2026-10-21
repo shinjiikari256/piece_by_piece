@@ -7,23 +7,27 @@
  *   pnpm export:offline --cases=case-001,case-002        по id из apps/client/src/content/cases
  *   pnpm export:offline --cases=./moe-delo.json          файл дела, скачанный из конструктора
  *   pnpm export:offline --out=gruppa-201.html --no-build не пересобирать шаблон
+ *   pnpm export:offline --variant=editor                 игра и конструктор (шаблон --mode offline-editor)
  *
  * Шаблон (offline/.template/offline-template.html) собирается `vite build --mode offline`: игра без конструктора,
  * JS/CSS/шрифты внутри файла. Дела вшиваются в <script type="application/json" id="cases">.
  * Внимание: ответы лежат в файле — проверка идёт в браузере (см. working/plans/BACKEND.md, «Справка»).
  */
 import { execFileSync } from "node:child_process";
-import { createHash } from "node:crypto";
 import { existsSync, mkdirSync, readFileSync, readdirSync, renameSync, statSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { validateCase } from "../apps/client/src/content/validate";
 import type { CaseFile } from "../shared/case";
+import { embedCases } from "../shared/offline-embed";
 
 const root = path.resolve(import.meta.dirname, "..");
 const casesDir = path.join(root, "apps/client/src/content/cases");
 // шаблон без дел; переименован, чтобы его не путали с готовым файлом
 const outDir = path.join(root, "offline");
-const template = path.join(outDir, ".template/offline-template.html");
+const variant = process.argv.includes("--variant=editor") ? "editor" : "game";
+const mode = variant === "editor" ? "offline-editor" : "offline";
+const templateDir = variant === "editor" ? ".template-editor" : ".template";
+const template = path.join(outDir, templateDir, "offline-template.html");
 
 const args = Object.fromEntries(
   process.argv.slice(2).map((a) => {
@@ -69,28 +73,14 @@ if (dup) fail(`дело ${dup} указано дважды`);
 
 if (args["no-build"] !== "true" || !existsSync(template)) {
   console.log("Собираю шаблон (vite build --mode offline)…");
-  execFileSync(path.join(root, "node_modules/.bin/vite"), ["build", "--config", "apps/client/vite.config.ts", "--mode", "offline", "--logLevel", "warn"], {
+  execFileSync(path.join(root, "node_modules/.bin/vite"), ["build", "--config", "apps/client/vite.config.ts", "--mode", mode, "--logLevel", "warn"], {
     cwd: root,
     stdio: "inherit",
   });
-  renameSync(path.join(outDir, ".template/index.html"), template);
+  renameSync(path.join(outDir, templateDir, "index.html"), template);
 }
 
-// все выбранные дела видны в списке, даже если в общей сборке скрыты
-const embedded = cases.map((c) => ({ ...c, published: true }));
-const buildId = createHash("sha256")
-  .update(embedded.map((c) => `${c.id}@${c.updatedAt ?? ""}`).join("|"))
-  .digest("hex")
-  .slice(0, 10);
-// «</script» внутри JSON закрыл бы тег раньше времени
-const payload = JSON.stringify({ buildId, cases: embedded }).replace(/</g, "\\u003c");
-
-let html = readFileSync(template, "utf8");
-if (html.includes('id="cases"')) fail("шаблон уже содержит дела — пересоберите его без --no-build");
-const numbers = cases.map((c) => `№${c.number}`).join(", ");
-html = html
-  .replace(/<title>[^<]*<\/title>/, (t) => t.replace("</title>", ` — ${numbers}</title>`))
-  .replace("</head>", `<script type="application/json" id="cases">${payload}</script>\n</head>`);
+const { html, buildId } = embedCases(readFileSync(template, "utf8"), cases);
 
 const name = args.out ?? "delo.html";
 const out = name.includes("/") ? path.resolve(name) : path.join(outDir, name.endsWith(".html") ? name : `${name}.html`);

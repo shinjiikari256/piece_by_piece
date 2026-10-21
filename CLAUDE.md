@@ -13,7 +13,7 @@ TypeScript · Vite 7 (одна страница `apps/client/index.html`: сай
 - `pnpm audit:colors` — аудит цветов в стилях: литералы вне токенов, неопределённые `var(--…)`, сырая палитра в компонентах, полнота наборов тонов, темы (код возврата 1 при ошибках). Запускать после правок стилей и токенов.
 - `pnpm generate:licenses` — ОБЯЗАТЕЛЬНО после смены `dependencies` (обновляет `apps/client/public/licenses.txt` — уведомления о лицензиях клиентских зависимостей; в `dist` файл копируется сам, в офлайн-файл вшивается комментарием; тест падает, если пакета нет).
 - Сервер: `pnpm db:up` (PostgreSQL в Docker, порт 5433) → `ADMIN_LOGIN=admin ADMIN_PASSWORD=admin12345 pnpm server:dev` (API :8787; Vite проксирует `/api`). `pnpm db:generate` — миграция после правки `apps/server/src/db/schema.ts`. Целиком: `docker compose up --build`.
-- `pnpm export:offline [--cases=case-001,./delo.json] [--out=delo.html] [--no-build]` — офлайн-файл: шаблон `vite build --mode offline` (`offline/.template/offline-template.html`, без дел) + вшитые дела → `offline/<--out>` (по умолчанию `offline/delo.html`).
+- `pnpm export:offline [--cases=case-001,./delo.json] [--out=delo.html] [--variant=editor] [--no-build]` — офлайн-файл: шаблон `vite build --mode offline` (`--mode offline-editor` — с конструктором, `OFFLINE_EDITOR` в `env.ts`; на сервере — страница `/offline`, `routes/admin/offline.ts`, шаблоны из `OFFLINE_DIR`, вшивание — `shared/offline-embed.ts`) (`offline/.template/offline-template.html`, без дел) + вшитые дела → `offline/<--out>` (по умолчанию `offline/delo.html`).
 - Dev для проверки в браузере: `pnpm dev --port 5199 --strictPort` в фоне; остановить:
   `ps -eo pid,args | grep "[v]ite.js --port 5199" | awk '{print $1}' | xargs -r kill -9`
 

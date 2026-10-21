@@ -2,12 +2,13 @@ import { Suspense, lazy, useEffect, useRef, useState, Fragment } from "react";
 import { ROLE_LABEL, STATUS_LABEL, type ServerEvent } from "../../../../shared/api";
 import type { CaseSummary } from "../content/repository";
 import { formatDate } from "../util/format";
-import { APP_NAME, DEV_EDITOR, OFFLINE } from "../env";
+import { APP_NAME, DEV_EDITOR, OFFLINE, OFFLINE_EDITOR } from "../env";
 import { account, api, isStaff, pendingJoinToken, useAccount } from "../state/account";
 import { useProfile } from "../state/platform-hooks";
 import { AuthPage, PasswordForm } from "./account";
 import { Field } from "./account";
 import { AdminPage, StatusChip } from "./admin";
+import { OfflinePage } from "./offline-page";
 import { Loader } from "./loader";
 import { useDismiss, useMenuKeys } from "./hooks";
 import { DEFAULT_THEME_LABEL, THEMES, THEME_LABELS, setTheme, useTheme, type ThemeName } from "./theme";
@@ -19,7 +20,7 @@ import { CaseList, HowToContent, HowToWindow, openCase, useCaseList } from "./sc
 import { ResultsPage } from "./results-page";
 
 /** Конструктор — отдельным куском по требованию; в офлайн-файле его нет вовсе. */
-const EditorRoute = OFFLINE ? null : lazy(() => import("../editor/EditorRoute"));
+const EditorRoute = OFFLINE && !OFFLINE_EDITOR ? null : lazy(() => import("../editor/EditorRoute"));
 
 
 /** Сайт вокруг игры: шапка и обычные страницы. Папки — только у дел. */
@@ -48,6 +49,7 @@ export function Site() {
         {(route.page === "login" || route.page === "register" || route.page === "guest") && <AuthPage tab={route.page} />}
         {route.page === "account" && <AccountPage />}
         {route.page === "admin" && <AdminPage route={route} />}
+        {route.page === "offline" && <OfflinePage />}
         {route.page === "editor" && EditorRoute && (
           <Suspense fallback={<Loader label="Загружаем конструктор…" />}>
             <EditorRoute />
@@ -175,11 +177,7 @@ function UserMenu() {
           {item("/account", "Личный кабинет")}
           {isStaff(me) && item("/admin/groups", me.role === "admin" ? "Группы" : "Мои группы")}
           {isStaff(me) && item("/admin/events", "Мероприятия")}
-          {isStaff(me) && (
-            <a role="menuitem" href="/api/admin/offline" download>
-              Скачать офлайн-версию
-            </a>
-          )}
+          {isStaff(me) && item("/offline", "Скачать офлайн-версию")}
           {me.role === "admin" && item("/admin/settings", "Настройки")}
           <hr />
           <button

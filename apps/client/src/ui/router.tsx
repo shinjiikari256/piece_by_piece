@@ -16,6 +16,7 @@ export type Route =
   | { page: "guest" }
   | { page: "register" }
   | { page: "account" }
+  | { page: "offline" }
   | { page: "play"; caseId: string }
   | { page: "playtest" }
   | { page: "editor"; caseId?: string; section?: string }
@@ -32,6 +33,7 @@ export function parseRoute(path: string): Route {
     case "guest":
     case "register":
     case "account":
+    case "offline":
       return { page: parts[0] };
     case "play":
       return parts[1] ? { page: "play", caseId: decodeURIComponent(parts[1]) } : { page: "cases" };

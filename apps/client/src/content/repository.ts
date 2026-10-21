@@ -3,7 +3,7 @@ import { validateCase } from "./validate";
 import { listDraftIds, readDraft } from "./drafts";
 import { LocalAuthority } from "./local-authority";
 import type { CaseAuthority } from "../../../../shared/judge";
-import { OFFLINE, embeddedCases } from "../env";
+import { OFFLINE, OFFLINE_EDITOR, embeddedCases } from "../env";
 import type { ServerCaseSummary } from "../../../../shared/api";
 import { accountStore, api } from "../state/account";
 import { ApiAuthority } from "./api-authority";
@@ -71,7 +71,7 @@ class BundledCaseRepository implements CaseRepository {
   /** Черновики конструктора: только корректные, id не должен совпадать с делом из сборки. */
   private drafts() {
     const drafts = new Map<string, CaseFile>();
-    if (OFFLINE) return drafts;
+    if (OFFLINE && !OFFLINE_EDITOR) return drafts;
     for (const id of listDraftIds()) {
       const result = validateCase(readDraft(id));
       if (result.ok && !this.cases.has(result.caseFile.id)) drafts.set(result.caseFile.id, result.caseFile);

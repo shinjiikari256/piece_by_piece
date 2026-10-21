@@ -22,4 +22,4 @@
 Сервис `backup` раз в сутки делает `pg_dump` в `/opt/pokusochkam/backups` (хранится 30 дней). Вторую копию вне VPS настройте отдельно (например, `rsync` по cron на другой хост) и раз в квартал проверяйте восстановление: `gunzip -c db-….sql.gz | docker compose -f compose.prod.yml exec -T db psql -U $POSTGRES_USER $POSTGRES_DB`.
 
 ## Офлайн-версия
-Кнопка «Скачать офлайн-версию» отдаёт файл из `OFFLINE_FILE` (переменная API). Файл собирается в образе API (`Dockerfile`, этап `offline`, `pnpm export:offline`), путь задан `OFFLINE_FILE=/app/offline/delo.html`.
+Пункт меню «Скачать офлайн-версию» ведёт на страницу `/offline`: сервер вшивает выбранные дела в шаблон (`game.html` — только игра, `editor.html` — игра и конструктор) из папки `OFFLINE_DIR`. Шаблоны собираются в образе API (`Dockerfile`, этап `offline`: `vite build --mode offline` и `--mode offline-editor`), `OFFLINE_DIR=/app/offline`.

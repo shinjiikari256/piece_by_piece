@@ -22,6 +22,7 @@ import { JsonSection } from "./sections/Json";
 import { ErrorsSection } from "./sections/Errors";
 import { Toolbar, StorageWarning } from "./EditorToolbar";
 import { EditorHome } from "./EditorHome";
+import { OFFLINE } from "../env";
 import { startPlaytest } from "./actions";
 import { listActions } from "./shared";
 
@@ -61,7 +62,7 @@ function editorMenu({ target, selection }: MenuContext): MenuItem[] {
     { label: "Повторить", icon: "redo", hint: "Ctrl+Shift+Z", disabled: !st.future.length, run: editor.redo },
     "sep",
     { label: st.dirty ? "Сохранить" : "Сохранено", icon: "save", hint: "Ctrl+S", disabled: !st.dirty || st.errors.length > 0, run: () => editor.save() },
-    { label: "Запустить", icon: "play", run: startPlaytest },
+    ...(OFFLINE ? [] : [{ label: "Запустить", icon: "play" as const, run: startPlaytest }]),
   );
   if (st.errors.length) items.push({ label: `Ошибки (${st.errors.length})`, icon: "alert", danger: true, run: () => editor.goto("errors") });
   return items;

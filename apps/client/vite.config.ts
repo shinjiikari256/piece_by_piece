@@ -43,12 +43,13 @@ function embedLicenses(): Plugin {
 }
 
 /**
- * `--mode offline` — шаблон офлайн-сборки: только игра, всё (JS, CSS, шрифты) внутри одного index.html.
+ * `--mode offline` — шаблон офлайн-сборки: только игра, всё (JS, CSS, шрифты) внутри одного index.html;
+ * `--mode offline-editor` — то же плюс конструктор (черновики — в хранилище браузера).
  * Дела в него вшивает `pnpm export:offline` (scripts/export-offline.ts).
  */
 export default defineConfig(({ mode }) => {
   const repoRoot = fileURLToPath(new URL("../..", import.meta.url));
-  const offline = mode === "offline";
+  const offline = mode === "offline" || mode === "offline-editor";
   return {
     root: import.meta.dirname,
     plugins: [react(), brandTitle(), fullReloadOnCode(), ...(offline ? [viteSingleFile(), embedLicenses()] : [])],
@@ -59,7 +60,7 @@ export default defineConfig(({ mode }) => {
     define: { __GAME_VERSION__: JSON.stringify(pkg.version) },
     build: {
       chunkSizeWarningLimit: offline ? 4000 : 2000,
-      outDir: offline ? `${repoRoot}offline/.template` : "dist",
+      outDir: offline ? `${repoRoot}offline/${mode === "offline-editor" ? ".template-editor" : ".template"}` : "dist",
       emptyOutDir: true,
       rollupOptions: {
         input: { main: `${import.meta.dirname}/index.html` },

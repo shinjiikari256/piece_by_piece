@@ -14,8 +14,8 @@ export interface AppConfig {
   secureCookies: boolean;
   /** За обратным прокси (Caddy): IP клиента — из X-Forwarded-For. */
   trustProxy: boolean;
-  /** Готовый офлайн-файл (`pnpm export:offline`) для скачивания персоналом; нет — ручка отвечает 404. */
-  offlineFile?: string;
+  /** Папка с шаблонами офлайн-файла (`game.html`, `editor.html` — `vite build --mode offline[-editor]`); нет шаблона — вариант недоступен. */
+  offlineDir?: string;
 }
 
 export type AppEnv = {
