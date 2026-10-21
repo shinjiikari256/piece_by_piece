@@ -1,4 +1,6 @@
 import { z } from "zod";
+import type { CaseFile } from "./case";
+import type { PublicCase } from "./public-case";
 
 /**
  * Контракт HTTP API: схемы запросов и формы ответов — общие для сервера и клиента.
@@ -256,3 +258,44 @@ export interface ResultsStats {
   /** Сколько подсказок брали: 0, 1, 2, 3+. */
   hints: { label: string; count: number }[];
 }
+
+// ——— Дела и судья ———
+
+/** Сводка дела для списка (то же, что `CaseSummary` в клиенте, без черновиков). */
+export interface ServerCaseSummary {
+  id: string;
+  number: string;
+  title: string;
+  tagline: string;
+  difficulty: CaseFile["difficulty"];
+  published: boolean;
+  timeBonus?: CaseFile["timeBonus"];
+  evidenceCount: number;
+  deductionCount: number;
+  updatedAt?: string;
+  meta?: CaseFile["meta"];
+}
+
+/** Дело без ответов и версия, по которой его будут проверять. */
+export interface ServerPublicCase {
+  caseVersionId: number;
+  caseFile: PublicCase;
+}
+
+export const CheckDeductionBody = z.object({ optionId: z.string().min(1).max(100) });
+
+export const RestoreBody = z.object({
+  deductionIds: z.array(z.string().max(100)).max(200),
+  hintsUsed: z.number().int().min(0).max(50),
+});
+
+export const FinishBody = z.object({
+  answers: z.record(z.string(), z.array(z.string().max(100)).max(100)),
+  hintsUsed: z.number().int().min(0).max(50),
+  elapsedMs: z.number().int().min(0).nullable(),
+  wrongDeductions: z.number().int().min(0).max(10_000),
+  importantEvidence: z.array(z.string().max(100)).max(500),
+  gameVersion: z.string().max(32).nullable().optional(),
+  finishedAt: z.iso.datetime().optional(),
+});
+export type FinishBody = z.input<typeof FinishBody>;
