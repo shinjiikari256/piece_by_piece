@@ -141,3 +141,52 @@ describe("выгрузка CSV", () => {
     expect(none.trim().split("\r\n")).toHaveLength(1);
   });
 });
+
+describe("импорт офлайн-результатов", () => {
+  const fileOf = (over: Record<string, unknown> = {}) => ({
+    type: "pokusochkam-result",
+    resultFormatVersion: 1,
+    gameVersion: "1.0",
+    offline: true,
+    player: { name: "иванова", group: "Группа А" },
+    case: { id: "case-001", number: "1", title: "x", configVersion: null },
+    finishedAt: "2026-10-01T10:00:00.000Z",
+    total: 1000,
+    max: 100,
+    input: { answers: answersOf(), hintsUsed: 99, elapsedMs: 600_000, wrongDeductions: 1, importantEvidence: [] },
+    ...over,
+  });
+  const imp = (items: unknown[], dryRun = false) => call("POST", "/admin/results/import", { dryRun, items });
+
+  it("пересчитывает баллы, находит студента по ФИО, не дублирует", async () => {
+    await asStudent();
+    expect((await imp([{ file: fileOf() }])).status).toBe(403);
+    await asAdmin();
+    const dry = await imp([{ file: fileOf() }], true);
+    expect(dry.json[0]).toMatchObject({ status: "would_import" });
+    expect(await db.select().from(schema.results)).toHaveLength(0);
+
+    const res = await imp([{ file: fileOf() }]);
+    expect(res.json[0].status).toBe("imported");
+    // заявленные в файле 1000 баллов не читаются
+    expect(res.json[0].total).toBeLessThanOrEqual(res.json[0].max);
+    const [row] = await db.select().from(schema.results);
+    expect(row).toMatchObject({ source: "offline", caseId: "case-001", hintsUsed: full.hints.length });
+    expect((await imp([{ file: fileOf() }])).json[0].status).toBe("duplicate");
+    expect(await db.select().from(schema.results)).toHaveLength(1);
+  });
+
+  it("не найденный студент, чужое дело, мусор; ручной выбор студента", async () => {
+    await asAdmin();
+    const res = await imp([
+      { file: fileOf({ player: { name: "Неизвестный", group: "" } }) },
+      { file: fileOf({ case: { id: "zzz", number: "9", title: "", configVersion: null } }) },
+      { file: { hello: 1 } },
+    ]);
+    expect(res.json.map((r: { status: string }) => r.status)).toEqual(["unmatched", "no_case", "invalid"]);
+    const [u] = await db.select().from(schema.users).where(eq(schema.users.login, "ivanova"));
+    const manual = await imp([{ file: fileOf({ player: { name: "Неизвестный", group: "" } }), userId: u.id }]);
+    expect(manual.json[0]).toMatchObject({ status: "imported", userId: u.id });
+    expect((await imp([{ file: fileOf(), userId: 9999 }])).status).toBe(403);
+  });
+});

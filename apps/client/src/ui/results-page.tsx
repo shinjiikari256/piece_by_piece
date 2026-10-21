@@ -13,6 +13,7 @@ import { Pager, ResultsTable, fromLocal, fromServer, type ResultRow } from "./re
 import { openResult } from "./screens";
 import { TabbedModal } from "./common";
 import { Loader } from "./loader";
+import { ResultsImport } from "./results-import";
 
 /**
  * «Результаты»: прохождения с фильтрами (дело, группа, пользователь) и пагинацией, «Статистика» по выборке.
@@ -53,11 +54,13 @@ function ServerResults({ staff }: { staff: boolean }) {
   const [data, setData] = useState<ResultsPageData | null>(null);
   const [options, setOptions] = useState<ResultsFilters | null>(null);
   const [stats, setStats] = useState(false);
+  const [importing, setImporting] = useState(false);
+  const [reload, setReload] = useState(0);
 
   useEffect(() => void api<ResultsFilters>("GET", "/results/filters").then(setOptions, () => setOptions(null)), []);
   useEffect(() => {
     api<ResultsPageData>("GET", `/results?${query(filters, { page, pageSize: PAGE_SIZE })}`).then(setData, () => setData(null));
-  }, [filters, page]);
+  }, [filters, page, reload]);
 
   const set = (patch: Partial<Filters>) => {
     setFilters((f) => ({ ...f, ...patch }));
@@ -78,7 +81,13 @@ function ServerResults({ staff }: { staff: boolean }) {
             Выгрузить CSV
           </a>
         )}
+        {staff && (
+          <button className="btn" aria-pressed={importing} onClick={() => setImporting((v) => !v)}>
+            Импорт файлов
+          </button>
+        )}
       </header>
+      {staff && importing && <ResultsImport students={(options?.users ?? []).map((u) => ({ id: u.id, label: `${u.fullName}${u.group ? ` · ${u.group}` : ""}` }))} onDone={() => setReload((n) => n + 1)} />}
       <div className="toolbar">
         <Select
           value={filters.case}

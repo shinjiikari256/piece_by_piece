@@ -319,6 +319,50 @@ export interface ServerEvent {
   doneByCase?: Record<string, number>;
 }
 
+/** Файл результата офлайн-игрока (`state/result-file.ts`); баллы в нём «для глаз», портал считает сам. */
+export const ResultFileSchema = z.object({
+  type: z.literal("pokusochkam-result"),
+  resultFormatVersion: z.number().int(),
+  gameVersion: z.string().nullable(),
+  offline: z.boolean().optional(),
+  player: z.object({ name: z.string().max(200), group: z.string().max(200) }),
+  case: z.object({ id: z.string().max(100), number: z.string().max(50), title: z.string().max(300), configVersion: z.string().nullable() }),
+  finishedAt: z.iso.datetime({ offset: true }),
+  total: z.number().optional(),
+  max: z.number().optional(),
+  input: z.object({
+    answers: z.record(z.string(), z.array(z.string())),
+    hintsUsed: z.number().int().min(0),
+    elapsedMs: z.number().min(0).nullable(),
+    wrongDeductions: z.number().int().min(0),
+    importantEvidence: z.array(z.string()).default([]),
+  }),
+});
+export type ResultFile = z.infer<typeof ResultFileSchema>;
+
+export const ImportBody = z.object({
+  /** Только показать, что получится, ничего не записывая. */
+  dryRun: z.boolean().default(false),
+  items: z.array(z.object({ file: z.unknown(), userId: z.number().int().optional() })).min(1).max(200),
+});
+
+export type ImportStatus = "imported" | "would_import" | "duplicate" | "unmatched" | "ambiguous" | "invalid" | "no_case";
+export interface ImportItemResult {
+  status: ImportStatus;
+  message?: string;
+  player?: string;
+  caseTitle?: string;
+  /** Кого нашли (или выбрал преподаватель). */
+  userId?: number;
+  /** Кандидаты, если подходит несколько. */
+  candidates?: { id: number; fullName: string; group: string | null }[];
+  /** Пересчитанные баллы. */
+  total?: number;
+  max?: number;
+  /** Версия дела в файле не найдена — считали по текущей. */
+  versionChanged?: boolean;
+}
+
 export const AttemptStartBody = z.object({
   /** Мероприятие, в рамках которого проходится дело. */
   eventId: z.number().int().optional(),
