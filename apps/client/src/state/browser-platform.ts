@@ -21,9 +21,11 @@ export function createBrowserPlatform(): GamePlatform {
       savePlayerPosition: async (caseId, player) => savePlayerPosition(caseId, player),
     },
     results: {
-      record: async (result) => {
+      record: async (result, opts) => {
         recordResult(result);
         const signedIn = !!accountStore.get().me;
+        // судья на сервере уже записал результат сам
+        if (opts?.recordedOnServer) return { delivered: true };
         return { delivered: signedIn ? await uploadResult(result) : true };
       },
       list: async () => listResults(),

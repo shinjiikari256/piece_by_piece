@@ -6,6 +6,7 @@ import { formatDate, isSaveOutdated, type SaveData } from "../state/save-data";
 import type { ResultRecord } from "../state/result-record";
 import { lastResultOf } from "../state/result-record";
 import { platform } from "../state/platform";
+import { useAccount } from "../state/account";
 import { usePlatformValue } from "../state/platform-hooks";
 import { useScrollKeys } from "./hooks";
 import { Alert } from "./alert";
@@ -19,9 +20,10 @@ import { creditText } from "./credit";
 
 export function useCaseList() {
   const [cases, setCases] = useState<CaseSummary[] | null>(null);
+  const signedIn = useAccount((a) => a.me?.id ?? null);
   useEffect(() => {
     caseRepository.list().then(setCases);
-  }, []);
+  }, [signedIn]);
   return cases;
 }
 

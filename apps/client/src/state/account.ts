@@ -68,14 +68,20 @@ export function useAccount<T>(selector: (s: AccountState) => T): T {
 
 export const isStaff = (me: Me | null) => me?.role === "admin" || me?.role === "teacher";
 
+let markReady!: () => void;
+/** Первая проверка сервера закончена (после неё известно, откуда брать дела). */
+export const accountReady = new Promise<void>((resolve) => (markReady = resolve));
+
 /** Узнать, есть ли сервер и кто вошёл. Вызывается при запуске страницы. */
 export async function initAccount() {
-  if (OFFLINE) return;
+  if (OFFLINE) return markReady();
   try {
     set({ server: "online", me: await api<Me>("GET", "/me") });
   } catch (e) {
     if (e instanceof ApiFailure && e.status === 401) set({ server: "online", me: null });
     else set({ server: "none", me: null });
+  } finally {
+    markReady();
   }
 }
 

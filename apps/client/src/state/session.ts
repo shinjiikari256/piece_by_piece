@@ -168,7 +168,7 @@ export const session = {
         resultFormatVersion: RESULT_FORMAT_VERSION,
       };
       // запись выполняется сразу (локально); дошёл ли результат до сервера, платформа сообщит позже
-      const delivery = platform().results.record(record);
+      const delivery = platform().results.record(record, { recordedOnServer: result.recordedOnServer });
       set({ screen: "result", score, record, debrief: result.debrief });
       void delivery.then(({ delivered }) => delivered || toast("Результат не удалось отправить на сервер — он сохранён в этом браузере"));
     } finally {

@@ -97,16 +97,18 @@ export const caseRoutes = new Hono<AppEnv>()
     const { body } = await loadCase(c, c.req.param("id"));
     return c.json(judge.revealed(body, deductionIds, hintsUsed));
   })
-  /** Разбор — только тому, кто уже сдал это дело. */
+  /** Разбор — студенту только после сдачи этого дела; преподавателю и администратору всегда. */
   .get("/cases/:id/debrief", async (c) => {
     const user = requireUser(c);
     const { body } = await loadCase(c, c.req.param("id"));
-    const [done] = await c.var.db
-      .select({ id: results.id })
-      .from(results)
-      .where(and(eq(results.userId, user.id), eq(results.caseId, body.id)))
-      .limit(1);
-    if (!done) throw new ApiError(403, "forbidden", "Разбор откроется после сдачи дела");
+    if (user.role === "student") {
+      const [done] = await c.var.db
+        .select({ id: results.id })
+        .from(results)
+        .where(and(eq(results.userId, user.id), eq(results.caseId, body.id)))
+        .limit(1);
+      if (!done) throw new ApiError(403, "forbidden", "Разбор откроется после сдачи дела");
+    }
     return c.json(body.solution);
   })
   /** Итог считает сервер по версии дела; результат записывается сразу (`source: "server"`). */

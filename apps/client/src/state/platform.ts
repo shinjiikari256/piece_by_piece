@@ -32,7 +32,7 @@ export interface SaveStore {
 /** История результатов игрока. */
 export interface ResultStore {
   /** `delivered: false` — результат сохранён только у игрока и не дошёл до места назначения (игра покажет предупреждение). */
-  record(result: ResultRecord): Promise<{ delivered: boolean }>;
+  record(result: ResultRecord, opts?: { recordedOnServer?: boolean }): Promise<{ delivered: boolean }>;
   /** История результатов игрока, свежие сверху. */
   list(): Promise<ResultRecord[]>;
   clear(): Promise<void>;
