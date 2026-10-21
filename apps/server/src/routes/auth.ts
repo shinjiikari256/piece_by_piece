@@ -49,8 +49,8 @@ export async function findJoinLink(db: Db, token: string) {
 /** Маршруты входа; у каждого экземпляра приложения — свои счётчики попыток. */
 export function authRoutes() {
   /** Вход: 5 попыток в минуту на IP+логин. Регистрация: 20 в час на IP (группа за одним NAT — нормально). */
-  const loginLimiter = new RateLimiter(5, 60_000);
-  const registerLimiter = new RateLimiter(20, 3_600_000);
+  const loginLimiter = new RateLimiter("login", 5, 60_000);
+  const registerLimiter = new RateLimiter("register", 20, 3_600_000);
 
   return (
     new Hono<AppEnv>()
@@ -62,7 +62,7 @@ export function authRoutes() {
             "registration_closed",
             "Регистрация сейчас закрыта — обратитесь к преподавателю",
           );
-        if (!registerLimiter.take(clientIp(c)))
+        if (!(await registerLimiter.take(db, clientIp(c))))
           throw new ApiError(
             429,
             "rate_limited",
@@ -112,7 +112,7 @@ export function authRoutes() {
         const db = c.var.db;
         const body = await parseBody(c, LoginBody);
         const key = `${clientIp(c)}|${body.login}`;
-        if (!loginLimiter.take(key))
+        if (!(await loginLimiter.take(db, key)))
           throw new ApiError(
             429,
             "rate_limited",
@@ -142,7 +142,7 @@ export function authRoutes() {
             "blocked",
             "Вход для этой учётной записи закрыт — обратитесь к преподавателю",
           );
-        loginLimiter.reset(key);
+        await loginLimiter.reset(db, key);
         const session = await createSession(db, user.id);
         setSessionCookie(c, session.token);
         return c.json(await toMe(db, user));

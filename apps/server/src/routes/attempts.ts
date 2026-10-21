@@ -49,7 +49,7 @@ type AttemptRow = typeof attempts.$inferSelect;
 /** Активная попытка без событий дольше этого срока считается брошенной. */
 const ABANDON_AFTER_MS = 30 * 86_400_000;
 /** Проверок сопоставлений на одну попытку. */
-const checks = new RateLimiter(10, 60_000);
+const checks = new RateLimiter("check", 10, 60_000);
 
 /** Игровое время: от «Начать» без пауз; null — ещё не начато. */
 export function elapsedMs(a: Pick<AttemptRow, "startedAt" | "pausedAt" | "pausedMs">, now = new Date()): number | null {
@@ -166,7 +166,7 @@ export const attemptRoutes = new Hono<AppEnv>()
     const a = await ownAttempt(c, c.req.param("id"), requireUser(c).id);
     mustBeActive(a);
     const { optionId } = await parseBody(c, CheckDeductionBody);
-    if (!checks.take(a.id)) throw new ApiError(429, "too_many", "Слишком частые проверки — подождите минуту");
+    if (!(await checks.take(c.var.db, a.id))) throw new ApiError(429, "too_many", "Слишком частые проверки — подождите минуту");
     const verdict = judge.checkDeduction(await caseBody(c.var.db, a.caseVersionId), c.req.param("deductionId"), optionId);
     if (!verdict) throw new ApiError(400, "invalid", "Нет такого варианта");
     const now = new Date();

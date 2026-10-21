@@ -1,4 +1,5 @@
 import { serve } from "@hono/node-server";
+import { sweepRateHits } from "./rate-limit";
 import { createApp } from "./app";
 import { ensureAdmin } from "./bootstrap";
 import { seedCases } from "./cases";
@@ -34,6 +35,8 @@ const app = createApp(db, {
   trustProxy: env.TRUST_PROXY === "1",
   offlineFile: env.OFFLINE_FILE,
 });
+void sweepRateHits(db);
+setInterval(() => void sweepRateHits(db), 3_600_000).unref();
 const port = Number(env.PORT ?? 8787);
 const server = serve({ fetch: app.fetch, port }, () =>
   console.log(`API: http://localhost:${port}/api`),

@@ -1,36 +1,45 @@
+import { and, count, eq, gt, lt } from "drizzle-orm";
+import type { Db } from "./db";
+import { rateHits } from "./db/schema";
+
 /**
- * Ограничение частоты в памяти процесса: «не больше N раз за окно» на ключ.
- * Для одного сервера достаточно; при нескольких экземплярах — вынести в базу.
+ * Ограничение частоты «не больше N раз за окно» на ключ. Счётчики лежат в базе,
+ * поэтому работают и при нескольких экземплярах сервера.
  */
 export class RateLimiter {
-  private hits = new Map<string, number[]>();
-
   constructor(
+    private readonly name: string,
     private readonly limit: number,
     private readonly windowMs: number,
   ) {}
 
+  private key(key: string) {
+    return `${this.name}:${key}`;
+  }
+
   /** true — можно; попытка засчитывается. */
-  take(key: string, now = Date.now()): boolean {
-    const recent = (this.hits.get(key) ?? []).filter(
-      (t) => now - t < this.windowMs,
-    );
-    if (recent.length >= this.limit) {
-      this.hits.set(key, recent);
-      return false;
-    }
-    recent.push(now);
-    this.hits.set(key, recent);
-    if (this.hits.size > 10_000) this.sweep(now);
-    return true;
+  async take(db: Db, key: string, now = Date.now()): Promise<boolean> {
+    const k = this.key(key);
+    const since = new Date(now - this.windowMs);
+    return db.transaction(async (tx) => {
+      const [{ n }] = await tx
+        .select({ n: count() })
+        .from(rateHits)
+        .where(and(eq(rateHits.key, k), gt(rateHits.at, since)));
+      if (n >= this.limit) return false;
+      await tx.insert(rateHits).values({ key: k, at: new Date(now) });
+      // старые записи этого ключа больше не нужны
+      await tx.delete(rateHits).where(and(eq(rateHits.key, k), lt(rateHits.at, since)));
+      return true;
+    });
   }
 
-  reset(key: string) {
-    this.hits.delete(key);
+  async reset(db: Db, key: string) {
+    await db.delete(rateHits).where(eq(rateHits.key, this.key(key)));
   }
+}
 
-  private sweep(now: number) {
-    for (const [k, ts] of this.hits)
-      if (ts.every((t) => now - t >= this.windowMs)) this.hits.delete(k);
-  }
+/** Удалить записи старше суток (вызывается при старте и по таймеру). */
+export async function sweepRateHits(db: Db, now = Date.now()) {
+  await db.delete(rateHits).where(lt(rateHits.at, new Date(now - 86_400_000)));
 }

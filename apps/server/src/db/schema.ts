@@ -272,3 +272,14 @@ export const attemptEvents = pgTable(
   },
   (t) => [index("attempt_events_attempt_idx").on(t.attemptId)],
 );
+
+/** Обращения для ограничения частоты (`rate-limit.ts`): ключ вида `имя:значение` и время. */
+export const rateHits = pgTable(
+  "rate_hits",
+  {
+    id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+    key: text("key").notNull(),
+    at: timestamp("at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index("rate_hits_key_idx").on(t.key, t.at)],
+);
