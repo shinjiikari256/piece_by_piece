@@ -1,0 +1,15 @@
+www.pokusochkam.ru {
+	redir https://pokusochkam.ru{uri} permanent
+}
+
+pokusochkam.ru {
+	encode zstd gzip
+	handle /api/* {
+		reverse_proxy api:8787
+	}
+	handle {
+		root * /srv
+		try_files {path} /index.html
+		file_server
+	}
+}

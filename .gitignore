@@ -6,3 +6,8 @@ offline
 
 working/*
 !working/.gitkeep
+
+.env
+.env.*
+!.env.example
+/backups

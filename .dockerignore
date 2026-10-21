@@ -3,3 +3,7 @@ dist
 offline
 .env
 working
+.git
+e2e
+backups
+.env*
