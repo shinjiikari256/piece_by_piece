@@ -45,6 +45,11 @@ export interface CaseResult {
 export interface Revealed {
   conclusions: Record<string, string>;
   hints: RevealedHint[];
+  /** Сколько подсказок открыто и ошибок сделано — по учёту судьи (сервер не верит сохранению игрока). */
+  hintsUsed: number;
+  wrongDeductions?: number;
+  /** Игровое время по часам судьи; null/нет — считает сам клиент. */
+  elapsedMs?: number | null;
 }
 
 /** Связь игрока с судьёй на одно прохождение дела. */
@@ -55,6 +60,12 @@ export interface CaseAuthority {
   revealHint(level: number): Promise<RevealedHint>;
   /** Восстановить узнанное по сохранению. */
   restore(deductionIds: string[], hintsUsed: number): Promise<Revealed>;
+  /** Игрок нажал «Начать расследование» (новое прохождение; серверный судья начинает отсчёт времени, при повторе — заново). */
+  begin?(): Promise<void>;
+  /** Игрок вышел с сохранением: серверное время стоит. */
+  pause?(): Promise<void>;
+  /** Игрок вышел без сохранения: прохождение закрывается, следующее — с нуля. */
+  discard?(): Promise<void>;
   finish(input: FinishInput): Promise<CaseResult>;
   /** Разбор для уже сданного дела (открыть результат из списка). */
   debrief(): Promise<Solution | null>;
@@ -83,6 +94,7 @@ export function revealed(c: CaseFile, deductionIds: string[], hintsUsed: number)
       .filter((h) => h.level <= hintsUsed)
       .sort((a, b) => a.level - b.level)
       .map((h) => ({ level: h.level, text: h.text, penalty: h.penalty })),
+    hintsUsed,
   };
 }
 

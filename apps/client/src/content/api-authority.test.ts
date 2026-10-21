@@ -40,15 +40,13 @@ describe("ApiAuthority", () => {
     expect(await remote.checkDeduction(d.id, option.id)).toEqual(await local.checkDeduction(d.id, option.id));
     expect(await remote.revealHint(full.hints[0].level)).toEqual(await local.revealHint(full.hints[0].level));
 
-    const input = {
-      answers: Object.fromEntries(full.questions.map((q) => [q.id, [q.options[0].id]])),
-      hintsUsed: 1,
-      elapsedMs: 300_000,
-      wrongDeductions: 0,
-      importantEvidence: [],
-    };
+    await remote.begin();
+    const answers = Object.fromEntries(full.questions.map((q) => [q.id, [q.options[0].id]]));
+    const input = { answers, hintsUsed: 1, elapsedMs: 300_000, wrongDeductions: 0, importantEvidence: [] };
     const [r, l] = [await remote.finish(input), await local.finish(input)];
-    expect(r.score).toEqual(JSON.parse(JSON.stringify(l.score)));
+    // время считает сервер (прошло мгновения), у остального — те же баллы
+    expect(r.score.total).toBeGreaterThanOrEqual(l.score.total);
+    expect(r.score.max).toBe(l.score.max);
     expect((await api<unknown[]>("GET", "/me/results")).length, "сервер записал результат сам").toBe(1);
     expect(await remote.debrief()).toEqual(JSON.parse(JSON.stringify(full.solution)));
   });

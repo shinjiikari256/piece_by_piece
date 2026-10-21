@@ -58,6 +58,7 @@ export const session = {
     }));
     // стираем старое сохранение после смены состояния: автосохранение только что записало новое начало, а оно не нужно, пока игрок ничего не сделал
     if (caseId) void platform().saves.clear(caseId);
+    void getAuthority()?.begin?.().catch(() => toast("Нет связи с сервером: время расследования может не засчитаться"));
     // старт тоже вход в локацию
     enterLocation(state.locationId);
   },
@@ -79,14 +80,14 @@ export const session = {
       caseFile,
       screen: save.screen,
       // пока игрока не было, таймер стоял
-      startedAt: (save.startedAt ?? Date.now()) + (save.pausedAt ? Math.max(0, Date.now() - save.pausedAt) : 0),
+      startedAt: known.elapsedMs != null ? Date.now() - known.elapsedMs : (save.startedAt ?? Date.now()) + (save.pausedAt ? Math.max(0, Date.now() - save.pausedAt) : 0),
       // выбранные варианты раньше лежали отдельно (`usedChoices`)
       progress: { ...save.progress, chosen: save.progress.chosen ?? save.usedChoices ?? [] },
       examined: save.examined,
       marks: save.marks ?? {},
-      wrongDeductions: save.wrongDeductions,
+      wrongDeductions: known.wrongDeductions ?? save.wrongDeductions,
       playerNotes: save.playerNotes,
-      hintsUsed: save.hintsUsed,
+      hintsUsed: known.hintsUsed,
       hints: known.hints,
       conclusions: known.conclusions,
       answers: save.answers,
@@ -107,6 +108,8 @@ export const session = {
   exitToMenu(keepProgress: boolean) {
     if (!keepProgress && state.caseFile) void platform().saves.clear(state.caseFile.id);
     if (keepProgress && state.caseFile) void platform().saves.markPaused(state.caseFile.id);
+    const judge = getAuthority();
+    void (keepProgress ? judge?.pause?.() : judge?.discard?.())?.catch(() => {});
     setAuthority(null);
     set({ ...initialState(), runId: state.runId });
     navigate(FROM_EDITOR ? editorPathOfPlaytest() : "/cases");

@@ -150,6 +150,8 @@ export const results = pgTable(
     gameVersion: text("game_version"),
     resultFormatVersion: integer("result_format_version").notNull(),
     source: text("source").notNull().default("client"),
+    /** Попытка, из которой получен результат (серверные результаты). */
+    attemptId: text("attempt_id"),
     finishedAt: timestamp("finished_at", { withTimezone: true }).notNull(),
     createdAt: createdAt(),
   },
@@ -182,4 +184,53 @@ export const caseVersions = pgTable(
     createdAt: createdAt(),
   },
   (t) => [uniqueIndex("case_versions_hash_idx").on(t.caseId, t.contentHash)],
+);
+
+export type AttemptStatus = "active" | "finished" | "reset" | "abandoned";
+
+/**
+ * Прохождение дела на сервере. Время, подсказки и ошибки считает сервер по событиям, клиенту не верит.
+ * `started_at` пуст, пока игрок не нажал «Начать» (чтение вступления не в счёт); `paused_ms` — накопленные паузы.
+ */
+export const attempts = pgTable(
+  "attempts",
+  {
+    id: text("id").primaryKey(),
+    userId: integer("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    caseId: text("case_id")
+      .notNull()
+      .references((): AnyPgColumn => cases.id, { onDelete: "cascade" }),
+    caseVersionId: integer("case_version_id")
+      .notNull()
+      .references((): AnyPgColumn => caseVersions.id),
+    status: text("status").$type<AttemptStatus>().notNull().default("active"),
+    startedAt: timestamp("started_at", { withTimezone: true }),
+    pausedAt: timestamp("paused_at", { withTimezone: true }),
+    pausedMs: integer("paused_ms").notNull().default(0),
+    lastEventAt: timestamp("last_event_at", { withTimezone: true }).notNull().defaultNow(),
+    hintsUsed: integer("hints_used").notNull().default(0),
+    wrongDeductions: integer("wrong_deductions").notNull().default(0),
+    /** Брошенные и начатые заново попытки не идут в статистику. */
+    excludedFromStats: boolean("excluded_from_stats").notNull().default(false),
+    finishedAt: timestamp("finished_at", { withTimezone: true }),
+    createdAt: createdAt(),
+  },
+  (t) => [index("attempts_user_case_idx").on(t.userId, t.caseId, t.status)],
+);
+
+/** Журнал событий попытки: start, check, hint, pause, resume, finish, reset, abandoned. */
+export const attemptEvents = pgTable(
+  "attempt_events",
+  {
+    id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+    attemptId: text("attempt_id")
+      .notNull()
+      .references(() => attempts.id, { onDelete: "cascade" }),
+    type: text("type").notNull(),
+    payload: jsonb("payload"),
+    at: timestamp("at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index("attempt_events_attempt_idx").on(t.attemptId)],
 );

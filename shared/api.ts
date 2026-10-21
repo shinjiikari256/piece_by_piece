@@ -284,18 +284,27 @@ export interface ServerPublicCase {
 
 export const CheckDeductionBody = z.object({ optionId: z.string().min(1).max(100) });
 
-export const RestoreBody = z.object({
-  deductionIds: z.array(z.string().max(100)).max(200),
-  hintsUsed: z.number().int().min(0).max(50),
+export const AttemptStartBody = z.object({
+  /** Начать заново: действующая попытка закрывается как reset. */
+  fresh: z.boolean().optional(),
 });
 
+/** Прохождение на сервере: дело без ответов и то, что сервер уже насчитал. */
+export interface ServerAttempt {
+  attemptId: string;
+  caseVersionId: number;
+  caseFile: PublicCase;
+  /** Игрок уже нажимал «Начать» (время идёт). */
+  started: boolean;
+  hintsUsed: number;
+  wrongDeductions: number;
+  elapsedMs: number | null;
+}
+
+/** Сдача: время, подсказки и ошибки сервер берёт из попытки, а не из запроса. */
 export const FinishBody = z.object({
   answers: z.record(z.string(), z.array(z.string().max(100)).max(100)),
-  hintsUsed: z.number().int().min(0).max(50),
-  elapsedMs: z.number().int().min(0).nullable(),
-  wrongDeductions: z.number().int().min(0).max(10_000),
   importantEvidence: z.array(z.string().max(100)).max(500),
   gameVersion: z.string().max(32).nullable().optional(),
-  finishedAt: z.iso.datetime().optional(),
 });
 export type FinishBody = z.input<typeof FinishBody>;
