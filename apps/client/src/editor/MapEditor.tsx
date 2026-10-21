@@ -18,6 +18,7 @@ import { describeHit, toolHint } from "./map/describe";
 import { hitTest, opaqueAt, parseSelection, posOf as posOfSel } from "./map/hit-test";
 import { PanelGrip, PanelRail, panelVars, usePanel } from "./panels";
 import { useUrlParam, useWriteDefaultParam } from "./url";
+import { useFocusJump } from "./useFocusJump";
 
 
 
@@ -46,13 +47,12 @@ export function MapEditor() {
   const [zoom, setZoom] = useState<number | "fit">("fit");
   const [rect, setRect] = useState<{ from: { x: number; y: number }; to: { x: number; y: number } } | null>(null);
   // переход к объекту с ошибкой
-  const focus = useEditor((s) => s.focus);
-  useEffect(() => {
-    if (focus?.section !== "locations") return;
+  useFocusJump((focus) => {
+    if (focus.section !== "locations") return;
     const i = draft.locations.findIndex((l) => l.id === focus.sub);
     if (i >= 0) setLocIndex(i);
     if (focus.kind && focus.id) setSel({ kind: focus.kind, id: focus.id } as Selection);
-  }, [focus]); // eslint-disable-line react-hooks/exhaustive-deps
+  });
   const canvas = useRef<HTMLCanvasElement>(null);
   const art = useSpriteCanvases();
   const stroke = useRef<{ id: number; drag?: { dx: number; dy: number }; zone?: string; add?: boolean } | null>(null);

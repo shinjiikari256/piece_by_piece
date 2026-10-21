@@ -17,6 +17,7 @@ import { resolveLook } from "../../game/art";
 import { ask } from "../../ui/dialog";
 import { EventWhen } from "../fields/EventTime";
 import { SCHEMA, itemHeading, listActions } from "../shared";
+import { useFocusJump } from "../useFocusJump";
 
 /** Событие с новым временем; пустой конец в дело не пишется. */
 function withWhen(ev: CaseEvent, when: { at: string; until?: string }): CaseEvent {
@@ -41,12 +42,10 @@ export function ListSection({ field }: { field: keyof CaseFile }) {
     setItemKey(now[i] === undefined ? "" : keyOf(now[i], i));
   };
   // переход к объекту с ошибкой
-  const focus = useEditor((s) => s.focus);
-  useEffect(() => {
-    if (!focus?.id) return;
-    const i = list.findIndex((x) => (x as { id?: string }).id === focus.id);
+  useFocusJump((focus) => {
+    const i = focus.id ? list.findIndex((x) => (x as { id?: string }).id === focus.id) : -1;
     if (i >= 0) setSelected(i);
-  }, [focus]); // eslint-disable-line react-hooks/exhaustive-deps
+  });
   const update = (next: unknown[]) => editor.update((d) => ({ ...d, [field]: next }) as CaseFile, `${String(field)}:${index}`);
 
   const add = () => {

@@ -17,6 +17,7 @@ import { useUrlParam, useWriteDefaultParam } from "./url";
 import { resolveLook } from "../game/art";
 import { ask } from "../ui/dialog";
 import { NODE_W, autoLayout, loadLayout, saveLayout, type Layout, type Pos } from "./dialogue-layout";
+import { useFocusJump } from "./useFocusJump";
 
 const NODE_SCHEMA: JS = formSchema(NodeSchema);
 const DIALOGUE_SCHEMA: JS = formSchema(DialogueSchema);
@@ -45,14 +46,12 @@ export function DialogueEditor() {
   const selected = urlNode || null;
   const setSelected = (id: string | null) => setSearchParams({ node: id });
   // переход к узлу с ошибкой
-  const focus = useEditor((s) => s.focus);
-  useEffect(() => {
-    if (!focus?.id) return;
-    if (focus.section === "dialogues") {
+  useFocusJump((focus) => {
+    if (focus.id && focus.section === "dialogues") {
       setDialogueId(focus.id);
       setSelected(focus.sub ?? null);
     }
-  }, [focus]); // eslint-disable-line react-hooks/exhaustive-deps
+  });
   const [layout, setLayout] = useState<Layout>(() => loadLayout(draft.id));
   useEffect(() => setLayout(loadLayout(draft.id)), [draft.id]);
 

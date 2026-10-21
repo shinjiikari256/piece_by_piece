@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { CaseFile } from "../../../../../shared/case";
 import { editor, useEditor } from "../state";
 import { deleteFlag, flagUsage, type FlagUse } from "../SchemaForm";
@@ -12,13 +12,13 @@ import { UsageList } from "../fields/UsageList";
 import { KeyInput, keyChars } from "../fields/KeyInput";
 import { CounterEditor } from "./Counters";
 import { EnumEditor } from "./Enums";
+import { useFocusJump } from "../useFocusJump";
 
 type Entry = { kind: "flag" | "counter" | "enum"; id: string };
 
 /** Переменные дела одним списком: значок — тип (флаг, счётчик; позже — другие); слева список, справа правка. */
 export function FlagsSection() {
   const draft = useEditor((s) => s.draft);
-  const focus = useEditor((s) => s.focus);
   const [dialog, setDialog] = useState<"new" | null>(null);
   const usage = flagUsage(draft);
   const nameOf = (id: string) => draft.flags?.find((f) => f.id === id)?.name ?? "";
@@ -33,9 +33,9 @@ export function FlagsSection() {
     ...enums.map((e) => ({ kind: "enum" as const, id: e.id })),
   ];
   const [selected, setSelected] = useUrlParam("item", ""); // выбранный флаг или счётчик — в адресе
-  useEffect(() => {
-    if (focus?.section === "flags" && focus.id) setSelected(focus.id);
-  }, [focus]); // eslint-disable-line react-hooks/exhaustive-deps
+  useFocusJump((focus) => {
+    if (focus.section === "flags" && focus.id) setSelected(focus.id);
+  });
   const current = entries.find((e) => e.id === selected) ?? entries[0] ?? null;
   useWriteDefaultParam("item", current?.id === selected, entries[0]?.id);
 
