@@ -61,6 +61,7 @@ export const caseAdminRoutes = new Hono<AppEnv>()
     const db = c.var.db;
     const staff = requireStaff(c);
     const id = c.req.param("id");
+    if (c.req.query("rights") !== "1") throw new ApiError(400, "rights_required", "Подтвердите, что вы автор дела или имеете право его публиковать");
     const parsed = parseCase(await c.req.json().catch(() => null));
     if (!parsed.success) throw new ApiError(400, "invalid", `Дело не прошло проверку: ${parsed.errors.slice(0, 5).join("; ")}`);
     if (parsed.data.id !== id) throw new ApiError(400, "invalid", "Ключ дела не совпадает с адресом");
@@ -74,6 +75,6 @@ export const caseAdminRoutes = new Hono<AppEnv>()
       .where(eq(cases.id, id));
     if (current && canonical(current.body) === canonical(parsed.data)) return c.json({ result: "same" });
     const result = await saveCaseVersion(db, parsed.data, staff.id);
-    await db.insert(auditLog).values({ userId: staff.id, action: "cases.save", payload: { id, result } });
+    await db.insert(auditLog).values({ userId: staff.id, action: "cases.save", payload: { id, result, rightsConfirmed: true } });
     return c.json({ result });
   });

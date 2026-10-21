@@ -220,16 +220,17 @@ describe("импорт офлайн-результатов", () => {
     expect(list.map((x: { id: string }) => x.id)).toContain("case-001");
     const cur = (await call("GET", "/admin/cases/case-001")).json;
     expect(cur.caseFile.id).toBe("case-001");
-    expect((await call("PUT", "/admin/cases/case-001", cur.caseFile)).json.result).toBe("same");
+    expect((await call("PUT", "/admin/cases/case-001?rights=1", cur.caseFile)).json.result).toBe("same");
     const edited = { ...cur.caseFile, title: "Правка" };
-    expect((await call("PUT", "/admin/cases/case-001", edited)).json.result).toBe("created");
+    expect((await call("PUT", "/admin/cases/case-001?rights=1", edited)).json.result).toBe("created");
     expect((await call("GET", "/admin/cases/case-001")).json.caseFile.title).toBe("Правка");
     expect((await call("GET", "/admin/cases/case-001/versions")).json.length).toBe(2);
-    expect((await call("PUT", "/admin/cases/case-002", edited)).status).toBe(400);
-    expect((await call("PUT", "/admin/cases/case-001", { id: "case-001" })).status).toBe(400);
+    expect((await call("PUT", "/admin/cases/case-002?rights=1", edited)).status).toBe(400);
+    expect((await call("PUT", "/admin/cases/case-001?rights=1", { id: "case-001" })).status).toBe(400);
+    expect((await call("PUT", "/admin/cases/case-001", edited)).json.error).toBe("rights_required");
     // преподаватель не правит дело, посеянное из репозитория
     await db.update(schema.users).set({ role: "teacher" }).where(eq(schema.users.login, "ivanova"));
     await asStudent();
-    expect((await call("PUT", "/admin/cases/case-001", cur.caseFile)).status).toBe(403);
+    expect((await call("PUT", "/admin/cases/case-001?rights=1", cur.caseFile)).status).toBe(403);
   });
 });

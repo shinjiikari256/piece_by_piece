@@ -49,12 +49,12 @@ export async function publishToServer() {
   if (errors.length) return editor.goto("errors");
   const ok = await ask({
     title: "Записать дело на сервер?",
-    text: `Дело «${draft.title}» станет новой действующей версией. Начатые прохождения продолжатся на прежней версии.`,
-    confirmLabel: "Записать",
+    text: `Дело «${draft.title}» станет новой действующей версией. Начатые прохождения продолжатся на прежней версии.\n\nНажимая «Подтверждаю», вы заявляете, что являетесь автором дела или имеете право его публиковать, и разрешаете платформе хранить и показывать его игрокам в пределах игры.`,
+    confirmLabel: "Подтверждаю",
   });
   if (!ok) return;
   try {
-    const { result } = await api<{ result: "created" | "same" }>("PUT", `/admin/cases/${encodeURIComponent(draft.id)}`, draft);
+    const { result } = await api<{ result: "created" | "same" }>("PUT", `/admin/cases/${encodeURIComponent(draft.id)}?rights=1`, draft);
     await tell({ title: result === "created" ? "Версия записана" : "Без изменений", text: result === "created" ? "Дело на сервере обновлено." : "На сервере уже такая же версия." });
   } catch (e) {
     await tell({ title: "Не удалось записать", text: e instanceof ApiFailure ? e.message : "Нет связи с сервером." });
