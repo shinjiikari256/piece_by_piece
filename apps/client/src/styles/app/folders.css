@@ -145,6 +145,15 @@
 /* ---------- закладки и окна-папки (FolderTabs, TabbedModal) ---------- */
 
 /* ---------- закладки стартовой папки ---------- */
+.folder__new {
+  display: inline-block;
+  width: 0.55em;
+  height: 0.55em;
+  margin-left: 0.4em;
+  border-radius: 50%;
+  background: var(--accent);
+  vertical-align: middle;
+}
 .folder__tab--btn {
   border: none;
   font: inherit;

@@ -6,6 +6,8 @@ export interface FolderTab {
   id: string;
   label: string;
   icon?: IconName;
+  /** Непросмотренное: у закладки появляется точка. */
+  isNew?: boolean;
 }
 
 /**
@@ -43,6 +45,7 @@ export function FolderTabs({
         const label = (
           <>
             {t.icon && <Icon name={t.icon} size={15} />} {t.label}
+            {t.isNew && <span className="folder__new" role="img" aria-label="новое" title="Новое" />}
           </>
         );
         return onTab && tabs.length > 1 ? (

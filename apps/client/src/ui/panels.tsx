@@ -89,11 +89,11 @@ export function ObjectPanel({ objectId, gained = [] }: { objectId: string; gaine
     </button>
   );
 
-  // несколько улик: закладки — «Осмотр» и по закладке на каждую улику; свежевыданные помечены «новое», пока закладка не открыта
+  // несколько улик: закладки — «Осмотр» и по закладке на каждую улику; свежевыданные помечены точкой, пока закладка не открыта
   if (items.length > 1) {
     const tabs = [
       { id: "inspect", label: "Осмотр", icon: "search" as const },
-      ...items.map((e) => ({ id: e.id, label: gained.includes(e.id) && !seen.includes(e.id) ? `${e.title} · новое` : e.title, icon: KIND_ICON[e.kind] })),
+      ...items.map((e) => ({ id: e.id, label: e.title, icon: KIND_ICON[e.kind], isNew: gained.includes(e.id) && !seen.includes(e.id) })),
     ];
     return (
       <TabbedModal
