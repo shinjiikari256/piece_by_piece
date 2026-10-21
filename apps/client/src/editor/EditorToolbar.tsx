@@ -3,7 +3,8 @@ import { setMapDock, useMapDock } from "./layout";
 import { editor, useEditor, type SectionId } from "./state";
 import { Alert } from "../ui/alert";
 import { Icon } from "../ui/icons";
-import { startPlaytest } from "./actions";
+import { publishToServer, startPlaytest } from "./actions";
+import { isStaff, useAccount } from "../state/account";
 
 /** Короткие инструкции к разделам конструктора. */
 const HELP: Record<SectionId, { title: string; points: string[] }> = {
@@ -150,6 +151,7 @@ export function Toolbar() {
   const dirty = useEditor((s) => s.dirty);
   const canUndo = useEditor((s) => s.past.length > 0);
   const canRedo = useEditor((s) => s.future.length > 0);
+  const online = useAccount((a) => a.server === "online" && isStaff(a.me));
   const [openHelp, setOpenHelp] = useState(false);
   const section = useEditor((s) => s.section);
   const dock = useMapDock();
@@ -196,6 +198,11 @@ export function Toolbar() {
         <button className="btn ed__play" onClick={startPlaytest} title={errors.length ? "Сначала исправьте ошибки" : "Открыть дело в игре"}>
           <Icon name="play" size={15} /> Запустить
         </button>
+        {online && (
+          <button className="btn" onClick={() => void publishToServer()} title={errors.length ? "Сначала исправьте ошибки" : "Записать дело на сервер новой версией"}>
+            <Icon name="upload" size={15} /> На сервер
+          </button>
+        )}
         <button
           className="btn btn--primary ed__save"
           disabled={!dirty || errors.length > 0}
