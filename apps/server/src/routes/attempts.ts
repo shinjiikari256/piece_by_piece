@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto";
 import { Hono } from "hono";
-import { and, asc, eq, lt } from "drizzle-orm";
+import { and, asc, count, eq, isNull, lt } from "drizzle-orm";
 import { AttemptStartBody, CheckDeductionBody, FinishBody, type ServerAttempt } from "../../../../shared/api";
 import type { CaseFile } from "../../../../shared/case";
 import * as judge from "../../../../shared/judge";
@@ -8,10 +8,41 @@ import { RESULT_FORMAT_VERSION, type CaseResult, type Revealed } from "../../../
 import { toPublicCase } from "../../../../shared/public-case";
 import { bindSprites } from "../../../../shared/sprite-bindings";
 import type { Db } from "../db";
-import { attemptEvents, attempts, caseVersions, cases, results } from "../db/schema";
+import { attemptEvents, attempts, caseVersions, cases, eventAccess, eventCases, events, results } from "../db/schema";
 import { ApiError, parseBody, requireUser, type AppEnv, type Ctx } from "../http";
 import { RateLimiter } from "../rate-limit";
+import { isOpen } from "./events";
 import { toServerResult } from "./results";
+
+type EventRow = typeof events.$inferSelect;
+
+/** Мероприятие для новой попытки: открыто, дело в нём, группа игрока допущена, зачётные попытки не исчерпаны. */
+async function checkEvent(db: Db, user: { id: number; role: string; groupId: number | null }, eventId: number, caseId: string, now: Date): Promise<EventRow> {
+  const [ev] = await db.select().from(events).where(eq(events.id, eventId));
+  if (!ev) throw new ApiError(404, "not_found", "Мероприятие не найдено");
+  const [inEvent] = await db.select().from(eventCases).where(and(eq(eventCases.eventId, eventId), eq(eventCases.caseId, caseId)));
+  if (!inEvent) throw new ApiError(404, "not_found", "Этого дела нет в мероприятии");
+  if (user.role === "student") {
+    const [access] = user.groupId ? await db.select().from(eventAccess).where(and(eq(eventAccess.eventId, eventId), eq(eventAccess.groupId, user.groupId))) : [];
+    if (!access) throw new ApiError(404, "not_found", "Мероприятие не найдено");
+    if (!isOpen(ev, now)) throw new ApiError(409, "event_closed", "Мероприятие сейчас закрыто");
+    if (ev.maxScoredAttempts != null) {
+      const [{ n }] = await db
+        .select({ n: count() })
+        .from(attempts)
+        .where(and(eq(attempts.userId, user.id), eq(attempts.eventId, eventId), eq(attempts.caseId, caseId), eq(attempts.status, "finished")));
+      if (n >= ev.maxScoredAttempts) throw new ApiError(409, "attempts_exhausted", "Зачётные попытки закончились");
+    }
+  }
+  return ev;
+}
+
+/** Покажет ли разбор студенту правила мероприятия (для свободной игры — всегда после сдачи). */
+export function debriefAllowed(ev: Pick<EventRow, "debriefPolicy" | "closesAt"> | null, now = new Date()): boolean {
+  if (!ev || ev.debriefPolicy === "immediate") return true;
+  if (ev.debriefPolicy === "never") return false;
+  return !!ev.closesAt && ev.closesAt <= now;
+}
 
 type AttemptRow = typeof attempts.$inferSelect;
 
@@ -53,7 +84,7 @@ export const attemptRoutes = new Hono<AppEnv>()
   /** Начать дело или вернуться к начатому (с `fresh` — заново). */
   .post("/cases/:id/attempts", async (c) => {
     const user = requireUser(c);
-    const { fresh } = await parseBody(c, AttemptStartBody);
+    const { fresh, eventId } = await parseBody(c, AttemptStartBody);
     const db = c.var.db;
     const caseId = c.req.param("id");
     const now = new Date();
@@ -74,7 +105,10 @@ export const attemptRoutes = new Hono<AppEnv>()
     const currentBody = await caseBody(db, current.id);
     if (!currentBody.published && user.role === "student") throw new ApiError(404, "not_found", "Дело не найдено");
 
-    let [a] = await db.select().from(attempts).where(and(eq(attempts.userId, user.id), eq(attempts.caseId, caseId), eq(attempts.status, "active")));
+    let [a] = await db
+      .select()
+      .from(attempts)
+      .where(and(eq(attempts.userId, user.id), eq(attempts.caseId, caseId), eq(attempts.status, "active"), eventId ? eq(attempts.eventId, eventId) : isNull(attempts.eventId)));
     if (a && fresh) {
       await db.update(attempts).set({ status: "reset", excludedFromStats: true, finishedAt: now }).where(eq(attempts.id, a.id));
       await log(db, a.id, "reset", null, now);
@@ -87,9 +121,10 @@ export const attemptRoutes = new Hono<AppEnv>()
       await db.update(attempts).set({ pausedAt: null, pausedMs: a.pausedMs, lastEventAt: now }).where(eq(attempts.id, a.id));
       if (away) await log(db, a.id, "resume", { awayMs: away }, now);
     } else {
+      if (eventId) await checkEvent(db, user, eventId, caseId, now);
       [a] = await db
         .insert(attempts)
-        .values({ id: randomUUID(), userId: user.id, caseId, caseVersionId: current.id })
+        .values({ id: randomUUID(), userId: user.id, caseId, caseVersionId: current.id, eventId: eventId ?? null })
         .returning();
     }
 
@@ -178,6 +213,8 @@ export const attemptRoutes = new Hono<AppEnv>()
     const a = await ownAttempt(c, c.req.param("id"), user.id);
     const input = await parseBody(c, FinishBody);
     const body = await caseBody(c.var.db, a.caseVersionId);
+    const [ev] = a.eventId ? await c.var.db.select().from(events).where(eq(events.id, a.eventId)) : [];
+    const showDebrief = user.role !== "student" || debriefAllowed(ev ?? null);
 
     if (a.status === "finished") {
       const [done] = await c.var.db.select().from(results).where(eq(results.attemptId, a.id));
@@ -185,7 +222,7 @@ export const attemptRoutes = new Hono<AppEnv>()
         const out: CaseResult & { record: unknown } = {
           score: done.score as CaseResult["score"],
           caseConfigVersion: done.caseConfigVersion,
-          debrief: body.solution,
+          debrief: showDebrief ? body.solution : null,
           record: toServerResult(done),
         };
         return c.json(out);
@@ -222,6 +259,7 @@ export const attemptRoutes = new Hono<AppEnv>()
           resultFormatVersion: RESULT_FORMAT_VERSION,
           source: "server",
           attemptId: a.id,
+          eventId: a.eventId,
           finishedAt: now,
         })
         .returning();
@@ -229,5 +267,5 @@ export const attemptRoutes = new Hono<AppEnv>()
       await tx.insert(attemptEvents).values({ attemptId: a.id, type: "finish", payload: { total: r.total }, at: now });
       return r;
     });
-    return c.json({ ...result, record: toServerResult(row) }, 201);
+    return c.json({ ...result, debrief: showDebrief ? result.debrief : null, record: toServerResult(row) }, 201);
   });

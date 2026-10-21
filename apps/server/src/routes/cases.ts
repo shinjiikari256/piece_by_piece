@@ -1,11 +1,12 @@
 import { Hono } from "hono";
-import { and, eq } from "drizzle-orm";
+import { and, eq, inArray } from "drizzle-orm";
 import type { ServerCaseSummary, ServerPublicCase } from "../../../../shared/api";
 import type { CaseFile } from "../../../../shared/case";
 import { toPublicCase } from "../../../../shared/public-case";
 import { bindSprites } from "../../../../shared/sprite-bindings";
-import { caseVersions, cases, results } from "../db/schema";
+import { caseVersions, cases, events, results } from "../db/schema";
 import { ApiError, requireUser, type AppEnv, type Ctx } from "../http";
+import { debriefAllowed } from "./attempts";
 
 const notFound = () => new ApiError(404, "not_found", "Дело не найдено");
 
@@ -62,12 +63,16 @@ export const caseRoutes = new Hono<AppEnv>()
     const user = requireUser(c);
     const { body } = await currentCase(c, c.req.param("id"));
     if (user.role === "student") {
-      const [done] = await c.var.db
-        .select({ id: results.id })
+      // свободная игра открывает разбор сразу после сдачи; сдача в мероприятии — по его правилам
+      const done = await c.var.db
+        .select({ eventId: results.eventId })
         .from(results)
-        .where(and(eq(results.userId, user.id), eq(results.caseId, body.id)))
-        .limit(1);
-      if (!done) throw new ApiError(403, "forbidden", "Разбор откроется после сдачи дела");
+        .where(and(eq(results.userId, user.id), eq(results.caseId, body.id)));
+      if (!done.length) throw new ApiError(403, "forbidden", "Разбор откроется после сдачи дела");
+      const evIds = done.flatMap((r) => (r.eventId == null ? [] : [r.eventId]));
+      const evs = evIds.length ? await c.var.db.select().from(events).where(inArray(events.id, evIds)) : [];
+      const allowed = done.some((r) => r.eventId == null) || evs.some((e) => debriefAllowed(e));
+      if (!allowed) throw new ApiError(403, "forbidden", "Разбор для этого мероприятия закрыт");
     }
     return c.json(body.solution);
   });

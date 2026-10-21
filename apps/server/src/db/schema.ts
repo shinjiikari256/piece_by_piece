@@ -152,6 +152,8 @@ export const results = pgTable(
     source: text("source").notNull().default("client"),
     /** Попытка, из которой получен результат (серверные результаты). */
     attemptId: text("attempt_id"),
+    /** Мероприятие, в рамках которого пройдено дело (нет — свободная игра). */
+    eventId: integer("event_id"),
     finishedAt: timestamp("finished_at", { withTimezone: true }).notNull(),
     createdAt: createdAt(),
   },
@@ -192,6 +194,40 @@ export type AttemptStatus = "active" | "finished" | "reset" | "abandoned";
  * Прохождение дела на сервере. Время, подсказки и ошибки считает сервер по событиям, клиенту не верит.
  * `started_at` пуст, пока игрок не нажал «Начать» (чтение вступления не в счёт); `paused_ms` — накопленные паузы.
  */
+export type DebriefPolicy = "immediate" | "after_close" | "never";
+
+/** Мероприятие: набор дел для групп в окне времени, с правилами разбора и числом зачётных попыток. */
+export const events = pgTable("events", {
+  id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+  title: text("title").notNull(),
+  opensAt: timestamp("opens_at", { withTimezone: true }),
+  closesAt: timestamp("closes_at", { withTimezone: true }),
+  debriefPolicy: text("debrief_policy").$type<DebriefPolicy>().notNull().default("immediate"),
+  /** Сколько раз можно сдать дело в мероприятии; нет — без ограничения. */
+  maxScoredAttempts: integer("max_scored_attempts"),
+  createdBy: integer("created_by").references(() => users.id, { onDelete: "set null" }),
+  createdAt: createdAt(),
+});
+
+export const eventCases = pgTable(
+  "event_cases",
+  {
+    eventId: integer("event_id").notNull().references(() => events.id, { onDelete: "cascade" }),
+    caseId: text("case_id").notNull().references((): AnyPgColumn => cases.id, { onDelete: "cascade" }),
+  },
+  (t) => [primaryKey({ columns: [t.eventId, t.caseId] })],
+);
+
+/** Доступ групп к мероприятию. */
+export const eventAccess = pgTable(
+  "event_access",
+  {
+    eventId: integer("event_id").notNull().references(() => events.id, { onDelete: "cascade" }),
+    groupId: integer("group_id").notNull().references(() => groups.id, { onDelete: "cascade" }),
+  },
+  (t) => [primaryKey({ columns: [t.eventId, t.groupId] })],
+);
+
 export const attempts = pgTable(
   "attempts",
   {
@@ -214,6 +250,8 @@ export const attempts = pgTable(
     wrongDeductions: integer("wrong_deductions").notNull().default(0),
     /** Брошенные и начатые заново попытки не идут в статистику. */
     excludedFromStats: boolean("excluded_from_stats").notNull().default(false),
+    /** Мероприятие, в рамках которого идёт попытка (нет — свободная игра). */
+    eventId: integer("event_id").references((): AnyPgColumn => events.id, { onDelete: "set null" }),
     finishedAt: timestamp("finished_at", { withTimezone: true }),
     createdAt: createdAt(),
   },

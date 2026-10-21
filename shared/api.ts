@@ -284,7 +284,44 @@ export interface ServerPublicCase {
 
 export const CheckDeductionBody = z.object({ optionId: z.string().min(1).max(100) });
 
+export const DebriefPolicy = z.enum(["immediate", "after_close", "never"]);
+export type DebriefPolicy = z.infer<typeof DebriefPolicy>;
+export const DEBRIEF_POLICY_LABEL: Record<DebriefPolicy, string> = {
+  immediate: "сразу после сдачи",
+  after_close: "после закрытия мероприятия",
+  never: "не показывать",
+};
+
+const DateTime = z.iso.datetime({ offset: true });
+export const EventBody = z.object({
+  title: z.string().trim().min(1, "Нужно название").max(200),
+  opensAt: DateTime.nullable().default(null),
+  closesAt: DateTime.nullable().default(null),
+  debriefPolicy: DebriefPolicy.default("immediate"),
+  maxScoredAttempts: z.number().int().min(1).max(100).nullable().default(null),
+  caseIds: z.array(z.string()).min(1, "Выберите хотя бы одно дело"),
+  groupIds: z.array(z.number().int()).default([]),
+});
+export type EventBody = z.infer<typeof EventBody>;
+
+export interface ServerEvent {
+  id: number;
+  title: string;
+  opensAt: string | null;
+  closesAt: string | null;
+  debriefPolicy: DebriefPolicy;
+  maxScoredAttempts: number | null;
+  caseIds: string[];
+  groupIds: number[];
+  /** Идёт ли сейчас окно времени. */
+  open: boolean;
+  /** Сколько раз игрок уже сдал каждое дело в мероприятии (только для студента). */
+  doneByCase?: Record<string, number>;
+}
+
 export const AttemptStartBody = z.object({
+  /** Мероприятие, в рамках которого проходится дело. */
+  eventId: z.number().int().optional(),
   /** Начать заново: действующая попытка закрывается как reset. */
   fresh: z.boolean().optional(),
 });

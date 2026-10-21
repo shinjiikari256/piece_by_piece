@@ -29,6 +29,13 @@
       "when": 1792579582411,
       "tag": "0003_mushy_red_wolf",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1792580652593,
+      "tag": "0004_worthless_hammerhead",
+      "breakpoints": true
     }
   ]
 }

@@ -6,6 +6,7 @@ import { ApiError, type AppConfig, type AppEnv } from "./http";
 import { authRoutes } from "./routes/auth";
 import { adminRoutes } from "./routes/admin";
 import { attemptRoutes } from "./routes/attempts";
+import { eventRoutes } from "./routes/events";
 import { caseRoutes } from "./routes/cases";
 import { resultRoutes } from "./routes/results";
 
@@ -44,6 +45,7 @@ export function createApp(db: Db, config: AppConfig) {
   app.route("/api", resultRoutes);
   app.route("/api", caseRoutes);
   app.route("/api", attemptRoutes);
+  app.route("/api", eventRoutes);
   app.route("/api/admin", adminRoutes);
   return app;
 }
