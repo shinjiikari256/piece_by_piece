@@ -1,10 +1,10 @@
 import { editorPathOfPlaytest } from "../content/drafts";
-import { useEffect, useRef, useState } from "react";
+import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import { useWindowKey } from "./hooks";
 import { percentOf } from "../util/format";
 import { FROM_EDITOR } from "../env";
 import { Link } from "./router";
-import { PhaserGame } from "../game/PhaserGame";
+import { Loader } from "./loader";
 import { gameBridge } from "../game/bridge";
 import { actions, store, useGame } from "../state/store";
 import { TabbedModal } from "./common";
@@ -15,6 +15,9 @@ import { Icon } from "./icons";
 import { Logo } from "./logo";
 import { DEFAULT_BONUS_SCORE } from "../../../../shared/scoring";
 import { NotesWindow, SelectionToNotes } from "./notes";
+
+// движок Phaser — самый тяжёлый кусок: грузим при входе в дело, а не вместе с сайтом
+const PhaserGame = lazy(() => import("../game/PhaserGame").then((m) => ({ default: m.PhaserGame })));
 
 /** Сколько осталось до конца бонуса за время; после — игра продолжается без бонуса. */
 function Timer({ startedAt, minutes, points, minScore }: { startedAt: number; minutes: number; points: number; minScore: number }) {
@@ -298,7 +301,9 @@ export function GameView() {
     <div className="game">
       <TopBar />
       <div className="stage">
-        <PhaserGame key={runId} caseFile={caseFile} />
+        <Suspense fallback={<Loader label="Загрузка игрового поля…" />}>
+          <PhaserGame key={runId} caseFile={caseFile} />
+        </Suspense>
         <TouchControls />
       </div>
       <BottomBar />
