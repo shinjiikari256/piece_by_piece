@@ -1,42 +1,25 @@
 import { useEffect, useRef, useState } from "react";
 import { useWindowKey } from "../ui/hooks";
-import {
-  LOOKS,
-  SPRITES,
-  footprintHas,
-  resolveLook,
-  SPRITE_NAMES,
-  TILE_NAMES,
-} from "../game/art";
-import { objectEvidenceIds, type Location as LocationT } from "../../../../shared/case";
+import { type Location as LocationT } from "../../../../shared/case";
 import { editor, editorStore, useEditor } from "./state";
 import { ObjectFields } from "./SchemaForm";
 import { ask } from "../ui/dialog";
 import { MapPalette } from "./map/Palette";
 import { renderMap } from "./map/render";
-import { addLocation, normRect, pickTopmost, rectCells, resize, selectionBox, zoneCells } from "./map/helpers";
-import { T, lookCanvas, useSpriteCanvases } from "./map/canvases";
+import { addLocation, normRect, rectCells, resize, selectionBox, zoneCells } from "./map/helpers";
+import { T, useSpriteCanvases } from "./map/canvases";
 import { LIST_KEY, type Selection, type Tool } from "./map/types";
 import { ObjectList } from "./map/ObjectList";
 import { LOCATION_SCHEMA, SelectedPanel, SizeInput } from "./map/panels";
 import { Tabs } from "./Tabs";
 import { moveItem } from "../util/lists";
 import { useMapDock } from "./layout";
-import { actionSummary } from "./map/actions";
+import { describeHit, toolHint } from "./map/describe";
+import { hitTest, opaqueAt, parseSelection, posOf as posOfSel } from "./map/hit-test";
 import { PanelGrip, PanelRail, panelVars, usePanel } from "./panels";
 import { useUrlParam, useWriteDefaultParam } from "./url";
 
 
-
-/** Выбранный объект из адреса (`object:obj_desk`, `start`); если такого на локации нет — ничего не выбрано. */
-function parseSelection(loc: LocationT | undefined, key: string): Selection {
-  if (!loc || !key) return null;
-  if (key === "start") return { kind: "start" };
-  const [kind, ...rest] = key.split(":");
-  const id = rest.join(":");
-  const list = { object: loc.objects, npc: loc.npcs, zone: loc.zones }[kind as "object" | "npc" | "zone"];
-  return list?.some((x) => x.id === id) ? ({ kind, id } as Selection) : null;
-}
 
 export function MapEditor() {
   const palettePanel = usePanel("map-palette", "Палитра", "left", { width: 272, min: 180, max: 520 });
@@ -95,33 +78,9 @@ export function MapEditor() {
     return { x: Math.floor(px / T), y: Math.floor(py / T), px, py };
   };
 
-  /** Есть ли пиксель картинки в точке (прозрачные углы спрайта не выделяются). */
-  const opaqueAt = (s: NonNullable<Selection>, lx: number, ly: number) => {
-    let c: HTMLCanvasElement | undefined;
-    if (s.kind === "object") c = art.sprites.get(loc.objects.find((o) => o.id === s.id)?.sprite ?? "");
-    if (s.kind === "npc") {
-      const n = loc.npcs.find((x) => x.id === s.id);
-      const ch = n && draft.characters.find((x) => x.id === n.characterId);
-      c = lookCanvas(ch ? resolveLook(ch) : LOOKS.casual_m);
-    }
-    const data = c?.getContext("2d")?.getImageData(Math.floor(lx), Math.floor(ly), 1, 1).data;
-    return !data || data[3] > 16;
-  };
-
-  const hit = (t: { x: number; y: number; px?: number; py?: number }): Selection => {
-    if (loc.playerStart?.x === t.x && loc.playerStart.y === t.y) return { kind: "start" };
-    // верхний из нарисованных предметов, людей и дверей под курсором — целиком, а не по клетке под ногами
-    const top = t.px === undefined || t.py === undefined ? null : pickTopmost(loc, t.px, t.py, opaqueAt);
-    if (top) return top;
-    // запасной путь: клетка, которую занимает предмет или дверь
-    const npc = loc.npcs.find((n) => n.x === t.x && n.y === t.y);
-    if (npc) return { kind: "npc", id: npc.id };
-    const obj = [...loc.objects].reverse().find((o) => footprintHas(o.x, o.y, SPRITES[o.sprite].footprint, t.x, t.y));
-    if (obj) return { kind: "object", id: obj.id };
-    // область — самый нижний слой: выбирается, если в клетке больше ничего нет
-    const zone = loc.zones.find((z) => z.cells.some((c) => c.x === t.x && c.y === t.y));
-    return zone ? { kind: "zone", id: zone.id } : null;
-  };
+  const opaque = (s: NonNullable<Selection>, lx: number, ly: number) => opaqueAt(loc, art, draft.characters, s, lx, ly);
+  const hitAt = (t: { x: number; y: number; px?: number; py?: number }) => hitTest(loc, t, opaque);
+  const posOf = (s: Selection) => posOfSel(loc, s);
 
   /** Добавить (`add`) или стереть клетки области; один мазок мыши — один шаг отмены. */
   const paintZone = (zoneId: string, cells: { x: number; y: number }[], add: boolean, strokeId: number) =>
@@ -197,7 +156,7 @@ export function MapEditor() {
         break;
       }
       case "select": {
-        const h = hit(t);
+        const h = hitAt(t);
         setSel(h);
         if (h) {
           const pos = posOf(h);
@@ -206,14 +165,6 @@ export function MapEditor() {
         break;
       }
     }
-  };
-
-  const posOf = (s: Selection) => {
-    if (!s) return null;
-    if (s.kind === "start") return loc.playerStart ?? null;
-    if (s.kind === "zone") return null;
-    const list = loc[LIST_KEY[s.kind]] as { id: string; x: number; y: number }[];
-    return list.find((x) => x.id === s.id) ?? null;
   };
 
   const onMove = (e: React.MouseEvent) => {
@@ -289,44 +240,8 @@ export function MapEditor() {
   if (!loc) return <p>Нет локаций.</p>;
   const w = loc.tiles[0].length;
   const h = loc.tiles.length;
-  const hoverInfo = (() => {
-    if (!hover) return "";
-    const h = hit(hover);
-    if (!h) return "";
-    if (h.kind === "start") return "Старт игрока";
-    if (h.kind === "zone") {
-      const z = loc.zones.find((x) => x.id === h.id)!;
-      return `Область «${z.name}» · ${z.actions.length ? z.actions.map((a) => actionSummary(a, draft)).join("; ") : "без действий"}`;
-    }
-    if (h.kind === "npc") {
-      const n = loc.npcs.find((x) => x.id === h.id)!;
-      const ch = draft.characters.find((c) => c.id === n.characterId);
-      return `${ch?.name ?? n.characterId} · диалог «${n.dialogueId}»`;
-    }
-    const o = loc.objects.find((x) => x.id === h.id)!;
-    const name = o.label || SPRITE_NAMES[o.sprite] || o.sprite;
-    if (!o.interaction) return o.onInteract?.length ? `${name} · только эффекты, без окна осмотра` : `${name} · декорация`;
-    const ids = objectEvidenceIds(o);
-    if (!ids.length) return `${name} → только текст осмотра`;
-    return `${name} → ${ids.length === 1 ? `материал «${draft.evidence.find((e) => e.id === ids[0])?.title ?? ids[0]}»` : `материалов: ${ids.length}`}`;
-  })();
-
-  const toolHint =
-    tool.kind === "select"
-      ? ""
-      : tool.kind === "tile"
-        ? `Клетка «${TILE_NAMES[tool.ch]}»: ведите с зажатой кнопкой (Shift — прямоугольником)`
-        : tool.kind === "object"
-          ? `Предмет «${SPRITE_NAMES[tool.sprite] ?? tool.sprite}»: кликните, куда поставить`
-          : tool.kind === "npc"
-            ? `Человек «${draft.characters.find((c) => c.id === npcCharacter)?.name ?? ""}»: кликните, куда поставить`
-            : tool.kind === "zone"
-              ? sel?.kind === "zone"
-                ? `Область «${loc.zones.find((z) => z.id === sel.id)?.name ?? ""}»: ${tool.erase ? "стирайте клетки" : "ведите с зажатой кнопкой, чтобы дорисовать"} (Shift — прямоугольником, Alt — стереть)`
-                : "Область: ведите с зажатой кнопкой — первая клетка создаст новую область (Shift — прямоугольником)"
-            : tool.kind === "start"
-              ? "Старт игрока: кликните по клетке пола"
-              : "Выход: кликните по проёму на краю карты";
+  const hoverInfo = hover ? describeHit(hitAt(hover), loc, draft) : "";
+  const hint = toolHint(tool, sel, loc, draft, npcCharacter);
 
   return (
     <section className="lm" data-dock={dock} style={dock === "left" ? panelVars(palettePanel, inspectorPanel) : panelVars(undefined, inspectorPanel, paletteDock)}>
@@ -396,7 +311,7 @@ export function MapEditor() {
           <div className="lm__status">
             <span className="lm__hint">
               <span className="lm__coords">{hover ? `${hover.x}, ${hover.y}` : `${w}×${h} клеток`}</span>
-              {hoverInfo || toolHint}
+              {hoverInfo || hint}
             </span>
             <span className="lm__zoom">
               {(["fit", 2, 3, 4] as const).map((z) => (
