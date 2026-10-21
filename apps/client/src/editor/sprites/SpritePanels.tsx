@@ -8,6 +8,7 @@ import { ColorPicker } from "../fields/ColorPicker";
 import { editor, editorStore } from "../state";
 import { DEFAULT_GROUP, groupLabels } from "./catalog";
 import { CELL, cellsOf, frameLabel, patchSprite, renameFrame, resizeSprite } from "./helpers";
+import { blurOnEnter } from "../../util/keys";
 
 const upd = (s: CustomSprite, patch: Partial<CustomSprite>) => editor.update((d) => patchSprite(d, s.key, patch), `sprite:${s.key}`);
 
@@ -83,7 +84,7 @@ export function DrawPanel({
       {frame !== "default" && (
         <label className="ef">
           <span className="ef__label">Название кадра</span>
-          <input value={name} onChange={(e) => setName(e.target.value)} onBlur={commitName} onKeyDown={(e) => e.key === "Enter" && e.currentTarget.blur()} />
+          <input value={name} onChange={(e) => setName(e.target.value)} onBlur={commitName} onKeyDown={blurOnEnter} />
         </label>
       )}
       {frame !== "default" && (

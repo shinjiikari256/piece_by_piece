@@ -25,6 +25,7 @@ import { Field } from "../account";
 import { ResultsTable, fromServer } from "../results";
 import { openResult } from "../screens";
 import { StatusChip, date, fail } from "./index";
+import { blurOnEnter } from "../../util/keys";
 
 // ---------- Пользователи ----------
 
@@ -279,7 +280,7 @@ export function UserPage({ id, groups, isAdmin }: { id: number; groups: AdminGro
               value={name}
               onChange={(e) => setName(e.target.value)}
               onBlur={() => void saveName()}
-              onKeyDown={(e) => e.key === "Enter" && (e.target as HTMLInputElement).blur()}
+              onKeyDown={blurOnEnter}
             />
           </Field>
           <div className="pair">

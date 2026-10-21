@@ -13,6 +13,7 @@ import { withAlpha } from "./helpers";
 import { TOOLS, type Tool } from "./SpriteCanvas";
 import { charsOf, copyTile, describeWhen, isBuiltinTile, newTile, patchLayer, patchTile, removeTile, setLayerOps, setTileChar, tileGroups, tileUses, tileView, topRectAt, type TileLayer, type TileOp } from "./tile-helpers";
 import { cellAt as cellAtCanvas } from "../../util/geometry";
+import { blurOnEnter } from "../../util/keys";
 
 const SCALE = 24;
 const T = BASE_TILE;
@@ -343,7 +344,7 @@ export function TilesSection() {
                 onFocus={(e) => (setCharDraft(chars[0] ?? ""), e.currentTarget.select())}
                 onChange={(e) => setCharDraft(e.target.value)}
                 onBlur={(e) => applyChar(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && e.currentTarget.blur()}
+                onKeyDown={blurOnEnter}
               />
             </label>
             <fieldset className="sprite-ro stack" disabled={builtin}>

@@ -1,5 +1,6 @@
 import "./contextmenu.css";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useWindowKey } from "./hooks";
 import { Icon, type IconName } from "./icons";
 
 export type MenuItem =
@@ -48,33 +49,35 @@ export function ContextMenu({ build }: { build: (ctx: MenuContext) => MenuItem[]
       if (e.type === "mousedown" && ref.current?.contains(e.target as Node)) return;
       setMenu(null);
     };
-    const onKey = (e: KeyboardEvent) => {
-      const enabled = menu.items.map((it, i) => (it !== "sep" && !it.disabled ? i : -1)).filter((i) => i >= 0);
+    window.addEventListener("mousedown", close);
+    window.addEventListener("resize", close);
+    window.addEventListener("blur", close);
+    document.addEventListener("scroll", close, true);
+    return () => {
+      window.removeEventListener("mousedown", close);
+      window.removeEventListener("resize", close);
+      window.removeEventListener("blur", close);
+      document.removeEventListener("scroll", close, true);
+    };
+  }, [menu]);
+
+  useWindowKey(
+    (e) => {
+      const enabled = menu!.items.map((it, i) => (it !== "sep" && !it.disabled ? i : -1)).filter((i) => i >= 0);
       if (e.key === "Escape") setMenu(null);
       else if (e.key === "ArrowDown" || e.key === "ArrowUp") {
         const at = enabled.indexOf(active);
         const step = e.key === "ArrowDown" ? 1 : -1;
         setActive(enabled[(at + step + enabled.length) % enabled.length] ?? -1);
       } else if (e.key === "Enter" && active >= 0) {
-        const it = menu.items[active];
+        const it = menu!.items[active];
         if (it !== "sep") run(it);
       } else return;
       e.preventDefault();
       e.stopImmediatePropagation();
-    };
-    window.addEventListener("mousedown", close);
-    window.addEventListener("resize", close);
-    window.addEventListener("blur", close);
-    document.addEventListener("scroll", close, true);
-    window.addEventListener("keydown", onKey, true);
-    return () => {
-      window.removeEventListener("mousedown", close);
-      window.removeEventListener("resize", close);
-      window.removeEventListener("blur", close);
-      document.removeEventListener("scroll", close, true);
-      window.removeEventListener("keydown", onKey, true);
-    };
-  }, [menu, active]);
+    },
+    { capture: true, enabled: !!menu },
+  );
 
   // не даём меню вылезти за край экрана
   useLayoutEffect(() => {

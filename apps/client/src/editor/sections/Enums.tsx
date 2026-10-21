@@ -8,6 +8,7 @@ import { Dialog } from "../../ui/window";
 import { isVariableKeyTaken, type FlagUse } from "../fields/Conditions";
 import { UsageList } from "../fields/UsageList";
 import { KeyInput, keyChars } from "../fields/KeyInput";
+import { blurOnEnter } from "../../util/keys";
 
 type EnumDef = NonNullable<CaseFile["enums"]>[number];
 type Row = { enumId: string; in?: string[]; notIn?: string[] };
@@ -263,7 +264,7 @@ export function EnumEditor({ def, uses, onRenamed }: { def: EnumDef; uses: FlagU
                 placeholder="Название значения"
                 onChange={(e) => patch({ values: def.values.map((x) => (x.id === v.id ? { ...x, name: e.target.value } : x)) }, `enum:${id}:${v.id}`)}
               />
-              <input className="flag-input" defaultValue={v.id} key={v.id} title="Ключ значения (Enter — применить, обновит все ссылки)" onBlur={(e) => renameValue(v.id, e.target.value)} onKeyDown={(e) => e.key === "Enter" && (e.target as HTMLInputElement).blur()} />
+              <input className="flag-input" defaultValue={v.id} key={v.id} title="Ключ значения (Enter — применить, обновит все ссылки)" onBlur={(e) => renameValue(v.id, e.target.value)} onKeyDown={blurOnEnter} />
               <button className="btn btn--sm btn--icon" onClick={() => removeValue(v.id)} title="Убрать значение" aria-label="Убрать значение">
                 ✕
               </button>

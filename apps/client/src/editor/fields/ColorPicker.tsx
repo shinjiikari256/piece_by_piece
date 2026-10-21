@@ -4,6 +4,7 @@ import { createPortal } from "react-dom";
 import { useDismiss } from "../../ui/hooks";
 import { readJson, writeJson } from "../../state/storage";
 import { FORMATS, formatColor, hexToHsv, hexToRgb, hsvToHex, parseColor, pushRecent, type ColorFormat, type Hsv } from "./color-math";
+import { blurOnEnter } from "../../util/keys";
 
 const RECENT_KEY = "editor:recent-colors";
 const FORMAT_NAMES: Record<ColorFormat, string> = { hex: "HEX", rgb: "RGB", hsl: "HSL" };
@@ -133,7 +134,7 @@ export function ColorPicker({
                   setText(formatColor(color, format));
                   remember();
                 }}
-                onKeyDown={(e) => e.key === "Enter" && e.currentTarget.blur()}
+                onKeyDown={blurOnEnter}
               />
               <output className="colorpick__percent" title="Непрозрачность">
                 {percent}%
