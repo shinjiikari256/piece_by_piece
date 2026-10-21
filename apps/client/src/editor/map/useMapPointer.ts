@@ -2,6 +2,7 @@ import { useRef, type MouseEvent, type RefObject, type Dispatch, type SetStateAc
 import type { CaseFile, Location as LocationT } from "../../../../../shared/case";
 import { editor } from "../state";
 import { normRect, rectCells, zoneCells } from "./helpers";
+import { freeId } from "../../util/ids";
 import { T } from "./canvases";
 import { posOf as posOfSel } from "./hit-test";
 import { LIST_KEY, type Selection, type Tool } from "./types";
@@ -59,9 +60,6 @@ export function useMapPointer({ canvas, draft, loc, li, tool, setTool, sel, setS
       `paint:${id}`,
     );
 
-  const uniqueId = (prefix: string, taken: string[]) => {
-    for (let i = 1; ; i++) if (!taken.includes(`${prefix}${i}`)) return `${prefix}${i}`;
-  };
   const allIds = () => draft.locations.flatMap((l) => [...l.objects.map((o) => o.id), ...l.npcs.map((n) => n.id)]);
 
   const onDown = (e: MouseEvent) => {
@@ -74,7 +72,7 @@ export function useMapPointer({ canvas, draft, loc, li, tool, setTool, sel, setS
         else paint(t, tool.ch, id);
         break;
       case "object": {
-        const oid = uniqueId(`obj_${tool.sprite}_`, allIds());
+        const oid = freeId(`obj_${tool.sprite}_`, allIds());
         updateLoc((l) => ({ ...l, objects: [...l.objects, { id: oid, sprite: tool.sprite, x: t.x, y: t.y, label: "", interaction: null, onInteract: [] }] }));
         setSel({ kind: "object", id: oid });
         setTool({ kind: "select" });
@@ -83,7 +81,7 @@ export function useMapPointer({ canvas, draft, loc, li, tool, setTool, sel, setS
       case "npc": {
         const ch = draft.characters.find((c) => c.id === npcCharacter);
         if (!ch) return;
-        const nid = uniqueId(`npc_${ch.id}_`, allIds());
+        const nid = freeId(`npc_${ch.id}_`, allIds());
         const dialogueId = draft.dialogues.find((d) => d.characterId === ch.id)?.id ?? "";
         updateLoc((l) => ({ ...l, npcs: [...l.npcs, { id: nid, characterId: ch.id, dialogueId, dialogues: [], x: t.x, y: t.y }] }));
         setSel({ kind: "npc", id: nid });
@@ -110,7 +108,7 @@ export function useMapPointer({ canvas, draft, loc, li, tool, setTool, sel, setS
           if (!add) break;
           // область не выбрана — первый мазок создаёт новую
           const taken = draft.locations.flatMap((l) => l.zones.map((z) => z.id));
-          zid = uniqueId("zone_", taken);
+          zid = freeId("zone_", taken);
           const zone = { id: zid, name: `Область ${taken.length + 1}`, cells: e.shiftKey ? [] : [{ x: t.x, y: t.y }], actions: [] };
           updateLoc((l) => ({ ...l, zones: [...l.zones, zone] }), `zone:${id}`);
           setSel({ kind: "zone", id: zid });
