@@ -81,6 +81,9 @@ export const investigation = {
       (p) => (!p.evidenceIds.length || p.evidenceIds.includes(evidenceId)) && meets(p.requires, state.progress, state.locationId),
     );
     if (!dialogue || !hit) return toast("Собеседник не реагирует");
+    // отметка ✓ у предъявленного материала; условие `chosen` понимает её как вариант `present:<id улики>`
+    const key = choiceKey(o.dialogueId, o.nodeId, `present:${evidenceId}`);
+    if (!state.progress.chosen.includes(key)) set((s) => ({ progress: { ...s.progress, chosen: [...s.progress.chosen, key] } }));
     if (hit.effects.length) {
       const { progress, newEvidence, messages, removedEvidence, followUp } = applyEffects(withZoneTargets(hit.effects), state.progress, fxCtx(`present:${o.dialogueId}/${o.nodeId}/${hit.id}`));
       set({ progress });

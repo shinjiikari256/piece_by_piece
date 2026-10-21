@@ -8,7 +8,7 @@ import { actions, useGame } from "../state/store";
 import { findObject } from "../content/case-utils";
 import { objectEvidenceIds } from "../../../../shared/case";
 import { currentInteraction } from "../../../../shared/object-state";
-import { KIND_ICON, TabbedModal } from "./common";
+import { KIND_ICON, KIND_LABEL, TabbedModal } from "./common";
 import { FolderTabs } from "./folder";
 import { EvidenceDetail } from "./journal/materials";
 import { Icon } from "./icons";
@@ -270,9 +270,13 @@ export function DialogueWindow({
               const ev = caseFile.evidence.find((e) => e.id === id);
               return ev ? (
                 <li key={id}>
-                  <button className="choice" onClick={() => actions.present(id)}>
+                  <button className="choice" data-tone={ev.kind} onClick={() => actions.present(id)}>
                     <span className="choice__num">{i + 1}</span>
+                    <span className="choice__tag">
+                      <Icon name={KIND_ICON[ev.kind]} size={14} /> {KIND_LABEL[ev.kind]}
+                    </span>
                     <span className="choice__text">{ev.title}</span>
+                    {actions.isChoiceUsed(dialogueId, nodeId, `present:${id}`) && <span className="choice__asked" aria-label="уже предъявляли">✓</span>}
                   </button>
                 </li>
               ) : null;

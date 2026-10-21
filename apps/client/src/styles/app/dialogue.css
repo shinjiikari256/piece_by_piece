@@ -90,6 +90,14 @@
   font-weight: 700;
   white-space: nowrap;
 }
+.choice[data-tone] .choice__tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3em;
+  background: var(--tone-soft);
+  color: var(--tone-ink);
+  border: 1px solid var(--tone-line);
+}
 .choice__text {
   flex: 1;
 }
