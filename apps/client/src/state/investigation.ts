@@ -71,6 +71,27 @@ export const investigation = {
     else enterNode(o.npcId, o.dialogueId, choice.next);
   },
 
+  /** Предъявить материал из журнала собеседнику: первое подходящее предъявление узла, иначе реакции нет. */
+  present(evidenceId: string) {
+    const o = state.overlay;
+    if (o?.kind !== "dialogue" || !state.progress.collected.includes(evidenceId)) return;
+    const dialogue = state.caseFile?.dialogues.find((d) => d.id === o.dialogueId);
+    const node = dialogue?.nodes.find((n) => n.id === o.nodeId);
+    const hit = node?.presentations?.find(
+      (p) => (!p.evidenceIds.length || p.evidenceIds.includes(evidenceId)) && meets(p.requires, state.progress, state.locationId),
+    );
+    if (!dialogue || !hit) return toast("Собеседник не реагирует");
+    if (hit.effects.length) {
+      const { progress, newEvidence, messages, removedEvidence, followUp } = applyEffects(withZoneTargets(hit.effects), state.progress, fxCtx(`present:${o.dialogueId}/${o.nodeId}/${hit.id}`));
+      set({ progress });
+      announce(newEvidence, messages, removedEvidence, followUp);
+      if (followUp.failCase) return;
+      if (followUp.dialogueId && state.caseFile?.dialogues.some((d) => d.id === followUp.dialogueId)) return;
+    }
+    if (hit.next === null) set({ overlay: null });
+    else enterNode(o.npcId, o.dialogueId, hit.next);
+  },
+
   isChoiceVisible(choice: { requires?: Parameters<typeof meets>[0] }) {
     return meets(choice.requires, state.progress, state.locationId);
   },

@@ -445,6 +445,12 @@ function checkIntegrity(c: CaseFile): string[] {
         if (ch.next !== null) ref(nodes, ch.next, `${where}/${ch.id}.next`);
         checkCondition(ch.requires, `${where}/${ch.id}.requires`);
       }
+      unique(`${where} presentations`, (n.presentations ?? []).map((p) => p.id));
+      for (const p of n.presentations ?? []) {
+        if (p.next !== null) ref(nodes, p.next, `${where}/present:${p.id}.next`);
+        checkCondition(p.requires, `${where}/present:${p.id}.requires`);
+        p.evidenceIds.forEach((id) => ref(evidence, id, `${where}/present:${p.id}.evidenceIds`));
+      }
       n.textVariants?.forEach((tv, i) => checkCondition(tv.requires, `${where}.textVariants[${i}].requires`));
     }
   }

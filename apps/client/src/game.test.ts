@@ -1055,6 +1055,23 @@ describe("события состояний предмета (сейф в тес
     expect(toasts()).toContain("Дверца сейфа захлопнулась.");
   });
 
+  it("предъявление материала: первое подходящее, иначе собеседник не реагирует", () => {
+    start();
+    actions.interact("npc_timur");
+    actions.choose("n_menu");
+    actions.present("inspection_act"); // акт ещё не собран
+    expect(store.get().progress.counters.test_score ?? 0).toBe(0);
+    store.get().progress.collected.push("inspection_act", "memo");
+    actions.present("inspection_act");
+    expect(toasts()).toContain("Тимур вздрогнул при виде акта");
+    expect(store.get().progress.counters.test_score).toBe(5);
+    actions.present("inspection_act");
+    expect(store.get().progress.counters.test_score).toBe(5); // разовый эффект не повторился
+    actions.present("memo");
+    expect(toasts()).toContain("Тимур пожал плечами");
+    expect(store.get().overlay).toMatchObject({ kind: "dialogue", nodeId: "n_menu" });
+  });
+
   it("сейф «сломан» — переход без эффектов: флаг не ставится", () => {
     start();
     actions.interact("npc_timur");

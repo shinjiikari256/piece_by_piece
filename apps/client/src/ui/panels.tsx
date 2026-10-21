@@ -209,6 +209,10 @@ export function DialogueWindow({
   // подходящих вариантов нет (все скрыты условиями): разговор не должен застревать — всегда есть выход
   const choices: ChoiceView[] = available.length ? available : [{ id: "__end", text: "Закончить разговор", asked: false, evidence: false, onPick: actions.close }];
 
+  const [presenting, setPresenting] = useState(false);
+  useEffect(() => setPresenting(false), [dialogueId, nodeId]);
+  const canPresent = !!node.presentations?.length && progress.collected.length > 0;
+
   const list = useRef<HTMLOListElement>(null);
   useWindowKey((e) => {
     const buttons = [...(list.current?.querySelectorAll<HTMLButtonElement>("button.choice") ?? [])];
@@ -260,6 +264,26 @@ export function DialogueWindow({
         <p className="dialogue__text" key={`text:${dialogueId}/${node.id}`}>
           {text}
         </p>
+        {presenting ? (
+          <ol className="dialogue__choices list-reset" key={`present:${dialogueId}/${nodeId}`}>
+            {progress.collected.map((id, i) => {
+              const ev = caseFile.evidence.find((e) => e.id === id);
+              return ev ? (
+                <li key={id}>
+                  <button className="choice" onClick={() => actions.present(id)}>
+                    <span className="choice__num">{i + 1}</span>
+                    <span className="choice__text">{ev.title}</span>
+                  </button>
+                </li>
+              ) : null;
+            })}
+            <li>
+              <button className="choice" onClick={() => setPresenting(false)}>
+                <span className="choice__text">Назад к разговору</span>
+              </button>
+            </li>
+          </ol>
+        ) : (
         <ol className="dialogue__choices list-reset" ref={list} key={`choices:${dialogueId}/${nodeId}`}>
           {choices.map((c, i) => (
             <li key={c.id}>
@@ -275,7 +299,16 @@ export function DialogueWindow({
               </button>
             </li>
           ))}
+          {canPresent && (
+            <li>
+              <button className="choice" onClick={() => setPresenting(true)}>
+                <span className="choice__tag">предъявить</span>
+                <span className="choice__text">Предъявить материал из журнала…</span>
+              </button>
+            </li>
+          )}
         </ol>
+        )}
       </section>
       </div>
     </Backdrop>

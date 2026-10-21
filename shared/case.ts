@@ -540,6 +540,18 @@ export const DialogueChoice = z.object({
   effects: z.array(Effect).default([]).meta({ always: true }).describe("Что произойдёт, когда игрок выберет этот вариант (до ответа персонажа)"),
 });
 
+export const DialoguePresentation = z.object({
+  id: z.string(),
+  evidenceIds: z
+    .array(z.string())
+    .default([])
+    .meta({ always: true })
+    .describe("Какие материалы это предъявление принимает; пусто — любой"),
+  next: z.string().nullable().describe("id следующего узла (реакция персонажа) или null — закончить разговор"),
+  requires: Condition.optional(),
+  effects: z.array(Effect).default([]).meta({ always: true }).describe("Что произойдёт, когда игрок предъявит материал (до реакции персонажа)"),
+});
+
 export const DialogueNode = z.object({
   id: z.string(),
   speaker: z.string().optional().describe("Кто говорит (id персонажа); по умолчанию — хозяин диалога"),
@@ -551,6 +563,10 @@ export const DialogueNode = z.object({
   mood: z.enum(["neutral", "friendly", "nervous", "angry", "sad"]),
   effects: z.array(Effect),
   choices: z.array(DialogueChoice),
+  presentations: z
+    .array(DialoguePresentation)
+    .optional()
+    .describe("Предъявление материала из журнала: в этом узле появляется кнопка «Предъявить». Срабатывает первое подходящее по порядку (материал в списке или список пуст, условие выполнено); нет подходящего — собеседник не реагирует"),
   auto: z
     .boolean()
     .optional()

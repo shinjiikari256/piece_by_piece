@@ -54,6 +54,14 @@ function walkEffects<C extends EffectCase>(c: C, visit: (effects: Effect[], owne
             ...ch,
             effects: visit(ch.effects ?? [], { kind: "choice", ...base, choiceId: ch.id, text: ch.text }, `dialogue ${d.id}/${n.id}/${ch.id}`),
           })),
+          ...(n.presentations
+            ? {
+                presentations: n.presentations.map((pr) => ({
+                  ...pr,
+                  effects: visit(pr.effects ?? [], { kind: "choice", ...base, choiceId: `present:${pr.id}`, text: "Предъявление материала" }, `dialogue ${d.id}/${n.id}/present:${pr.id}`),
+                })),
+              }
+            : {}),
         };
       }),
     })),
