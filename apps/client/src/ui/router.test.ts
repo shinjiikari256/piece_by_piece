@@ -16,6 +16,8 @@ describe("маршруты сайта", () => {
     ["/editor/case-001/locations", { page: "editor", caseId: "case-001", section: "locations" }],
     ["/admin/users", { page: "admin", section: "users" }],
     ["/admin/users/12", { page: "admin", section: "users", userId: 12 }],
+    ["/admin/events/new", { page: "admin", section: "events", eventId: "new" }],
+    ["/admin/events/5", { page: "admin", section: "events", eventId: 5 }],
     ["/admin/groups", { page: "admin", section: "groups" }],
     ["/admin/settings", { page: "admin", section: "settings" }],
   ];

@@ -19,7 +19,7 @@ export type Route =
   | { page: "play"; caseId: string }
   | { page: "playtest" }
   | { page: "editor"; caseId?: string; section?: string }
-  | { page: "admin"; section: "users" | "groups" | "events" | "settings"; userId?: number };
+  | { page: "admin"; section: "users" | "groups" | "events" | "settings"; userId?: number; eventId?: number | "new" };
 
 /** Разобрать путь (`/admin/users/12`, без query). */
 export function parseRoute(path: string): Route {
@@ -42,7 +42,13 @@ export function parseRoute(path: string): Route {
     case "admin": {
       const section = parts[1] === "groups" || parts[1] === "events" || parts[1] === "settings" ? parts[1] : "users";
       const userId = section === "users" && parts[2] ? Number(parts[2]) : undefined;
-      return { page: "admin", section, userId: Number.isFinite(userId) ? userId : undefined };
+      const eventId = section === "events" && parts[2] ? (parts[2] === "new" ? "new" : Number(parts[2])) : undefined;
+      return {
+        page: "admin",
+        section,
+        userId: Number.isFinite(userId) ? userId : undefined,
+        ...(eventId === "new" || Number.isFinite(eventId) ? { eventId } : {}),
+      };
     }
     default:
       return { page: "home" };
@@ -53,7 +59,7 @@ export function parseRoute(path: string): Route {
 export function routeHref(r: Route): string {
   if (r.page === "home") return "/";
   if (r.page === "play") return `/play/${encodeURIComponent(r.caseId)}`;
-  if (r.page === "admin") return `/admin/${r.section}${r.userId ? `/${r.userId}` : ""}`;
+  if (r.page === "admin") return `/admin/${r.section}${r.userId ? `/${r.userId}` : r.eventId ? `/${r.eventId}` : ""}`;
   if (r.page === "editor") return r.caseId ? `/editor/${encodeURIComponent(r.caseId)}${r.section ? `/${r.section}` : ""}` : "/editor";
   return `/${r.page}`;
 }

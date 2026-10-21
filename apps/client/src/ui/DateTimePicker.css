@@ -1,0 +1,40 @@
+/* дата и время: галочка и поля в одну строку, на узком экране переносятся */
+.dtp {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  min-width: 0;
+}
+.dtp__check {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  white-space: nowrap;
+  margin-right: 0.4rem;
+}
+.dtp input[type="number"] {
+  flex: none;
+  width: 3.2rem;
+  text-align: center;
+  appearance: textfield;
+  -moz-appearance: textfield;
+}
+.dtp input[type="number"]::-webkit-inner-spin-button,
+.dtp input[type="number"]::-webkit-outer-spin-button {
+  appearance: none;
+  margin: 0;
+}
+.dtp .dtp__year {
+  width: 4.6rem;
+}
+.dtp__month {
+  flex: 0 1 8rem;
+  min-width: 6.5rem;
+}
+.dtp__clock {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  margin-left: 0.4rem;
+}
