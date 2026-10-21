@@ -4,7 +4,6 @@ import type { Db } from "../../db";
 import {
   auditLog,
   groupTeachers,
-  groupViewers,
   groups,
   joinLinks,
   users,
@@ -29,32 +28,15 @@ export async function ownGroupIds(
   return rows.map((r) => r.id);
 }
 
-/** Группы, студентов которых преподаватель может только смотреть (открыты администратором). */
-export async function viewerGroupIds(
-  db: Db,
-  teacherId: number,
-): Promise<number[]> {
-  const rows = await db
-    .select({ id: groupViewers.groupId })
-    .from(groupViewers)
-    .where(eq(groupViewers.userId, teacherId));
-  return rows.map((r) => r.id);
-}
-
 /**
- * Условие «пользователь виден этому сотруднику». `read` — для списков и результатов: к своим группам
- * добавляются открытые для просмотра; `write` — для правки (статус, группа, пароль): только свои и без группы.
+ * Условие «пользователь виден этому сотруднику».
  */
 export async function visibleUsers(
   db: Db,
   staff: UserRow,
-  mode: "read" | "write" = "read",
 ): Promise<SQL | undefined> {
   if (staff.role === "admin") return undefined;
-  const own = [
-    ...(await ownGroupIds(db, staff.id)),
-    ...(mode === "read" ? await viewerGroupIds(db, staff.id) : []),
-  ];
+  const own = await ownGroupIds(db, staff.id);
   return and(
     eq(users.role, "student"),
     own.length

@@ -111,33 +111,3 @@ describe("видимость дела по группам", () => {
     expect((await call("PUT", "/admin/cases/case-001/visibility", { mode: "all", groupIds: [] })).status).toBe(403);
   });
 });
-
-describe("видимость студентов для преподавателя", () => {
-  it("открытая группа видна только на чтение", async () => {
-    const teacher = await addUser("tina", "teacher", null);
-    const ann = await addUser("ann", "student", groupA);
-    await addUser("bob", "student", groupB);
-    await login("tina", "password123");
-    expect((await call("GET", "/admin/users")).json.map((u: { login: string }) => u.login)).not.toContain("ann");
-
-    await db.insert(schema.groupViewers).values({ groupId: groupA, userId: teacher });
-    const names = (await call("GET", "/admin/users")).json.map((u: { login: string }) => u.login);
-    expect(names).toContain("ann");
-    expect(names).not.toContain("bob");
-    expect((await call("GET", `/admin/users/${ann}`)).status).toBe(200);
-    expect((await call("GET", "/results/filters")).json.groups.map((g: { id: number }) => g.id)).toEqual([groupA]);
-
-    expect((await call("PATCH", `/admin/users/${ann}`, { fullName: "Другое" })).status).toBe(404);
-    expect((await call("POST", `/admin/users/${ann}/reset-password`, {})).status).toBe(404);
-  });
-
-  it("администратор назначает просмотр в группе, список групп его показывает", async () => {
-    const teacher = await addUser("tina", "teacher", null);
-    await asAdmin();
-    const res = await call("PATCH", `/admin/groups/${groupA}`, { name: "Группа А", viewerIds: [teacher] });
-    expect(res.status).toBe(200);
-    const list = await call("GET", "/admin/groups");
-    expect(list.json.find((g: { id: number }) => g.id === groupA).viewerIds).toEqual([teacher]);
-    expect(list.json.find((g: { id: number }) => g.id === groupB).viewerIds).toEqual([]);
-  });
-});

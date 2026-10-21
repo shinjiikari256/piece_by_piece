@@ -1,5 +1,5 @@
 {
-  "id": "840fc3bc-c89c-499d-9109-5a45a9953489",
+  "id": "80a2e072-618d-4518-b56d-5b3b2e54830c",
   "prevId": "8d7f89d1-6d90-4b2b-9fa0-a66869479d50",
   "version": "7",
   "dialect": "postgresql",
@@ -841,66 +841,6 @@
       "compositePrimaryKeys": {
         "group_teachers_group_id_user_id_pk": {
           "name": "group_teachers_group_id_user_id_pk",
-          "columns": [
-            "group_id",
-            "user_id"
-          ]
-        }
-      },
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.group_viewers": {
-      "name": "group_viewers",
-      "schema": "",
-      "columns": {
-        "group_id": {
-          "name": "group_id",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "user_id": {
-          "name": "user_id",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "group_viewers_group_id_groups_id_fk": {
-          "name": "group_viewers_group_id_groups_id_fk",
-          "tableFrom": "group_viewers",
-          "tableTo": "groups",
-          "columnsFrom": [
-            "group_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "group_viewers_user_id_users_id_fk": {
-          "name": "group_viewers_user_id_users_id_fk",
-          "tableFrom": "group_viewers",
-          "tableTo": "users",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {
-        "group_viewers_group_id_user_id_pk": {
-          "name": "group_viewers_group_id_user_id_pk",
           "columns": [
             "group_id",
             "user_id"

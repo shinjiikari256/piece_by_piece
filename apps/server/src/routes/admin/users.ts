@@ -90,7 +90,7 @@ export const usersRoutes = new Hono<AppEnv>()
     const allowed = await db
       .select({ id: users.id })
       .from(users)
-      .where(and(inArray(users.id, ids), await visibleUsers(db, staff, "write")));
+      .where(and(inArray(users.id, ids), await visibleUsers(db, staff)));
     if (allowed.length !== new Set(ids).size)
       throw new ApiError(
         403,
@@ -114,7 +114,7 @@ export const usersRoutes = new Hono<AppEnv>()
     const [target] = await db
       .select({ id: users.id })
       .from(users)
-      .where(and(eq(users.id, id), await visibleUsers(db, staff, "write")));
+      .where(and(eq(users.id, id), await visibleUsers(db, staff)));
     if (!target) throw new ApiError(404, "not_found", "Пользователь не найден");
     await db
       .update(users)
@@ -133,7 +133,7 @@ export const usersRoutes = new Hono<AppEnv>()
     const [target] = await db
       .select({ id: users.id, login: users.login, fullName: users.fullName })
       .from(users)
-      .where(and(eq(users.id, id), await visibleUsers(db, staff, "write")));
+      .where(and(eq(users.id, id), await visibleUsers(db, staff)));
     if (!target) throw new ApiError(404, "not_found", "Пользователь не найден");
     await db.delete(users).where(eq(users.id, id));
     await audit(db, staff.id, "users.delete", target);
@@ -171,7 +171,7 @@ export const usersRoutes = new Hono<AppEnv>()
       .select({ id: users.id, login: users.login, fullName: users.fullName })
       .from(users)
       .where(
-        and(inArray(users.id, [id, intoId]), await visibleUsers(db, staff, "write")),
+        and(inArray(users.id, [id, intoId]), await visibleUsers(db, staff)),
       );
     const from = found.find((u) => u.id === id);
     if (!from || !found.some((u) => u.id === intoId))
@@ -200,7 +200,7 @@ export const usersRoutes = new Hono<AppEnv>()
     const [target] = await db
       .select({ id: users.id })
       .from(users)
-      .where(and(eq(users.id, id), await visibleUsers(db, staff, "write")));
+      .where(and(eq(users.id, id), await visibleUsers(db, staff)));
     if (!target) throw new ApiError(404, "not_found", "Пользователь не найден");
     const password = body.password ?? generatePassword();
     await db

@@ -95,20 +95,6 @@ export const groupTeachers = pgTable(
   (t) => [primaryKey({ columns: [t.groupId, t.userId] })],
 );
 
-/** Преподаватель видит студентов группы (только просмотр: списки и результаты), не будучи её преподавателем. */
-export const groupViewers = pgTable(
-  "group_viewers",
-  {
-    groupId: integer("group_id")
-      .notNull()
-      .references(() => groups.id, { onDelete: "cascade" }),
-    userId: integer("user_id")
-      .notNull()
-      .references(() => users.id, { onDelete: "cascade" }),
-  },
-  (t) => [primaryKey({ columns: [t.groupId, t.userId] })],
-);
-
 /** Ссылка регистрации с группой (/?join=<token>, можно QR). */
 export const joinLinks = pgTable("join_links", {
   id: integer("id").primaryKey().generatedAlwaysAsIdentity(),

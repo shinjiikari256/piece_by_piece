@@ -11,7 +11,7 @@ import {
 import type { Db } from "../db";
 import { events, groups, results, users } from "../db/schema";
 import { requireStaff, requireUser, type AppEnv, type UserRow } from "../http";
-import { ownGroupIds, viewerGroupIds, visibleUsers } from "./admin";
+import { ownGroupIds, visibleUsers } from "./admin";
 import { queryResultsStats } from "../results-stats-sql";
 
 type ResultRow = typeof results.$inferSelect;
@@ -64,7 +64,7 @@ export const userResults = (db: AppEnv["Variables"]["db"], userId: number) =>
 
 /**
  * Какие прохождения видит пользователь: студент — только свои; преподаватель — свои и студентов
- * своих групп, открытых для просмотра и без группы; администратор — все. Плюс фильтры по делу, группе, пользователю.
+ * своих групп и без группы; администратор — все. Плюс фильтры по делу, группе, пользователю.
  */
 async function resultsWhere(db: Db, viewer: UserRow, q: ReturnType<typeof ResultsQuery.parse>): Promise<SQL | undefined> {
   const byCase = q.case ? eq(results.caseId, q.case) : undefined;
@@ -150,7 +150,7 @@ export const resultRoutes = new Hono<AppEnv>()
       .where(where)
       .orderBy(asc(results.caseNumber));
     if (viewer.role === "student") return c.json({ cases, groups: [], users: [] } satisfies ResultsFilters);
-    const own = viewer.role === "admin" ? null : [...(await ownGroupIds(db, viewer.id)), ...(await viewerGroupIds(db, viewer.id))];
+    const own = viewer.role === "admin" ? null : await ownGroupIds(db, viewer.id);
     const groupList = await db
       .select({ id: groups.id, name: groups.name })
       .from(groups)

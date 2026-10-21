@@ -134,8 +134,6 @@ export const UserMergeBody = z.object({ intoId: z.number().int().positive() });
 
 export interface AdminGroup extends GroupRef {
   teacherIds: number[];
-  /** Преподаватели, которые видят студентов группы (только просмотр), не будучи её преподавателями. */
-  viewerIds: number[];
   students: number;
   pending: number;
 }
@@ -143,7 +141,6 @@ export interface AdminGroup extends GroupRef {
 export const GroupBody = z.object({
   name: z.string().trim().min(1, "Название группы").max(60),
   teacherIds: z.array(z.number().int()).optional(),
-  viewerIds: z.array(z.number().int()).optional(),
 });
 
 /** Кому видно дело: всем студентам или только группам из списка. */
