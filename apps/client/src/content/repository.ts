@@ -34,7 +34,7 @@ export interface CaseSummary {
 export interface CaseRepository {
   list(): Promise<CaseSummary[]>;
   /** Прохождение дела: игра видит дело без ответов, ответы проверяет судья. */
-  open(id: string): Promise<CaseAuthority>;
+  open(id: string, eventId?: number): Promise<CaseAuthority>;
 }
 
 const summarize = (c: CaseFile, isDraft = false): CaseSummary => ({
@@ -87,8 +87,8 @@ class BundledCaseRepository implements CaseRepository {
     return [...bundled, ...drafts].sort((a, b) => a.id.localeCompare(b.id));
   }
 
-  async open(id: string): Promise<CaseAuthority> {
-    if (fromServer() && !this.drafts().has(id)) return ApiAuthority.open(id);
+  async open(id: string, eventId?: number): Promise<CaseAuthority> {
+    if (fromServer() && !this.drafts().has(id)) return ApiAuthority.open(id, eventId);
     return new LocalAuthority(await this.get(id));
   }
 

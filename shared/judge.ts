@@ -55,6 +55,8 @@ export interface Revealed {
 /** Связь игрока с судьёй на одно прохождение дела. */
 export interface CaseAuthority {
   readonly caseFile: PublicCase;
+  /** Мероприятие, в рамках которого идёт прохождение (только серверный судья). */
+  readonly eventId?: number;
   checkDeduction(deductionId: string, optionId: string): Promise<DeductionVerdict>;
   /** Открыть подсказку следующего уровня; штраф учитывает судья. */
   revealHint(level: number): Promise<RevealedHint>;

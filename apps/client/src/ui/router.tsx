@@ -19,7 +19,7 @@ export type Route =
   | { page: "play"; caseId: string }
   | { page: "playtest" }
   | { page: "editor"; caseId?: string; section?: string }
-  | { page: "admin"; section: "users" | "groups" | "settings"; userId?: number };
+  | { page: "admin"; section: "users" | "groups" | "events" | "settings"; userId?: number };
 
 /** Разобрать путь (`/admin/users/12`, без query). */
 export function parseRoute(path: string): Route {
@@ -40,7 +40,7 @@ export function parseRoute(path: string): Route {
     case "editor":
       return { page: "editor", ...(parts[1] ? { caseId: decodeURIComponent(parts[1]) } : {}), ...(parts[2] ? { section: parts[2] } : {}) };
     case "admin": {
-      const section = parts[1] === "groups" || parts[1] === "settings" ? parts[1] : "users";
+      const section = parts[1] === "groups" || parts[1] === "events" || parts[1] === "settings" ? parts[1] : "users";
       const userId = section === "users" && parts[2] ? Number(parts[2]) : undefined;
       return { page: "admin", section, userId: Number.isFinite(userId) ? userId : undefined };
     }
@@ -91,6 +91,9 @@ export function subscribeRoute(listener: () => void) {
 
 /** Страница по текущему адресу (без подписки — для обработчиков). */
 export const currentRoute = (): Route => parseRoute(readLocation().path);
+
+/** Параметр адреса без подписки — для обработчиков. */
+export const currentSearchParam = (name: string): string | null => new URLSearchParams(readLocation().search).get(name);
 
 export function useRoute(): Route {
   useSyncExternalStore(subscribeRoute, snapshot, () => "/");

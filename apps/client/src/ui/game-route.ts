@@ -6,7 +6,8 @@ import { validateCase } from "../content/validate";
 import { LocalAuthority } from "../content/local-authority";
 import { accountReady } from "../state/account";
 import { caseRepository } from "../content/repository";
-import { currentRoute, navigate, subscribeRoute, type Route } from "./router";
+import { getAuthority } from "../state/core";
+import { currentRoute, currentSearchParam, navigate, subscribeRoute, type Route } from "./router";
 import { tell } from "./dialog";
 
 /**
@@ -14,7 +15,11 @@ import { tell } from "./dialog";
  * Перезагрузка возвращает в дело по сохранению (нет сохранения — вступление); «назад» из игры спрашивает про выход.
  */
 
-const playPath = (caseId: string) => (FROM_EDITOR ? "/playtest" : `/play/${encodeURIComponent(caseId)}`);
+const playPath = (caseId: string) => {
+  if (FROM_EDITOR) return "/playtest";
+  const eventId = getAuthority()?.eventId;
+  return `/play/${encodeURIComponent(caseId)}${eventId ? `?event=${eventId}` : ""}`;
+};
 
 let loading = false;
 
@@ -28,7 +33,7 @@ async function loadFromUrl(route: Route) {
       await actions.resume(new LocalAuthority(result.caseFile));
     } else if (route.page === "play") {
       await accountReady; // от входа зависит, откуда дело: с сервера или из сборки
-      await actions.resume(await caseRepository.open(route.caseId));
+      await actions.resume(await caseRepository.open(route.caseId, Number(currentSearchParam("event")) || undefined));
     }
   } catch (e) {
     navigate(FROM_EDITOR ? editorPathOfPlaytest() : "/cases", { replace: true });

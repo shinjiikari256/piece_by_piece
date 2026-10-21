@@ -1,7 +1,9 @@
 import { Suspense, lazy, useEffect, useRef, useState, Fragment } from "react";
-import { ROLE_LABEL, STATUS_LABEL } from "../../../../shared/api";
+import { ROLE_LABEL, STATUS_LABEL, type ServerEvent } from "../../../../shared/api";
+import type { CaseSummary } from "../content/repository";
+import { formatDate } from "../util/format";
 import { APP_NAME, DEV_EDITOR, OFFLINE } from "../env";
-import { account, isStaff, pendingJoinToken, useAccount } from "../state/account";
+import { account, api, isStaff, pendingJoinToken, useAccount } from "../state/account";
 import { useProfile } from "../state/platform-hooks";
 import { AuthPage, PasswordForm } from "./account";
 import { Field } from "./account";
@@ -13,7 +15,7 @@ import { initials, shortName } from "../util/names";
 import { Icon } from "./icons";
 import { Logo, LogoArt } from "./logo";
 import { Link, navigate, useRoute, type Route } from "./router";
-import { CaseList, HowToContent, HowToWindow, useCaseList } from "./screens";
+import { CaseList, HowToContent, HowToWindow, openCase, useCaseList } from "./screens";
 import { ResultsPage } from "./results-page";
 
 /** Конструктор — отдельным куском по требованию; в офлайн-файле его нет вовсе. */
@@ -169,6 +171,7 @@ function UserMenu() {
           </div>
           {item("/account", "Личный кабинет")}
           {isStaff(me) && item("/admin/groups", me.role === "admin" ? "Группы" : "Мои группы")}
+          {isStaff(me) && item("/admin/events", "Мероприятия")}
           {me.role === "admin" && item("/admin/settings", "Настройки")}
           <hr />
           <button
@@ -243,6 +246,43 @@ const Feature = ({ n, title, text }: { n: number; title: string; text: string })
 
 // ---------- Дела: папки ----------
 
+/** Мероприятия группы студента: дела, которые можно сдать зачётно. */
+function EventsBlock({ cases }: { cases: CaseSummary[] | null }) {
+  const me = useAccount((s) => s.me);
+  const [events, setEvents] = useState<ServerEvent[]>([]);
+  useEffect(() => {
+    if (me?.role !== "student") return setEvents([]);
+    api<ServerEvent[]>("GET", "/events").then(setEvents, () => setEvents([]));
+  }, [me]);
+  const shown = events.filter((e) => e.open);
+  if (!shown.length) return null;
+  return (
+    <section className="stack">
+      <h2>Мероприятия</h2>
+      {shown.map((e) => (
+        <div key={e.id} className="card stack">
+          <b>{e.title}</b>
+          {e.closesAt && <span className="muted small">до {formatDate(e.closesAt, true)}</span>}
+          <ul className="list-reset stack">
+            {e.caseIds.map((id) => {
+              const done = e.doneByCase?.[id] ?? 0;
+              const left = e.maxScoredAttempts == null ? null : Math.max(0, e.maxScoredAttempts - done);
+              return (
+                <li key={id} className="row">
+                  <button className="btn btn--sm btn--primary" disabled={left === 0} onClick={() => void openCase(id, e.id).catch(() => undefined)}>
+                    {cases?.find((c) => c.id === id)?.title ?? id}
+                  </button>
+                  <span className="muted small">{left === null ? `сдано: ${done}` : `осталось попыток: ${left}`}</span>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      ))}
+    </section>
+  );
+}
+
 function CasesPage() {
   const cases = useCaseList();
   const [howto, setHowto] = useState(false);
@@ -254,6 +294,7 @@ function CasesPage() {
           <Icon name="help" size={16} /> Как играть
         </button>
       </header>
+      <EventsBlock cases={cases} />
       <CaseList cases={cases} />
       {howto && <HowToWindow onClose={() => setHowto(false)} />}
     </div>

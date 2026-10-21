@@ -14,12 +14,13 @@ export class ApiAuthority implements CaseAuthority {
     readonly caseFile: PublicCase,
     private attemptId: string,
     private started: boolean,
+    readonly eventId?: number,
   ) {}
 
   /** Открыть дело: вернуться к начатой попытке или создать новую (`fresh` — закрыть начатую). */
-  static async open(caseId: string): Promise<ApiAuthority> {
-    const a = await api<ServerAttempt>("POST", `/cases/${encodeURIComponent(caseId)}/attempts`, {});
-    return new ApiAuthority(a.caseFile, a.attemptId, a.started);
+  static async open(caseId: string, eventId?: number): Promise<ApiAuthority> {
+    const a = await api<ServerAttempt>("POST", `/cases/${encodeURIComponent(caseId)}/attempts`, { eventId });
+    return new ApiAuthority(a.caseFile, a.attemptId, a.started, eventId);
   }
 
   private path(suffix: string) {
@@ -52,7 +53,7 @@ export class ApiAuthority implements CaseAuthority {
 
   async discard() {
     if (!this.started) return;
-    const a = await api<ServerAttempt>("POST", `/cases/${encodeURIComponent(this.caseFile.id)}/attempts`, { fresh: true });
+    const a = await api<ServerAttempt>("POST", `/cases/${encodeURIComponent(this.caseFile.id)}/attempts`, { fresh: true, eventId: this.eventId });
     this.attemptId = a.attemptId;
     this.started = false;
   }

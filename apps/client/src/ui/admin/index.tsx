@@ -11,6 +11,7 @@ import { STATUS_TONE } from "../tone";
 import { type Route } from "../router";
 import { UserPage, UsersSection } from "./users";
 import { GroupsSection } from "./groups";
+import { EventsSection } from "./events";
 import { SettingsSection } from "./settings";
 /** Раздел «Пользователи»: пользователи, карточка пользователя, группы и ссылки, настройки. */
 
@@ -49,6 +50,7 @@ export function AdminPage({ route }: { route: AdminRoute }) {
       {route.section === "users" && route.userId && <UserPage id={route.userId} groups={groups} isAdmin={isAdmin} />}
       {route.section === "users" && !route.userId && <UsersSection groups={groups} isAdmin={isAdmin} onChanged={loadGroups} />}
       {route.section === "groups" && <GroupsSection groups={groups} isAdmin={isAdmin} reload={loadGroups} />}
+      {route.section === "events" && <EventsSection groups={groups} />}
       {route.section === "settings" && (isAdmin ? <SettingsSection /> : <p className="muted">Настройки доступны только администратору.</p>)}
     </div>
   );

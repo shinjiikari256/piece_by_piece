@@ -27,8 +27,8 @@ export function useCaseList() {
   return cases;
 }
 
-export async function openCase(id: string) {
-  actions.openCase(await caseRepository.open(id));
+export async function openCase(id: string, eventId?: number) {
+  actions.openCase(await caseRepository.open(id, eventId));
 }
 
 /** Сразу продолжить начатое расследование (с устаревшим сохранением — экран дела с предупреждением). */
