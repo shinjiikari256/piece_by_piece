@@ -155,3 +155,31 @@ export const results = pgTable(
   },
   (t) => [index("results_user_idx").on(t.userId), index("results_case_idx").on(t.caseId)],
 );
+
+/** Дело на сервере; само содержимое — в версиях, `current_version_id` указывает на действующую. */
+export const cases = pgTable("cases", {
+  id: text("id").primaryKey(),
+  currentVersionId: integer("current_version_id").references((): AnyPgColumn => caseVersions.id, {
+    onDelete: "set null",
+  }),
+  createdAt: createdAt(),
+});
+
+/** Неизменяемая версия дела: полный `CaseFile` (с ответами). Одинаковое содержимое второй раз не пишется. */
+export const caseVersions = pgTable(
+  "case_versions",
+  {
+    id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+    caseId: text("case_id")
+      .notNull()
+      .references((): AnyPgColumn => cases.id, { onDelete: "cascade" }),
+    body: jsonb("body").notNull(),
+    formatVersion: integer("format_version").notNull(),
+    /** `updatedAt` из самого дела — то, что игрок видит как версию конфигурации. */
+    caseUpdatedAt: text("case_updated_at"),
+    contentHash: text("content_hash").notNull(),
+    createdBy: integer("created_by").references((): AnyPgColumn => users.id, { onDelete: "set null" }),
+    createdAt: createdAt(),
+  },
+  (t) => [uniqueIndex("case_versions_hash_idx").on(t.caseId, t.contentHash)],
+);

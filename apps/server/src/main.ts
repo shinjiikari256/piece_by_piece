@@ -1,6 +1,7 @@
 import { serve } from "@hono/node-server";
 import { createApp } from "./app";
 import { ensureAdmin } from "./bootstrap";
+import { seedCases } from "./cases";
 import { connectPostgres } from "./db";
 
 /**
@@ -23,6 +24,10 @@ if (admin === "skipped")
   console.warn(
     "В базе нет администратора: задайте ADMIN_LOGIN и ADMIN_PASSWORD и перезапустите сервер",
   );
+
+const seeded = await seedCases(db);
+if (seeded.created.length) console.log(`Дела обновлены: ${seeded.created.join(", ")}`);
+for (const f of seeded.failed) console.error(`Дело пропущено — ${f}`);
 
 const app = createApp(db, {
   secureCookies: env.SECURE_COOKIES === "1",
