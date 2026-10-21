@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { DEBRIEF_POLICY_LABEL, type AdminGroup, type ServerCaseSummary, type ServerEvent } from "../../../../../shared/api";
-import { api } from "../../state/account";
+import { api } from "../../state/api";
 import { ask } from "../dialog";
 import { Link } from "../router";
 import { fail } from "./index";

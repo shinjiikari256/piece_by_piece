@@ -1,6 +1,7 @@
 import type { SaveData } from "./save-data";
-import { accountStore, api } from "./account";
-import type { GamePlatform, SaveStore } from "./platform";
+import { accountStore } from "./account";
+import { api, initAccount } from "./api";
+import { setPlatform, type GamePlatform, type SaveStore } from "./platform";
 
 /** Пауза между правкой и отправкой на сервер: автосохранение пишет на каждый шаг, серверу хватает последнего. */
 const PUSH_DELAY_MS = 3000;
@@ -116,4 +117,10 @@ export function createOnlinePlatform(local: GamePlatform, signedIn: () => boolea
   };
 
   return { ...local, saves };
+}
+
+/** Онлайн-сборка: платформа с сервером поверх браузерной и проверка учётной записи (не ждём её — страница открывается сразу). */
+export function connectOnline(browser: GamePlatform) {
+  setPlatform(createOnlinePlatform(browser));
+  void initAccount();
 }

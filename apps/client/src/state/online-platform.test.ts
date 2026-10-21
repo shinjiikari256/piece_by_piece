@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { createApp } from "../../../server/src/app";
 import { memoryDb } from "../../../server/src/db";
-import { api } from "./account";
+import { api } from "./api";
 import { createMemoryPlatform } from "./memory-platform";
 import { createOnlinePlatform } from "./online-platform";
 import type { SaveData } from "./save-data";

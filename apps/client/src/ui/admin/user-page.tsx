@@ -8,7 +8,8 @@ import {
   type UserDetail,
   type UsersPatch,
 } from "../../../../../shared/api";
-import { ApiFailure, api, useAccount } from "../../state/account";
+import { useAccount } from "../../state/account";
+import { ApiFailure, api } from "../../state/api";
 import { Select } from "../Select";
 import { Alert } from "../alert";
 import { Dialog } from "../window";

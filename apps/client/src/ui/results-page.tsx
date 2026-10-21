@@ -1,35 +1,38 @@
+import { Suspense, lazy, useEffect, useState } from "react";
 import { Link } from "./router";
-import { useEffect, useState } from "react";
-import type { ResultsFilters, ResultsPage as ResultsPageData, ResultsStats } from "../../../../shared/api";
+import type { ResultsStats } from "../../../../shared/api";
 import { resultsStats } from "../../../../shared/results-stats";
-import { api, isStaff, useAccount } from "../state/account";
+import { isStaff, useAccount } from "../state/account";
 import { platform } from "../state/platform";
 import type { ResultRecord } from "../state/result-record";
 import { usePlatformValue } from "../state/platform-hooks";
 import { Select } from "./Select";
 import { ask, tell } from "./dialog";
 import { Icon } from "./icons";
-import { Pager, ResultsTable, fromLocal, fromServer, type ResultRow } from "./results";
+import { Pager, ResultsTable, fromLocal, type ResultRow } from "./results";
 import { openResult } from "./screens";
 import { TabbedModal } from "./common";
 import { Loader } from "./loader";
-import { ResultsImport } from "./results-import";
+import { OFFLINE } from "../env";
+
+/** Результаты с сервера — отдельным куском; в офлайн-файле его нет вовсе. */
+const ServerResults = OFFLINE ? null : lazy(() => import("./results-server").then((m) => ({ default: m.ServerResults })));
 
 /**
  * «Результаты»: прохождения с фильтрами (дело, группа, пользователь) и пагинацией, «Статистика» по выборке.
  * Студент — только свои (фильтр по делу); без сервера — результаты из этого браузера.
  */
 
-const PAGE_SIZE = 20;
+export const PAGE_SIZE = 20;
 
-interface Filters {
+export interface Filters {
   case: string;
   group: string;
   user: string;
 }
-const NO_FILTERS: Filters = { case: "", group: "", user: "" };
+export const NO_FILTERS: Filters = { case: "", group: "", user: "" };
 
-const query = (f: Filters, extra: Record<string, string | number> = {}) => {
+export const query = (f: Filters, extra: Record<string, string | number> = {}) => {
   const p = new URLSearchParams();
   if (f.case) p.set("case", f.case);
   if (f.group) p.set("group", f.group);
@@ -38,104 +41,20 @@ const query = (f: Filters, extra: Record<string, string | number> = {}) => {
   return p.toString();
 };
 
-const open = (r: ResultRow) =>
+export const open = (r: ResultRow) =>
   void openResult(r.caseId, r.record!).catch(() => tell({ title: "Не удалось открыть результат", text: "Этого дела больше нет в списке." }));
 
 export function ResultsPage() {
   const server = useAccount((s) => s.server);
   const me = useAccount((s) => s.me);
   if (server === "unknown") return null;
-  return server === "online" && me ? <ServerResults staff={isStaff(me)} /> : <LocalResults online={server === "online"} />;
-}
-
-function ServerResults({ staff }: { staff: boolean }) {
-  const [filters, setFilters] = useState<Filters>(NO_FILTERS);
-  const [page, setPage] = useState(1);
-  const [data, setData] = useState<ResultsPageData | null>(null);
-  const [options, setOptions] = useState<ResultsFilters | null>(null);
-  const [stats, setStats] = useState(false);
-  const [importing, setImporting] = useState(false);
-  const [reload, setReload] = useState(0);
-
-  useEffect(() => void api<ResultsFilters>("GET", "/results/filters").then(setOptions, () => setOptions(null)), []);
-  useEffect(() => {
-    api<ResultsPageData>("GET", `/results?${query(filters, { page, pageSize: PAGE_SIZE })}`).then(setData, () => setData(null));
-  }, [filters, page, reload]);
-
-  const set = (patch: Partial<Filters>) => {
-    setFilters((f) => ({ ...f, ...patch }));
-    setPage(1);
-  };
-  const filtered = Object.values(filters).some(Boolean);
-  const rows = data?.items.map((r) => fromServer(r)) ?? [];
-
-  return (
-    <div className="page page--wide">
-      <header className="page__head">
-        <h1>{staff ? "Результаты" : "Мои результаты"}</h1>
-        <button className="btn" onClick={() => setStats(true)} disabled={!data?.total}>
-          <Icon name="scale" size={16} /> Статистика
-        </button>
-        {staff && (
-          <a className="btn" href={`/api/results/export.csv?${query(filters)}`} download="results.csv">
-            Выгрузить CSV
-          </a>
-        )}
-        {staff && (
-          <button className="btn" aria-pressed={importing} onClick={() => setImporting((v) => !v)}>
-            Импорт файлов
-          </button>
-        )}
-      </header>
-      {staff && importing && <ResultsImport students={(options?.users ?? []).map((u) => ({ id: u.id, label: `${u.fullName}${u.group ? ` · ${u.group}` : ""}` }))} onDone={() => setReload((n) => n + 1)} />}
-      <div className="toolbar">
-        <Select
-          value={filters.case}
-          placeholder="Все дела"
-          onChange={(v) => set({ case: v })}
-          options={[{ value: "", label: "Все дела" }, ...(options?.cases ?? []).map((c) => ({ value: c.id, label: `№${c.number} «${c.title}»` }))]}
-        />
-        {staff && (
-          <>
-            <Select
-              value={filters.group}
-              placeholder="Все группы"
-              onChange={(v) => set({ group: v })}
-              options={[
-                { value: "", label: "Все группы" },
-                ...(options?.groups ?? []).map((g) => ({ value: String(g.id), label: g.name })),
-                { value: "none", label: "Без группы" },
-              ]}
-            />
-            <Select
-              value={filters.user}
-              placeholder="Все пользователи"
-              onChange={(v) => set({ user: v })}
-              options={[
-                { value: "me", label: "Мои" },
-                { value: "", label: "Все пользователи" },
-                ...(options?.users ?? []).map((u) => ({ value: String(u.id), label: u.group ? `${u.fullName} · ${u.group}` : u.fullName })),
-              ]}
-            />
-          </>
-        )}
-        {filtered && (
-          <button className="linkbtn" onClick={() => set(NO_FILTERS)}>
-            Сбросить фильтры
-          </button>
-        )}
-      </div>
-      {data && data.total === 0 ? (
-        <EmptyResults filtered={filtered} />
-      ) : (
-        <div className="card card--flush">
-          <ResultsTable rows={rows} onOpen={open} showUser={staff} />
-        </div>
-      )}
-      {data && <Pager page={data.page} pageSize={data.pageSize} total={data.total} onPage={setPage} />}
-      {stats && <StatsModal source={() => api<ResultsStats>("GET", `/results/stats?${query(filters)}`)} onClose={() => setStats(false)} />}
-    </div>
-  );
+  if (server === "online" && me && ServerResults)
+    return (
+      <Suspense fallback={<Loader label="Загружаем результаты…" />}>
+        <ServerResults staff={isStaff(me)} />
+      </Suspense>
+    );
+  return <LocalResults online={server === "online"} />;
 }
 
 function LocalResults({ online }: { online: boolean }) {
@@ -222,7 +141,7 @@ function LocalResults({ online }: { online: boolean }) {
   );
 }
 
-function EmptyResults({ filtered }: { filtered: boolean }) {
+export function EmptyResults({ filtered }: { filtered: boolean }) {
   return (
     <div className="card empty-state">
       <p>{filtered ? "По этим фильтрам прохождений нет." : "Завершённых дел пока нет."}</p>
@@ -237,7 +156,7 @@ function EmptyResults({ filtered }: { filtered: boolean }) {
 
 // ---------- Статистика ----------
 
-function StatsModal({ source, onClose }: { source: () => Promise<ResultsStats>; onClose: () => void }) {
+export function StatsModal({ source, onClose }: { source: () => Promise<ResultsStats>; onClose: () => void }) {
   const [s, setS] = useState<ResultsStats | null>(null);
   useEffect(() => void source().then(setS, () => setS(null)), []); // eslint-disable-line react-hooks/exhaustive-deps
   const n = (v: number | null, unit = "") => (v == null ? "—" : `${v}${unit}`);

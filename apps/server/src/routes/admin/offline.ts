@@ -4,9 +4,12 @@ import { Hono } from "hono";
 import { inArray, eq } from "drizzle-orm";
 import { OFFLINE_VARIANTS, OfflineBuildBody, type OfflineVariant } from "../../../../../shared/api";
 import type { CaseFile } from "../../../../../shared/case";
-import { embedCases } from "../../../../../shared/offline-embed";
+import { embedCases, embedSprites, readSpriteSpecs } from "../../../../../shared/offline-embed";
 import { caseVersions, cases } from "../../db/schema";
 import { ApiError, parseBody, requireStaff, type AppEnv } from "../../http";
+
+/** Встроенные спрайты — в репозитории клиента; сервер берёт из них только то, что стоит в делах. */
+const SPRITES_DIR = path.resolve(import.meta.dirname, "../../../../client/src/game/art/sprites/data");
 
 const templateOf = (dir: string | undefined, variant: OfflineVariant) => readFile(path.join(dir ?? "", `${variant}.html`), "utf8").catch(() => null);
 
@@ -32,10 +35,9 @@ export const offlineRoutes = new Hono<AppEnv>()
     const byId = new Map(rows.map((r) => [r.id, r.body as CaseFile]));
     const missing = body.caseIds.find((id) => !byId.has(id));
     if (missing) throw new ApiError(404, "not_found", `Дело ${missing} не найдено`);
-    const { html } = embedCases(
-      template,
-      body.caseIds.map((id) => byId.get(id)!),
-    );
+    const chosen = body.caseIds.map((id) => byId.get(id)!);
+    const embedded = embedCases(template, chosen).html;
+    const html = body.variant === "game" ? embedSprites(embedded, readSpriteSpecs(SPRITES_DIR), chosen) : embedded;
     return c.body(html, 200, {
       "content-type": "text/html; charset=utf-8",
       "content-disposition": `attachment; filename="${body.variant === "editor" ? "delo-editor" : "delo"}.html"`,

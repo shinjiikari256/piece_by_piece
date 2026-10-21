@@ -10,9 +10,13 @@ export function GeneralSection() {
     <section className="ed__panel ed__panel--narrow">
       <h2>Основное</h2>
       <p className="muted">
-        id дела должен быть уникальным: под ним дело появится в игре. Когда дело готово, включите показ в списке в разделе «Видимость».
+        id дела должен быть уникальным: под ним дело появится в игре. Когда дело готово, включите показ в списке.
         {draft.updatedAt && ` Последнее изменение: ${formatDate(draft.updatedAt, true)}.`}
       </p>
+      <label className="ef ef--bool">
+        <input type="checkbox" checked={draft.published} onChange={(e) => editor.update((d) => ({ ...d, published: e.target.checked }), "general")} />
+        <span>Показывать в списке дел</span>
+      </label>
       <ObjectFields
         schema={SCHEMA}
         value={draft}

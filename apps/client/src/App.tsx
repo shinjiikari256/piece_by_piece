@@ -1,4 +1,4 @@
-import { useEffect, useRef, type ReactNode } from "react";
+import { Suspense, lazy, useEffect, useRef, type ReactNode } from "react";
 import { useFocusTrap, useWindowKey } from "./ui/hooks";
 import { actions, store, useGame } from "./state/store";
 import { editorPathOfPlaytest, readPlaytest } from "./content/drafts";
@@ -19,7 +19,9 @@ import { Link, useRoute } from "./ui/router";
 import { useGameRoute } from "./ui/game-route";
 import { FinalScreen, ResultScreen } from "./ui/verdict";
 import { DialogHost, tell } from "./ui/dialog";
-import { ForcePasswordChange } from "./ui/account";
+
+/** Смена временного пароля — онлайн-часть; в офлайн-файле её нет вовсе. */
+const ForcePasswordChange = OFFLINE ? null : lazy(() => import("./ui/online").then((m) => ({ default: m.ForcePasswordChange })));
 
 /** Команды правой кнопки: для выделенного текста, карточки материала и общие для расследования. */
 function gameMenu({ target, selection }: MenuContext): MenuItem[] {
@@ -147,7 +149,11 @@ export function App() {
       {/* у конструктора своё меню правой кнопки */}
       {!(screen === "menu" && route.page === "editor") && <ContextMenu build={gameMenu} />}
       <DialogHost />
-      <ForcePasswordChange />
+      {ForcePasswordChange && (
+        <Suspense fallback={null}>
+          <ForcePasswordChange />
+        </Suspense>
+      )}
     </>
   );
 }

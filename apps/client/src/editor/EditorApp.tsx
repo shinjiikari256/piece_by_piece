@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { Suspense, lazy, useEffect, useRef } from "react";
 import { useArrowNav, useWindowKey } from "../ui/hooks";
 import { useEditorUrl } from "./url";
 import { CaseFile } from "../../../../shared/case";
@@ -11,7 +11,6 @@ import { refTarget } from "./refs";
 import { ContextMenu, copyText, type MenuContext, type MenuItem } from "../ui/contextmenu";
 import { GeneralSection } from "./sections/General";
 import { SettingsSection } from "./sections/Settings";
-import { VisibilitySection } from "./sections/Visibility";
 import { AuthorshipSection } from "./sections/Authorship";
 import { FlagsSection } from "./sections/Flags";
 import { SpritesSection } from "./sprites/SpritesSection";
@@ -68,9 +67,12 @@ function editorMenu({ target, selection }: MenuContext): MenuItem[] {
   return items;
 }
 
+/** Видимость по группам — онлайн-часть; в офлайн-файле её нет вовсе. */
+const VisibilitySection = OFFLINE ? null : lazy(() => import("./sections/Visibility").then((m) => ({ default: m.VisibilitySection })));
+
 const SECTIONS: { id: SectionId; label: string; hint: string }[] = [
   { id: "general", label: "Основное", hint: "Название, вводная, сложность" },
-  { id: "visibility", label: "Видимость", hint: "Кому дело видно в списке: всем или выбранным группам" },
+  ...(OFFLINE ? [] : [{ id: "visibility" as const, label: "Видимость", hint: "Кому дело видно в списке: всем или выбранным группам" }]),
   { id: "characters", label: "Персонажи", hint: "Кто участвует и как выглядит" },
   { id: "locations", label: "Локации", hint: "Карта, предметы, люди, области" },
   { id: "evidence", label: "Улики", hint: "Что можно найти" },
@@ -195,7 +197,11 @@ export function EditorApp() {
         {section === "solution" && <SolutionSection />}
         {section === "law" && <LawSection />}
         {section === "settings" && <SettingsSection />}
-        {section === "visibility" && <VisibilitySection />}
+        {VisibilitySection && section === "visibility" && (
+          <Suspense fallback={null}>
+            <VisibilitySection />
+          </Suspense>
+        )}
         {section === "authorship" && <AuthorshipSection />}
         {section === "flags" && <FlagsSection />}
         {section === "sprites" && <SpritesSection />}

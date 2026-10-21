@@ -22,6 +22,8 @@ COPY shared ./shared
 COPY apps/server ./apps/server
 # дела, которые сервер засевает в базу при старте
 COPY apps/client/src/content/cases ./apps/client/src/content/cases
+# спрайты для офлайн-файла «только игра» (берутся только те, что стоят в делах)
+COPY apps/client/src/game/art/sprites/data ./apps/client/src/game/art/sprites/data
 COPY --from=offline /app/offline/.template/index.html ./offline/game.html
 COPY --from=offline /app/offline/.template-editor/index.html ./offline/editor.html
 ENV NODE_ENV=production PORT=8787 OFFLINE_DIR=/app/offline

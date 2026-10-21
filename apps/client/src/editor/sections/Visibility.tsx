@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import type { AdminGroup, CaseVisibility } from "../../../../../shared/api";
-import { api, ApiFailure, isStaff, useAccount } from "../../state/account";
-import { editor, useEditor } from "../state";
+import { isStaff, useAccount } from "../../state/account";
+import { api, ApiFailure } from "../../state/api";
+import { useEditor } from "../state";
 
 type Mode = CaseVisibility["mode"];
 
@@ -12,10 +13,6 @@ export function VisibilitySection() {
     <section className="ed__panel ed__panel--narrow">
       <h2>Видимость</h2>
       <p className="muted">Кому из игроков дело показывается в списке. Скрытое дело открывается только из конструктора.</p>
-      <label className="ef ef--bool">
-        <input type="checkbox" checked={draft.published} onChange={(e) => editor.update((d) => ({ ...d, published: e.target.checked }), "general")} />
-        <span>Показывать в списке дел</span>
-      </label>
       {online ? (
         <ServerVisibility caseId={draft.id} published={draft.published} />
       ) : (

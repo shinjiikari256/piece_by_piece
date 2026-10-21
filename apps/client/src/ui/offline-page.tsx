@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { OFFLINE_VARIANTS, OFFLINE_VARIANT_LABEL, type OfflineVariant } from "../../../../shared/api";
-import { api, isStaff, useAccount } from "../state/account";
+import { isStaff, useAccount } from "../state/account";
+import { api } from "../state/api";
 import { tell } from "./dialog";
 
 interface CaseRow {

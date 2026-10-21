@@ -1,6 +1,7 @@
 import { useEffect, useState, type FormEvent, type ReactNode } from "react";
 import { CONSENT_TEXT, type JoinInfo } from "../../../../shared/api";
-import { ApiFailure, account, api, clearJoinToken, pendingJoinToken, useAccount } from "../state/account";
+import { useAccount } from "../state/account";
+import { ApiFailure, account, api, clearJoinToken, pendingJoinToken } from "../state/api";
 import { Alert } from "./alert";
 import { Dialog } from "./window";
 import { Link, navigate, useRoute } from "./router";

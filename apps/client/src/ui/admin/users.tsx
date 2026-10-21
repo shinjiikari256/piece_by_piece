@@ -9,7 +9,8 @@ import {
   type UserStatus,
   type UsersPatch,
 } from "../../../../../shared/api";
-import { api, useAccount } from "../../state/account";
+import { useAccount } from "../../state/account";
+import { api } from "../../state/api";
 import { Select } from "../Select";
 import { ask } from "../dialog";
 import { Link, navigate, setSearchParams, useSearchParam } from "../router";

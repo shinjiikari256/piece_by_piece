@@ -3,7 +3,7 @@ import { createApp } from "../../../server/src/app";
 import { ensureAdmin } from "../../../server/src/bootstrap";
 import { seedCases } from "../../../server/src/cases";
 import { memoryDb } from "../../../server/src/db";
-import { api } from "../state/account";
+import { api } from "../state/api";
 import { ApiAuthority } from "./api-authority";
 import { LocalAuthority } from "./local-authority";
 import { caseRepository } from "./repository";

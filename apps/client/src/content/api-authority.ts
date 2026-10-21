@@ -1,14 +1,17 @@
-import type { ServerAttempt } from "../../../../shared/api";
+import type { ServerAttempt, ServerCaseSummary } from "../../../../shared/api";
 import type { PublicCase } from "../../../../shared/public-case";
 import type { Solution } from "../../../../shared/case";
 import type { CaseAuthority, CaseResult, DeductionVerdict, FinishInput, Revealed, RevealedHint } from "../../../../shared/judge";
 import { GAME_VERSION } from "../env";
-import { api } from "../state/account";
+import { api } from "../state/api";
 
 /**
  * Судья на сервере: ответов в браузере нет, проверку, подсказки, время и итог даёт API.
  * Каждое прохождение — попытка на сервере: подсказки, ошибки и время считает она, а не клиент.
  */
+/** Дела, которые сервер показывает вошедшему игроку; нет связи — null (тогда список из сборки). */
+export const serverCases = () => api<ServerCaseSummary[]>("GET", "/cases").catch(() => null);
+
 export class ApiAuthority implements CaseAuthority {
   private constructor(
     readonly caseFile: PublicCase,

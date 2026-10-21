@@ -4,11 +4,12 @@ import { listDraftIds, readDraft } from "./drafts";
 import { LocalAuthority } from "./local-authority";
 import type { CaseAuthority } from "../../../../shared/judge";
 import { OFFLINE, OFFLINE_EDITOR, embeddedCases } from "../env";
-import type { ServerCaseSummary } from "../../../../shared/api";
-import { accountStore, api } from "../state/account";
-import { ApiAuthority } from "./api-authority";
+import { accountStore } from "../state/account";
 
-/** Вошедший игрок берёт дела и проверку с сервера; гость и офлайн-файл играют на делах из сборки. */
+/**
+ * Вошедший игрок берёт дела и проверку с сервера; гость и офлайн-файл играют на делах из сборки.
+ * Онлайн-модуль `api-authority` грузится только там, где `!OFFLINE` (иначе сборка офлайн-файла его не включает).
+ */
 const fromServer = () => !OFFLINE && accountStore.get().server === "online" && !!accountStore.get().me;
 
 export interface CaseSummary {
@@ -80,7 +81,7 @@ class BundledCaseRepository implements CaseRepository {
   }
 
   async list() {
-    const server = fromServer() ? await api<ServerCaseSummary[]>("GET", "/cases").catch(() => null) : null;
+    const server = !OFFLINE && fromServer() ? await import("./api-authority").then((m) => m.serverCases()) : null;
     if (server) {
       const ids = new Set(server.map((c) => c.id));
       const drafts = [...this.drafts().values()].filter((c) => !ids.has(c.id)).map((c) => summarize(c, true));
@@ -94,7 +95,7 @@ class BundledCaseRepository implements CaseRepository {
   }
 
   async open(id: string, eventId?: number): Promise<CaseAuthority> {
-    if (fromServer() && !this.drafts().has(id) && !this.devIds.has(id)) return ApiAuthority.open(id, eventId);
+    if (!OFFLINE && fromServer() && !this.drafts().has(id) && !this.devIds.has(id)) return (await import("./api-authority")).ApiAuthority.open(id, eventId);
     return new LocalAuthority(await this.get(id));
   }
 

@@ -1,8 +1,10 @@
 import { Link } from "../ui/router";
-import type { ReactNode } from "react";
+import { Suspense, lazy, type ReactNode } from "react";
 import { isStaff, useAccount } from "../state/account";
-import { ForcePasswordChange } from "../ui/account";
-import { DEV_EDITOR } from "../env";
+import { DEV_EDITOR, OFFLINE } from "../env";
+
+/** Смена временного пароля — онлайн-часть; в офлайн-файле её нет вовсе. */
+const ForcePasswordChange = OFFLINE ? null : lazy(() => import("../ui/online").then((m) => ({ default: m.ForcePasswordChange })));
 
 /**
  * Конструктор — только преподавателю и администратору (учётная запись на сервере).
@@ -16,7 +18,11 @@ export function AdminGate({ children }: { children: ReactNode }) {
     return (
       <>
         {children}
-        <ForcePasswordChange />
+        {ForcePasswordChange && (
+          <Suspense fallback={null}>
+            <ForcePasswordChange />
+          </Suspense>
+        )}
       </>
     );
   return (

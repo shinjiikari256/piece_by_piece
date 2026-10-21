@@ -22,9 +22,13 @@ export type Route =
   | { page: "editor"; caseId?: string; section?: string }
   | { page: "admin"; section: "users" | "groups" | "events" | "settings"; userId?: number; eventId?: number | "new" };
 
+/** Адреса, которых в офлайн-файле нет: вход, личный кабинет, админка, выгрузка офлайн-версии (всё — с сервером). */
+const ONLINE_PAGES = new Set(["login", "guest", "register", "account", "admin", "offline"]);
+
 /** Разобрать путь (`/admin/users/12`, без query). */
 export function parseRoute(path: string): Route {
   const parts = path.split("/").filter(Boolean);
+  if (OFFLINE && ONLINE_PAGES.has(parts[0] ?? "")) return { page: "home" };
   switch (parts[0]) {
     case "cases":
     case "howto":

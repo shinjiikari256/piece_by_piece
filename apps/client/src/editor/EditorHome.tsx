@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { Suspense, lazy, useRef, useState } from "react";
 import { formatDate } from "../util/format";
 import { CaseFile } from "../../../../shared/case";
 import { caseRepository } from "../content/repository";
@@ -7,9 +7,12 @@ import { validateCase } from "../content/validate";
 import { editor, useEditor } from "./state";
 import { blankCase } from "./template";
 import { Icon } from "../ui/icons";
-import { ApiFailure, api, isStaff, useAccount } from "../state/account";
-import { ask, tell } from "../ui/dialog";
+import { ask } from "../ui/dialog";
 import { confirmReplace, downloadJson, importJsonFile } from "./actions";
+import { OFFLINE } from "../env";
+
+/** Дела с сервера — онлайн-часть; в офлайн-файле её нет вовсе. */
+const RemoteCases = OFFLINE ? null : lazy(() => import("./RemoteCases").then((m) => ({ default: m.RemoteCases })));
 
 /** Стартовая страница конструктора: все дела — создать, импортировать, открыть, экспортировать. */
 export function EditorHome() {
@@ -17,21 +20,6 @@ export function EditorHome() {
   const dirty = useEditor((s) => s.dirty);
   const fileInput = useRef<HTMLInputElement>(null);
   const [, refresh] = useState(0);
-  const online = useAccount((a) => a.server === "online" && isStaff(a.me));
-  const [remote, setRemote] = useState<{ id: string; number: number; title: string; published: boolean; updatedAt?: string }[]>([]);
-  useEffect(() => {
-    if (online) void api<typeof remote>("GET", "/admin/cases").then(setRemote, () => setRemote([]));
-  }, [online]);
-  const openRemote = async (id: string) => {
-    try {
-      const { caseFile } = await api<{ caseFile: unknown }>("GET", `/admin/cases/${encodeURIComponent(id)}`);
-      const checked = validateCase(caseFile);
-      if (!checked.ok) return void tell({ title: "Дело на сервере не проходит проверку", text: checked.errors.slice(0, 8).join("\n") });
-      editor.open(checked.caseFile);
-    } catch (e) {
-      void tell({ title: "Не удалось открыть", text: e instanceof ApiFailure ? e.message : "Нет связи с сервером." });
-    }
-  };
   const drafts = listDraftIds()
     .map((id) => validateCase(readDraft(id)))
     .flatMap((r) => (r.ok ? [r.caseFile] : []));
@@ -121,27 +109,10 @@ export function EditorHome() {
           <ul className="eh__list list-reset">{drafts.map((c) => row(c, "draft"))}</ul>
         </>
       )}
-      {remote.length > 0 && (
-        <>
-          <h2>Дела на сервере</h2>
-          <ul className="eh__list list-reset">
-            {remote.map((c) => (
-              <li key={c.id} className="eh__case">
-                <span className="eh__num">№{c.number}</span>
-                <span className="eh__info">
-                  <b>{c.title}</b>
-                  <span className="muted">
-                    {c.published ? "видно игрокам" : "скрыто"}
-                    {c.updatedAt && ` · ${formatDate(c.updatedAt)}`}
-                  </span>
-                </span>
-                <button className="btn btn--primary" onClick={() => confirmReplace(() => void openRemote(c.id))}>
-                  Открыть
-                </button>
-              </li>
-            ))}
-          </ul>
-        </>
+      {RemoteCases && (
+        <Suspense fallback={null}>
+          <RemoteCases />
+        </Suspense>
       )}
       <h2>Встроенные дела</h2>
       <ul className="eh__list list-reset">{bundled.map((c) => row(c, "bundled"))}</ul>

@@ -1,36 +1,28 @@
-import { Suspense, lazy, useEffect, useRef, useState, Fragment } from "react";
-import { ROLE_LABEL, STATUS_LABEL, type ServerEvent } from "../../../../shared/api";
-import type { CaseSummary } from "../content/repository";
-import { formatDate } from "../util/format";
+import { Suspense, lazy, useRef, useState, Fragment } from "react";
 import { APP_NAME, DEV_EDITOR, OFFLINE, OFFLINE_EDITOR } from "../env";
-import { account, api, isStaff, pendingJoinToken, useAccount } from "../state/account";
-import { useProfile } from "../state/platform-hooks";
-import { AuthPage, PasswordForm } from "./account";
-import { Field } from "./account";
-import { AdminPage, StatusChip } from "./admin";
-import { OfflinePage } from "./offline-page";
+import { isStaff, useAccount } from "../state/account";
 import { Loader } from "./loader";
-import { useDismiss, useMenuKeys } from "./hooks";
 import { DEFAULT_THEME_LABEL, THEMES, THEME_LABELS, setTheme, useTheme, type ThemeName } from "./theme";
-import { initials, shortName } from "../util/names";
+import { useDismiss, useMenuKeys } from "./hooks";
 import { Icon } from "./icons";
 import { Logo, LogoArt } from "./logo";
-import { Link, navigate, useRoute, type Route } from "./router";
-import { CaseList, HowToContent, HowToWindow, openCase, useCaseList } from "./screens";
+import { Link, useRoute, type Route } from "./router";
+import { CaseList, HowToContent, HowToWindow, useCaseList } from "./screens";
 import { ResultsPage } from "./results-page";
 
 /** Конструктор — отдельным куском по требованию; в офлайн-файле его нет вовсе. */
 const EditorRoute = OFFLINE && !OFFLINE_EDITOR ? null : lazy(() => import("../editor/EditorRoute"));
 
+/** Онлайн-часть (вход, кабинет, админка, мероприятия) — отдельным куском; в офлайн-файле её нет вовсе. */
+const loadOnline = () => import("./online");
+const OnlineHeader = OFFLINE ? null : lazy(() => loadOnline().then((m) => ({ default: m.OnlineHeader })));
+const OnlinePage = OFFLINE ? null : lazy(() => loadOnline().then((m) => ({ default: m.OnlinePage })));
+const OnlineEvents = OFFLINE ? null : lazy(() => loadOnline().then((m) => ({ default: m.OnlineEvents })));
+
 
 /** Сайт вокруг игры: шапка и обычные страницы. Папки — только у дел. */
 export function Site() {
   const route = useRoute();
-  // открыли по ссылке регистрации — сразу форма
-  useEffect(() => {
-    if (pendingJoinToken() && route.page !== "register") navigate("/register");
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
-
   return (
     <div className="site">
       <a className="skip-link" href="#main" onClick={(e) => { e.preventDefault(); document.getElementById("main")?.focus(); }}>
@@ -46,10 +38,11 @@ export function Site() {
           </div>
         )}
         {route.page === "results" && <ResultsPage />}
-        {(route.page === "login" || route.page === "register" || route.page === "guest") && <AuthPage tab={route.page} />}
-        {route.page === "account" && <AccountPage />}
-        {route.page === "admin" && <AdminPage route={route} />}
-        {route.page === "offline" && <OfflinePage />}
+        {OnlinePage && (
+          <Suspense fallback={null}>
+            <OnlinePage route={route} />
+          </Suspense>
+        )}
         {route.page === "editor" && EditorRoute && (
           <Suspense fallback={<Loader label="Загружаем конструктор…" />}>
             <EditorRoute />
@@ -86,8 +79,11 @@ function SiteHeader({ route }: { route: Route }) {
         </nav>
         <div className="site-header__user row">
           <ThemeMenu />
-          {server === "online" && me && <UserMenu />}
-          {server !== "unknown" && !me && <SignedOut />}
+          {OnlineHeader && (
+            <Suspense fallback={null}>
+              <OnlineHeader route={route} />
+            </Suspense>
+          )}
         </div>
       </div>
     </header>
@@ -125,70 +121,6 @@ function ThemeMenu() {
           {THEMES.map((t) => (
             <Fragment key={t}>{choice(t, THEME_LABELS[t])}</Fragment>
           ))}
-        </div>
-      )}
-    </div>
-  );
-}
-
-/** Без входа: имя гостя (если указал) и «Вход». */
-function SignedOut() {
-  const guest = useProfile().name.trim();
-  return (
-    <>
-      {guest && (
-        <Link className="site-guest" to="/guest" title="Вы играете как гость — изменить ФИО">
-          {shortName(guest)} <span>гость</span>
-        </Link>
-      )}
-      <Link className="btn btn--primary btn--sm" to="/login">
-        Вход
-      </Link>
-    </>
-  );
-}
-
-function UserMenu() {
-  const me = useAccount((s) => s.me)!;
-  const [open, setOpen] = useState(false);
-  const ref = useRef<HTMLDivElement>(null);
-  useDismiss(open, () => setOpen(false), [ref]);
-  useMenuKeys(open, ref);
-  const item = (path: string, label: string) => (
-    <Link to={path} role="menuitem" onClick={() => setOpen(false)}>
-      {label}
-    </Link>
-  );
-  return (
-    <div className="user-menu" ref={ref}>
-      <button className="user-menu__button" aria-haspopup="menu" aria-expanded={open} onClick={() => setOpen((v) => !v)}>
-        <span className="avatar">{initials(me.fullName)}</span>
-        <span className="user-menu__name">{shortName(me.fullName)}</span>
-        <span className="user-menu__caret">▾</span>
-      </button>
-      {open && (
-        <div className="user-menu__popup" role="menu">
-          <div className="user-menu__who">
-            <b>{me.fullName}</b>
-            <span className="muted">
-              {me.login} · {ROLE_LABEL[me.role]}
-            </span>
-          </div>
-          {item("/account", "Личный кабинет")}
-          {isStaff(me) && item("/admin/groups", me.role === "admin" ? "Группы" : "Мои группы")}
-          {isStaff(me) && item("/admin/events", "Мероприятия")}
-          {isStaff(me) && item("/offline", "Скачать офлайн-версию")}
-          {me.role === "admin" && item("/admin/settings", "Настройки")}
-          <hr />
-          <button
-            role="menuitem"
-            onClick={() => {
-              setOpen(false);
-              void account.logout().then(() => navigate("/"));
-            }}
-          >
-            Выйти
-          </button>
         </div>
       )}
     </div>
@@ -252,43 +184,6 @@ const Feature = ({ n, title, text }: { n: number; title: string; text: string })
 
 // ---------- Дела: папки ----------
 
-/** Мероприятия группы студента: дела, которые можно сдать зачётно. */
-function EventsBlock({ cases }: { cases: CaseSummary[] | null }) {
-  const me = useAccount((s) => s.me);
-  const [events, setEvents] = useState<ServerEvent[]>([]);
-  useEffect(() => {
-    if (me?.role !== "student") return setEvents([]);
-    api<ServerEvent[]>("GET", "/events").then(setEvents, () => setEvents([]));
-  }, [me]);
-  const shown = events.filter((e) => e.open);
-  if (!shown.length) return null;
-  return (
-    <section className="stack">
-      <h2>Мероприятия</h2>
-      {shown.map((e) => (
-        <div key={e.id} className="card stack">
-          <b>{e.title}</b>
-          {e.closesAt && <span className="muted small">до {formatDate(e.closesAt, true)}</span>}
-          <ul className="list-reset stack">
-            {e.caseIds.map((id) => {
-              const done = e.doneByCase?.[id] ?? 0;
-              const left = e.maxScoredAttempts == null ? null : Math.max(0, e.maxScoredAttempts - done);
-              return (
-                <li key={id} className="row">
-                  <button className="btn btn--sm btn--primary" disabled={left === 0} onClick={() => void openCase(id, e.id).catch(() => undefined)}>
-                    {cases?.find((c) => c.id === id)?.title ?? id}
-                  </button>
-                  <span className="muted small">{left === null ? `сдано: ${done}` : `осталось попыток: ${left}`}</span>
-                </li>
-              );
-            })}
-          </ul>
-        </div>
-      ))}
-    </section>
-  );
-}
-
 function CasesPage() {
   const cases = useCaseList();
   const [howto, setHowto] = useState(false);
@@ -300,67 +195,13 @@ function CasesPage() {
           <Icon name="help" size={16} /> Как играть
         </button>
       </header>
-      <EventsBlock cases={cases} />
+      {OnlineEvents && (
+        <Suspense fallback={null}>
+          <OnlineEvents cases={cases} />
+        </Suspense>
+      )}
       <CaseList cases={cases} />
       {howto && <HowToWindow onClose={() => setHowto(false)} />}
-    </div>
-  );
-}
-
-// ---------- Личный кабинет ----------
-
-function AccountPage() {
-  const server = useAccount((s) => s.server);
-  const me = useAccount((s) => s.me);
-  useEffect(() => {
-    if (server === "online" && !me) navigate("/login");
-  }, [server, me]);
-  if (server === "unknown") return null;
-  // без сервера учётных записей нет: вход преподавателя и гость
-  if (server === "none") return <AuthPage tab="guest" />;
-  if (!me) return null;
-  return (
-    <div className="page page--narrow">
-      <header className="page__head">
-        <h1>Личный кабинет</h1>
-      </header>
-      <section className="card">
-        <div className="profile-head">
-          <span className="avatar avatar--big">{initials(me.fullName)}</span>
-          <StatusChip status={me.status} />
-        </div>
-        <div className="form">
-          <Field label="ФИО">
-            <input className="input" value={me.fullName} readOnly />
-          </Field>
-          <div className="pair">
-            <Field label="Логин">
-              <input className="input mono" value={me.login} readOnly />
-            </Field>
-            <Field label="Роль">
-              <input className="input" value={ROLE_LABEL[me.role]} disabled />
-            </Field>
-          </div>
-          <div className="pair">
-            <Field label="Группа">
-              <input className="input" value={me.group?.name ?? "не назначена"} disabled />
-            </Field>
-            <Field label="Статус">
-              <input className="input" value={STATUS_LABEL[me.status]} disabled />
-            </Field>
-          </div>
-        </div>
-        <p className="muted small">
-          {me.status === "pending"
-            ? `Преподаватель подтвердит вашу учётную запись${me.group ? "" : " и добавит в группу"}. Проходить дела можно уже сейчас. `
-            : ""}
-          Изменить ФИО, группу или роль может преподаватель.
-        </p>
-      </section>
-      <section className="card">
-        <h2>Смена пароля</h2>
-        <PasswordForm />
-      </section>
     </div>
   );
 }

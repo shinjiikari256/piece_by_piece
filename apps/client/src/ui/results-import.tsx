@@ -1,7 +1,7 @@
 import { useRef, useState } from "react";
 import type { ImportItemResult, ImportStatus } from "../../../../shared/api";
-import { api } from "../state/account";
-import { ApiFailure } from "../state/account";
+import { api } from "../state/api";
+import { ApiFailure } from "../state/api";
 import { Select } from "./Select";
 import { tell } from "./dialog";
 

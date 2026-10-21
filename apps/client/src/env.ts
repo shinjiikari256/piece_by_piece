@@ -5,6 +5,8 @@
  * получают её идентификатор — разные сборки не видят сохранений друг друга.
  */
 
+import { readEmbedded } from "./embedded";
+
 export { APP_NAME, APP_NAME_LATIN } from "../../../shared/brand";
 
 export const OFFLINE_EDITOR = import.meta.env.MODE === "offline-editor";
@@ -32,12 +34,7 @@ let embedded: EmbeddedCases | null | undefined;
 /** Дела, вшитые в офлайн-сборку (`<script type="application/json" id="cases">`). */
 export function embeddedCases(): EmbeddedCases | null {
   if (embedded !== undefined) return embedded;
-  try {
-    const el = typeof document === "undefined" ? null : document.getElementById("cases");
-    embedded = el?.textContent ? (JSON.parse(el.textContent) as EmbeddedCases) : null;
-  } catch {
-    embedded = null;
-  }
+  embedded = readEmbedded<EmbeddedCases>("cases");
   return embedded;
 }
 

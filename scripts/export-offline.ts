@@ -18,10 +18,11 @@ import { existsSync, mkdirSync, readFileSync, readdirSync, renameSync, statSync,
 import path from "node:path";
 import { validateCase } from "../apps/client/src/content/validate";
 import type { CaseFile } from "../shared/case";
-import { embedCases } from "../shared/offline-embed";
+import { embedCases, embedSprites, readSpriteSpecs } from "../shared/offline-embed";
 
 const root = path.resolve(import.meta.dirname, "..");
 const casesDir = path.join(root, "apps/client/src/content/cases");
+const spritesDir = path.join(root, "apps/client/src/game/art/sprites/data");
 // шаблон без дел; переименован, чтобы его не путали с готовым файлом
 const outDir = path.join(root, "offline");
 const variant = process.argv.includes("--variant=editor") ? "editor" : "game";
@@ -80,7 +81,10 @@ if (args["no-build"] !== "true" || !existsSync(template)) {
   renameSync(path.join(outDir, templateDir, "index.html"), template);
 }
 
-const { html, buildId } = embedCases(readFileSync(template, "utf8"), cases);
+const embedded = embedCases(readFileSync(template, "utf8"), cases);
+// в варианте «только игра» — лишь спрайты, которые стоят в выбранных делах
+const html = variant === "game" ? embedSprites(embedded.html, readSpriteSpecs(spritesDir), cases) : embedded.html;
+const { buildId } = embedded;
 
 const name = args.out ?? "delo.html";
 const out = name.includes("/") ? path.resolve(name) : path.join(outDir, name.endsWith(".html") ? name : `${name}.html`);

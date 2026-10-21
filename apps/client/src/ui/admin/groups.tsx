@@ -6,7 +6,7 @@ import {
   type AdminUser,
   type JoinLink,
 } from "../../../../../shared/api";
-import { api } from "../../state/account";
+import { api } from "../../state/api";
 import { ask } from "../dialog";
 import { Field } from "../account";
 import { date, fail } from "./index";

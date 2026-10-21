@@ -4,7 +4,7 @@ import { editor, useEditor, type SectionId } from "./state";
 import { Alert } from "../ui/alert";
 import { Icon } from "../ui/icons";
 import { OFFLINE } from "../env";
-import { publishToServer, startPlaytest } from "./actions";
+import { startPlaytest } from "./actions";
 import { isStaff, useAccount } from "../state/account";
 
 /** Короткие инструкции к разделам конструктора. */
@@ -13,7 +13,7 @@ const HELP: Record<SectionId, { title: string; points: string[] }> = {
     title: "Основное",
     points: [
       "Номер, название и подзаголовок видны в списке дел; вводная — первое, что прочтёт игрок.",
-      "Видимость дела в списке — в разделе «Видимость».",
+      "Показ дела в списке — галочка «Показывать в списке дел» в этом разделе.",
     ],
   },
   settings: {
@@ -178,8 +178,8 @@ export function Toolbar() {
       </div>
       <button
         className="ed__publish" aria-pressed={draft.published}
-        onClick={() => editor.goto("visibility")}
-        title={draft.published ? "Игроки видят дело в списке. Настройки — в разделе «Видимость»" : "Дело скрыто от игроков. Настройки — в разделе «Видимость»"}
+        onClick={() => editor.goto("general")}
+        title={draft.published ? "Игроки видят дело в списке. Настройка — в разделе «Основное»" : "Дело скрыто от игроков. Настройка — в разделе «Основное»"}
       >
         <Icon name={draft.published ? "eye" : "dim"} size={16} /> {draft.published ? "Видно игрокам" : "Скрыто"}
       </button>
@@ -210,8 +210,8 @@ export function Toolbar() {
             <Icon name="play" size={15} /> Запустить
           </button>
         )}
-        {online && (
-          <button className="btn" onClick={() => void publishToServer()} title={errors.length ? "Сначала исправьте ошибки" : "Записать дело на сервер новой версией"}>
+        {!OFFLINE && online && (
+          <button className="btn" onClick={() => void import("./publish").then((m) => m.publishToServer())} title={errors.length ? "Сначала исправьте ошибки" : "Записать дело на сервер новой версией"}>
             <Icon name="upload" size={15} /> На сервер
           </button>
         )}
