@@ -293,7 +293,7 @@ export function DialogueWindow({
                 title={c.asked ? "Уже спрашивали — собеседнику придётся повторить" : undefined}
               >
                 <span className="choice__num">{i + 1}</span>
-                {c.evidence && <span className="choice__tag">предъявить</span>}
+                {c.evidence && <span className="choice__tag">по улике</span>}
                 <span className="choice__text">{c.text}</span>
                 {c.asked && <span className="choice__asked" aria-label="уже спрашивали">✓</span>}
               </button>
