@@ -148,7 +148,7 @@
 
 .modal {
   width: min(40rem, 100%);
-  max-height: calc(100vh - 2rem);
+  max-height: calc(100dvh - 2rem);
   display: flex;
   flex-direction: column;
   border-top: 10px solid var(--folder-sheet, var(--bg-chrome));

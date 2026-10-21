@@ -1,7 +1,7 @@
 import { SAVE_FORMAT_VERSION, migrateSave } from "../../../../shared/migrate";
 import { listKeys, readJson, removeKey, writeJson } from "./storage";
 import type { SaveData } from "./save-data";
-export { formatDate, isSaveOutdated, sanitizeSave, type SaveData } from "./save-data";
+export { formatSaveDate, isSaveOutdated, sanitizeSave, type SaveData } from "./save-data";
 
 /**
  * Сохранение расследования в localStorage — отдельно для каждого дела.

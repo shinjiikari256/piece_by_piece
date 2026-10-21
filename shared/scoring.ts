@@ -1,3 +1,4 @@
+import { clamp } from "./math";
 import type { CaseFile, Question, QuestionCategory } from "./case";
 
 export type Answers = Record<string, string[]>;
@@ -42,7 +43,6 @@ const GROUPS: { label: string; categories: QuestionCategory[] }[] = [
   { label: "Доказательства", categories: ["evidence"] },
 ];
 
-const clamp = (v: number, min: number, max: number) => Math.min(max, Math.max(min, v));
 
 export function scoreQuestion(q: Question, selected: string[]): QuestionResult {
   const chosen = q.options.filter((o) => selected.includes(o.id));

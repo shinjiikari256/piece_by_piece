@@ -31,5 +31,5 @@ export function PhaserGame({ caseFile }: { caseFile: CaseFile }) {
     return () => game.destroy(true);
   }, [caseFile]);
 
-  return <div ref={host} className="phaser-host" />;
+  return <div ref={host} className="phaser-host" role="application" aria-label="Игровое поле: стрелки или WASD — ходьба, E, Enter или Пробел — взаимодействие" />;
 }

@@ -11,6 +11,7 @@ import { useUrlParam } from "../url";
 import { copyPart, isBuiltinPart, newPart, partId, partUses, partView, patchPart, setPartOps, slotKeys, splitPartId, withoutPose, type PartOp } from "./part-helpers";
 import { frameLabel, withAlpha } from "./helpers";
 import { TOOLS, type Tool } from "./SpriteCanvas";
+import { cellAt as cellAtCanvas } from "../../util/geometry";
 
 const SCALE = 20;
 const POSES = ["default", ...CHAR_FRAMES];
@@ -56,10 +57,7 @@ function PartCanvas({ part, pose, tool, color, alpha, readOnly, onPick }: { part
     }
   }, [part, shown, drag, tool, color, alpha]);
 
-  const cellAt = (e: React.PointerEvent) => {
-    const r = canvas.current!.getBoundingClientRect();
-    return { x: Math.min(CHAR_W - 1, Math.max(0, Math.floor(((e.clientX - r.left) / r.width) * CHAR_W))), y: Math.min(CHAR_H - 1, Math.max(0, Math.floor(((e.clientY - r.top) / r.height) * CHAR_H))) };
-  };
+  const cellAt = (e: React.PointerEvent) => cellAtCanvas(canvas.current!, e, CHAR_W, CHAR_H);
   const write = (next: PartOp[], merge: string) => editor.update((d) => setPartOps(d, part.slot, part.key, shown, next), merge);
   const current = () => editorStore.get().draft.parts?.find((p) => p.slot === part.slot && p.key === part.key)?.frames[shown] ?? [];
   const merge = () => `part:${part.slot}/${part.key}:${shown}:${stroke.current.id}`;

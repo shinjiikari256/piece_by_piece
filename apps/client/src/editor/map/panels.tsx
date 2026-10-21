@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { formSchema } from "../json-schema";
 import {
   drawTile,
@@ -7,6 +7,7 @@ import { Location, LocationObject, NpcPlacement, isInteractive } from "../../../
 import type { CaseFile as CaseFileT, Location as LocationT, LocationObject as LocationObjectT, NpcDialogue, Zone } from "../../../../../shared/case";
 import { Icon } from "../../ui/icons";
 import { tell } from "../../ui/dialog";
+import { KeyInput } from "../fields/KeyInput";
 import { editor } from "../state";
 import { zoneKey } from "./ZoneCreator";
 import { ObjectZones } from "./ObjectZones";
@@ -215,15 +216,11 @@ function renameZoneRefs(node: unknown, from: string, to: string): unknown {
 
 /** Ключ области: меняется только вручную (Enter или уход с поля). Ссылаются на него только эффекты `moveTo` — они обновляются вместе с ключом. */
 function ZoneKeyField({ zone, draft, onRenamed }: { zone: Zone; draft: CaseFileT; onRenamed: (key: string) => void }) {
-  const [text, setText] = useState(zone.id);
-  useEffect(() => setText(zone.id), [zone.id]);
   const suggestion = zoneKey(draft, zone.name);
-  const commit = async (next: string) => {
-    const key = next.trim();
-    if (!key || key === zone.id) return setText(zone.id);
+  const commit = async (key: string) => {
     if (draft.locations.some((l) => l.zones.some((z) => z.id === key))) {
-      setText(zone.id);
-      return tell({ title: "Ключ уже занят", text: `«${key}» уже есть у другой области — выберите другой.` });
+      await tell({ title: "Ключ уже занят", text: `«${key}» уже есть у другой области — выберите другой.` });
+      return false;
     }
     editor.update((c) => {
       const renamed = {
@@ -237,23 +234,7 @@ function ZoneKeyField({ zone, draft, onRenamed }: { zone: Zone; draft: CaseFileT
   return (
     <div className="ef">
       <span className="ef__label">Ключ</span>
-      <div className="key-field row">
-        <input
-          className="key-field__input"
-          value={text}
-          onChange={(e) => setText(e.target.value.replace(/[^\w-]+/g, "_"))}
-          onBlur={() => void commit(text)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") void commit(text);
-            if (e.key === "Escape") setText(zone.id);
-          }}
-        />
-        {suggestion !== zone.id && (
-          <button className="btn btn--sm btn--icon" onClick={() => void commit(suggestion)} title="Сгенерировать из названия" aria-label="Сгенерировать из названия">
-            <Icon name="sparkle" size={16} />
-          </button>
-        )}
-      </div>
+      <KeyInput value={zone.id} suggestion={suggestion} commit={commit} />
     </div>
   );
 }

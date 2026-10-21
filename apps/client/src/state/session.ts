@@ -58,7 +58,7 @@ export const session = {
     }));
     // стираем старое сохранение после смены состояния: автосохранение только что записало новое начало, а оно не нужно, пока игрок ничего не сделал
     if (caseId) void platform().saves.clear(caseId);
-    void getAuthority()?.begin?.().catch(() => toast("Нет связи с сервером: время расследования может не засчитаться"));
+    void getAuthority()?.begin?.().catch(() => toast("Нет связи с сервером: время расследования может не засчитаться", 3500, true));
     // старт тоже вход в локацию
     enterLocation(state.locationId);
   },
@@ -173,7 +173,7 @@ export const session = {
       // запись выполняется сразу (локально); дошёл ли результат до сервера, платформа сообщит позже
       const delivery = platform().results.record(record);
       set({ screen: "result", score, record, debrief: result.debrief });
-      void delivery.then(({ delivered }) => delivered || toast("Результат не удалось отправить на сервер — он сохранён в этом браузере"));
+      void delivery.then(({ delivered }) => delivered || toast("Результат не удалось отправить на сервер — он сохранён в этом браузере", 3500, true));
     } finally {
       submitting = false;
     }

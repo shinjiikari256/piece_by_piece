@@ -150,7 +150,8 @@ function BottomBar() {
   });
 
   return (
-    <nav className="bottombar">
+    <nav className="bottombar" aria-label="Действия">
+      <p className="sr-only" role="status">{focus ? `Рядом: ${focus}. Нажмите E, Enter или Пробел` : ""}</p>
       <button
         onMouseDown={keepFocus}
         className="tool"

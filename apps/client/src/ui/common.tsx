@@ -95,7 +95,7 @@ export function TabbedModal({
     <Backdrop onDismiss={onClose}>
       <div className={`tabbed-modal ${tone ? `tabbed-modal--${tone}` : ""} ${size ? `tabbed-modal--${size}` : ""}`}>
         <FolderTabs tabs={tabs} active={active} onTab={onTab} onClose={onClose} className="folder--tabbed tabbed-modal__tabs" />
-        <section ref={ref} className={`modal paper modal--wide modal--tabbed ${className}`} role="dialog" aria-modal="true">
+        <section ref={ref} className={`modal paper modal--wide modal--tabbed ${className}`} role="dialog" aria-modal="true" aria-label={tabs.find((t) => t.id === active)?.label}>
           <div className="modal__body">{children}</div>
         </section>
       </div>

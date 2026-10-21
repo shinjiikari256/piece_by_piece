@@ -226,7 +226,7 @@
   margin: 0 auto 0 0;
 }
 .dg__back {
-  font-size: 11px;
+  font-size: 0.6875rem;
   fill: var(--dg-wire);
   font-weight: 700;
 }

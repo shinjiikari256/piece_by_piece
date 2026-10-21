@@ -137,7 +137,7 @@ export function UsersSection({ groups, isAdmin, onChanged }: { groups: AdminGrou
         <table className="table" ref={table}>
           <thead>
             <tr>
-              <th className="check">
+              <th scope="col" className="check">
                 <input
                   type="checkbox"
                   checked={allChecked}
@@ -145,12 +145,12 @@ export function UsersSection({ groups, isAdmin, onChanged }: { groups: AdminGrou
                   aria-label="Выбрать всех"
                 />
               </th>
-              <th>ФИО</th>
-              <th>Логин</th>
-              <th>Группа</th>
-              <th>Роль</th>
-              <th>Статус</th>
-              <th>Регистрация</th>
+              <th scope="col">ФИО</th>
+              <th scope="col">Логин</th>
+              <th scope="col">Группа</th>
+              <th scope="col">Роль</th>
+              <th scope="col">Статус</th>
+              <th scope="col">Регистрация</th>
             </tr>
           </thead>
           <tbody>

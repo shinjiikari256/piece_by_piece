@@ -174,7 +174,7 @@ export function ResultScreen() {
               <tbody>
                 {solution.qualificationNotes.map((n) => (
                   <tr key={n.kind}>
-                    <th>{LIABILITY_TITLE[n.kind]}</th>
+                    <th scope="row">{LIABILITY_TITLE[n.kind]}</th>
                     <td className="applies" data-tone={APPLIES_TONE[n.applies]}>
                       {APPLIES[n.applies]}
                     </td>

@@ -33,7 +33,7 @@ export function isSaveOutdated(save: SaveData, c: PublicCase): boolean {
   return (save.caseUpdatedAt ?? "") !== (c.updatedAt ?? "");
 }
 
-export function formatDate(iso: string | undefined): string {
+export function formatSaveDate(iso: string | undefined): string {
   if (!iso) return "неизвестно когда";
   const d = new Date(iso);
   return Number.isNaN(d.getTime())

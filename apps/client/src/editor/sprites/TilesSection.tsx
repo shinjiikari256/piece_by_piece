@@ -12,6 +12,7 @@ import { useUrlParam } from "../url";
 import { withAlpha } from "./helpers";
 import { TOOLS, type Tool } from "./SpriteCanvas";
 import { charsOf, copyTile, describeWhen, isBuiltinTile, newTile, patchLayer, patchTile, removeTile, setLayerOps, setTileChar, tileGroups, tileUses, tileView, topRectAt, type TileLayer, type TileOp } from "./tile-helpers";
+import { cellAt as cellAtCanvas } from "../../util/geometry";
 
 const SCALE = 24;
 const T = BASE_TILE;
@@ -65,10 +66,7 @@ function TileCanvas({ tile, layer, ctx, tool, color, alpha, readOnly, onPick }: 
     }
   }, [tile, ctx, drag, tool, paintColor]);
 
-  const cellAt = (e: React.PointerEvent) => {
-    const r = canvas.current!.getBoundingClientRect();
-    return { x: Math.min(T - 1, Math.max(0, Math.floor(((e.clientX - r.left) / r.width) * T))), y: Math.min(T - 1, Math.max(0, Math.floor(((e.clientY - r.top) / r.height) * T))) };
-  };
+  const cellAt = (e: React.PointerEvent) => cellAtCanvas(canvas.current!, e, T, T);
   const current = () => editorStore.get().draft.tiles?.find((t) => t.key === tile.key)?.layers[layer]?.ops ?? [];
   const write = (next: TileOp[]) => editor.update((d) => setLayerOps(d, tile.key, layer, next), `tile:${tile.key}:${layer}:${stroke.current.id}`);
   const paint = (x: number, y: number) => {

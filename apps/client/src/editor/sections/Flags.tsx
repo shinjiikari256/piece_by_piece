@@ -9,6 +9,7 @@ import { Icon } from "../../ui/icons";
 import { EntityList, ItemText } from "../EntityList";
 import { ask, tell } from "../../ui/dialog";
 import { UsageList } from "../fields/UsageList";
+import { KeyInput, keyChars } from "../fields/KeyInput";
 import { CounterEditor } from "./Counters";
 import { EnumEditor } from "./Enums";
 
@@ -94,15 +95,12 @@ export function FlagsSection() {
 
 function FlagEditor({ id, name, uses, onRenamed }: { id: string; name: string; uses: FlagUse[]; onRenamed: (id: string) => void }) {
   const draft = useEditor((s) => s.draft);
-  const [key, setKey] = useState(id);
   const setName = (v: string) =>
     editor.update((d) => ({ ...d, flags: [...(d.flags ?? []).filter((f) => f.id !== id), { ...(d.flags ?? []).find((f) => f.id === id), id, name: v }] }), `flag:${id}`);
-  const commitKey = async () => {
-    const next = key.trim();
-    if (!next || next === id) return setKey(id);
+  const commitKey = async (next: string) => {
     if (flagUsage(draft).has(next) || draft.flags?.some((f) => f.id === next) || draft.counters?.some((c) => c.id === next) || draft.enums?.some((e) => e.id === next)) {
-      setKey(id);
-      return tell({ title: "Такой флаг уже есть", text: `Ключ «${next}» занят — выберите другой.` });
+      await tell({ title: "Такой флаг уже есть", text: `Ключ «${next}» занят — выберите другой.` });
+      return false;
     }
     if (uses.length) {
       const ok = await ask({
@@ -110,7 +108,7 @@ function FlagEditor({ id, name, uses, onRenamed }: { id: string; name: string; u
         text: `Флаг используется в ${uses.length} мест(ах). Ключ «${id}» заменится на «${next}» во всех ссылках.`,
         confirmLabel: "Переименовать",
       });
-      if (!ok) return setKey(id);
+      if (!ok) return false;
     }
     editor.update((d) => {
       const renamed = renameKey(d as unknown as Record<string, unknown>, id, next) as unknown as CaseFile;
@@ -137,26 +135,10 @@ function FlagEditor({ id, name, uses, onRenamed }: { id: string; name: string; u
         <span className="ef__label">Название — что означает флаг</span>
         <input value={name} placeholder="Название флага" onChange={(e) => setName(e.target.value)} />
       </label>
-      <label className="ef">
+      <div className="ef">
         <span className="ef__label">Ключ (смена обновит все ссылки — с подтверждением)</span>
-        <div className="key-field row">
-          <input
-            className="key-field__input"
-            value={key}
-            onChange={(e) => setKey(e.target.value.replace(/[^\w-]+/g, "_").toLowerCase())}
-            onBlur={commitKey}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") commitKey();
-              if (e.key === "Escape") setKey(id);
-            }}
-          />
-          {name && toKey(name) !== id && (
-            <button className="btn btn--sm btn--icon" onClick={() => setKey(toKey(name))} title="Сгенерировать из названия (применится по Enter)" aria-label="Сгенерировать из названия">
-              <Icon name="sparkle" size={16} />
-            </button>
-          )}
-        </div>
-      </label>
+        <KeyInput value={id} suggestion={name ? toKey(name) : undefined} commit={commitKey} normalize={(v) => keyChars(v).toLowerCase()} />
+      </div>
       <label className="ef ef--bool">
         <input
           type="checkbox"

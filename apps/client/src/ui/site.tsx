@@ -32,8 +32,11 @@ export function Site() {
 
   return (
     <div className="site">
+      <a className="skip-link" href="#main" onClick={(e) => { e.preventDefault(); document.getElementById("main")?.focus(); }}>
+        К содержимому
+      </a>
       <SiteHeader route={route} />
-      <main className={`site__main ${route.page === "editor" ? "site__main--editor" : ""}`}>
+      <main id="main" tabIndex={-1} className={`site__main ${route.page === "editor" ? "site__main--editor" : ""}`}>
         {route.page === "home" && <Landing />}
         {(route.page === "cases" || route.page === "play") && <CasesPage />}
         {route.page === "howto" && (
@@ -73,7 +76,7 @@ function SiteHeader({ route }: { route: Route }) {
           <Logo />
           {APP_NAME}
         </Link>
-        <nav className="site-nav">
+        <nav className="site-nav" aria-label="Разделы сайта">
           {link("/cases", "Дела", route.page === "cases")}
           {link("/results", "Результаты", route.page === "results")}
           {staff && link("/admin/users", "Пользователи", route.page === "admin" && route.section === "users")}

@@ -6,6 +6,7 @@ import { toKey } from "../keys";
 import { T, useSpriteCanvases } from "./canvases";
 import { rectCells, zoneCells } from "./helpers";
 import { renderMap } from "./render";
+import { cellAt as cellAtCanvas } from "../../util/geometry";
 
 const ZOOM = 2;
 
@@ -63,13 +64,7 @@ export function ZoneCreator({
     });
   }, [loc, art, draft.characters, cells, name, rect]);
 
-  const cellAt = (e: { clientX: number; clientY: number }) => {
-    const r = canvas.current!.getBoundingClientRect();
-    return {
-      x: Math.min(w - 1, Math.max(0, Math.floor(((e.clientX - r.left) / r.width) * w))),
-      y: Math.min(h - 1, Math.max(0, Math.floor(((e.clientY - r.top) / r.height) * h))),
-    };
-  };
+  const cellAt = (e: { clientX: number; clientY: number }) => cellAtCanvas(canvas.current!, e, w, h);
   const finish = () => {
     if (stroke.current?.rect && rect) {
       const x = Math.min(rect.from.x, rect.to.x);

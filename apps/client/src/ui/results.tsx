@@ -84,13 +84,13 @@ export function ResultsTable({ rows, onOpen, showUser }: { rows: ResultRow[]; on
     <table className="table" ref={table}>
       <thead>
         <tr>
-          {showUser && <th>Кто</th>}
-          <th>Дело</th>
-          <th className="num">Баллы</th>
-          <th className="num">Процент</th>
-          <th className="num">Подсказки</th>
-          <th className="num">Время</th>
-          <th>Когда</th>
+          {showUser && <th scope="col">Кто</th>}
+          <th scope="col">Дело</th>
+          <th scope="col" className="num">Баллы</th>
+          <th scope="col" className="num">Процент</th>
+          <th scope="col" className="num">Подсказки</th>
+          <th scope="col" className="num">Время</th>
+          <th scope="col">Когда</th>
         </tr>
       </thead>
       <tbody>

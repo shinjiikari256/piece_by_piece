@@ -2,7 +2,7 @@ import "./case-stamps.css";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { caseRepository, type CaseSummary } from "../content/repository";
 import { actions, useGame } from "../state/store";
-import { formatDate, isSaveOutdated, type SaveData } from "../state/save-data";
+import { formatSaveDate, isSaveOutdated, type SaveData } from "../state/save-data";
 import type { ResultRecord } from "../state/result-record";
 import { lastResultOf } from "../state/result-record";
 import { platform } from "../state/platform";
@@ -316,8 +316,8 @@ export function Intro() {
         <Alert tone="warn">
           ⚠ Дело изменилось:{" "}
           {save.caseUpdatedAt
-            ? `вы играли в версию от ${formatDate(save.caseUpdatedAt)}, а сейчас версия от ${formatDate(caseFile.updatedAt)}.`
-            : `ваше сохранение сделано на более ранней версии, текущая — от ${formatDate(caseFile.updatedAt)}.`}{" "}
+            ? `вы играли в версию от ${formatSaveDate(save.caseUpdatedAt)}, а сейчас версия от ${formatSaveDate(caseFile.updatedAt)}.`
+            : `ваше сохранение сделано на более ранней версии, текущая — от ${formatSaveDate(caseFile.updatedAt)}.`}{" "}
           Улики, диалоги или карта могли поменяться, поэтому продолжить старое
           расследование нельзя: прогресс (
           {progressPercent(save, caseFile.evidence.length, caseFile.deductions.length)}%) будет сброшен.

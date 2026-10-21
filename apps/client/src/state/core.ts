@@ -40,6 +40,8 @@ export type Overlay =
 export interface Toast {
   id: number;
   text: string;
+  /** сбой, а не уведомление: читалка экрана прерывает речь */
+  alert?: boolean;
 }
 
 export interface GameState {
@@ -138,7 +140,7 @@ listeners.add(
       // один раз за расследование: браузер не хранит прогресс (переполнено или запрещено)
       if (saveWarned) return;
       saveWarned = true;
-      toast("Прогресс не сохраняется в этом браузере — не закрывайте вкладку");
+      toast("Прогресс не сохраняется в этом браузере — не закрывайте вкладку", 3500, true);
     },
   ),
 );
@@ -165,9 +167,9 @@ export function rememberPlayer(player: { x: number; y: number; locationId: strin
 }
 
 let toastSeq = 0;
-export function toast(text: string, ms = 3500) {
+export function toast(text: string, ms = 3500, alert = false) {
   const id = ++toastSeq;
-  set((s) => ({ toasts: [...s.toasts, { id, text }].slice(-3) }));
+  set((s) => ({ toasts: [...s.toasts, { id, text, alert }].slice(-3) }));
   setTimeout(() => set((s) => ({ toasts: s.toasts.filter((t) => t.id !== id) })), ms);
 }
 
@@ -183,7 +185,7 @@ export async function ask<T>(call: (a: CaseAuthority) => Promise<T>): Promise<T 
     return authority === a ? result : null;
   } catch (e) {
     console.error(`[${APP_NAME}] судья не ответил:`, e);
-    if (authority === a) toast("Не удалось проверить ответ. Попробуйте ещё раз.");
+    if (authority === a) toast("Не удалось проверить ответ. Попробуйте ещё раз.", 3500, true);
     return null;
   }
 }

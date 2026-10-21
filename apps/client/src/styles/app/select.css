@@ -47,7 +47,7 @@
   border-radius: 8px;
   box-shadow: var(--elev-3);
   overflow: hidden;
-  font-size: 15px;
+  font-size: 0.9375rem;
 }
 .sel__search {
   margin: 0.4rem;

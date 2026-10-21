@@ -5,6 +5,7 @@ import { T, useSpriteCanvases } from "./canvases";
 import { cellFree } from "./helpers";
 import { firstFloorCell } from "../../content/case-utils";
 import { renderMap } from "./render";
+import { cellAt as cellAtCanvas } from "../../util/geometry";
 
 const ZOOM = 2;
 
@@ -52,13 +53,7 @@ export function CellPicker({
     if (chosen) mark(chosen, "#f6d55c", 2);
   }, [loc, art, draft.characters, cursor, chosen]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const cellAt = (e: { clientX: number; clientY: number }) => {
-    const r = canvas.current!.getBoundingClientRect();
-    return {
-      x: Math.min(w - 1, Math.max(0, Math.floor(((e.clientX - r.left) / r.width) * w))),
-      y: Math.min(h - 1, Math.max(0, Math.floor(((e.clientY - r.top) / r.height) * h))),
-    };
-  };
+  const cellAt = (e: { clientX: number; clientY: number }) => cellAtCanvas(canvas.current!, e, w, h);
   const choose = (cell: { x: number; y: number }) => free(cell.x, cell.y) && setChosen(cell);
 
   return (

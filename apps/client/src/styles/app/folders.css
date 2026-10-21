@@ -224,7 +224,7 @@
   width: min(70rem, 100%);
   display: flex;
   flex-direction: column;
-  max-height: calc(100vh - 2rem);
+  max-height: calc(100dvh - 2rem);
 }
 .tabbed-modal__tabs {
   margin-left: 1.2rem;

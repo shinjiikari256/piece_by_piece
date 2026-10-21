@@ -293,3 +293,12 @@ canvas,
   background: var(--bg-chrome);
   border-radius: 10px;
 }
+/* пользователь просит меньше движения: гасим все анимации и переходы */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}

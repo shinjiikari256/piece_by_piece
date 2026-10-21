@@ -61,7 +61,7 @@ body {
 }
 @media (max-width: 640px), (max-height: 500px) {
   :root {
-    font-size: 15px;
+    font-size: 93.75%;
   }
   .tool__label {
     display: none;
@@ -99,7 +99,7 @@ body {
   .modal,
   .modal--wide {
     width: 100%;
-    max-height: 100vh;
+    max-height: 100dvh;
     height: 100%;
     border-radius: 0;
   }

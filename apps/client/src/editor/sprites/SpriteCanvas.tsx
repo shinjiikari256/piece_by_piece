@@ -4,6 +4,7 @@ import { drawSprite, specOf } from "../../game/art";
 import { Icon } from "../../ui/icons";
 import { editor } from "../state";
 import { CELL, cellSolid, setFrameOps, spriteMaxScale, toggleCell, withAlpha, type Op, patchSprite } from "./helpers";
+import { cellAt as cellAtCanvas } from "../../util/geometry";
 
 export type Tool = "pencil" | "eraser" | "rect" | "pick" | "foot";
 export const TOOLS: { id: Tool; label: string; hint: string; icon: "pen" | "eraser" | "rect" | "pipette" | "grid" }[] = [
@@ -73,13 +74,7 @@ export function SpriteCanvas({
     }
   }, [sprite, current, drag, tool, color, alpha]);
 
-  const cellAt = (e: React.PointerEvent) => {
-    const r = canvas.current!.getBoundingClientRect();
-    return {
-      x: Math.min(sprite.w - 1, Math.max(0, Math.floor(((e.clientX - r.left) / r.width) * sprite.w))),
-      y: Math.min(sprite.h - 1, Math.max(0, Math.floor(((e.clientY - r.top) / r.height) * sprite.h))),
-    };
-  };
+  const cellAt = (e: React.PointerEvent) => cellAtCanvas(canvas.current!, e, sprite.w, sprite.h);
   const addOp = (op: Op, merge: string) =>
     editor.update((d) => setFrameOps(d, sprite.key, current, [...(d.sprites?.find((s) => s.key === sprite.key)?.frames[current] ?? []), op]), merge);
   const paint = (x: number, y: number) => {

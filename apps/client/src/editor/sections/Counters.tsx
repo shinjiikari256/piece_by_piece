@@ -2,11 +2,11 @@ import { useState } from "react";
 import type { CaseFile } from "../../../../../shared/case";
 import { editor, useEditor } from "../state";
 import { countRefs, renameKey, toKey } from "../keys";
-import { Icon } from "../../ui/icons";
 import { ask, tell } from "../../ui/dialog";
 import { Dialog } from "../../ui/window";
 import { isVariableKeyTaken, type FlagUse } from "../fields/Conditions";
 import { UsageList } from "../fields/UsageList";
+import { KeyInput, keyChars } from "../fields/KeyInput";
 
 type Counter = NonNullable<CaseFile["counters"]>[number];
 
@@ -104,20 +104,17 @@ export function CounterDialog({ onDone }: { onDone: (id: string | null) => void 
 export function CounterEditor({ counter, uses, onRenamed }: { counter: Counter; uses: FlagUse[]; onRenamed: (id: string) => void }) {
   const draft = useEditor((s) => s.draft);
   const { id, name } = counter;
-  const [key, setKey] = useState(id);
   const refs = countRefs(draft as unknown as Record<string, unknown>, id);
   const patch = (p: Partial<Counter>, merge?: string) =>
     editor.update((d) => ({ ...d, counters: (d.counters ?? []).map((c) => (c.id === id ? { ...c, ...p } : c)) }), merge);
-  const commitKey = async () => {
-    const next = key.trim();
-    if (!next || next === id) return setKey(id);
+  const commitKey = async (next: string) => {
     if (isVariableKeyTaken(draft, next)) {
-      setKey(id);
-      return tell({ title: "Такой счётчик уже есть", text: `Ключ «${next}» занят — выберите другой.` });
+      await tell({ title: "Такой счётчик уже есть", text: `Ключ «${next}» занят — выберите другой.` });
+      return false;
     }
     if (refs > 0) {
       const ok = await ask({ title: "Переименовать ключ счётчика?", text: `Счётчик используется в ${refs} мест(ах). Ключ «${id}» заменится на «${next}» во всех ссылках.`, confirmLabel: "Переименовать" });
-      if (!ok) return setKey(id);
+      if (!ok) return false;
     }
     editor.update((d) => renameKey(d as unknown as Record<string, unknown>, id, next) as unknown as CaseFile);
     onRenamed(next);
@@ -137,26 +134,10 @@ export function CounterEditor({ counter, uses, onRenamed }: { counter: Counter; 
         <span className="ef__label">Название — что считает счётчик</span>
         <input value={name} placeholder="Название счётчика" onChange={(e) => patch({ name: e.target.value }, `counter:${id}`)} />
       </label>
-      <label className="ef">
+      <div className="ef">
         <span className="ef__label">Ключ (смена обновит все ссылки — с подтверждением)</span>
-        <div className="key-field row">
-          <input
-            className="key-field__input"
-            value={key}
-            onChange={(e) => setKey(e.target.value.replace(/[^\w-]+/g, "_").toLowerCase())}
-            onBlur={commitKey}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") commitKey();
-              if (e.key === "Escape") setKey(id);
-            }}
-          />
-          {name && toKey(name) !== id && (
-            <button className="btn btn--sm btn--icon" onClick={() => setKey(toKey(name))} title="Сгенерировать из названия (применится по Enter)" aria-label="Сгенерировать из названия">
-              <Icon name="sparkle" size={16} />
-            </button>
-          )}
-        </div>
-      </label>
+        <KeyInput value={id} suggestion={name ? toKey(name) : undefined} commit={commitKey} normalize={(v) => keyChars(v).toLowerCase()} />
+      </div>
       <label className="ef">
         <span className="ef__label">Значение в начале расследования</span>
         <input type="number" value={counter.initial ?? 0} onChange={(e) => patch({ initial: Math.trunc(Number(e.target.value)) || undefined }, `counter:${id}:initial`)} />
