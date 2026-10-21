@@ -136,12 +136,21 @@ export const resultRoutes = new Hono<AppEnv>()
     const viewer = requireUser(c);
     const q = ResultsQuery.parse(c.req.query());
     const rows = await db
-      .select({ r: results })
+      .select({
+        userId: results.userId,
+        caseId: results.caseId,
+        total: results.total,
+        max: results.max,
+        hintsUsed: results.hintsUsed,
+        wrongDeductions: results.wrongDeductions,
+        elapsedMs: results.elapsedMs,
+        score: results.score,
+      })
       .from(results)
       .innerJoin(users, eq(users.id, results.userId))
       .where(await resultsWhere(db, viewer, q))
-      .limit(20_000);
-    return c.json(resultsStats(rows.map((x) => x.r)));
+      .limit(200_000);
+    return c.json(resultsStats(rows));
   })
 
   /** Что можно выбрать в фильтрах. */
