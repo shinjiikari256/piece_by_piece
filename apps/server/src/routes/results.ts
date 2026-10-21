@@ -12,7 +12,7 @@ import type { Db } from "../db";
 import { events, groups, results, users } from "../db/schema";
 import { requireStaff, requireUser, type AppEnv, type UserRow } from "../http";
 import { ownGroupIds, visibleUsers } from "./admin";
-import { resultsStats } from "../../../../shared/results-stats";
+import { queryResultsStats } from "../results-stats-sql";
 
 type ResultRow = typeof results.$inferSelect;
 
@@ -135,22 +135,7 @@ export const resultRoutes = new Hono<AppEnv>()
     const db = c.var.db;
     const viewer = requireUser(c);
     const q = ResultsQuery.parse(c.req.query());
-    const rows = await db
-      .select({
-        userId: results.userId,
-        caseId: results.caseId,
-        total: results.total,
-        max: results.max,
-        hintsUsed: results.hintsUsed,
-        wrongDeductions: results.wrongDeductions,
-        elapsedMs: results.elapsedMs,
-        score: results.score,
-      })
-      .from(results)
-      .innerJoin(users, eq(users.id, results.userId))
-      .where(await resultsWhere(db, viewer, q))
-      .limit(200_000);
-    return c.json(resultsStats(rows));
+    return c.json(await queryResultsStats(db, await resultsWhere(db, viewer, q)));
   })
 
   /** Что можно выбрать в фильтрах. */

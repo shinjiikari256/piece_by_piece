@@ -31,7 +31,7 @@ export type Ctx = Context<AppEnv>;
 /** Ответ-ошибка в едином формате. */
 export class ApiError extends Error {
   constructor(
-    readonly status: 400 | 401 | 403 | 404 | 409 | 429,
+    readonly status: 400 | 401 | 403 | 404 | 409 | 413 | 429,
     readonly code: string,
     message: string,
   ) {

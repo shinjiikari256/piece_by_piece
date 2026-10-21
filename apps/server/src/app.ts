@@ -11,6 +11,7 @@ import { importRoutes } from "./routes/import";
 import { caseAdminRoutes } from "./routes/case-admin";
 import { caseRoutes } from "./routes/cases";
 import { resultRoutes } from "./routes/results";
+import { saveRoutes } from "./routes/saves";
 
 export function createApp(db: Db, config: AppConfig) {
   const app = new Hono<AppEnv>();
@@ -45,6 +46,7 @@ export function createApp(db: Db, config: AppConfig) {
   app.get("/api/health", (c) => c.json({ ok: true }));
   app.route("/api", authRoutes());
   app.route("/api", resultRoutes);
+  app.route("/api", saveRoutes);
   app.route("/api", caseRoutes);
   app.route("/api", attemptRoutes);
   app.route("/api", eventRoutes);

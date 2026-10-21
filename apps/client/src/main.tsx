@@ -5,6 +5,7 @@ import { App } from "./App";
 import { actions, store } from "./state/store";
 import { initAccount } from "./state/account";
 import { createBrowserPlatform } from "./state/browser-platform";
+import { createOnlinePlatform } from "./state/online-platform";
 import { setPlatform } from "./state/platform";
 import { initTheme } from "./ui/theme";
 
@@ -14,7 +15,7 @@ if (import.meta.env.MODE === "development") Object.assign(window, { __game: { ac
 // тема оформления: `?theme=salad` включает и запоминает (стили — styles/themes/)
 initTheme();
 
-setPlatform(createBrowserPlatform());
+setPlatform(createOnlinePlatform(createBrowserPlatform()));
 void initAccount();
 
 // Phaser рисует подписи на canvas — шрифт должен быть загружен до старта сцены.

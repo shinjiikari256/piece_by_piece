@@ -1,6 +1,7 @@
 import { sql } from "drizzle-orm";
 import {
   type AnyPgColumn,
+  bigint,
   boolean,
   index,
   integer,
@@ -271,6 +272,22 @@ export const attemptEvents = pgTable(
     at: timestamp("at", { withTimezone: true }).notNull().defaultNow(),
   },
   (t) => [index("attempt_events_attempt_idx").on(t.attemptId)],
+);
+
+/** Сохранение расследования игрока на сервере: одно на пару «игрок — дело», тело — `SaveData` клиента. */
+export const saves = pgTable(
+  "saves",
+  {
+    userId: integer("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    caseId: text("case_id").notNull(),
+    body: jsonb("body").notNull(),
+    /** Время сохранения по часам клиента (`SaveData.savedAt`) — по нему выбирают свежее из локального и серверного. */
+    savedAt: bigint("saved_at", { mode: "number" }).notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [primaryKey({ columns: [t.userId, t.caseId] })],
 );
 
 /** Обращения для ограничения частоты (`rate-limit.ts`): ключ вида `имя:значение` и время. */

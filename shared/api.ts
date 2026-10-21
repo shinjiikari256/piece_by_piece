@@ -392,3 +392,16 @@ export const FinishBody = z.object({
   gameVersion: z.string().max(32).nullable().optional(),
 });
 export type FinishBody = z.input<typeof FinishBody>;
+
+// ---------- Сохранения расследований на сервере ----------
+
+/** Предел размера одного сохранения (JSON, байт): защита базы от мусора, настоящее сохранение — десятки килобайт. */
+export const MAX_SAVE_BYTES = 512 * 1024;
+
+/** Сохранение, как его хранит клиент (`SaveData`): сервер кладёт его как есть и разбирает только заголовок. */
+export const SaveBody = z.looseObject({
+  v: z.number().int(),
+  caseId: z.string().min(1).max(100),
+  savedAt: z.number().int().nonnegative(),
+});
+export type SaveBody = z.infer<typeof SaveBody>;
