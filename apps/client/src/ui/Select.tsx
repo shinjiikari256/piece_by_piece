@@ -152,6 +152,7 @@ export function Select({
       {open &&
         rect &&
         createPortal(
+          // eslint-disable-next-line jsx-a11y/interactive-supports-focus -- фокус остаётся в кнопке/поле поиска, варианты выбираются стрелками
           <div ref={popup} className="sel__popup" style={style} role="listbox" onKeyDown={onKey}>
             {options.length >= SEARCH_FROM && (
               <input
@@ -168,6 +169,7 @@ export function Select({
             <div className="sel__list">
               {shown.length === 0 && <div className="sel__empty">Ничего не найдено</div>}
               {shown.map((o, i) => (
+                // eslint-disable-next-line jsx-a11y/interactive-supports-focus -- фокус остаётся в кнопке/поле поиска, варианты выбираются стрелками (aria-activedescendant-схема)
                 <div
                   key={o.value}
                   role="option"

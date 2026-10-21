@@ -380,6 +380,8 @@ export function MapEditor() {
           >
             <canvas
               ref={canvas}
+              role="img"
+              aria-label="Карта локации: рисуется мышью, свойства выбранного — в панели справа"
               className={`lm__canvas tool--${tool.kind} ${zoom === "fit" ? "is-fit" : ""}`}
               style={zoom === "fit" ? { aspectRatio: `${w} / ${h}` } : { width: w * T * zoom, height: h * T * zoom }}
               onMouseDown={onDown}

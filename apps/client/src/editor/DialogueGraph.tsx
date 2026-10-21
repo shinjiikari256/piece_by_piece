@@ -295,6 +295,25 @@ function Graph({
     force((v) => v + 1);
   }, [dialogue, positions]);
 
+  // с клавиатуры: Enter/Пробел — выбрать, → по первой связи вперёд, ← к узлу, который сюда ведёт, ↑/↓ — к соседним в списке
+  const nodeKeys = (e: React.KeyboardEvent, id: string) => {
+    if (e.target !== e.currentTarget) return;
+    const focusNode = (target?: string | null) => {
+      if (!target) return;
+      e.preventDefault();
+      cards.current.get(target)?.focus();
+      onSelect(target);
+    };
+    const ids = dialogue.nodes.map((n) => n.id);
+    const node = dialogue.nodes.find((n) => n.id === id);
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      onSelect(id);
+    } else if (e.key === "ArrowRight") focusNode(node?.choices.find((c) => c.next)?.next);
+    else if (e.key === "ArrowLeft") focusNode(dialogue.nodes.find((n) => n.choices.some((c) => c.next === id))?.id);
+    else if (e.key === "ArrowDown") focusNode(ids[ids.indexOf(id) + 1]);
+    else if (e.key === "ArrowUp") focusNode(ids[ids.indexOf(id) - 1]);
+  };
   const measured = () => Object.fromEntries([...cards.current].map(([id, el]) => [id, el.offsetHeight]));
   // первый показ диалога без сохранённой раскладки — раскладываем по настоящим высотам карточек
   useEffect(() => {
@@ -339,6 +358,7 @@ function Graph({
       <div
         ref={area}
         className="dg__graph"
+        role="presentation"
         onDoubleClick={(e) => e.target === e.currentTarget.firstChild && onAddNode(local(e))}
         onMouseMove={(e) => {
           if (drag) {
@@ -361,7 +381,7 @@ function Graph({
           setWire(null);
         }}
       >
-        <div className="dg__canvas" style={{ width, height }} onClick={(e) => e.target === e.currentTarget && onSelect(null)}>
+        <div className="dg__canvas" role="presentation" style={{ width, height }} onClick={(e) => e.target === e.currentTarget && onSelect(null)}>
           <svg className="dg__wires" width={width} height={height}>
             {dialogue.nodes.flatMap((n) =>
               n.choices.map((c, i) => {
@@ -397,6 +417,7 @@ function Graph({
             if (!p) return null;
             const multi = n.speaker && n.speaker !== dialogue.characterId;
             return (
+              // eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions -- карточка узла — элемент составного виджета: фокус и ←→↑↓ (nodeKeys)
               <div
                 key={n.id}
                 data-node={n.id}
@@ -408,9 +429,15 @@ function Graph({
                 data-selected={selected === n.id || undefined}
                 className={`dg-node ${n.id === dialogue.startNodeId ? "is-start" : ""}`}
                 style={{ left: p.x, top: p.y, width: NODE_W }}
+                role="group"
+                aria-label={`Реплика ${n.id}: ${n.text.slice(0, 80)}`}
+                aria-current={selected === n.id ? "true" : undefined}
+                tabIndex={0}
                 onClick={() => onSelect(n.id)}
+                onKeyDown={(e) => nodeKeys(e, n.id)}
               >
                 <div
+                  role="presentation"
                   className="dg-node__head"
                   onMouseDown={(e) => {
                     const l = local(e);
@@ -462,6 +489,7 @@ function Graph({
                         </span>
                       )}
                       <span
+                        role="presentation"
                         className="dg-choice__port"
                         title="Тяните, чтобы связать с узлом"
                         onMouseDown={(e) => {

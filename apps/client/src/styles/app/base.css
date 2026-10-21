@@ -161,6 +161,11 @@ kbd {
   outline: 3px solid var(--ring-focus);
   outline-offset: 0;
 }
+/* запасное кольцо для всего, что фокусируется с клавиатуры и не имеет своего (нулевая специфичность: любое своё правило сильнее) */
+:where(a[href], button, summary, [tabindex]:not([tabindex="-1"])):focus-visible {
+  outline: 3px solid var(--ring-focus);
+  outline-offset: 2px;
+}
 
 .icon-btn {
   border: none;

@@ -19,6 +19,7 @@ export function Backdrop({
   const ref = useRef<HTMLDivElement>(null);
   useFocusTrap(ref);
   return (
+    // eslint-disable-next-line jsx-a11y/no-static-element-interactions -- клик по подложке — дублирует Esc/крестик
     <div ref={ref} tabIndex={-1} className="backdrop" data-layer={layer} data-align={align} onMouseDown={(e) => e.target === e.currentTarget && onDismiss?.()}>
       {children}
     </div>

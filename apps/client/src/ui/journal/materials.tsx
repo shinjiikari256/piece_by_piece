@@ -245,8 +245,10 @@ export function EvidenceDetail({ evidence: e, mark, hideMarks }: { evidence: Evi
                 {m.kind === "image" || m.kind === "scan" ? (
                   <img src={m.src} alt={m.caption} loading="lazy" />
                 ) : m.kind === "video" ? (
+                  // eslint-disable-next-line jsx-a11y/media-has-caption -- подпись — figcaption; субтитров у загружаемых файлов нет
                   <video src={m.src} controls preload="metadata" />
                 ) : (
+                  // eslint-disable-next-line jsx-a11y/media-has-caption -- подпись — figcaption; субтитров у загружаемых файлов нет
                   <audio src={m.src} controls preload="metadata" />
                 )}
                 {m.caption && <figcaption>{m.caption}</figcaption>}

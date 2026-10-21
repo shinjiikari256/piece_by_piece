@@ -245,7 +245,7 @@ export function TileSwatch({ ch }: { ch: string }) {
     const ctx = ref.current?.getContext("2d");
     if (ctx) drawTile(ctx, ch, 0, 0, { below: ".", left: "#", right: "#" });
   }, [ch]);
-  return <canvas ref={ref} width={T} height={T} className="tile-swatch" />;
+  return <canvas aria-hidden="true" ref={ref} width={T} height={T} className="tile-swatch" />;
 }
 
 export function SizeInput({ label, value, onChange }: { label: string; value: number; onChange: (v: number) => void }) {

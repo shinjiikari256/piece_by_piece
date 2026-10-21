@@ -69,6 +69,7 @@ function SiteOverlay({ children }: { children: ReactNode }) {
     <div
       ref={ref}
       tabIndex={-1}
+      role="presentation"
       className="site-overlay"
       onMouseDown={(e) => {
         if ((e.target as HTMLElement).classList.contains("menu")) actions.leaveToSite();

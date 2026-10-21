@@ -19,7 +19,7 @@ export function ArtThumb({ kind, id, scale = 2, look }: { kind: "look" | "sprite
       if (sp) drawSprite(ctx, sp);
     }
   }, [kind, id, w, h, lookKey]); // eslint-disable-line react-hooks/exhaustive-deps
-  return <canvas ref={ref} width={w} height={h} className="art-thumb" style={{ width: w * scale, height: h * scale }} />;
+  return <canvas aria-hidden="true" ref={ref} width={w} height={h} className="art-thumb" style={{ width: w * scale, height: h * scale }} />;
 }
 
 /** Выбор плитками с картинками. */

@@ -54,7 +54,7 @@ export function AnimPreview({ object }: { object: LocationObject }) {
   return (
     <div className="stack anim-preview">
       <Select value={src.id} options={sources.map((s) => ({ value: s.id, label: s.label }))} onChange={setSel} />
-      <canvas ref={canvas} width={spec.w * SCALE} height={spec.h * SCALE} className="anim-preview__canvas" />
+      <canvas aria-hidden="true" ref={canvas} width={spec.w * SCALE} height={spec.h * SCALE} className="anim-preview__canvas" />
     </div>
   );
 }

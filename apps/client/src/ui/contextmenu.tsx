@@ -93,6 +93,7 @@ export function ContextMenu({ build }: { build: (ctx: MenuContext) => MenuItem[]
 
   if (!menu) return null;
   return (
+    // eslint-disable-next-line jsx-a11y/interactive-supports-focus -- фокус и стрелки ведёт useMenuKeys
     <div
       ref={ref}
       className="ctx-menu"

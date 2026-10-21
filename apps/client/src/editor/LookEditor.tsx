@@ -331,7 +331,7 @@ function Frame({ look, frame, crop }: { look: Look; frame: CharFrame; crop?: boo
   }, [key]); // eslint-disable-line react-hooks/exhaustive-deps
   return (
     <span className={crop ? "look-ed__head" : "look-ed__frame"}>
-      <canvas ref={ref} width={CHAR_W} height={CHAR_H} />
+      <canvas aria-hidden="true" ref={ref} width={CHAR_W} height={CHAR_H} />
     </span>
   );
 }
@@ -365,5 +365,5 @@ function BigPreview({ look }: { look: Look }) {
     ];
     drawCharacter(ctx, look, cycle[tick % cycle.length], 8);
   }, [key, tick]); // eslint-disable-line react-hooks/exhaustive-deps
-  return <canvas ref={ref} width={32} height={CHAR_H + 4} className='look-ed__big' />;
+  return <canvas aria-hidden="true" ref={ref} width={32} height={CHAR_H + 4} className="look-ed__big" />;
 }

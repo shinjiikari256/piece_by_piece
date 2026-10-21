@@ -44,6 +44,7 @@ export function Tabs<T extends string>({
     onChange(tabs[next].id);
   };
   return (
+    // eslint-disable-next-line jsx-a11y/interactive-supports-focus -- фокус у вкладок внутри, стрелки обрабатывает контейнер
     <div className={`tabs tabs--${variant}${className ? ` ${className}` : ""}`} role="tablist" onKeyDown={onKeyDown}>
       {tabs.map((t) => (
         <button

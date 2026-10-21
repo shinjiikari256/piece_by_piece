@@ -101,6 +101,7 @@ export function PanelGrip({ panel }: { panel: PanelState }) {
     e.stopPropagation();
   };
   return (
+    // eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions -- separator с tabIndex — фокусируемый разделитель (ARIA window splitter)
     <div
       className="panel-grip"
       data-side={panel.side}
