@@ -227,7 +227,7 @@ export function DialogueWindow({
       const step = e.key === "ArrowDown" ? 1 : -1;
       const next = current === -1 ? (step > 0 ? 0 : buttons.length - 1) : (current + step + buttons.length) % buttons.length;
       buttons[next]?.focus();
-    } else if (e.key === "Enter" && current === -1 && !e.repeat && !e.defaultPrevented) {
+    } else if (e.key === "Enter" && current === -1 && !presenting && !e.repeat && !e.defaultPrevented) {
       // ничего не выделено — первый ещё не заданный вопрос
       e.preventDefault();
       (choices.find((c) => !c.asked) ?? choices[0])?.onPick();
@@ -265,7 +265,7 @@ export function DialogueWindow({
           {text}
         </p>
         {presenting ? (
-          <ol className="dialogue__choices list-reset" key={`present:${dialogueId}/${nodeId}`}>
+          <ol className="dialogue__choices list-reset" ref={list} key={`present:${dialogueId}/${nodeId}`}>
             {progress.collected.map((id, i) => {
               const ev = caseFile.evidence.find((e) => e.id === id);
               return ev ? (
