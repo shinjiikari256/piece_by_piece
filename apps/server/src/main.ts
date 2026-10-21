@@ -32,6 +32,7 @@ for (const f of seeded.failed) console.error(`Дело пропущено — ${
 const app = createApp(db, {
   secureCookies: env.SECURE_COOKIES === "1",
   trustProxy: env.TRUST_PROXY === "1",
+  offlineFile: env.OFFLINE_FILE,
 });
 const port = Number(env.PORT ?? 8787);
 const server = serve({ fetch: app.fetch, port }, () =>

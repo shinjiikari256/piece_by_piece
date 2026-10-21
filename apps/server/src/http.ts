@@ -14,6 +14,8 @@ export interface AppConfig {
   secureCookies: boolean;
   /** За обратным прокси (Caddy): IP клиента — из X-Forwarded-For. */
   trustProxy: boolean;
+  /** Готовый офлайн-файл (`pnpm export:offline`) для скачивания персоналом; нет — ручка отвечает 404. */
+  offlineFile?: string;
 }
 
 export type AppEnv = {

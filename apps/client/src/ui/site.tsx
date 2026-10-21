@@ -172,6 +172,11 @@ function UserMenu() {
           {item("/account", "Личный кабинет")}
           {isStaff(me) && item("/admin/groups", me.role === "admin" ? "Группы" : "Мои группы")}
           {isStaff(me) && item("/admin/events", "Мероприятия")}
+          {isStaff(me) && (
+            <a role="menuitem" href="/api/admin/offline" download>
+              Скачать офлайн-версию
+            </a>
+          )}
           {me.role === "admin" && item("/admin/settings", "Настройки")}
           <hr />
           <button

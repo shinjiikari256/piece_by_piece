@@ -1,3 +1,4 @@
+import { readFile } from "node:fs/promises";
 import { Hono } from "hono";
 import {
   and,
@@ -251,6 +252,18 @@ export const adminRoutes = new Hono<AppEnv>()
     await db.delete(users).where(eq(users.id, id));
     await audit(db, staff.id, "users.delete", target);
     return c.json({ ok: true });
+  })
+
+  /** Скачать готовый офлайн-файл игры (путь — `OFFLINE_FILE`). */
+  .get("/offline", async (c) => {
+    requireStaff(c);
+    const file = c.var.config.offlineFile;
+    const data = file ? await readFile(file).catch(() => null) : null;
+    if (!data) throw new ApiError(404, "not_found", "Офлайн-версия на сервере не подготовлена");
+    return c.body(new Uint8Array(data), 200, {
+      "content-type": "text/html; charset=utf-8",
+      "content-disposition": 'attachment; filename="delo.html"',
+    });
   })
 
   /** Объединить дубль: результаты и попытки переходят к `intoId`, исходная запись удаляется. */
