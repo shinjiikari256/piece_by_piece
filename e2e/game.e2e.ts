@@ -134,10 +134,10 @@ describe("игра в браузере", () => {
     await page.keyboard.press("ArrowDown");
     await page.keyboard.press("Enter");
     expect(await page.evaluate(() => (window as any).__game.store.get().answers.q_right)).toHaveLength(1);
-    await page.getByText("Вопрос 2 из 5").waitFor();
+    await page.getByText("Вопрос 2 из 5", { exact: true }).waitFor();
     // Enter без фокуса на варианте — «Далее»
     await page.keyboard.press("Enter");
-    await page.getByText("Вопрос 3 из 5").waitFor();
+    await page.getByText("Вопрос 3 из 5", { exact: true }).waitFor();
     // Enter на «Далее» с клавиатуры; после перехода фокус не теряется
     for (let step = 0; step < 3; step++) {
       while (!/Далее|К решению/.test((await page.evaluate(() => document.activeElement?.textContent)) ?? "")) await page.keyboard.press("Tab");
