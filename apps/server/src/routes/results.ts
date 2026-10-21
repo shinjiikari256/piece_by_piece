@@ -1,7 +1,6 @@
 import { Hono } from "hono";
 import { and, asc, count, desc, eq, inArray, isNull, or, type SQL } from "drizzle-orm";
 import {
-  ResultBody,
   ResultsQuery,
   type ResultListItem,
   type ResultsFilters,
@@ -11,7 +10,7 @@ import {
 } from "../../../../shared/api";
 import type { Db } from "../db";
 import { groups, results, users } from "../db/schema";
-import { parseBody, requireUser, type AppEnv, type UserRow } from "../http";
+import { requireUser, type AppEnv, type UserRow } from "../http";
 import { ownGroupIds, visibleUsers } from "./admin";
 import { resultsStats } from "../../../../shared/results-stats";
 
@@ -70,17 +69,8 @@ async function resultsWhere(db: Db, viewer: UserRow, q: ReturnType<typeof Result
   );
 }
 
-/** Свои результаты: сохранить после сдачи дела и посмотреть список. */
+/** Результаты. Записывает их только судья (`POST /cases/:id/finish`): присланные браузером баллы сервер не принимает. */
 export const resultRoutes = new Hono<AppEnv>()
-  .post("/me/results", async (c) => {
-    const user = requireUser(c);
-    const body = await parseBody(c, ResultBody);
-    const [row] = await c.var.db
-      .insert(results)
-      .values({ ...body, userId: user.id, finishedAt: new Date(body.finishedAt), source: "client" })
-      .returning();
-    return c.json(toServerResult(row), 201);
-  })
   .get("/me/results", async (c) => {
     const user = requireUser(c);
     return c.json((await userResults(c.var.db, user.id)).map(toServerResult));

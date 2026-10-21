@@ -49,7 +49,7 @@ describe("ApiAuthority", () => {
     };
     const [r, l] = [await remote.finish(input), await local.finish(input)];
     expect(r.score).toEqual(JSON.parse(JSON.stringify(l.score)));
-    expect(r.recordedOnServer).toBe(true);
+    expect((await api<unknown[]>("GET", "/me/results")).length, "сервер записал результат сам").toBe(1);
     expect(await remote.debrief()).toEqual(JSON.parse(JSON.stringify(full.solution)));
   });
 });

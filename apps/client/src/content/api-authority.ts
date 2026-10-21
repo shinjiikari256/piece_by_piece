@@ -36,13 +36,14 @@ export class ApiAuthority implements CaseAuthority {
     return api<Revealed>("POST", this.path("/restore"), { deductionIds, hintsUsed });
   }
 
+  /** Сервер сам записывает результат (`source: "server"`) — клиент его не отправляет. */
   async finish(input: FinishInput): Promise<CaseResult> {
     const res = await api<CaseResult>("POST", this.path("/finish"), {
       ...input,
       elapsedMs: input.elapsedMs == null ? null : Math.round(input.elapsedMs),
       gameVersion: GAME_VERSION,
     });
-    return { score: res.score, caseConfigVersion: res.caseConfigVersion, debrief: res.debrief, recordedOnServer: true };
+    return { score: res.score, caseConfigVersion: res.caseConfigVersion, debrief: res.debrief };
   }
 
   debrief() {

@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it } from "vitest";
 import type { AdminGroup, AdminUser, JoinLink, Me } from "../../../shared/api";
 import { createApp } from "./app";
 import { ensureAdmin } from "./bootstrap";
-import { memoryDb, type Db } from "./db";
+import { memoryDb, schema, type Db } from "./db";
 
 type App = ReturnType<typeof createApp>;
 
@@ -248,13 +248,17 @@ describe("результаты", () => {
     ...extra,
   });
 
-  it("свои результаты сохраняются; карточка пользователя считает сводку; гостю — нельзя", async () => {
-    expect((await client(app).post("/me/results", result(50))).status).toBe(401);
+  /** Результат в базе напрямую: записывает их судья (`/cases/:id/finish`), в тестах статистики нужны готовые строки. */
+  const addResult = (userId: number, r: ReturnType<typeof result>) =>
+    db.insert(schema.results).values({ ...r, userId, finishedAt: new Date(r.finishedAt), source: "client" });
+
+  it("свои результаты видны; карточка пользователя считает сводку; гостю — нельзя", async () => {
+    expect((await client(app).get("/me/results")).status).toBe(401);
     const s = client(app);
     const me = (await s.post("/auth/register", reg("ershova"))).json as Me;
-    await s.post("/me/results", result(55));
-    await s.post("/me/results", result(99, { caseId: "case-002", caseNumber: "002", hintsUsed: 3, elapsedMs: null }));
-    expect((await s.post("/me/results", result(10, { total: -5 }))).status).toBe(400);
+    await addResult(me.id, result(55));
+    await addResult(me.id, result(99, { caseId: "case-002", caseNumber: "002", hintsUsed: 3, elapsedMs: null }));
+    expect((await s.post("/me/results", result(100))).status, "присланные браузером баллы не принимаются").toBe(404);
     const mine = (await s.get("/me/results")).json;
     expect(mine.map((r: { total: number }) => r.total).sort()).toEqual([55, 99]);
 
@@ -282,8 +286,8 @@ describe("результаты", () => {
     await admin.patch("/admin/users", { ids: [ua.id], set: { groupId: g.id } });
     const withBonus = (total: number, extra = {}) =>
       result(total, { score: { total, max: 110, timeBonus: { max: 10, points: total >= 75 ? 10 : 0 }, groups: [{ label: "Определение права", points: 30, max: 30 }] }, ...extra });
-    for (let i = 0; i < 7; i++) await a.post("/me/results", withBonus(50 + i * 10));
-    await b.post("/me/results", withBonus(20, { caseId: "case-002", caseNumber: "002", caseTitle: "Комната 412" }));
+    for (let i = 0; i < 7; i++) await addResult(ua.id, withBonus(50 + i * 10));
+    await addResult(ub.id, withBonus(20, { caseId: "case-002", caseNumber: "002", caseTitle: "Комната 412" }));
 
     const page1 = (await admin.get("/results?pageSize=5")).json;
     expect(page1).toMatchObject({ total: 8, page: 1, pageSize: 5 });

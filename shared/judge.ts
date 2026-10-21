@@ -39,8 +39,6 @@ export interface CaseResult {
   caseConfigVersion: string | null;
   /** Разбор дела; null — политика мероприятия его не показывает. */
   debrief: Solution | null;
-  /** Результат уже записан на сервере (`ApiAuthority`) — клиенту отправлять его повторно не нужно. */
-  recordedOnServer?: boolean;
 }
 
 /** Что игрок уже узнал: выводы установленных фактов и открытые подсказки (при продолжении расследования). */
