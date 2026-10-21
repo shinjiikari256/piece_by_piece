@@ -202,6 +202,7 @@ export function UserPage({ id, groups, isAdmin }: { id: number; groups: AdminGro
   const [detail, setDetail] = useState<UserDetail | null>(null);
   const [error, setError] = useState("");
   const [reset, setReset] = useState(false);
+  const [merge, setMerge] = useState(false);
   const [name, setName] = useState("");
   const meId = useAccount((s) => s.me?.id);
   const load = useCallback(
@@ -335,6 +336,9 @@ export function UserPage({ id, groups, isAdmin }: { id: number; groups: AdminGro
             <button className="btn" onClick={() => setReset(true)}>
               Сбросить пароль
             </button>
+            <button className="btn" onClick={() => setMerge(true)}>
+              Объединить с…
+            </button>
             <button className="btn btn--danger" onClick={() => void remove()}>
               Удалить
             </button>
@@ -364,6 +368,7 @@ export function UserPage({ id, groups, isAdmin }: { id: number; groups: AdminGro
         </>
       )}
       {reset && <ResetPassword user={u} onClose={() => setReset(false)} />}
+      {merge && <MergeUser user={u} onClose={() => setMerge(false)} />}
     </section>
   );
 }
@@ -386,6 +391,67 @@ function Stat({ label, value, hint }: { label: string; value: string; hint?: str
       <div className="stat__value">{value}</div>
       <div className="stat__label">{label}</div>
     </div>
+  );
+}
+
+/** Объединение дублей: выбрать учётную запись, которая останется; прохождения этой переходят к ней. */
+function MergeUser({ user, onClose }: { user: AdminUser; onClose: () => void }) {
+  const [q, setQ] = useState("");
+  const [list, setList] = useState<AdminUser[]>([]);
+  const [target, setTarget] = useState<number | null>(null);
+  useEffect(() => {
+    const t = setTimeout(() => {
+      const params = new URLSearchParams();
+      if (q.trim()) params.set("q", q.trim());
+      void api<AdminUser[]>("GET", `/admin/users?${params}`).then((l) => setList(l.filter((x) => x.id !== user.id).slice(0, 8)), fail);
+    }, 250);
+    return () => clearTimeout(t);
+  }, [q, user.id]);
+  const run = async () => {
+    const into = list.find((x) => x.id === target);
+    if (!into) return;
+    const ok = await ask({
+      title: `Объединить с ${into.fullName}?`,
+      text: `Прохождения ${user.fullName} перейдут к ${into.fullName}, а учётная запись ${user.fullName} будет удалена без возможности восстановления.`,
+      confirmLabel: "Объединить",
+      danger: true,
+    });
+    if (!ok) return;
+    try {
+      await api("POST", `/admin/users/${user.id}/merge`, { intoId: into.id });
+      navigate(`/admin/users/${into.id}`);
+    } catch (e) {
+      fail(e);
+    }
+  };
+  return (
+    <Dialog
+      title={`Объединить дубль: ${user.fullName}`}
+      onClose={onClose}
+      actions={
+        <>
+          <button className="btn" onClick={onClose}>
+            Отмена
+          </button>
+          <button className="btn btn--primary" disabled={target == null} onClick={() => void run()}>
+            Объединить
+          </button>
+        </>
+      }
+    >
+      <p className="muted">Выберите запись, которая останется.</p>
+      <input className="input" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Поиск по ФИО или логину" aria-label="Поиск пользователя" />
+      <ul className="list-reset stack">
+        {list.map((x) => (
+          <li key={x.id}>
+            <button className="btn btn--block" aria-pressed={target === x.id} onClick={() => setTarget(x.id)}>
+              {x.fullName} · {x.login}
+              {x.group ? ` · ${x.group.name}` : ""}
+            </button>
+          </li>
+        ))}
+      </ul>
+    </Dialog>
   );
 }
 

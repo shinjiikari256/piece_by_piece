@@ -25,6 +25,7 @@ import {
   type Settings,
   type UserDetail,
   UserEditBody,
+  UserMergeBody,
 } from "../../../../shared/api";
 import { toServerResult, userResults, userStats } from "./results";
 import {
@@ -35,10 +36,12 @@ import {
 } from "../auth";
 import type { Db } from "../db";
 import {
+  attempts,
   auditLog,
   groupTeachers,
   groups,
   joinLinks,
+  results,
   users,
 } from "../db/schema";
 import {
@@ -247,6 +250,29 @@ export const adminRoutes = new Hono<AppEnv>()
     if (!target) throw new ApiError(404, "not_found", "Пользователь не найден");
     await db.delete(users).where(eq(users.id, id));
     await audit(db, staff.id, "users.delete", target);
+    return c.json({ ok: true });
+  })
+
+  /** Объединить дубль: результаты и попытки переходят к `intoId`, исходная запись удаляется. */
+  .post("/users/:id/merge", async (c) => {
+    const db = c.var.db;
+    const staff = requireStaff(c);
+    const id = Number(c.req.param("id"));
+    const { intoId } = await parseBody(c, UserMergeBody);
+    if (id === intoId) throw new ApiError(400, "self", "Выберите другого пользователя");
+    if (id === staff.id) throw new ApiError(400, "self", "Себя объединить нельзя");
+    const found = await db
+      .select({ id: users.id, login: users.login, fullName: users.fullName })
+      .from(users)
+      .where(and(inArray(users.id, [id, intoId]), await visibleUsers(db, staff)));
+    const from = found.find((u) => u.id === id);
+    if (!from || !found.some((u) => u.id === intoId)) throw new ApiError(404, "not_found", "Пользователь не найден");
+    await db.transaction(async (tx) => {
+      await tx.update(results).set({ userId: intoId }).where(eq(results.userId, id));
+      await tx.update(attempts).set({ userId: intoId }).where(eq(attempts.userId, id));
+      await tx.delete(users).where(eq(users.id, id));
+    });
+    await audit(db, staff.id, "users.merge", { from, intoId });
     return c.json({ ok: true });
   })
 

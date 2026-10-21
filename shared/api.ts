@@ -129,6 +129,9 @@ export const ResetPasswordBody = z.object({ password: Password.optional() });
 
 export const UserEditBody = z.object({ fullName: FullName });
 
+/** Объединение дублей: прохождения переходят к `intoId`, исходная запись удаляется. */
+export const UserMergeBody = z.object({ intoId: z.number().int().positive() });
+
 export interface AdminGroup extends GroupRef {
   teacherIds: number[];
   students: number;

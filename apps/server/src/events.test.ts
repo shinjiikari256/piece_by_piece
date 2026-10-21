@@ -189,4 +189,19 @@ describe("импорт офлайн-результатов", () => {
     expect(manual.json[0]).toMatchObject({ status: "imported", userId: u.id });
     expect((await imp([{ file: fileOf(), userId: 9999 }])).status).toBe(403);
   });
+
+  it("объединение дублей: прохождения переходят к целевому пользователю", async () => {
+    const ev = await makeEvent();
+    expect((await play(ev.id)).status).toBe(201);
+    await asAdmin();
+    const [dup] = await db.insert(schema.users).values({ login: "dup", fullName: "Иванова (дубль)", role: "student", status: "active", passwordHash: "x" }).returning();
+    const [ivanova] = await db.select().from(schema.users).where(eq(schema.users.login, "ivanova"));
+    expect((await call("POST", `/admin/users/${ivanova.id}/merge`, { intoId: ivanova.id })).status).toBe(400);
+    expect((await call("POST", `/admin/users/${ivanova.id}/merge`, { intoId: dup.id })).status).toBe(200);
+    expect((await db.select().from(schema.users).where(eq(schema.users.id, ivanova.id))).length).toBe(0);
+    const rows = await db.select().from(schema.results);
+    expect(rows.length).toBe(1);
+    expect(rows[0].userId).toBe(dup.id);
+    expect((await call("POST", `/admin/users/9999/merge`, { intoId: dup.id })).status).toBe(404);
+  });
 });
