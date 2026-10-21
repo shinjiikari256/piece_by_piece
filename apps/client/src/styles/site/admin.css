@@ -249,7 +249,7 @@
   color: var(--text-soft);
   margin-bottom: 0.6rem;
 }
-@media (max-width: 600px) {
+@media (max-width: 640px) {
   .link-card {
     grid-template-columns: 1fr;
   }

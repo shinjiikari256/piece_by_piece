@@ -22,7 +22,7 @@
     grid-template-columns: 1fr 1fr;
   }
 }
-@media (max-width: 560px) {
+@media (max-width: 640px) {
   .logo span + * {
     display: none;
   }

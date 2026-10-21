@@ -220,7 +220,7 @@
   opacity: 0;
   cursor: pointer;
 }
-@media (max-width: 1100px) {
+@media (max-width: 1200px) {
   .look-ed {
     grid-template-columns: 1fr;
   }
