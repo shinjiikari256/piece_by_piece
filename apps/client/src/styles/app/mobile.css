@@ -76,18 +76,14 @@ body {
     font-size: max(1em, 16px);
   }
 }
-@media (max-width: 640px), (max-height: 500px) {
-  :root {
-    font-size: 93.75%;
-  }
-  .tool__label {
-    display: none;
-  }
+/* шапка игры на планшете и телефоне — одна: две строки, вторая по центру */
+@media (max-width: 1024px), (max-height: 500px) {
   /* шапка в две строки: домик, номер, название и «Как играть»; ниже — таймер, прогресс-кольцо, заметки. Кнопки — прямые дети шапки (stats: contents) */
   .topbar {
     padding: 0.35rem 0.6rem;
     gap: 0.3rem 0.6rem;
     flex-wrap: wrap;
+    justify-content: center;
   }
   .topbar__case {
     order: 1;
@@ -120,7 +116,6 @@ body {
   }
   .topbar__notes {
     order: 5;
-    margin-left: auto;
   }
   .topbar__notes kbd {
     display: none;
@@ -131,6 +126,14 @@ body {
   .topbar__stats {
     display: contents;
     font-size: var(--fs-md);
+  }
+}
+@media (max-width: 640px), (max-height: 500px) {
+  :root {
+    font-size: 93.75%;
+  }
+  .tool__label {
+    display: none;
   }
   .bottombar {
     padding: 0.35rem;
