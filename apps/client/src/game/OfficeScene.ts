@@ -31,7 +31,7 @@ const INTERACT_KEYS = new Set(["KeyE", "Enter", "NumpadEnter", "Space"]);
 const UI_TARGETS = "button, input, textarea, select, a, [contenteditable]";
 
 /** Минимальный размер клетки на экране (px), ниже которого включается следящая камера. */
-const MIN_TILE_PX = 32;
+const MIN_TILE_PX = 16;
 /** Отступ подписи от края видимой части поля (px). */
 const LABEL_EDGE = 4;
 

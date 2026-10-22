@@ -22,7 +22,14 @@ describe("stepZoom", () => {
     expect(stepZoom(1.27, -1, 1.25, MAX)).toBe(1.25);
   });
 
-  it("редактор карты: минимум 100%, шаг тот же", () => {
+  it("масштаб меньше 100%: шаг тот же, граница — минимум", () => {
+    expect(stepZoom(1, -1, 0.3, MAX)).toBe(0.9);
+    expect(stepZoom(0.5, -1, 0.3, MAX)).toBe(0.4);
+    expect(stepZoom(0.34, -1, 0.3, MAX)).toBe(0.3);
+    expect(stepZoom(0.3, -1, 0.3, MAX)).toBe(0.3);
+  });
+
+  it("редактор карты: шаг тот же при минимуме 100%", () => {
     expect(stepZoom(1, 1, 1, MAX)).toBe(1.1);
     expect(stepZoom(1, -1, 1, MAX)).toBe(1);
     expect(stepZoom(3, 1, 1, MAX)).toBe(3);

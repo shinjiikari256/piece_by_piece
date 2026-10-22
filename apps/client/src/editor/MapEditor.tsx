@@ -23,6 +23,9 @@ import { useFocusJump } from "./useFocusJump";
 import { GAME_ZOOM_MAX } from "../game/bridge";
 import { stepZoom, ZoomControl } from "../ui/zoom-control";
 
+/** Нижняя граница масштаба карты: можно отдалить сильнее 100%, чтобы увидеть большую карту целиком. */
+const MIN_ZOOM = 0.3;
+
 
 
 export function MapEditor() {
@@ -213,13 +216,13 @@ export function MapEditor() {
             <ZoomControl
               label="Масштаб карты"
               value={current}
-              min={1}
+              min={MIN_ZOOM}
               max={GAME_ZOOM_MAX}
               fitted={fit}
               valueText={`${Math.round(current * 100)}%`}
               onStep={(dir) => {
                 setFit(false);
-                setZoom(stepZoom(current, dir, 1, GAME_ZOOM_MAX));
+                setZoom(stepZoom(current, dir, MIN_ZOOM, GAME_ZOOM_MAX));
               }}
               onFit={() => setFit(true)}
             />
