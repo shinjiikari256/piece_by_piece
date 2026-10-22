@@ -77,17 +77,27 @@
   }
 }
 
+/* прогресс расследования — кольцо с процентом; --pct задаёт GameView */
 .topbar__progress {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5em;
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 2.4rem;
+  height: 2.4rem;
+  border-radius: 50%;
+  background: conic-gradient(var(--good) calc(var(--pct, 0) * 1%), var(--overlay-dark-2) 0);
 }
 .topbar__progress .progress {
-  display: block;
-  width: 6rem;
+  display: none;
 }
-.topbar__progress .progress__bar {
-  display: block;
+.topbar__progress b {
+  display: grid;
+  place-items: center;
+  width: 1.9rem;
+  height: 1.9rem;
+  border-radius: 50%;
+  background: var(--bg-chrome);
+  font-size: var(--fs-xs);
 }
 .topbar__help {
   color: inherit;
