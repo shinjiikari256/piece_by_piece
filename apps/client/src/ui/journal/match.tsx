@@ -60,7 +60,7 @@ export function MatchPanel({ picked, onRemove, onClear }: { picked: string[]; on
         {[0, 1].map((i) => {
           const id = picked[i];
           return (
-            <div key={i} className={`pin-slot ${id ? "is-filled" : ""}`}>
+            <div key={i} data-slot={i} className={`pin-slot ${id ? "is-filled" : ""}`}>
               {id ? (
                 <div className="pinned">
                   <span className="pinned__pin" />
@@ -80,7 +80,7 @@ export function MatchPanel({ picked, onRemove, onClear }: { picked: string[]; on
       <div className="board__result">
         {state.step === "pick" && (
           <>
-            <p className="board__prompt">Выберите два материала, чтобы сделать вывод. Сделанные выводы также можно использовать при сопоставлении.</p>
+            <p className="board__prompt">Выберите два материала или перетащите их в ячейки, чтобы сделать вывод. Сделанные выводы также можно использовать при сопоставлении.</p>
             <button className="btn btn--primary" disabled={picked.length < 2} onClick={compare}>
               Сопоставить
             </button>

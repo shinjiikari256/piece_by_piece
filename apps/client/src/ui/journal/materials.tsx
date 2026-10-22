@@ -12,6 +12,7 @@ import { Md } from "../md";
 import { Portrait } from "../panels";
 import { MatchPanel } from "./match";
 import { Select } from "../Select";
+import { useCardDrag } from "./drag";
 import { useCase } from "./index";
 
 // ---------- Материалы ----------
@@ -60,8 +61,16 @@ export function MaterialsTab({ match, focus }: { match: boolean; focus?: string 
   const people = caseFile.characters.filter((c) => items.some((it) => peopleOf(it).has(c.id)));
   const current = items.find((it) => it.key === selected) ?? null;
 
-  // сопоставляем пары; третий выбор заменяет второй
-  const togglePick = (id: string) => setPicked((p) => (p.includes(id) ? p.filter((x) => x !== id) : p.length < 2 ? [...p, id] : [p[0], id]));
+  // сопоставляем пары; третий выбор сбрасывает прежние и становится первым
+  const togglePick = (id: string) => setPicked((p) => (p.includes(id) ? p.filter((x) => x !== id) : p.length < 2 ? [...p, id] : [id]));
+  // перетащили карточку в ячейку: встаёт на её место, из другой ячейки уходит
+  const dropPick = (key: string, slot: number) =>
+    setPicked((p) => {
+      const next = [p[0], p[1]].map((x) => (x === key ? undefined : x));
+      next[slot] = key;
+      return next.filter((x): x is string => !!x);
+    });
+  const dragStart = useCardDrag(match, dropPick);
 
   const toggleMatch = () => {
     // уже открытый материал — первым на доску
@@ -152,7 +161,7 @@ export function MaterialsTab({ match, focus }: { match: boolean; focus?: string 
 
       <div className="materials__body">
         <div className="materials__list">
-          <div className="card-grid">
+          <div className="card-grid" onPointerDown={dragStart}>
             {shown.map((it) =>
               it.deduction ? (
                 <FactCard

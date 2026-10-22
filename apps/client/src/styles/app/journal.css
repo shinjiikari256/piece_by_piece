@@ -129,6 +129,18 @@
   border: none;
   place-items: stretch;
 }
+.pin-slot[data-over] {
+  background: var(--accent-soft);
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+/* перетаскивание карточек в ячейки: без выделения текста и системного меню удержания */
+.card-grid {
+  -webkit-touch-callout: none;
+}
+.card-grid .evidence-card {
+  user-select: none;
+}
 .pin-slot__hint {
   color: var(--board-slot-hint);
   font-size: var(--fs-md);
