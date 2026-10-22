@@ -1,3 +1,4 @@
+import { readJson, writeJson } from "../state/storage";
 export interface CharacterPlace {
   locationId: string;
   x: number;
@@ -44,8 +45,16 @@ export const GAME_ZOOM_MAX = 3;
 const defaultZoom = (): GameZoom =>
   typeof window !== "undefined" && window.matchMedia?.("(max-width: 640px), (max-height: 500px)").matches ? 1 : "fit";
 
-/** Выбор масштаба живёт в памяти вкладки: переживает смену локации, не сохраняется. */
-let zoom: GameZoom = defaultZoom();
+const ZOOM_KEY = "zoom";
+
+/** Предпочтение игрока (localStorage) важнее умолчания; битое или чужое значение игнорируем. */
+const savedZoom = (): GameZoom | null => {
+  const v = readJson<unknown>(ZOOM_KEY, null);
+  return v === "fit" || (typeof v === "number" && v >= 0.3 && v <= GAME_ZOOM_MAX) ? v : null;
+};
+
+/** Выбор масштаба запоминается в браузере и действует во всех делах. */
+let zoom: GameZoom = savedZoom() ?? defaultZoom();
 const zoomListeners = new Set<() => void>();
 /** Фактический масштаб камеры (после «вписать» и нижней границы) и сама граница — сообщает сцена. */
 let shown = { value: 1, min: 1 };
@@ -55,6 +64,7 @@ export const gameZoom = {
   get: () => zoom,
   set(next: GameZoom) {
     zoom = next;
+    writeJson(ZOOM_KEY, next);
     zoomListeners.forEach((l) => l());
   },
   subscribe(listener: () => void) {
