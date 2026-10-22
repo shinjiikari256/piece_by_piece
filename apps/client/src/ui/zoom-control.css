@@ -1,0 +1,30 @@
+/* Переключатель масштаба: компактный, без заливки, нажатое «вписать» — жирным. Одинаков в игре и в редакторе карты. */
+.zoom-control {
+  display: flex;
+  align-items: center;
+  gap: 0.1rem;
+  font-size: var(--fs-xs);
+  color: var(--text-on-dark);
+}
+.zoom-control .zoom-control__step,
+.zoom-control .zoom-control__fit {
+  color: var(--text-on-dark);
+  background: transparent;
+  border-color: transparent;
+  padding: 0.1em 0.35em;
+  /* цель касания 44px из общего правила для pointer: coarse здесь не нужна — переключатель компактный */
+  width: 1.4rem;
+  height: 1.4rem;
+  min-height: 0;
+  min-width: 0;
+  padding: 0;
+  line-height: 1;
+}
+.zoom-control__fit[aria-pressed="true"] {
+  font-weight: 700;
+}
+.zoom-control__value {
+  min-width: 2.8em;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}

@@ -10,6 +10,18 @@
   height: 100%;
   min-height: 0;
 }
+/* список и реплика — колонки сетки; на телефоне (phone.css) — поверх графа. Кнопки перехода только там. */
+.dg__list {
+  display: contents;
+}
+.dg[data-list-collapsed] .dg__list,
+.dg[data-side-collapsed] .dg__side {
+  display: none;
+}
+.dg__phone-nav,
+.dg__phone-close {
+  display: none;
+}
 .dg__graph-wrap {
   display: grid;
   grid-template-rows: auto 1fr;

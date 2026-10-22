@@ -84,7 +84,7 @@ function TopBar() {
           />
         )}
         {/* сколько найдено и установлено — в «Материалах»; здесь только общий процент */}
-        <span className="topbar__progress" title={`Прогресс расследования: ${progress}% — подробно в материалах дела`}>
+        <span className="topbar__progress" style={{ "--pct": progress } as React.CSSProperties} title={`Прогресс расследования: ${progress}% — подробно в материалах дела`}>
           <span className="progress">
             <span className="progress__bar" style={{ width: `${progress}%` }} />
           </span>

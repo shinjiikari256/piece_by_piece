@@ -176,13 +176,6 @@ export function Toolbar() {
           №{draft.number} «{draft.title}»
         </b>
       </div>
-      <button
-        className="ed__publish" aria-pressed={draft.published}
-        onClick={() => editor.goto("general")}
-        title={draft.published ? "Игроки видят дело в списке. Настройка — в разделе «Основное»" : "Дело скрыто от игроков. Настройка — в разделе «Основное»"}
-      >
-        <Icon name={draft.published ? "eye" : "dim"} size={16} /> {draft.published ? "Видно игрокам" : "Скрыто"}
-      </button>
       <div className="ed__actions">
         {section === "locations" && (
           <span className="seg" role="group" aria-label="Расположение палитры">
@@ -206,26 +199,27 @@ export function Toolbar() {
           </button>
         )}
         {!OFFLINE && (
-          <button className="btn ed__play" onClick={startPlaytest} title={errors.length ? "Сначала исправьте ошибки" : "Открыть дело в игре"}>
-            <Icon name="play" size={15} /> Запустить
+          <button className="btn ed__play" onClick={startPlaytest} aria-label="Запустить" title={errors.length ? "Сначала исправьте ошибки" : "Открыть дело в игре"}>
+            <Icon name="play" size={15} /> <span className="ed__label">Запустить</span>
           </button>
         )}
         {!OFFLINE && online && (
-          <button className="btn" onClick={() => void import("./publish").then((m) => m.publishToServer())} title={errors.length ? "Сначала исправьте ошибки" : "Записать дело на сервер новой версией"}>
-            <Icon name="upload" size={15} /> На сервер
+          <button className="btn" onClick={() => void import("./publish").then((m) => m.publishToServer())} aria-label="На сервер" title={errors.length ? "Сначала исправьте ошибки" : "Записать дело на сервер новой версией"}>
+            <Icon name="upload" size={15} /> <span className="ed__label">На сервер</span>
           </button>
         )}
         <button
           className="btn btn--primary ed__save"
           disabled={!dirty || errors.length > 0}
           onClick={() => editor.save()}
+          aria-label={dirty ? "Сохранить" : "Сохранено"}
           title={errors.length ? "Нельзя сохранить: есть ошибки" : dirty ? "Сохранить (Ctrl+S) — дело появится в игре" : "Изменений нет"}
         >
-          <Icon name="save" size={15} /> {dirty ? "Сохранить" : "Сохранено"}
+          <Icon name="save" size={15} /> <span className="ed__label">{dirty ? "Сохранить" : "Сохранено"}</span>
         </button>
         <div className="ed__menu">
-          <button className="btn ed__help-btn" aria-expanded={openHelp} onClick={() => setOpenHelp((v) => !v)} title="Как заполнять этот раздел">
-            <Icon name="help" size={15} /> Справка
+          <button className="btn ed__help-btn" aria-expanded={openHelp} onClick={() => setOpenHelp((v) => !v)} aria-label="Справка" title="Как заполнять этот раздел">
+            <Icon name="help" size={15} /> <span className="ed__label">Справка</span>
           </button>
           {openHelp && <HelpPopover section={section} onClose={() => setOpenHelp(false)} />}
         </div>

@@ -160,28 +160,6 @@
   min-height: 0;
   background: var(--text);
 }
-.lm__zoom {
-  display: flex;
-  gap: 2px;
-}
-.lm__zoom button {
-  border: none;
-  background: var(--overlay-light-1);
-  color: var(--text-on-dark);
-  padding: 0.2rem 0.55rem;
-  font-size: var(--fs-sm);
-  cursor: pointer;
-}
-.lm__zoom button:first-child {
-  border-radius: 6px 0 0 6px;
-}
-.lm__zoom button:last-child {
-  border-radius: 0 6px 6px 0;
-}
-.lm__zoom button[aria-pressed="true"] {
-  background: var(--warn);
-  color: var(--text);
-}
 .lm__stage {
   overflow: auto;
   padding: 1rem;

@@ -49,6 +49,7 @@
   background: var(--bg-paper);
   border: 1px solid var(--border);
   border-radius: 10px;
+  flex-wrap: wrap;
 }
 .eh__num {
   font-family: var(--font-mono);
@@ -57,8 +58,14 @@
 }
 .eh__info {
   display: grid;
-  flex: 1;
+  flex: 1 1 12rem;
   min-width: 0;
+}
+.eh__buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-left: auto;
 }
 .eh__info .muted {
   font-size: var(--fs-sm);

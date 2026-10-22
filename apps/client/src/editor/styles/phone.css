@@ -1,0 +1,180 @@
+/* Конструктор на телефоне: один раздел или один список за раз. Разделы и список открываются поверх рабочей области из полосы под шапкой конструктора. */
+
+.ed__phonebar,
+.ed__phone-close {
+  display: none;
+}
+
+.lm__phone-nav,
+.lm__phone-bar {
+  display: none;
+}
+
+/* ну и диалоги: список и реплика — поверх графа, на весь экран */
+@media (max-width: 1024px) {
+  .dg {
+    position: relative;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1fr);
+  }
+  .dg .panel-grip,
+  .dg .panel-rail {
+    display: none;
+  }
+  .dg__phone-nav {
+    display: flex;
+    gap: 0.4rem;
+  }
+  .dg__list,
+  .dg__side {
+    display: none;
+  }
+  .dg[data-view="list"] .dg__list,
+  .dg[data-view="node"] .dg__side {
+    display: flex;
+    flex-direction: column;
+    position: absolute;
+    inset: 0;
+    z-index: 5;
+    min-height: 0;
+    background: var(--bg-paper);
+  }
+  .dg[data-view="node"] .dg__side {
+    display: block;
+    overflow-y: auto;
+  }
+  .dg__list > .ed__list {
+    flex: 1 1 0;
+    min-height: 0;
+    border-right: 0;
+  }
+  .dg__phone-close {
+    display: inline-flex;
+    align-self: flex-start;
+    margin: 0.5rem 0.5rem 0;
+  }
+}
+
+@media (max-width: 1024px) {
+  .ed {
+    display: flex;
+    flex-direction: column;
+  }
+  .ed__phonebar {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.4rem 0.6rem;
+    background: var(--bg-paper);
+    border-bottom: 1px solid var(--border);
+  }
+  .ed__phonebar-title {
+    flex: 1;
+    min-width: 0;
+    font-weight: 700;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* разделы: вместо рабочей области, на весь экран */
+  .ed__nav,
+  .ed__main {
+    flex: 1 1 0;
+    min-height: 0;
+  }
+  .ed__nav {
+    display: none;
+    border-right: 0;
+  }
+  .ed[data-panel="nav"] .ed__nav {
+    display: grid;
+  }
+  .ed[data-panel="nav"] .ed__main {
+    display: none;
+  }
+
+  /* список записей: над карточкой, карточка скрыта, пока список открыт */
+  .ed__split {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto minmax(0, 1fr);
+  }
+  .ed__split > .ed__list {
+    display: none;
+  }
+  .ed[data-panel="list"] .ed__split > .ed__list {
+    display: grid;
+    border-right: 0;
+  }
+  .ed[data-panel="list"] .ed__split > .ed__panel {
+    display: none;
+  }
+
+  /* кнопка «Закрыть» у открытой панели */
+  .ed[data-panel] .ed__phone-close {
+    display: inline-flex;
+    justify-self: start;
+    margin: 0.5rem 0.5rem 0;
+  }
+}
+
+/* карта: палитра и инспектор — поверх карты, по одной (кнопки в полосе статуса); планшет — как телефон */
+@media (max-width: 1024px) {
+  .lm {
+    position: relative;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1fr);
+  }
+  .lm .panel-grip,
+  .lm .panel-rail {
+    display: none;
+  }
+  .lm[data-dock] > .lm__palette,
+  .lm[data-dock] > .lm__inspector {
+    grid-column: auto;
+    grid-row: auto;
+  }
+  .lm__phone-nav {
+    display: flex;
+    gap: 0.4rem;
+  }
+  .lm__phone-bar,
+  .lm__palette,
+  .lm__inspector {
+    display: none;
+  }
+  .lm[data-view="palette"] .lm__palette,
+  .lm[data-view="inspector"] .lm__inspector {
+    display: flex;
+    flex-direction: column;
+    position: absolute;
+    top: 2.4rem;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 5;
+    min-height: 0;
+    overflow: auto;
+    background: var(--bg-paper);
+  }
+  .lm[data-view="palette"] .lm__palette .lm__tools {
+    flex: none;
+    position: static;
+  }
+  .lm[data-view="palette"] .lm__phone-bar,
+  .lm[data-view="inspector"] .lm__phone-bar {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2.4rem;
+    z-index: 6;
+    padding: 0 0.6rem;
+    background: var(--bg-paper);
+    border-bottom: 1px solid var(--border);
+    font-weight: 700;
+  }
+}

@@ -32,6 +32,7 @@ export function FolderTabs({
   className?: string;
 }) {
   useTabKeys(tabs, active, onTab);
+  const index = tabs.findIndex((t) => t.id === active);
   return (
     <div className={`folder__tabs ${className}`} role="tablist">
       {back && (
@@ -58,6 +59,23 @@ export function FolderTabs({
           </div>
         );
       })}
+      {onTab && tabs.length > 1 && (
+        <div className="folder__step">
+          <button className="btn btn--icon btn--sm" aria-label="Предыдущий раздел" disabled={index <= 0} onClick={() => onTab(tabs[index - 1].id)}>
+            ‹
+          </button>
+          <span className="folder__step-name ellipsis">
+            {tabs[index]?.label}
+            <small>
+              {" "}
+              {index + 1} из {tabs.length}
+            </small>
+          </span>
+          <button className="btn btn--icon btn--sm" aria-label="Следующий раздел" disabled={index >= tabs.length - 1} onClick={() => onTab(tabs[index + 1].id)}>
+            ›
+          </button>
+        </div>
+      )}
       {onClose && (
         <button className="folder__tab folder__tab--btn folder__close" onClick={onClose} aria-label="Закрыть (Esc)" title="Закрыть (Esc)">
           ✕

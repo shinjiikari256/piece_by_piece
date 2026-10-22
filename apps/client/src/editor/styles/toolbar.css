@@ -33,25 +33,6 @@ button.ed__home {
   padding: 0.2rem;
   display: inline-flex;
 }
-.ed__publish {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4em;
-  min-height: 2.4rem;
-  padding: 0.3em 0.9em;
-  border-radius: 999px;
-  border: 1px dashed var(--border-chrome);
-  background: var(--overlay-light-2);
-  color: var(--text-soft);
-  font-weight: 700;
-  cursor: pointer;
-}
-.ed__publish[aria-pressed="true"] {
-  border-style: solid;
-  border-color: var(--good);
-  background: var(--good-soft);
-  color: var(--good);
-}
 .ed__bar .ed__play,
 .ed__bar .ed__save,
 .ed__bar .ed__help-btn {
@@ -64,6 +45,28 @@ button.ed__home {
 }
 .ed__help-btn[aria-expanded="true"] {
   background: var(--bg-paper-dim);
+}
+/* на телефоне подписи кнопок шапки уходят, остаются значки (названия — в aria-label) */
+@media (max-width: 1024px) {
+  .ed__label {
+    display: none;
+  }
+  .ed__bar .ed__play,
+  .ed__bar .ed__save,
+  .ed__bar .ed__help-btn {
+    padding: 0.3em 0.6em;
+  }
+  /* шапка в две строки: название с домом, затем кнопки справа */
+  .ed__bar {
+    flex-wrap: wrap;
+    gap: 0.3rem 0.6rem;
+    padding: 0.4rem 0.6rem;
+  }
+  .ed__actions {
+    width: 100%;
+    margin-left: 0;
+    justify-content: flex-end;
+  }
 }
 
 .ed__nav-item[aria-current] {

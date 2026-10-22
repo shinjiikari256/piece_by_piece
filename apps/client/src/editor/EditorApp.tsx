@@ -1,4 +1,4 @@
-import { Suspense, lazy, useEffect, useRef } from "react";
+import { Suspense, lazy, useEffect, useRef, useState } from "react";
 import { useArrowNav, useWindowKey } from "../ui/hooks";
 import { useEditorUrl } from "./url";
 import { CaseFile } from "../../../../shared/case";
@@ -107,6 +107,9 @@ export function EditorApp() {
   const errors = useEditor((s) => s.errors);
   const warnings = useEditor((s) => s.warnings);
   useEditorUrl(SECTIONS.map((s) => s.id).concat("errors"));
+  // на телефоне разделы и список — панели поверх рабочей области, открываются из полосы под шапкой
+  const [panel, setPanel] = useState<"nav" | "list" | null>(null);
+  useEffect(() => setPanel(null), [section]);
 
   // на странице конкретного дела шапка сайта не нужна — остаётся только шапка дела
   useEffect(() => {
@@ -164,11 +167,25 @@ export function EditorApp() {
   }
 
   return (
-    <div className="ed">
+    <div className="ed" data-panel={panel ?? undefined}>
       <Toolbar />
       <StorageWarning />
+      <div className="ed__phonebar">
+        <button className="btn btn--sm btn--icon" aria-label="Разделы" title="Разделы" aria-expanded={panel === "nav"} onClick={() => setPanel(panel === "nav" ? null : "nav")}>
+          <Icon name="menu" size={16} />
+        </button>
+        <span className="ed__phonebar-title">{SECTIONS.find((s) => s.id === section)?.label ?? "Ошибки"}</span>
+        {LIST_SECTIONS[section] && (
+          <button className="btn btn--sm btn--icon" aria-label="Список" title="Список" aria-expanded={panel === "list"} onClick={() => setPanel(panel === "list" ? null : "list")}>
+            <Icon name="list" size={16} />
+          </button>
+        )}
+      </div>
       <ContextMenu build={editorMenu} />
       <nav className="ed__nav" ref={nav}>
+        <button className="btn btn--sm ed__phone-close" onClick={() => setPanel(null)}>
+          Закрыть
+        </button>
         {SECTIONS.map((s) => (
           <button key={s.id} className="ed__nav-item" tabIndex={section === s.id || (section === "errors" && !errors.length && !warnings.length && s.id === "general") ? 0 : -1} aria-current={section === s.id || undefined} onClick={() => editor.goto(s.id)} title={s.hint}>
             {s.label}
@@ -191,7 +208,7 @@ export function EditorApp() {
       </nav>
       <main className="ed__main">
         {section === "general" && <GeneralSection />}
-        {LIST_SECTIONS[section] && <ListSection key={section} field={LIST_SECTIONS[section]!} />}
+        {LIST_SECTIONS[section] && <ListSection key={section} field={LIST_SECTIONS[section]!} onDone={() => setPanel(null)} />}
         {section === "locations" && <MapEditor />}
         {section === "dialogues" && <DialogueEditor />}
         {section === "solution" && <SolutionSection />}

@@ -1,12 +1,13 @@
 import { Suspense, lazy, useRef, useState, Fragment } from "react";
-import { APP_NAME, DEV_EDITOR, OFFLINE, OFFLINE_EDITOR } from "../env";
-import { isStaff, useAccount } from "../state/account";
+import { APP_NAME, OFFLINE, OFFLINE_EDITOR } from "../env";
+import { useAccount } from "../state/account";
 import { Loader } from "./loader";
 import { DEFAULT_THEME_LABEL, THEMES, THEME_LABELS, setTheme, useTheme, type ThemeName } from "./theme";
 import { useDismiss, useMenuKeys } from "./hooks";
 import { Icon } from "./icons";
 import { Logo, LogoArt } from "./logo";
 import { Link, useRoute, type Route } from "./router";
+import { PhoneMenu, useSiteLinks } from "./site-nav";
 import { CaseList, HowToContent, HowToWindow, useCaseList } from "./screens";
 import { ResultsPage } from "./results-page";
 
@@ -58,12 +59,9 @@ export function Site() {
 function SiteHeader({ route }: { route: Route }) {
   const server = useAccount((s) => s.server);
   const me = useAccount((s) => s.me);
-  const staff = server === "online" && isStaff(me);
-  const link = (path: string, label: string, active: boolean) => (
-    <Link to={path} className="site-nav__link" aria-current={active ? "page" : undefined}>
-      {label}
-    </Link>
-  );
+  const links = useSiteLinks(route);
+  // вход: на телефоне кнопка «Вход» в шапке скрыта, он пунктом меню
+  const login = !OFFLINE && server !== "unknown" && !me;
   return (
     <header className="site-header">
       <div className="site-header__inner">
@@ -72,13 +70,15 @@ function SiteHeader({ route }: { route: Route }) {
           {APP_NAME}
         </Link>
         <nav className="site-nav" aria-label="Разделы сайта">
-          {link("/cases", "Дела", route.page === "cases")}
-          {link("/results", "Результаты", route.page === "results")}
-          {staff && link("/admin/users", "Пользователи", route.page === "admin" && route.section === "users")}
-          {(staff || (server === "none" && DEV_EDITOR)) && link("/editor", "Конструктор дел", route.page === "editor")}
+          {links.map((l) => (
+            <Link key={l.to} to={l.to} className="site-nav__link" aria-current={l.active ? "page" : undefined}>
+              {l.label}
+            </Link>
+          ))}
         </nav>
         <div className="site-header__user row">
           <ThemeMenu />
+          {!me && <PhoneMenu route={route}>{login && <Link role="menuitem" to="/login">Вход</Link>}</PhoneMenu>}
           {OnlineHeader && (
             <Suspense fallback={null}>
               <OnlineHeader route={route} />

@@ -163,6 +163,15 @@
 .user-menu {
   position: relative;
 }
+/* пользователь и меню закреплены справа, логотип и разделы — слева */
+.site-header__user {
+  margin-left: auto;
+}
+/* меню телефона и разделы в профиле: на широком экране скрыты, см. responsive.css */
+.phone-menu,
+.user-menu__nav {
+  display: none;
+}
 .user-menu__button {
   display: flex;
   align-items: center;

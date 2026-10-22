@@ -216,6 +216,9 @@
   min-width: 2.8em;
   text-align: center;
 }
+.folder__step {
+  display: none;
+}
 .folder__tabs:has(> .folder__close) {
   margin-right: 1.2rem;
 }
@@ -265,6 +268,66 @@
 @media (max-width: 1024px) {
   .tabbed-modal .modal__body {
     padding: 1rem 1rem 1.2rem;
+  }
+  /* вместо ряда закладок — одна полоса листа: «‹ Раздел 1 из 6 ›» и крестик */
+  .folder__tabs:has(> .folder__step) {
+    align-items: center;
+    gap: 0.2rem;
+    margin: 0;
+    padding: 0.25rem 0.4rem;
+    background: var(--folder-sheet);
+    border-radius: 12px 12px 0 0;
+  }
+  .folder__tabs > .folder__tab--btn:not(.folder__close) {
+    display: none;
+  }
+  .folder__tabs:not(:has(> .folder__step)) > .folder__tab--btn:not(.folder__close) {
+    display: block;
+  }
+  .folder__step {
+    display: flex;
+    flex: 1;
+    min-width: 0;
+    align-items: center;
+    gap: 0.2rem;
+    font-weight: 700;
+    color: var(--folder-tab-active-ink);
+  }
+  .folder__step-name {
+    flex: 1;
+    min-width: 0;
+    text-align: center;
+    font-size: var(--fs-base);
+  }
+  .folder__step-name small {
+    display: block;
+    font-size: var(--fs-xs);
+    font-weight: 400;
+    color: var(--text-muted);
+  }
+  /* стрелки и крестик — плоские квадраты без своей рамки и тени, чтобы не спорили с названием */
+  .folder__step .btn,
+  .folder__tabs:has(> .folder__step) > .folder__close {
+    flex: none;
+    width: 2.75rem;
+    min-width: 2.75rem;
+    height: 2.75rem;
+    min-height: 2.75rem;
+    padding: 0;
+    border: 0;
+    border-radius: 10px;
+    background: transparent;
+    box-shadow: none;
+    color: var(--folder-tab-active-ink);
+    font-size: var(--fs-xl);
+    line-height: 1;
+  }
+  .folder__tabs:has(> .folder__step) > .folder__close {
+    margin: 0;
+    z-index: auto;
+  }
+  .folder__step .btn:disabled {
+    opacity: 0.3;
   }
 }
 

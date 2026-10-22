@@ -20,6 +20,8 @@ import { hitTest, opaqueAt, parseSelection } from "./map/hit-test";
 import { PanelGrip, PanelRail, panelVars, usePanel } from "./panels";
 import { useUrlParam, useWriteDefaultParam } from "./url";
 import { useFocusJump } from "./useFocusJump";
+import { GAME_ZOOM_MAX } from "../game/bridge";
+import { stepZoom, ZoomControl } from "../ui/zoom-control";
 
 
 
@@ -45,7 +47,13 @@ export function MapEditor() {
   const [insp, setInsp] = useUrlParam<"props" | "list">("tab", "props", ["props", "list"]);
   const [npcCharacter, setNpcCharacter] = useState(draft.characters[0]?.id ?? "");
   const [hover, setHover] = useState<{ x: number; y: number; px: number; py: number } | null>(null);
-  const [zoom, setZoom] = useState<number | "fit">("fit");
+  // масштаб — как в игре: шаги по 10% от 100% до верхней границы, отдельно «вписать» (вся карта в области)
+  const [zoom, setZoom] = useState(1);
+  const [fit, setFit] = useState(true);
+  // на телефоне и планшете палитра и инспектор — поверх карты, по одной за раз
+  const [phoneView, setPhoneView] = useState<"map" | "palette" | "inspector">("map");
+  // «вписать»: фактический масштаб холста (его пиксели — клетки × T, холст — object-fit: contain, берём меньшую сторону)
+  const [fitZoom, setFitZoom] = useState(1);
   const [rect, setRect] = useState<{ from: { x: number; y: number }; to: { x: number; y: number } } | null>(null);
   // переход к объекту с ошибкой
   useFocusJump((focus) => {
@@ -66,6 +74,18 @@ export function MapEditor() {
     if (!cv || !loc) return;
     renderMap(cv, { loc, art, characters: draft.characters, tool, npcCharacter, hover, rect, selected: sel?.kind === "zone" ? null : selectionBox(loc, sel), zoneSel: sel?.kind === "zone" ? sel.id : null });
   });
+  useEffect(() => {
+    const cv = canvas.current;
+    if (!cv || !fit) return;
+    const measure = () => {
+      const r = cv.getBoundingClientRect();
+      setFitZoom(Math.min(r.width / cv.width, r.height / cv.height));
+    };
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(cv);
+    return () => observer.disconnect();
+  }, [fit, loc]);
 
   const opaque = (s: NonNullable<Selection>, lx: number, ly: number) => opaqueAt(loc, art, draft.characters, s, lx, ly);
   const hitAt = (t: { x: number; y: number; px?: number; py?: number }) => hitTest(loc, t, opaque);
@@ -102,11 +122,18 @@ export function MapEditor() {
   if (!loc) return <p>Нет локаций.</p>;
   const w = loc.tiles[0].length;
   const h = loc.tiles.length;
+  const current = fit ? fitZoom : zoom;
   const hoverInfo = hover ? describeHit(hitAt(hover), loc, draft) : "";
   const hint = toolHint(tool, sel, loc, draft, npcCharacter);
 
   return (
-    <section className="lm" data-dock={dock} style={dock === "left" ? panelVars(palettePanel, inspectorPanel) : panelVars(undefined, inspectorPanel, paletteDock)}>
+    <section className="lm" data-dock={dock} data-view={phoneView} style={dock === "left" ? panelVars(palettePanel, inspectorPanel) : panelVars(undefined, inspectorPanel, paletteDock)}>
+      <div className="lm__phone-bar">
+        <button className="btn btn--sm" onClick={() => setPhoneView("map")}>
+          ← К карте
+        </button>
+        <span>{phoneView === "palette" ? "Инструменты" : "Свойства"}</span>
+      </div>
       {(dock === "left" ? palettePanel : paletteDock).collapsed ? (
         <PanelRail panel={dock === "left" ? palettePanel : paletteDock} />
       ) : (
@@ -151,16 +178,16 @@ export function MapEditor() {
             onWheel={(e) => {
               if (!e.ctrlKey) return;
               e.preventDefault();
-              const cur = zoom === "fit" ? 2 : zoom;
-              setZoom(Math.max(1, Math.min(6, cur + (e.deltaY < 0 ? 1 : -1))));
+              setFit(false);
+              setZoom(stepZoom(current, e.deltaY < 0 ? 1 : -1, 1, GAME_ZOOM_MAX));
             }}
           >
             <canvas
               ref={canvas}
               role="img"
               aria-label="Карта локации: рисуется мышью, свойства выбранного — в панели справа"
-              className={`lm__canvas tool--${tool.kind} ${zoom === "fit" ? "is-fit" : ""}`}
-              style={zoom === "fit" ? { aspectRatio: `${w} / ${h}` } : { width: w * T * zoom, height: h * T * zoom }}
+              className={`lm__canvas tool--${tool.kind} ${fit ? "is-fit" : ""}`}
+              style={fit ? { aspectRatio: `${w} / ${h}` } : { width: w * T * zoom, height: h * T * zoom }}
               onMouseDown={onDown}
               onMouseMove={onMove}
               onMouseUp={onUp}
@@ -171,17 +198,31 @@ export function MapEditor() {
             />
           </div>
           <div className="lm__status">
+            <div className="lm__phone-nav">
+              <button className="btn btn--sm" onClick={() => setPhoneView("palette")}>
+                Инструменты
+              </button>
+              <button className="btn btn--sm" onClick={() => setPhoneView("inspector")}>
+                Свойства
+              </button>
+            </div>
             <span className="lm__hint">
               <span className="lm__coords">{hover ? `${hover.x}, ${hover.y}` : `${w}×${h} клеток`}</span>
               {hoverInfo || hint}
             </span>
-            <span className="lm__zoom">
-              {(["fit", 2, 3, 4] as const).map((z) => (
-                <button key={z} aria-pressed={zoom === z} onClick={() => setZoom(z)}>
-                  {z === "fit" ? "вписать" : `×${z}`}
-                </button>
-              ))}
-            </span>
+            <ZoomControl
+              label="Масштаб карты"
+              value={current}
+              min={1}
+              max={GAME_ZOOM_MAX}
+              fitted={fit}
+              valueText={`${Math.round(current * 100)}%`}
+              onStep={(dir) => {
+                setFit(false);
+                setZoom(stepZoom(current, dir, 1, GAME_ZOOM_MAX));
+              }}
+              onFit={() => setFit(true)}
+            />
           </div>
         </div>
       </div>

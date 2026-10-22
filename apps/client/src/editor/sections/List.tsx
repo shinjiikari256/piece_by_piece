@@ -25,7 +25,8 @@ function withWhen(ev: CaseEvent, when: { at: string; until?: string }): CaseEven
   return { ...rest, at: when.at, ...(when.until === undefined ? {} : { until: when.until }) };
 }
 
-export function ListSection({ field }: { field: keyof CaseFile }) {
+/** `onDone` — на телефоне список и разделы открыты поверх; выбор элемента или «Закрыть» их убирает. */
+export function ListSection({ field, onDone }: { field: keyof CaseFile; onDone?: () => void }) {
   const draft = useEditor((s) => s.draft);
   const list = draft[field] as unknown as unknown[];
   const itemSchema: JS = SCHEMA.properties[field].items;
@@ -54,6 +55,7 @@ export function ListSection({ field }: { field: keyof CaseFile }) {
     if ("id" in fresh) fresh.id = `${String(field).slice(0, 3)}_${list.length + 1}`;
     editor.update((d) => ({ ...d, [field]: [...list, fresh] }) as CaseFile);
     setSelected(list.length);
+    onDone?.();
   };
   const copy = (i: number) => {
     const c = structuredClone(list[i]) as Record<string, unknown>;
@@ -77,11 +79,17 @@ export function ListSection({ field }: { field: keyof CaseFile }) {
 
   return (
     <section className="ed__split">
+      <button className="btn btn--sm ed__phone-close" onClick={onDone}>
+        Закрыть
+      </button>
       <EntityList
         items={list}
         getKey={(_, i) => i}
         isActive={(_, i) => i === index}
-        onSelect={(_, i) => setSelected(i)}
+        onSelect={(_, i) => {
+          setSelected(i);
+          onDone?.();
+        }}
         onAdd={add}
         empty="Пусто."
         renderItem={(item, i) => {

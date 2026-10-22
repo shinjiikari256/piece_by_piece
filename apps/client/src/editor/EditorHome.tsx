@@ -43,6 +43,7 @@ export function EditorHome() {
           {c.updatedAt && ` · ${formatDate(c.updatedAt)}`}
         </span>
       </span>
+      <span className="eh__buttons">
       <button className="btn btn--primary" onClick={() => confirmReplace(() => editor.open(structuredClone(c)))}>
         Открыть
       </button>
@@ -65,6 +66,7 @@ export function EditorHome() {
           Удалить
         </button>
       )}
+      </span>
     </li>
   );
   return (

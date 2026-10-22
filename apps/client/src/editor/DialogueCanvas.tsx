@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import type { CaseFile, Dialogue, DialogueNode } from "../../../../shared/case";
 import { ENUM_LABELS } from "./labels";
 import { effectLabel } from "./fields/effect-label";
@@ -19,6 +19,7 @@ export function Graph({
   onAddNode,
   onAddChoice,
   onAutoLayout,
+  phone,
 }: {
   dialogue: Dialogue;
   draft: CaseFile;
@@ -31,6 +32,8 @@ export function Graph({
   onAddNode: (p: Pos) => void;
   onAddChoice: (nodeId: string) => void;
   onAutoLayout: (heights: Record<string, number>) => void;
+  /** Кнопки переходов между списком, графом и репликой — только на телефоне (в панели графа). */
+  phone?: ReactNode;
 }) {
   const area = useRef<HTMLDivElement>(null);
   const cards = useRef(new Map<string, HTMLDivElement>());
@@ -87,6 +90,7 @@ export function Graph({
   return (
     <div className="dg__graph-wrap">
       <div className="dg__graph-bar">
+        {phone}
         <button className="btn btn--sm" onClick={() => onAutoLayout(measured())} title="Расставить реплики автоматически">
           Распределить
         </button>

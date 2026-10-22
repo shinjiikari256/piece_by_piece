@@ -6,8 +6,20 @@
   .site-header__inner {
     gap: 0.8rem;
   }
-  .site-nav {
-    overflow-x: auto;
+  .logo span + * {
+    display: none;
+  }
+  /* разделы уходят в меню: «Меню» для гостя, профиль для вошедшего (на планшете — так же, как на телефоне) */
+  .site-nav,
+  .site-login {
+    display: none;
+  }
+  .phone-menu {
+    display: block;
+  }
+  /* разделы в меню — пунктами в столбик, а не строкой */
+  .user-menu__nav {
+    display: grid;
   }
   .user-menu__name {
     display: none;
@@ -23,9 +35,6 @@
   }
 }
 @media (max-width: 640px) {
-  .logo span + * {
-    display: none;
-  }
   .pair,
   .features {
     grid-template-columns: 1fr;

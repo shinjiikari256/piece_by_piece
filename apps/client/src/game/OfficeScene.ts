@@ -116,7 +116,10 @@ export class OfficeScene extends Phaser.Scene {
     this.crowd.sync();
     this.fitCamera();
     this.scale.on(Phaser.Scale.Events.RESIZE, this.fitCamera, this);
-    const unsubscribeZoom = gameZoom.subscribe(() => this.fitCamera());
+    // масштаб может смениться до старта или после остановки сцены — карту тогда не трогаем
+    const unsubscribeZoom = gameZoom.subscribe(() => {
+      if (this.scene.isActive()) this.fitCamera();
+    });
     this.cameras.main.fadeIn(200, 43, 35, 28);
 
     const kb = this.input.keyboard!;
@@ -614,7 +617,7 @@ export class OfficeScene extends Phaser.Scene {
 
   private isFree(x: number, y: number) {
     const key = `${x},${y}`;
-    return this.solid[y]?.[x] === false && !this.crowd.tiles.has(key) && !this.objectTiles.has(key);
+    return this.solid[y]?.[x] === false && !this.crowd?.tiles.has(key) && !this.objectTiles.has(key);
   }
 
   private isFreeFn: IsFree = (x, y) => this.isFree(x, y);

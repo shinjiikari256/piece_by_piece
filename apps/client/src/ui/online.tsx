@@ -10,6 +10,7 @@ import { OfflinePage } from "./offline-page";
 import { useDismiss, useMenuKeys } from "./hooks";
 import { initials, shortName } from "../util/names";
 import { Link, navigate, type Route } from "./router";
+import { SiteLinkItems, useSiteLinks } from "./site-nav";
 import { openCase } from "./screens";
 import { useProfile } from "../state/platform-hooks";
 
@@ -39,7 +40,7 @@ export function OnlineHeader({ route }: { route: Route }) {
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
   return (
     <>
-      {server === "online" && me && <UserMenu />}
+      {server === "online" && me && <UserMenu route={route} />}
       {server !== "unknown" && !me && <SignedOut />}
     </>
   );
@@ -83,8 +84,9 @@ export function OnlineEvents({ cases }: { cases: CaseSummary[] | null }) {
 }
 
 /** Меню пользователя в шапке (вошедший). */
-function UserMenu() {
+function UserMenu({ route }: { route: Route }) {
   const me = useAccount((s) => s.me)!;
+  const links = useSiteLinks(route);
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   useDismiss(open, () => setOpen(false), [ref]);
@@ -108,6 +110,11 @@ function UserMenu() {
             <span className="muted">
               {me.login} · {ROLE_LABEL[me.role]}
             </span>
+          </div>
+          {/* на телефоне разделы сайта — здесь, в шапке их нет */}
+          <div className="user-menu__nav">
+            <SiteLinkItems links={links} onPick={() => setOpen(false)} />
+            <hr />
           </div>
           {item("/account", "Личный кабинет")}
           {isStaff(me) && item("/admin/groups", me.role === "admin" ? "Группы" : "Мои группы")}
@@ -140,7 +147,7 @@ function SignedOut() {
           {shortName(guest)} <span>гость</span>
         </Link>
       )}
-      <Link className="btn btn--primary btn--sm" to="/login">
+      <Link className="btn btn--primary btn--sm site-login" to="/login">
         Вход
       </Link>
     </>
