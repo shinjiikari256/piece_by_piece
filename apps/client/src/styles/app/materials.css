@@ -53,7 +53,7 @@
   text-align: center;
   margin-top: 30%;
 }
-@media (max-width: 760px) {
+@media (max-width: 1024px) {
   .journal {
     height: 100%;
   }

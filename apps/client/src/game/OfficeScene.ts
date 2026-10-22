@@ -16,7 +16,7 @@ import {
   WALL_TILES,
     drawTile,
 } from "./art";
-import { gameBridge } from "./bridge";
+import { gameBridge, gameZoom } from "./bridge";
 import type { SceneHost } from "./host";
 import { collides, findPath, nearestFree, reachWithin, slideShift, type IsFree, type Tile } from "./scene/navigation";
 import { ensureCharacterTextures, ensureExitTextures, ensureObjectFrameTexture, ensureObjectTextures } from "./scene/textures";
@@ -116,6 +116,7 @@ export class OfficeScene extends Phaser.Scene {
     this.crowd.sync();
     this.fitCamera();
     this.scale.on(Phaser.Scale.Events.RESIZE, this.fitCamera, this);
+    const unsubscribeZoom = gameZoom.subscribe(() => this.fitCamera());
     this.cameras.main.fadeIn(200, 43, 35, 28);
 
     const kb = this.input.keyboard!;
@@ -202,6 +203,7 @@ export class OfficeScene extends Phaser.Scene {
       this.unsubscribe?.();
       this.unsubscribe = undefined;
       this.scale?.off(Phaser.Scale.Events.RESIZE, this.fitCamera, this);
+      unsubscribeZoom();
       detachBridge();
     });
     // перезапуск сцены (SHUTDOWN) и уничтожение всей игры при выходе из дела (DESTROY)
@@ -494,8 +496,9 @@ export class OfficeScene extends Phaser.Scene {
   }
 
   /**
-   * Большой экран — видна вся карта. Маленький (телефон) — камера приближается
-   * так, чтобы клетка была не мельче MIN_TILE_PX, и следует за игроком.
+   * Масштаб: «вписать» — вся карта на экране, если клетка не мельче MIN_TILE_PX
+   * (иначе как на маленьком экране); число — тайлы крупнее базовых. Если карта
+   * целиком не помещается, камера следит за игроком.
    */
   private fitCamera() {
     const cam = this.cameras.main;
@@ -504,20 +507,24 @@ export class OfficeScene extends Phaser.Scene {
     const worldH = this.location.tiles.length * TILE;
     const fit = Math.min(width / worldW, height / worldH);
     const minZoom = MIN_TILE_PX / TILE;
-    if (fit >= minZoom) {
+    const chosen = gameZoom.get();
+    const zoom = Math.max(chosen === "fit" ? fit : chosen, minZoom);
+    gameZoom.setShown(zoom, minZoom);
+    if (worldW * zoom <= width && worldH * zoom <= height) {
       cam.stopFollow();
       cam.removeBounds();
-      cam.setZoom(fit);
+      cam.setZoom(zoom);
       cam.centerOn(worldW / 2, worldH / 2);
     } else {
-      cam.setZoom(minZoom);
+      cam.setZoom(zoom);
       // по оси, где карта меньше экрана, держим её по центру
-      const bw = Math.max(worldW, width / minZoom);
-      const bh = Math.max(worldH, height / minZoom);
+      const bw = Math.max(worldW, width / zoom);
+      const bh = Math.max(worldH, height / zoom);
       cam.setBounds((worldW - bw) / 2, (worldH - bh) / 2, bw, bh);
       cam.startFollow(this.player, true, 0.2, 0.2);
     }
   }
+
 
   private onStoreChange() {
     const s = this.host.getState();

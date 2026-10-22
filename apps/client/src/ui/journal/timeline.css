@@ -53,7 +53,7 @@
   flex-direction: column;
   gap: 0.8rem;
 }
-@media (max-width: 760px) {
+@media (max-width: 1024px) {
   .timeline__body {
     grid-template-columns: 1fr;
     grid-template-rows: auto minmax(0, 1fr);

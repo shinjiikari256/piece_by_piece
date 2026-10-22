@@ -34,3 +34,37 @@ class GameBridge {
 }
 
 export const gameBridge = new GameBridge();
+
+/** Масштаб поля: «вписать» или во сколько раз тайл больше базового (32 px). */
+export type GameZoom = "fit" | number;
+/** Наибольший масштаб в шаговом переключателе (300%). */
+export const GAME_ZOOM_MAX = 3;
+
+/** Выбор масштаба живёт в памяти вкладки: переживает смену локации, не сохраняется. */
+let zoom: GameZoom = "fit";
+const zoomListeners = new Set<() => void>();
+/** Фактический масштаб камеры (после «вписать» и нижней границы) и сама граница — сообщает сцена. */
+let shown = { value: 1, min: 1 };
+const shownListeners = new Set<() => void>();
+
+export const gameZoom = {
+  get: () => zoom,
+  set(next: GameZoom) {
+    zoom = next;
+    zoomListeners.forEach((l) => l());
+  },
+  subscribe(listener: () => void) {
+    zoomListeners.add(listener);
+    return () => void zoomListeners.delete(listener);
+  },
+  shown: () => shown,
+  setShown(value: number, min: number) {
+    if (shown.value === value && shown.min === min) return;
+    shown = { value, min };
+    shownListeners.forEach((l) => l());
+  },
+  subscribeShown(listener: () => void) {
+    shownListeners.add(listener);
+    return () => void shownListeners.delete(listener);
+  },
+};

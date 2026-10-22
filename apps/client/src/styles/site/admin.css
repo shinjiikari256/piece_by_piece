@@ -58,7 +58,7 @@
   grid-template-columns: repeat(4, 1fr); /* по четыре в строке */
   gap: 0.8rem;
 }
-@media (max-width: 760px) {
+@media (max-width: 1024px) {
   .stats {
     grid-template-columns: repeat(2, 1fr);
   }
@@ -252,5 +252,43 @@
 @media (max-width: 640px) {
   .link-card {
     grid-template-columns: 1fr;
+  }
+}
+
+/* таблица пользователей на телефоне: строка — карточка, подпись колонки — из data-label */
+@media (max-width: 640px) {
+  .table--cards thead {
+    display: none;
+  }
+  .table--cards,
+  .table--cards tbody {
+    display: block;
+  }
+  .table--cards tr {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.25rem 0.6rem;
+    padding: 0.6rem 0.8rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .table--cards td {
+    flex: 1 1 100%;
+    display: flex;
+    gap: 0.5rem;
+    padding: 0;
+    border: 0;
+  }
+  .table--cards td.check {
+    flex: 0 0 auto;
+  }
+  .table--cards td:not([data-label]):not(.check) {
+    flex: 1 1 0;
+    min-width: 0;
+  }
+  .table--cards td[data-label]::before {
+    content: attr(data-label);
+    color: var(--text-muted);
+    min-width: 6.5em;
   }
 }

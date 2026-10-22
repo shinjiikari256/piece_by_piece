@@ -10,6 +10,7 @@ import { actions, store, useGame } from "../state/store";
 import { TabbedModal } from "./common";
 import { Journal } from "./journal";
 import { HowToWindow } from "./screens";
+import { GameZoom, stepGameZoom } from "./game-zoom";
 import { DialogueWindow, HintsPanel, ObjectPanel } from "./panels";
 import { Icon } from "./icons";
 import { Logo } from "./logo";
@@ -95,7 +96,7 @@ function TopBar() {
           onClick={() => actions.toggleNotes()}
           title="Заметки (N)"
         >
-          <Icon name="notes" size={18} /> Заметки <kbd>N</kbd>
+          <Icon name="notes" size={18} /> <span className="topbar__notes-text">Заметки</span> <kbd>N</kbd>
         </button>
         <button
           className="icon-btn topbar__help"
@@ -300,10 +301,18 @@ export function GameView() {
   return (
     <div className="game">
       <TopBar />
-      <div className="stage">
+      <div
+        className="stage"
+        onWheel={(e) => {
+          if (!e.ctrlKey) return;
+          e.preventDefault();
+          stepGameZoom(e.deltaY < 0 ? 1 : -1);
+        }}
+      >
         <Suspense fallback={<Loader label="Загрузка игрового поля…" />}>
           <PhaserGame key={runId} caseFile={caseFile} />
         </Suspense>
+        <GameZoom />
         <TouchControls />
       </div>
       <BottomBar />

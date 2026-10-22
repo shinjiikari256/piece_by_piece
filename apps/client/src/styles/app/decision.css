@@ -248,7 +248,7 @@
   cursor: pointer;
   font-size: var(--fs-md);
 }
-@media (max-width: 760px) {
+@media (max-width: 1024px) {
   .final2__q {
     font-size: var(--fs-xl);
   }

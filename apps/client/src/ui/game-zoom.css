@@ -1,0 +1,34 @@
+/* Масштаб поля — компактная полоска внизу области просмотра: без акцентной заливки, нажатое — жирным */
+.game-zoom {
+  position: absolute;
+  bottom: 0.35rem;
+  left: 50%;
+  translate: -50% 0;
+  z-index: 4;
+  display: flex;
+  align-items: center;
+  gap: 0.15rem;
+  padding: 0.1rem 0.2rem;
+  border-radius: 8px;
+  background: var(--scrim);
+  font-size: var(--fs-sm);
+}
+.game-zoom .game-zoom__step,
+.game-zoom .game-zoom__fit {
+  color: var(--text-on-dark);
+  background: transparent;
+  border-color: transparent;
+}
+.game-zoom .game-zoom__step {
+  min-width: 1.8em;
+}
+.game-zoom .game-zoom__fit[aria-pressed="true"] {
+  font-weight: 700;
+}
+.game-zoom__value {
+  min-width: 3.2em;
+  padding: 0 0.1em;
+  text-align: center;
+  color: var(--text-on-dark);
+  font-variant-numeric: tabular-nums;
+}

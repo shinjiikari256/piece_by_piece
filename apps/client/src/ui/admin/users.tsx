@@ -126,7 +126,7 @@ export function UsersSection({ groups, isAdmin, onChanged }: { groups: AdminGrou
       )}
 
       <div className="card card--flush">
-        <table className="table" ref={table}>
+        <table className="table table--cards" ref={table}>
           <thead>
             <tr>
               <th scope="col" className="check">
@@ -161,8 +161,8 @@ export function UsersSection({ groups, isAdmin, onChanged }: { groups: AdminGrou
                 <td>
                   <b>{u.fullName}</b>
                 </td>
-                <td className="mono">{u.login}</td>
-                <td>
+                <td className="mono" data-label="Логин">{u.login}</td>
+                <td data-label="Группа">
                   {u.group ? (
                     <Link to={`/admin/groups?group=${u.group.id}`} onClick={(e) => e.stopPropagation()}>
                       {u.group.name}
@@ -171,12 +171,12 @@ export function UsersSection({ groups, isAdmin, onChanged }: { groups: AdminGrou
                     <span className="muted">—</span>
                   )}
                 </td>
-                <td>{ROLE_LABEL[u.role]}</td>
-                <td>
+                <td data-label="Роль">{ROLE_LABEL[u.role]}</td>
+                <td data-label="Статус">
                   <StatusChip status={u.status} />
                   {u.viaLink && u.status === "pending" && <span className="muted small"> по ссылке</span>}
                 </td>
-                <td>{date(u.createdAt)}</td>
+                <td data-label="Регистрация">{date(u.createdAt)}</td>
               </tr>
             ))}
           </tbody>
