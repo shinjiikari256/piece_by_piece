@@ -31,7 +31,9 @@ const INTERACT_KEYS = new Set(["KeyE", "Enter", "NumpadEnter", "Space"]);
 const UI_TARGETS = "button, input, textarea, select, a, [contenteditable]";
 
 /** Минимальный размер клетки на экране (px), ниже которого включается следящая камера. */
-const MIN_TILE_PX = 40;
+const MIN_TILE_PX = 32;
+/** Отступ подписи от края видимой части поля (px). */
+const LABEL_EDGE = 4;
 
 /** Предмет на сцене: картинка, опора, кнопка осмотра и состояние анимации. */
 interface ObjEntry {
@@ -321,7 +323,8 @@ export class OfficeScene extends Phaser.Scene {
       // висящий на стене предмет читается только спереди (клетка под ним), а не с обратной стороны стены
       access: spec.mount !== undefined ? e.footprint.filter((t) => t.y === e.o.y).map((t) => ({ x: t.x, y: t.y + 1 })) : undefined,
       sprite: e.img,
-      labelText: this.makeLabel(label).setPosition(cx, top - 4),
+      labelText: this.makeLabel(label),
+      labelAt: { x: cx, y: top - 4 },
       check: this.add
         .text(cx + (spec.w * SCALE) / 2 - 2, top + 2, "✓", {
           fontFamily: "Rubik, system-ui, sans-serif",
@@ -454,7 +457,8 @@ export class OfficeScene extends Phaser.Scene {
         y: (top + 0.5) * TILE,
         footprint: z.cells,
         sprite: this.add.image(cx, (top + 1) * TILE, "exit_zone").setOrigin(0.5, 1).setScale(SCALE).setDepth(0),
-        labelText: this.makeLabel(z.name).setPosition(cx, top * TILE - 4),
+        labelText: this.makeLabel(z.name),
+        labelAt: { x: cx, y: top * TILE - 4 },
         zone: { id: z.id, cells },
       };
       this.interactables.push(item);
@@ -528,6 +532,20 @@ export class OfficeScene extends Phaser.Scene {
     }
   }
 
+  /**
+   * Подписи не уходят за видимую часть поля: у верхнего или бокового края камеры
+   * их сдвигает внутрь, иначе наведение на предмет у края не показывает подпись.
+   */
+  private placeLabels() {
+    const view = this.cameras.main.worldView;
+    for (const { labelText: label, labelAt: at } of this.interactables) {
+      const half = label.width / 2 + LABEL_EDGE;
+      label.setPosition(
+        Phaser.Math.Clamp(at.x, view.left + half, view.right - half),
+        Math.max(at.y, view.top + label.height + LABEL_EDGE),
+      );
+    }
+  }
 
   private onStoreChange() {
     const s = this.host.getState();
@@ -734,6 +752,7 @@ export class OfficeScene extends Phaser.Scene {
     }
 
     this.crowd.update(blocked, dt, this.animClock, state.overlay?.kind === "dialogue" ? state.overlay.npcId : null);
+    this.placeLabels();
 
     this.animateDoors();
     this.tickObjectAnims(deltaMs);

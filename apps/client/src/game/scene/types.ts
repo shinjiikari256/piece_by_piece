@@ -12,6 +12,8 @@ export interface Interactable {
   access?: { x: number; y: number }[];
   sprite: Phaser.GameObjects.Image | Phaser.GameObjects.Sprite;
   labelText: Phaser.GameObjects.Text;
+  /** Точка подписи в мире, до сдвига к краю видимой части поля (см. `OfficeScene.placeLabels`). */
+  labelAt: { x: number; y: number };
   check?: Phaser.GameObjects.Text;
   /** Область-триггер: пользоваться можно, пока игрок стоит внутри (клетки `"x,y"`), а не по расстоянию. */
   zone?: { id: string; cells: Set<string> };

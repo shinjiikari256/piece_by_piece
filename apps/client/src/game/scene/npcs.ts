@@ -201,7 +201,7 @@ export class NpcCrowd {
       npc.sprite.setPosition(pos.x, pos.y).setDepth(pos.y);
       npc.x = pos.x;
       npc.y = pos.y - TILE / 2;
-      npc.labelText.setPosition(pos.x, pos.y - CHAR_H * SCALE - 4);
+      npc.labelAt = { x: pos.x, y: pos.y - CHAR_H * SCALE - 4 };
       const tile = tileOfPoint(pos);
       if (tile.x !== npc.tile.x || tile.y !== npc.tile.y) {
         this.tiles.delete(`${npc.tile.x},${npc.tile.y}`);
@@ -242,7 +242,8 @@ export class NpcCrowd {
       y: bottom - TILE / 2,
       footprint: [tile],
       sprite,
-      labelText: this.ctx.makeLabel(character.name).setPosition(cx, bottom - CHAR_H * SCALE - 4),
+      labelText: this.ctx.makeLabel(character.name),
+      labelAt: { x: cx, y: bottom - CHAR_H * SCALE - 4 },
     };
     this.ctx.makeClickable(npc);
     this.ctx.addInteractable(npc);
@@ -258,7 +259,7 @@ export class NpcCrowd {
     npc.x = cx;
     npc.y = bottom - TILE / 2;
     npc.footprint = [npc.tile];
-    npc.labelText.setPosition(cx, bottom - CHAR_H * SCALE - 4);
+    npc.labelAt = { x: cx, y: bottom - CHAR_H * SCALE - 4 };
     this.tiles.add(`${tile.x},${tile.y}`);
   }
 
@@ -315,7 +316,7 @@ export class NpcCrowd {
         npc.x = npc.sprite.x;
         npc.y = npc.sprite.y - TILE / 2;
         npc.sprite.setDepth(npc.sprite.y);
-        npc.labelText.setPosition(npc.sprite.x, npc.sprite.y - CHAR_H * SCALE - 4);
+        npc.labelAt = { x: npc.sprite.x, y: npc.sprite.y - CHAR_H * SCALE - 4 };
       }
       const talking = npc.id === talkingTo;
       const phase = Math.floor((animClock + npc.x * 7) / (talking ? 180 : 700)) % 2 === 0;
