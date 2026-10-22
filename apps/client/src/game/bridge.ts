@@ -40,8 +40,12 @@ export type GameZoom = "fit" | number;
 /** Наибольший масштаб в шаговом переключателе (300%). */
 export const GAME_ZOOM_MAX = 3;
 
+/** По умолчанию: на десктопе «вписать», на телефоне 100% (те же условия, что у мобильной шапки в mobile.css). */
+const defaultZoom = (): GameZoom =>
+  typeof window !== "undefined" && window.matchMedia?.("(max-width: 640px), (max-height: 500px)").matches ? 1 : "fit";
+
 /** Выбор масштаба живёт в памяти вкладки: переживает смену локации, не сохраняется. */
-let zoom: GameZoom = "fit";
+let zoom: GameZoom = defaultZoom();
 const zoomListeners = new Set<() => void>();
 /** Фактический масштаб камеры (после «вписать» и нижней границы) и сама граница — сообщает сцена. */
 let shown = { value: 1, min: 1 };
