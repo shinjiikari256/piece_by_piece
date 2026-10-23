@@ -96,17 +96,28 @@ describe("касание: перетаскивание карточки в яч�
     await page.locator("button.case-file").first().click();
     await page.getByRole("button", { name: "Приступить к расследованию" }).click();
     await page.waitForFunction(() => (window as any).__game.store.get().screen === "play");
-    await page.evaluate(() => {
-      const { store, actions } = (window as any).__game;
-      const ids = store
-        .get()
-        .caseFile.evidence.filter((e: any) => (e.kind ?? "evidence") === "evidence")
-        .slice(0, 3)
-        .map((e: any) => e.id);
-      store.get().progress.collected.push(...ids);
-      actions.open({ kind: "journal", tab: "materials", match: true });
-    });
-    await page.waitForSelector("[data-slot]");
+    // на медленном раннере игра дорисовывается уже после входа и может закрыть журнал — открываем его, пока ячейка не встанет
+    await expect
+      .poll(
+        async () => {
+          await page.evaluate(() => {
+            const { store, actions } = (window as any).__game;
+            const collected: string[] = store.get().progress.collected;
+            const ids = store
+              .get()
+              .caseFile.evidence.filter((e: any) => (e.kind ?? "evidence") === "evidence")
+              .slice(0, 3)
+              .map((e: any) => e.id)
+              .filter((id: string) => !collected.includes(id));
+            collected.push(...ids);
+            actions.open({ kind: "journal", tab: "materials", match: true });
+          });
+          await page.waitForTimeout(300);
+          return page.locator("[data-slot]").count();
+        },
+        { timeout: 20000 },
+      )
+      .toBeGreaterThan(0);
     const before = await page.evaluate(() => document.querySelector("[data-slot]")?.textContent?.trim() ?? "");
     const from = (await page.locator("[data-mark-key]").first().boundingBox())!;
     const to = (await page.locator("[data-slot]").first().boundingBox())!;
