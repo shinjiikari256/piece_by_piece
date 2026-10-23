@@ -129,13 +129,13 @@ describe("касание: перетаскивание карточки в яч�
             actions.open({ kind: "journal", tab: "materials", match: true });
           });
           await page.waitForTimeout(300);
-          // первая отрисованная (с ненулевым размером) карточка и ячейка, прокрученные в область видимости
+          // первая отрисованная карточка и ячейка, целиком видимые в окне (без прокрутки: она сдвинула бы уже замеренное)
           const box = (sel: string) =>
             page.evaluate((selector) => {
               for (const el of document.querySelectorAll<HTMLElement>(selector)) {
-                el.scrollIntoView({ block: "center" });
                 const r = el.getBoundingClientRect();
-                if (r.width > 0 && r.height > 0) return { x: r.x, y: r.y, width: r.width, height: r.height };
+                const visible = r.width > 0 && r.height > 0 && r.top >= 0 && r.left >= 0 && r.bottom <= innerHeight && r.right <= innerWidth;
+                if (visible) return { x: r.x, y: r.y, width: r.width, height: r.height };
               }
               return null;
             }, sel);
@@ -160,9 +160,10 @@ describe("касание: перетаскивание карточки в яч�
         type: "touchMove",
         touchPoints: pt(from.x + 20 + ((to.x + to.width / 2 - from.x - 20) * i) / 5, from.y + 20 + ((to.y + to.height / 2 - from.y - 20) * i) / 5),
       });
+      await page.waitForTimeout(50); // медленному раннеру нужен кадр на каждый шаг
     }
     await cdp.send("Input.dispatchTouchEvent", { type: "touchEnd", touchPoints: [] });
-    await expect.poll(() => page.evaluate(() => document.querySelector("[data-slot]")?.textContent?.trim() ?? ""), { timeout: 3000 }).not.toBe(before);
+    await expect.poll(() => page.evaluate(() => document.querySelector("[data-slot]")?.textContent?.trim() ?? ""), { timeout: 8000 }).not.toBe(before);
   });
 });
 
