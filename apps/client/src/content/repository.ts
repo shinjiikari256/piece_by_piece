@@ -87,6 +87,13 @@ class BundledCaseRepository implements CaseRepository {
       const dev = [...this.devIds].filter((id) => !ids.has(id)).map((id) => summarize(this.cases.get(id)!));
       return [...server.map((c) => ({ ...c, isDraft: false })), ...dev, ...drafts].sort((a, b) => a.id.localeCompare(b.id));
     }
+    // гость при работе с сервером видит только дела, открытые сервером для всех (играются из сборки: ответов на сервере для гостя нет)
+    const guestIds = !OFFLINE && accountStore.get().server === "online" ? await import("./api-authority").then((m) => m.publicCases()) : null;
+    if (guestIds) {
+      const open = new Set(guestIds.map((c) => c.id));
+      const bundled = [...this.cases.values()].filter((c) => c.published && open.has(c.id)).map((c) => summarize(c));
+      return [...bundled, ...[...this.drafts().values()].map((c) => summarize(c, true))].sort((a, b) => a.id.localeCompare(b.id));
+    }
     // скрытые дела (published: false) игрокам не показываем; открыть их можно из конструктора
     const bundled = [...this.cases.values()].filter((c) => c.published).map((c) => summarize(c));
     const drafts = [...this.drafts().values()].map((c) => summarize(c, true));

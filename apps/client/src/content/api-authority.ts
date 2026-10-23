@@ -12,6 +12,9 @@ import { api } from "../state/api";
 /** Дела, которые сервер показывает вошедшему игроку; нет связи — null (тогда список из сборки). */
 export const serverCases = () => api<ServerCaseSummary[]>("GET", "/cases").catch(() => null);
 
+/** Дела с доступом для гостей; нет связи — null. */
+export const publicCases = () => api<ServerCaseSummary[]>("GET", "/public/cases").catch(() => null);
+
 export class ApiAuthority implements CaseAuthority {
   private constructor(
     readonly caseFile: PublicCase,

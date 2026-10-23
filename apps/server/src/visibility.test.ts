@@ -66,6 +66,33 @@ describe("видимость дела по группам", () => {
     }
   });
 
+  it("«всем, включая гостей»: без входа виден только public; удаление дела", async () => {
+    await addUser("nogroup", "student", null);
+    await asAdmin();
+    cookie = "";
+    expect((await call("GET", "/public/cases")).json).toEqual([]);
+    await asAdmin();
+    await call("PUT", "/admin/cases/case-001/visibility", { mode: "public", groupIds: [] });
+    await login("nogroup", "password123");
+    expect((await call("GET", "/cases")).json.map((c: { id: string }) => c.id)).toContain("case-001");
+    cookie = "";
+    expect((await call("GET", "/public/cases")).json.map((c: { id: string }) => c.id)).toEqual(["case-001"]);
+    expect((await call("GET", "/cases")).status).toBe(401);
+    await asAdmin();
+    expect((await call("DELETE", "/admin/cases/case-001")).status).toBe(200);
+    expect((await call("GET", "/admin/cases/case-001")).status).toBe(404);
+  });
+
+  it("«никому»: студент дела не видит, привязки к группам сбрасываются", async () => {
+    await addUser("ann", "student", groupA);
+    await asAdmin();
+    await call("PUT", "/admin/cases/case-001/visibility", { mode: "groups", groupIds: [groupA] });
+    expect((await call("PUT", "/admin/cases/case-001/visibility", { mode: "none", groupIds: [groupA] })).json).toEqual({ mode: "none", groupIds: [] });
+    await login("ann", "password123");
+    expect((await call("GET", "/cases")).json.map((c: { id: string }) => c.id)).not.toContain("case-001");
+    expect((await call("GET", "/cases/case-001")).status).toBe(404);
+  });
+
   it("снятая видимость закрывает новые попытки, начатую можно закончить", async () => {
     await addUser("ann", "student", groupA);
     await asAdmin();

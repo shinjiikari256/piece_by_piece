@@ -20,7 +20,7 @@ export async function studentCaseIds(db: Db, groupId: number | null): Promise<Se
  * Видит ли студент дело. Снятая видимость закрывает только новые попытки: начатую (`resume`) можно дойти до сдачи.
  */
 export async function studentSeesCase(db: Db, user: { id: number; groupId: number | null }, caseId: string, visibility: CaseVisibility, resume = true): Promise<boolean> {
-  if (visibility === "all") return true;
+  if (visibility === "all" || visibility === "public") return true;
   if (user.groupId !== null && (await studentCaseIds(db, user.groupId)).has(caseId)) return true;
   if (!resume) return false;
   const [active] = await db

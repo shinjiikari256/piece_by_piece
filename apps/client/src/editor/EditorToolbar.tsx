@@ -5,7 +5,6 @@ import { Alert } from "../ui/kit/alert";
 import { Icon } from "../ui/kit/icons";
 import { OFFLINE, OFFLINE_EDITOR } from "../env";
 import { startPlaytest } from "./actions";
-import { isStaff, useAccount } from "../state/account";
 
 /** Короткие инструкции к разделам конструктора. */
 const HELP: Record<SectionId, { title: string; points: string[] }> = {
@@ -18,15 +17,6 @@ const HELP: Record<SectionId, { title: string; points: string[] }> = {
     points: [
       "Базовый год — год для событий без года; игроку он не показывается.",
       "Бонус за время: уложиться в N минут и набрать не меньше порога успеха (если порог пустой — при любом результате выше нуля) — к баллам за вопросы добавится бонус.",
-    ],
-  },
-  visibility: {
-    title: "Видимость",
-    points: [
-      "«Показывать в списке дел» — пока выключено, дело доступно только через «Запустить».",
-      "С сервером: дело можно открыть всем студентам или только выбранным группам. Это хранится на сервере, а не в файле дела.",
-      "Преподаватель выбирает только свои группы; группы, которые открыл администратор, он не меняет.",
-      "Снятая видимость закрывает новые попытки, начатые можно закончить. Дела мероприятий группа видит независимо от настройки.",
     ],
   },
   characters: {
@@ -152,7 +142,6 @@ export function Toolbar() {
   const dirty = useEditor((s) => s.dirty);
   const canUndo = useEditor((s) => s.past.length > 0);
   const canRedo = useEditor((s) => s.future.length > 0);
-  const online = useAccount((a) => a.server === "online" && isStaff(a.me));
   const [openHelp, setOpenHelp] = useState(false);
   const section = useEditor((s) => s.section);
   const dock = useMapDock();
@@ -179,10 +168,10 @@ export function Toolbar() {
           </span>
         )}
         <button className="icon-btn ed__icon-btn" disabled={!canUndo} onClick={editor.undo} title="Отменить (Ctrl+Z)">
-          <Icon name="undo" />
+          <Icon name="undo" size={20} />
         </button>
         <button className="icon-btn ed__icon-btn" disabled={!canRedo} onClick={editor.redo} title="Повторить (Ctrl+Shift+Z)">
-          <Icon name="redo" />
+          <Icon name="redo" size={20} />
         </button>
         {errors.length > 0 && (
           <button className="ed__status is-bad" onClick={() => editor.goto("errors")} title="Открыть список ошибок">
@@ -190,32 +179,22 @@ export function Toolbar() {
           </button>
         )}
         {(!OFFLINE || OFFLINE_EDITOR) && (
-          <button className="btn ed__play" onClick={startPlaytest} aria-label="Запустить" title={errors.length ? "Сначала исправьте ошибки" : "Открыть дело в игре"}>
-            <Icon name="play" size={15} /> <span className="ed__label">Запустить</span>
-          </button>
-        )}
-        {!OFFLINE && online && (
-          <button
-            className="btn"
-            onClick={() => void import("./publish").then((m) => m.publishToServer())}
-            aria-label="На сервер"
-            title={errors.length ? "Сначала исправьте ошибки" : "Записать дело на сервер новой версией"}
-          >
-            <Icon name="upload" size={15} /> <span className="ed__label">На сервер</span>
+          <button className="btn btn--icon ed__play" onClick={startPlaytest} aria-label="Запустить" title={errors.length ? "Сначала исправьте ошибки" : "Открыть дело в игре"}>
+            <Icon name="play" size={20} />
           </button>
         )}
         <button
-          className="btn btn--primary ed__save"
+          className="btn btn--icon btn--primary ed__save"
           disabled={!dirty || errors.length > 0}
           onClick={() => editor.save()}
           aria-label={dirty ? "Сохранить" : "Сохранено"}
-          title={errors.length ? "Нельзя сохранить: есть ошибки" : dirty ? "Сохранить (Ctrl+S) — дело появится в игре" : "Изменений нет"}
+          title={errors.length ? "Нельзя сохранить: есть ошибки" : dirty ? "Сохранить (Ctrl+S) — черновик сохранится в браузере" : "Сохранено: изменений нет"}
         >
-          <Icon name="save" size={15} /> <span className="ed__label">{dirty ? "Сохранить" : "Сохранено"}</span>
+          <Icon name="save" size={20} />
         </button>
         <div className="ed__menu">
-          <button className="btn ed__help-btn" aria-expanded={openHelp} onClick={() => setOpenHelp((v) => !v)} aria-label="Справка" title="Как заполнять этот раздел">
-            <Icon name="help" size={15} /> <span className="ed__label">Справка</span>
+          <button className="btn btn--icon ed__help-btn" aria-expanded={openHelp} onClick={() => setOpenHelp((v) => !v)} aria-label="Справка" title="Как заполнять этот раздел">
+            <Icon name="help" size={20} />
           </button>
           {openHelp && <HelpPopover section={section} onClose={() => setOpenHelp(false)} />}
         </div>

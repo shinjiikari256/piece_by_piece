@@ -41,13 +41,28 @@ const summarize = (c: CaseFile): ServerCaseSummary => ({
 
 /** Дела: список, дело без ответов, разбор. Прохождение, проверки и сдача — в `routes/attempts.ts`. */
 export const caseRoutes = new Hono<AppEnv>()
+  /** Дела с видимостью «всем, включая гостей»: единственный список, который отдаётся без входа. */
+  .get("/public/cases", async (c) => {
+    const rows = await c.var.db
+      .select({ body: caseVersions.body })
+      .from(cases)
+      .innerJoin(caseVersions, eq(caseVersions.id, cases.currentVersionId))
+      .where(eq(cases.visibility, "public"));
+    return c.json(
+      rows
+        .map((r) => r.body as CaseFile)
+        .filter((x) => x.published)
+        .map(summarize)
+        .sort((a, b) => a.id.localeCompare(b.id)),
+    );
+  })
   .get("/cases", async (c) => {
     const user = requireUser(c);
     const rows = await c.var.db.select({ body: caseVersions.body, visibility: cases.visibility }).from(cases).innerJoin(caseVersions, eq(caseVersions.id, cases.currentVersionId));
     const opened = user.role === "student" ? await studentCaseIds(c.var.db, user.groupId) : null;
     return c.json(
       rows
-        .filter((r) => !opened || r.visibility === "all" || opened.has((r.body as CaseFile).id))
+        .filter((r) => !opened || r.visibility === "public" || r.visibility === "all" || opened.has((r.body as CaseFile).id))
         .map((r) => r.body as CaseFile)
         .filter((x) => x.published)
         .map(summarize)

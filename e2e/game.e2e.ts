@@ -672,7 +672,7 @@ describe("игра в браузере", () => {
     await page.goto(`${BASE}/editor`);
     await page.waitForFunction(() => (window as any).__editor);
     expect(await path()).toBe("/editor");
-    await page.locator(".eh__case", { hasText: "Чужие письма" }).getByRole("button", { name: "Открыть" }).click();
+    await page.locator(".eh__case", { hasText: "Чужие письма" }).getByRole("button", { name: "Редактировать" }).click();
     await expect.poll(path).toBe("/editor/case-001/general");
     await page.evaluate(() => (window as any).__editor.editor.goto("locations"));
     await expect.poll(path).toBe("/editor/case-001/locations");
@@ -882,7 +882,7 @@ describe("игра в браузере", () => {
       actions.close();
     });
     await page.goto(`${BASE}/editor`);
-    await page.locator(".eh__case", { hasText: "Чужие письма" }).getByRole("button", { name: "Открыть" }).click();
+    await page.locator(".eh__case", { hasText: "Чужие письма" }).getByRole("button", { name: "Редактировать" }).click();
     await page.getByRole("button", { name: "Запустить" }).first().click();
     await page.waitForFunction(() => (window as any).__game?.store.get().caseFile?.id === "case-001");
     // без вступления и без вопроса о прошлом сохранении

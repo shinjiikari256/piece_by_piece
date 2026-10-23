@@ -5,12 +5,14 @@ import { readDraft } from "../content/drafts";
 import { validateCase } from "../content/validate";
 import { ask } from "../ui/kit/dialog";
 import { navigate, routeHref, setSearchParams, useRoute, useSearchParam } from "../ui/lib/router";
+import { accountStore } from "../state/account";
 import { editor, editorStore, useEditor, type SectionId } from "./state";
 
 /** Дело для конструктора по id: сохранённый черновик, иначе встроенное (как на стартовой странице). */
 function findCase(id: string): CaseFile | undefined {
   const draft = validateCase(readDraft(id));
-  return draft.ok ? draft.caseFile : caseRepository.bundled().find((c) => c.id === id);
+  if (draft.ok) return draft.caseFile;
+  return accountStore.get().server === "online" ? undefined : caseRepository.bundled().find((c) => c.id === id);
 }
 
 /**

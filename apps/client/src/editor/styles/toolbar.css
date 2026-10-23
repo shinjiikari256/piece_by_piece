@@ -12,11 +12,13 @@
   min-height: var(--ctl-h);
 }
 .ed__bar .btn,
-.ed__bar .ed__icon-btn {
-  min-height: 2.4rem;
+/* кнопки шапки — квадраты одного размера */
+.ed__bar {
+  --ctl-h: 2.7rem;
 }
 .ed__bar .ed__icon-btn {
-  min-width: 2.4rem;
+  min-height: var(--ctl-h);
+  min-width: var(--ctl-h);
 }
 /* компактные кнопки внутри строк списков */
 .ef__item-head .btn {
@@ -36,12 +38,7 @@ button.ed__home {
 .ed__bar .ed__play,
 .ed__bar .ed__save,
 .ed__bar .ed__help-btn {
-  min-height: 2.4rem;
-  padding: 0.3em 1em;
-  font-size: var(--fs-md);
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4em;
+  padding: 0;
 }
 .ed__help-btn[aria-expanded="true"] {
   background: var(--bg-paper-dim);
@@ -50,11 +47,6 @@ button.ed__home {
 @media (max-width: 1024px) {
   .ed__label {
     display: none;
-  }
-  .ed__bar .ed__play,
-  .ed__bar .ed__save,
-  .ed__bar .ed__help-btn {
-    padding: 0.3em 0.6em;
   }
   /* шапка в две строки: название с домом, затем кнопки справа */
   .ed__bar {

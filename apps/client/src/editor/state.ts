@@ -28,7 +28,6 @@ export type SectionId =
   | "law"
   | "authorship"
   | "settings"
-  | "visibility"
   | "flags"
   | "sprites"
   | "json"

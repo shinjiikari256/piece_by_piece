@@ -30,14 +30,14 @@ export const caseAdminRoutes = new Hono<AppEnv>()
   .get("/cases", async (c) => {
     requireStaff(c);
     const rows = await c.var.db
-      .select({ id: cases.id, versionId: caseVersions.id, body: caseVersions.body })
+      .select({ id: cases.id, versionId: caseVersions.id, body: caseVersions.body, createdAt: cases.createdAt })
       .from(cases)
       .innerJoin(caseVersions, eq(caseVersions.id, cases.currentVersionId))
       .orderBy(asc(cases.id));
     return c.json(
       rows.map((r) => {
         const b = r.body as CaseFile;
-        return { id: r.id, number: b.number, title: b.title, published: b.published, updatedAt: b.updatedAt, versionId: r.versionId };
+        return { id: r.id, number: b.number, title: b.title, published: b.published, updatedAt: b.updatedAt, createdAt: r.createdAt, versionId: r.versionId };
       }),
     );
   })
@@ -91,11 +91,24 @@ export const caseAdminRoutes = new Hono<AppEnv>()
       if (wanted.some((g) => !own.includes(g) && !locked.includes(g))) throw new ApiError(403, "forbidden", "Это не ваша группа");
       groupIds = [...new Set([...wanted.filter((g) => own.includes(g)), ...locked])];
     }
+    // «никому» не держит привязок к группам: иначе они продолжали бы открывать дело
+    if (body.mode === "none") groupIds = [];
     await db.delete(caseGroups).where(eq(caseGroups.caseId, id));
     if (groupIds.length) await db.insert(caseGroups).values(groupIds.map((groupId) => ({ caseId: id, groupId })));
     await db.update(cases).set({ visibility: body.mode }).where(eq(cases.id, id));
     await db.insert(auditLog).values({ userId: staff.id, action: "cases.visibility", payload: { id, mode: body.mode, groupIds } });
     return c.json({ mode: body.mode, groupIds });
+  })
+  /** Удалить дело вместе с версиями, попытками и привязками к мероприятиям; результаты остаются. Автор или админ. */
+  .delete("/cases/:id", async (c) => {
+    const db = c.var.db;
+    const staff = requireStaff(c);
+    const id = c.req.param("id");
+    await assertCaseOwner(db, staff, id);
+    await db.update(cases).set({ currentVersionId: null }).where(eq(cases.id, id));
+    await db.delete(cases).where(eq(cases.id, id));
+    await db.insert(auditLog).values({ userId: staff.id, action: "cases.delete", payload: { id } });
+    return c.json({ ok: true });
   })
   /** Записать дело новой версией (она сразу действующая). Чужое дело преподаватель править не может. */
   .put("/cases/:id", async (c) => {

@@ -135,12 +135,12 @@ export const results = pgTable(
   (t) => [index("results_user_idx").on(t.userId), index("results_case_idx").on(t.caseId)],
 );
 
-export type CaseVisibility = "all" | "groups";
+export type CaseVisibility = "public" | "all" | "groups" | "none";
 
 /** Дело на сервере; само содержимое — в версиях, `current_version_id` указывает на действующую. */
 export const cases = pgTable("cases", {
   id: text("id").primaryKey(),
-  /** `all` — опубликованное дело видят все студенты; `groups` — только группы из `case_groups`. */
+  /** `public` — опубликованное дело видят и гости; `all` — все вошедшие студенты; `none` — никому из студентов; `groups` — только группы из `case_groups`. */
   visibility: text("visibility").$type<CaseVisibility>().notNull().default("all"),
   currentVersionId: integer("current_version_id").references((): AnyPgColumn => caseVersions.id, {
     onDelete: "set null",

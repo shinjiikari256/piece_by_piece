@@ -6,6 +6,7 @@ import { chromium, type Browser, type Page } from "playwright-core";
 import { createServer, type ViteDevServer } from "vite";
 import { createApp } from "../apps/server/src/app";
 import { ensureAdmin } from "../apps/server/src/bootstrap";
+import { seedCases } from "../apps/server/src/cases";
 import { memoryDb } from "../apps/server/src/db";
 
 const CLIENT_PORT = 5198;
@@ -47,6 +48,7 @@ export async function start(opts: { api?: boolean } = {}): Promise<Harness> {
   if (opts.api) {
     const db = await memoryDb();
     await ensureAdmin(db, "admin", "adminpass1");
+    await seedCases(db);
     api = serve({ fetch: createApp(db, { secureCookies: false, trustProxy: false }).fetch, port: API_PORT });
   }
 

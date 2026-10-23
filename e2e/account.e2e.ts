@@ -89,7 +89,7 @@ describe("учётная запись против сервера (PGlite)", () 
     await page.locator("form button.btn--primary, form button[type=submit]").last().click();
     await expect.poll(() => page.evaluate(async () => (await (await fetch("/api/me")).json()).login ?? null)).toBe("admin");
     await page.goto(`${BASE}/editor`);
-    await page.locator(".eh__case", { hasText: "Чужие письма" }).getByRole("button", { name: "Открыть" }).click();
+    await page.locator(".eh__case", { hasText: "Чужие письма" }).getByRole("button", { name: "Редактировать" }).click();
     await page.getByRole("button", { name: "Запустить" }).first().click();
     await page.waitForTimeout(2500);
     const state = await page.evaluate(() => ({

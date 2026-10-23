@@ -145,9 +145,9 @@ export const OfflineBuildBody = z.object({
 });
 export type OfflineBuildBody = z.infer<typeof OfflineBuildBody>;
 
-/** Кому видно дело: всем студентам или только группам из списка. */
+/** Кому видно дело: всем, включая гостей (`public`), всем вошедшим (`all`) только группам из списка (`groups`) или никому (`none`). */
 export const CaseVisibilityBody = z.object({
-  mode: z.enum(["all", "groups"]),
+  mode: z.enum(["public", "all", "groups", "none"]),
   groupIds: z.array(z.number().int()).max(500),
 });
 export type CaseVisibilityBody = z.infer<typeof CaseVisibilityBody>;
