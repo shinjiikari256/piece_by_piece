@@ -18,7 +18,9 @@ export const DEV_EDITOR = (!OFFLINE && import.meta.env.MODE === "development") |
 
 /** Игру запустили из конструктора (`?play=<id>&from=editor`, после перезагрузки — `/playtest`): тестовая копия дела; читается один раз при загрузке, до очистки адреса. */
 export const FROM_EDITOR =
-  typeof location !== "undefined" && !OFFLINE && (new URLSearchParams(location.search).get("from") === "editor" || location.pathname === "/playtest");
+  typeof location !== "undefined" &&
+  (!OFFLINE || OFFLINE_EDITOR) &&
+  (new URLSearchParams(location.search).get("from") === "editor" || (OFFLINE ? location.hash.startsWith("#/playtest") : location.pathname === "/playtest"));
 
 /** Версия клиента (package.json) — пишется в результат. */
 export const GAME_VERSION: string = __GAME_VERSION__;

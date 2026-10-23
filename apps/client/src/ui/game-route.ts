@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { FROM_EDITOR, OFFLINE } from "../env";
+import { FROM_EDITOR, OFFLINE, OFFLINE_EDITOR } from "../env";
 import { actions, store, useGame } from "../state/store";
 import { editorPathOfPlaytest, readPlaytest } from "../content/drafts";
 import { validateCase } from "../content/validate";
@@ -28,7 +28,7 @@ async function loadFromUrl(route: Route) {
   loading = true;
   try {
     if (route.page === "playtest") {
-      const result = OFFLINE ? null : validateCase(readPlaytest());
+      const result = OFFLINE && !OFFLINE_EDITOR ? null : validateCase(readPlaytest());
       if (!result?.ok) throw new Error("Тестовая копия не найдена или содержит ошибки — откройте конструктор.");
       await actions.resume(new LocalAuthority(result.caseFile));
     } else if (route.page === "play") {

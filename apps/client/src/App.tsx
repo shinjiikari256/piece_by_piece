@@ -5,11 +5,11 @@ import { editorPathOfPlaytest, readPlaytest } from "./content/drafts";
 import { validateCase } from "./content/validate";
 import { LocalAuthority } from "./content/local-authority";
 import { Icon } from "./ui/icons";
-import { FROM_EDITOR, OFFLINE } from "./env";
+import { FROM_EDITOR, OFFLINE, OFFLINE_EDITOR } from "./env";
 
 // запоминаем до того, как адрес очистится
 const PARAMS = new URLSearchParams(location.search);
-const PLAY_ID = OFFLINE ? null : PARAMS.get("play");
+const PLAY_ID = OFFLINE && !OFFLINE_EDITOR ? null : PARAMS.get("play");
 if (FROM_EDITOR) document.body.classList.add("is-playtest");
 import { GameView, runTool } from "./ui/GameView";
 import { ContextMenu, copyText, type MenuContext, type MenuItem } from "./ui/contextmenu";
@@ -102,7 +102,7 @@ export function App() {
   // конструктор запускает дело: ?play=<id>&from=editor — тестовая копия, расследование начинается сразу
   useEffect(() => {
     if (!PLAY_ID) return;
-    history.replaceState(null, "", location.pathname);
+    history.replaceState(null, "", location.pathname + location.hash);
     const result = validateCase(readPlaytest());
     if (result.ok) {
       // «Запустить» — сразу расследование заново, без вступления и вопроса о прошлом сохранении

@@ -2,13 +2,16 @@ import { CaseFile } from "../../../../shared/case";
 import { parseCase } from "../../../../shared/migrate";
 import { editor, editorStore } from "./state";
 import { ask, tell } from "../ui/dialog";
+import { OFFLINE_EDITOR } from "../env";
 
 /** Тестовый запуск в этой же вкладке; черновик в конструкторе никуда не денется. */
 export function startPlaytest() {
   const { errors, draft } = editorStore.get();
   if (errors.length) return editor.goto("errors");
   editor.playtest();
-  window.location.href = `/?play=${encodeURIComponent(draft.id)}&from=editor`;
+  const query = `?play=${encodeURIComponent(draft.id)}&from=editor`;
+  // офлайн-файл открыт с диска: тот же файл с параметрами, адрес внутри — после `#`
+  window.location.href = OFFLINE_EDITOR ? location.href.split(/[?#]/)[0] + query : `/${query}`;
 }
 
 export function downloadJson(c: CaseFile) {

@@ -3,7 +3,7 @@ import { setMapDock, useMapDock } from "./layout";
 import { editor, useEditor, type SectionId } from "./state";
 import { Alert } from "../ui/alert";
 import { Icon } from "../ui/icons";
-import { OFFLINE } from "../env";
+import { OFFLINE, OFFLINE_EDITOR } from "../env";
 import { startPlaytest } from "./actions";
 import { isStaff, useAccount } from "../state/account";
 
@@ -198,7 +198,7 @@ export function Toolbar() {
             <Icon name="alert" size={15} /> {errors.length}
           </button>
         )}
-        {!OFFLINE && (
+        {(!OFFLINE || OFFLINE_EDITOR) && (
           <button className="btn ed__play" onClick={startPlaytest} aria-label="Запустить" title={errors.length ? "Сначала исправьте ошибки" : "Открыть дело в игре"}>
             <Icon name="play" size={15} /> <span className="ed__label">Запустить</span>
           </button>
