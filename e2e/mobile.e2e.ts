@@ -99,6 +99,20 @@ describe("касание: перетаскивание карточки в яч�
     // на медленном раннере игра дорисовывается уже после входа и может закрыть журнал — открываем его заново и замеряем
     // карточку и ячейку в том же шаге, пока они на месте
     let boxes: { from: { x: number; y: number }; to: { x: number; y: number; width: number; height: number } } | null = null;
+    const diag = () =>
+      page.evaluate(() => {
+        const g = (window as any).__game.store.get();
+        const q = (sel: string) => document.querySelectorAll(sel).length;
+        return JSON.stringify({
+          screen: g.screen,
+          overlay: g.overlay?.kind,
+          collected: g.progress.collected.length,
+          slots: q("[data-slot]"),
+          cards: q("[data-mark-key]"),
+          modal: q(".tabbed-modal"),
+          url: location.pathname,
+        });
+      });
     await expect
       .poll(
         async () => {
@@ -122,7 +136,10 @@ describe("касание: перетаскивание карточки в яч�
         },
         { timeout: 25000 },
       )
-      .toBe(true);
+      .toBe(true)
+      .catch(async (e) => {
+        throw new Error(`${await diag()}\n${e}`);
+      });
     const { from, to } = boxes!;
     const before = await page.evaluate(() => document.querySelector("[data-slot]")?.textContent?.trim() ?? "");
     const cdp = await ctx.newCDPSession(page);
