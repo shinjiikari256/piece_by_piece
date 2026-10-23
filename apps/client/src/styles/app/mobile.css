@@ -320,13 +320,19 @@ body {
   .topbar__help {
     order: 6;
   }
-  /* масштаб — справа в шапке */
+  /* масштаб — по центру шапки, таймер и остальное — справа */
+  .topbar {
+    position: relative;
+  }
+  .topbar .timer {
+    margin-left: auto;
+  }
   .topbar .game-zoom--bar {
     display: block;
-    position: static;
-    translate: none;
-    order: 7;
-    margin-left: auto;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    translate: -50% -50%;
     background: transparent;
     color: var(--text-on-chrome);
   }
