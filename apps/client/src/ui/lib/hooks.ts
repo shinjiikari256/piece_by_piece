@@ -167,7 +167,8 @@ export function useTabKeys(tabs: { id: string }[], active: string, onTab?: (id: 
  * при закрытии фокус, оставшийся без элемента, возвращается на кнопку меню. Закрытие по Esc — в `useDismiss`.
  */
 export function useMenuKeys(open: boolean, root: RefObject<HTMLElement | null>) {
-  const items = () => [...(root.current?.querySelectorAll<HTMLElement>('[role^="menuitem"]') ?? [])];
+  // скрытые пункты (display: none, например разделы сайта только для телефона) фокус не принимают
+  const items = () => [...(root.current?.querySelectorAll<HTMLElement>('[role^="menuitem"]') ?? [])].filter((el) => el.getClientRects().length > 0);
   const wasOpen = useRef(false);
   useEffect(() => {
     const was = wasOpen.current;

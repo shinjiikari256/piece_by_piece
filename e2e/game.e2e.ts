@@ -234,7 +234,7 @@ describe("игра в браузере", () => {
 
   it("вкладка «Закон»: стрелки прокручивают текст без перевода фокуса в область просмотра", async () => {
     const page = await h.page();
-    await page.setViewportSize({ width: 1000, height: 500 }); // низкое окно: текст закона не помещается
+    await page.setViewportSize({ width: 1100, height: 520 }); // шире 1024 (там вместо вкладок шаги), низкое окно: текст закона не помещается
     await startCase(page);
     await page.keyboard.press("KeyM");
     await page.locator(".folder__tab", { hasText: "Закон" }).click();
