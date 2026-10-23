@@ -90,11 +90,7 @@ export function uniqueKey(base: string, taken: (k: string) => boolean): string {
 /** Сменить имя кадра спрайта дела: сам кадр, состояния и клипы спрайта и всех его предметов на картах. */
 export function renameFrame(d: CaseFile, spriteKey: string, from: string, to: string): CaseFile {
   const fix = (v: unknown): unknown =>
-    Array.isArray(v)
-      ? v.map(fix)
-      : v && typeof v === "object"
-        ? Object.fromEntries(Object.entries(v).map(([k, x]) => [k, k === "frame" && x === from ? to : fix(x)]))
-        : v;
+    Array.isArray(v) ? v.map(fix) : v && typeof v === "object" ? Object.fromEntries(Object.entries(v).map(([k, x]) => [k, k === "frame" && x === from ? to : fix(x)])) : v;
   return {
     ...d,
     sprites: d.sprites?.map((s) => {

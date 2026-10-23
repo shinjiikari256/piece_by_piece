@@ -12,8 +12,6 @@ const PROFILE_KEY = "profile";
 const RESULTS_KEY = "results";
 const RESULTS_LIMIT = 50;
 
-
-
 export const readProfile = (): Profile => ({ ...EMPTY_PROFILE, ...readJson<Partial<Profile>>(PROFILE_KEY, {}) });
 const profileListeners = new Set<() => void>();
 export const writeProfile = (p: Profile) => {

@@ -50,7 +50,12 @@ describe("состояния предметов", () => {
   });
 
   it("предмет без окна и эффектов не интерактивен, пока состояние их не даёт", () => {
-    const o = { label: "Дверь", interaction: null, onInteract: [], states: [{ id: "locked", when: { flags: ["l"] }, onInteract: [{ type: "message", text: "Заперто" }] }] } as unknown as LocationObject;
+    const o = {
+      label: "Дверь",
+      interaction: null,
+      onInteract: [],
+      states: [{ id: "locked", when: { flags: ["l"] }, onInteract: [{ type: "message", text: "Заперто" }] }],
+    } as unknown as LocationObject;
     const p = startProgress(base);
     expect(objectView(o, p).interactive).toBe(false);
     expect(objectView(o, { ...p, flags: ["l"] }).interactive).toBe(true);
@@ -148,13 +153,19 @@ describe("действия и таймеры предмета", () => {
   });
 
   it("playAnimation: в тестовом деле есть, applyEffects отдаёт followUp, валидатор ловит ошибки", () => {
-    const fx = base.locations.flatMap((l) => l.objects).flatMap((o) => o.onInteract ?? []).find((e) => e.type === "playAnimation");
+    const fx = base.locations
+      .flatMap((l) => l.objects)
+      .flatMap((o) => o.onInteract ?? [])
+      .find((e) => e.type === "playAnimation");
     expect(fx).toMatchObject({ objectId: "dec_safe" });
     const res = applyEffects([fx!], startProgress(base), { whereIs: () => undefined, counters: [], locationId: "" } as never);
     expect(res.followUp?.animations).toEqual([{ objectId: "dec_safe", clip: (fx as { clip: unknown }).clip }]);
 
     const c = structuredClone(base);
-    const bad = c.locations.flatMap((l) => l.objects).flatMap((o) => o.onInteract ?? []).find((e) => e.type === "playAnimation") as { objectId: string; clip: { frame: string; ms: number }[] };
+    const bad = c.locations
+      .flatMap((l) => l.objects)
+      .flatMap((o) => o.onInteract ?? [])
+      .find((e) => e.type === "playAnimation") as { objectId: string; clip: { frame: string; ms: number }[] };
     bad.clip = [{ frame: "ghost", ms: 100 }];
     expect(JSON.stringify(validateCase(c))).toContain("нет кадра «ghost»");
     bad.objectId = "nope";

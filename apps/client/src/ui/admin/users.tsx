@@ -1,14 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import {
-  ROLE_LABEL,
-  ROLE_OPTIONS,
-  STATUS_LABEL,
-  type AdminGroup,
-  type AdminUser,
-  type Role,
-  type UserStatus,
-  type UsersPatch,
-} from "../../../../../shared/api";
+import { ROLE_LABEL, ROLE_OPTIONS, STATUS_LABEL, type AdminGroup, type AdminUser, type Role, type UserStatus, type UsersPatch } from "../../../../../shared/api";
 import { useAccount } from "../../state/account";
 import { api } from "../../state/api";
 import { Select } from "../Select";
@@ -84,10 +75,7 @@ export function UsersSection({ groups, isAdmin, onChanged }: { groups: AdminGrou
         <Select
           value={status}
           onChange={setStatus}
-          options={[
-            { value: "", label: "Все статусы" },
-            ...(["pending", "active", "blocked"] as UserStatus[]).map((s) => ({ value: s, label: STATUS_LABEL[s] })),
-          ]}
+          options={[{ value: "", label: "Все статусы" }, ...(["pending", "active", "blocked"] as UserStatus[]).map((s) => ({ value: s, label: STATUS_LABEL[s] }))]}
         />
         <Select
           value={group}
@@ -130,12 +118,7 @@ export function UsersSection({ groups, isAdmin, onChanged }: { groups: AdminGrou
           <thead>
             <tr>
               <th scope="col" className="check">
-                <input
-                  type="checkbox"
-                  checked={allChecked}
-                  onChange={() => setSelected(allChecked ? new Set() : new Set(selectable.map((u) => u.id)))}
-                  aria-label="Выбрать всех"
-                />
+                <input type="checkbox" checked={allChecked} onChange={() => setSelected(allChecked ? new Set() : new Set(selectable.map((u) => u.id)))} aria-label="Выбрать всех" />
               </th>
               <th scope="col">ФИО</th>
               <th scope="col">Логин</th>
@@ -153,7 +136,11 @@ export function UsersSection({ groups, isAdmin, onChanged }: { groups: AdminGrou
                 data-selected={selected.has(u.id) || undefined}
                 onClick={() => navigate(`/admin/users/${u.id}`)}
                 // Enter — открыть пользователя, пробел — отметить (кроме себя)
-                {...rowKeys(i === 0, () => navigate(`/admin/users/${u.id}`), () => u.id !== meId && toggle(u.id))}
+                {...rowKeys(
+                  i === 0,
+                  () => navigate(`/admin/users/${u.id}`),
+                  () => u.id !== meId && toggle(u.id),
+                )}
               >
                 <td className="check" onClick={(e) => e.stopPropagation()}>
                   <input type="checkbox" checked={selected.has(u.id)} disabled={u.id === meId} onChange={() => toggle(u.id)} aria-label={`Выбрать ${u.fullName}`} />
@@ -161,7 +148,9 @@ export function UsersSection({ groups, isAdmin, onChanged }: { groups: AdminGrou
                 <td>
                   <b>{u.fullName}</b>
                 </td>
-                <td className="mono" data-label="Логин">{u.login}</td>
+                <td className="mono" data-label="Логин">
+                  {u.login}
+                </td>
                 <td data-label="Группа">
                   {u.group ? (
                     <Link to={`/admin/groups?group=${u.group.id}`} onClick={(e) => e.stopPropagation()}>

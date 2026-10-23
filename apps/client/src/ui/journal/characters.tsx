@@ -15,11 +15,7 @@ export function CharactersTab({ focus }: { focus?: string }) {
   const collected = useGame((s) => s.progress.collected);
   const [selected, setSelected] = useState(focus ?? caseFile.characters[0]?.id);
   const c = caseFile.characters.find((x) => x.id === selected);
-  const related = c
-    ? collected
-        .map((id) => caseFile.evidence.find((e) => e.id === id)!)
-        .filter((e) => e.relatedCharacters.includes(c.id) || sourceOf(caseFile, e.id)?.characterId === c.id)
-    : [];
+  const related = c ? collected.map((id) => caseFile.evidence.find((e) => e.id === id)!).filter((e) => e.relatedCharacters.includes(c.id) || sourceOf(caseFile, e.id)?.characterId === c.id) : [];
 
   return (
     <div className="materials">
@@ -69,12 +65,7 @@ export function CharactersTab({ focus }: { focus?: string }) {
                   <span className="detail__label">Материалы о нём</span>
                   <div className="fact__sources">
                     {related.map((e) => (
-                      <EvidenceCard
-                        key={e.id}
-                        evidence={e}
-                        compact
-                        onClick={() => actions.open({ kind: "journal", tab: "materials", focus: e.id })}
-                      />
+                      <EvidenceCard key={e.id} evidence={e} compact onClick={() => actions.open({ kind: "journal", tab: "materials", focus: e.id })} />
                     ))}
                   </div>
                 </>

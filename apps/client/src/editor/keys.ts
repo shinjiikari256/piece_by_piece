@@ -9,12 +9,33 @@ export function toKey(text: string, max = 40): string {
 /** Ключ дела — из номера: «003» → case-003. */
 export const caseKey = (number: string) => `case-${toKey(number) || "new"}`;
 
-
 /** Поля, в которых дело ссылается на другие элементы по ключу. */
 const REF_FIELDS = new Set([
-  "characterId", "speaker", "responsibleCharacter", "relatedCharacters", "following", "notFollowing", "characters",
-  "evidenceId", "evidenceIds", "evidence", "notEvidence", "deductions", "notDeductions", "relatedEvents", "dialogueId", "to",
-  "flag", "flags", "notFlags", "locationId", "inLocation", "notInLocation", "counterId", "variableId", "enumId",
+  "characterId",
+  "speaker",
+  "responsibleCharacter",
+  "relatedCharacters",
+  "following",
+  "notFollowing",
+  "characters",
+  "evidenceId",
+  "evidenceIds",
+  "evidence",
+  "notEvidence",
+  "deductions",
+  "notDeductions",
+  "relatedEvents",
+  "dialogueId",
+  "to",
+  "flag",
+  "flags",
+  "notFlags",
+  "locationId",
+  "inLocation",
+  "notInLocation",
+  "counterId",
+  "variableId",
+  "enumId",
 ]);
 
 /** Коллекции верхнего уровня, ключи которых переименовываются вместе со ссылками. */
@@ -59,8 +80,7 @@ function walkRefs(node: unknown, from: string, to: string | null, field = ""): {
 
 type Q = { source?: string; options?: { id: string }[] };
 /** Варианты вопросов с источником «персонажи/улики» — это ключи сущностей. */
-const questionRefs = (d: Record<string, unknown>, key: string) =>
-  ((d.questions as Q[] | undefined) ?? []).filter((q) => q.source !== "inline" && q.options?.some((o) => o.id === key)).length;
+const questionRefs = (d: Record<string, unknown>, key: string) => ((d.questions as Q[] | undefined) ?? []).filter((q) => q.source !== "inline" && q.options?.some((o) => o.id === key)).length;
 
 /** Сколько раз на ключ ссылаются в деле. */
 export const countRefs = (d: Record<string, unknown>, key: string) => walkRefs(d, key, null).count + questionRefs(d, key);
@@ -69,10 +89,7 @@ export const countRefs = (d: Record<string, unknown>, key: string) => walkRefs(d
 export function renameKey<T extends Record<string, unknown>>(d: T, from: string, to: string): T {
   const renamed = walkRefs(d, from, to).node as T;
   const out: Record<string, unknown> = { ...renamed };
-  if (Array.isArray(out.questions))
-    out.questions = (out.questions as Q[]).map((q) =>
-      q.source === "inline" ? q : { ...q, options: q.options?.map((o) => (o.id === from ? { ...o, id: to } : o)) },
-    );
+  if (Array.isArray(out.questions)) out.questions = (out.questions as Q[]).map((q) => (q.source === "inline" ? q : { ...q, options: q.options?.map((o) => (o.id === from ? { ...o, id: to } : o)) }));
   for (const c of ENTITY_COLLECTIONS) {
     if (Array.isArray(out[c])) out[c] = (out[c] as { id?: string }[]).map((x) => (x.id === from ? { ...x, id: to } : x));
   }

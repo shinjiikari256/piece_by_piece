@@ -1,13 +1,6 @@
 import { Hono } from "hono";
 import { and, asc, count, desc, eq, inArray, isNull, or, type SQL } from "drizzle-orm";
-import {
-  ResultsQuery,
-  type ResultListItem,
-  type ResultsFilters,
-  type ResultsPage,
-  type ServerResult,
-  type UserStats,
-} from "../../../../shared/api";
+import { ResultsQuery, type ResultListItem, type ResultsFilters, type ResultsPage, type ServerResult, type UserStats } from "../../../../shared/api";
 import type { Db } from "../db";
 import { events, groups, results, users } from "../db/schema";
 import { requireStaff, requireUser, type AppEnv, type UserRow } from "../http";
@@ -59,8 +52,7 @@ export const csvCell = (v: string | number | null): string => {
 
 const CSV_HEAD = ["ФИО", "Логин", "Группа", "Дело №", "Дело", "Баллы", "Максимум", "Процент", "Подсказок", "Ошибок", "Минут", "Источник", "Мероприятие", "Дата"];
 
-export const userResults = (db: AppEnv["Variables"]["db"], userId: number) =>
-  db.select().from(results).where(eq(results.userId, userId)).orderBy(desc(results.finishedAt)).limit(500);
+export const userResults = (db: AppEnv["Variables"]["db"], userId: number) => db.select().from(results).where(eq(results.userId, userId)).orderBy(desc(results.finishedAt)).limit(500);
 
 /**
  * Какие прохождения видит пользователь: студент — только свои; преподаватель — свои и студентов
@@ -119,13 +111,25 @@ export const resultRoutes = new Hono<AppEnv>()
       .where(await resultsWhere(db, viewer, q))
       .orderBy(desc(results.finishedAt))
       .limit(50_000);
-    const lines = [CSV_HEAD, ...rows.map(({ r, u, g, e }) => [
-      u.fullName, u.login, g?.name ?? "", r.caseNumber, r.caseTitle, r.total, r.max,
-      r.max > 0 ? Math.round((r.total / r.max) * 100) : "", r.hintsUsed, r.wrongDeductions,
-      r.elapsedMs == null ? "" : Math.round(r.elapsedMs / 600) / 100,
-      r.source === "server" ? "сервер" : r.source === "offline" ? "офлайн" : "клиентский",
-      e?.title ?? "", r.finishedAt.toISOString(),
-    ])];
+    const lines = [
+      CSV_HEAD,
+      ...rows.map(({ r, u, g, e }) => [
+        u.fullName,
+        u.login,
+        g?.name ?? "",
+        r.caseNumber,
+        r.caseTitle,
+        r.total,
+        r.max,
+        r.max > 0 ? Math.round((r.total / r.max) * 100) : "",
+        r.hintsUsed,
+        r.wrongDeductions,
+        r.elapsedMs == null ? "" : Math.round(r.elapsedMs / 600) / 100,
+        r.source === "server" ? "сервер" : r.source === "offline" ? "офлайн" : "клиентский",
+        e?.title ?? "",
+        r.finishedAt.toISOString(),
+      ]),
+    ];
     const body = "\uFEFF" + lines.map((l) => l.map(csvCell).join(";")).join("\r\n") + "\r\n";
     return new Response(body, { headers: { "content-type": "text/csv; charset=utf-8", "content-disposition": 'attachment; filename="results.csv"' } });
   })

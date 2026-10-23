@@ -8,20 +8,20 @@ export function SettingsSection() {
       <h2>Настройки</h2>
       <p className="muted">Базовый год событий и бонус за время. Что показывать в хронологии, отмечается у каждого события.</p>
       <label className="labeled">
-          <span>Базовый год событий</span>
-          <input
-            type="number"
-            min={1}
-            max={9999}
-            value={draft.settings?.timelineYear ?? ""}
-            placeholder="по самому раннему событию"
-            onChange={(e) => {
-              const { timelineYear: _y, ...rest } = draft.settings ?? {};
-              const n = Math.round(Number(e.target.value));
-              editor.update((d) => ({ ...d, settings: e.target.value === "" || !(n >= 1) ? rest : { ...rest, timelineYear: Math.min(9999, n) } }), "settings");
-            }}
-          />
-          <span className="ef__hint">Год для событий, у которых он не указан. На хронологии не показывается.</span>
+        <span>Базовый год событий</span>
+        <input
+          type="number"
+          min={1}
+          max={9999}
+          value={draft.settings?.timelineYear ?? ""}
+          placeholder="по самому раннему событию"
+          onChange={(e) => {
+            const { timelineYear: _y, ...rest } = draft.settings ?? {};
+            const n = Math.round(Number(e.target.value));
+            editor.update((d) => ({ ...d, settings: e.target.value === "" || !(n >= 1) ? rest : { ...rest, timelineYear: Math.min(9999, n) } }), "settings");
+          }}
+        />
+        <span className="ef__hint">Год для событий, у которых он не указан. На хронологии не показывается.</span>
       </label>
       <TimeBonus draft={draft} />
     </section>
@@ -46,8 +46,7 @@ function TimeBonus({ draft }: { draft: CaseFile }) {
       <span className="ef__label">
         Бонус за время
         <span className="ef__hint">
-          Уложился в указанное время и набрал не меньше порога — получает баллы сверх суммы за вопросы. Порог пустой — бонус при любом результате выше нуля.
-          Время идёт с начала расследования.
+          Уложился в указанное время и набрал не меньше порога — получает баллы сверх суммы за вопросы. Порог пустой — бонус при любом результате выше нуля. Время идёт с начала расследования.
         </span>
       </span>
       <div className="ef__triple">

@@ -1,10 +1,8 @@
-
 import { Icon } from "../icons";
 import { Md } from "../md";
 import { useCase } from "./index";
 
 // ---------- Закон ----------
-
 
 export function LawTab() {
   const caseFile = useCase();

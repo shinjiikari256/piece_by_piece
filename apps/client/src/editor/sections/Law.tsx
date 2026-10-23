@@ -31,8 +31,22 @@ export function LawSection() {
         active={tab}
         onChange={setTab}
         tabs={[
-          { id: "basis", label: <>Правовая база <span className="ed__nav-count">{ref.basis.length}</span></> },
-          { id: "notes", label: <>Пояснения <span className="ed__nav-count">{ref.notes.length}</span></> },
+          {
+            id: "basis",
+            label: (
+              <>
+                Правовая база <span className="ed__nav-count">{ref.basis.length}</span>
+              </>
+            ),
+          },
+          {
+            id: "notes",
+            label: (
+              <>
+                Пояснения <span className="ed__nav-count">{ref.notes.length}</span>
+              </>
+            ),
+          },
         ]}
       />
       <div className="ed__panel ed__panel--narrow">
@@ -61,11 +75,7 @@ export function LawSection() {
                   onChange={(e) => set(i, { title: e.target.value })}
                 />
                 {tab === "notes" && (
-                  <input
-                    value={(x as { subtitle?: string }).subtitle ?? ""}
-                    placeholder="Подзаголовок (необязательно)"
-                    onChange={(e) => set(i, { subtitle: e.target.value } as Partial<LawItemT>)}
-                  />
+                  <input value={(x as { subtitle?: string }).subtitle ?? ""} placeholder="Подзаголовок (необязательно)" onChange={(e) => set(i, { subtitle: e.target.value } as Partial<LawItemT>)} />
                 )}
                 <textarea rows={3} value={x.text ?? ""} placeholder="Текст (необязательно)" onChange={(e) => set(i, { text: e.target.value })} />
                 <input value={x.url ?? ""} placeholder="Ссылка (необязательно)" onChange={(e) => set(i, { url: e.target.value })} />

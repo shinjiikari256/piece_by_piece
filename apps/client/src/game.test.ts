@@ -29,7 +29,19 @@ describe("сценарии", () => {
 
   it("своя внешность персонажа: двойники запрещены", async () => {
     const raw = load("case-001.json");
-    const custom = { skin: "#f1c7a1", hair: "#1e1a18", hairStyle: "curly", top: "#2e9e5b", accent: "#ffffff", accentStyle: "tie", legs: "#2b2f3a", shoes: "#111418", glasses: true, mustache: false, beard: true };
+    const custom = {
+      skin: "#f1c7a1",
+      hair: "#1e1a18",
+      hairStyle: "curly",
+      top: "#2e9e5b",
+      accent: "#ffffff",
+      accentStyle: "tie",
+      legs: "#2b2f3a",
+      shoes: "#111418",
+      glasses: true,
+      mustache: false,
+      beard: true,
+    };
     raw.characters[0].appearance = custom;
     expect(validateCase(raw).ok).toBe(true);
     raw.characters[1].appearance = { ...custom };
@@ -71,11 +83,7 @@ describe("оценка", () => {
   });
 
   it("составной результат: частичные баллы, штраф за ложные улики и подсказки", async () => {
-    const s = scoreCase(
-      caseFile,
-      { ...perfect, q_right: ["privacy"], q_qualification: ["disciplinary"], q_evidence: ["mail_log", "krylov_denial"] },
-      2,
-    );
+    const s = scoreCase(caseFile, { ...perfect, q_right: ["privacy"], q_qualification: ["disciplinary"], q_evidence: ["mail_log", "krylov_denial"] }, 2);
     // 15 + (15+7) + 20 + max(0, 5-4) − (5+7)
     expect(s.total).toBe(15 + 22 + 20 + 1 - 12);
     expect(s.hintPenalty).toBe(12);
@@ -218,7 +226,12 @@ describe("прохождение дела №001", () => {
     const perfect = Object.fromEntries(
       scaled.questions.map((q) => [
         q.id,
-        q.kind === "multi" ? q.options.filter((o) => o.points > 0).map((o) => o.id) : q.options.filter((o) => o.points === q.maxPoints).map((o) => o.id).slice(0, 1),
+        q.kind === "multi"
+          ? q.options.filter((o) => o.points > 0).map((o) => o.id)
+          : q.options
+              .filter((o) => o.points === q.maxPoints)
+              .map((o) => o.id)
+              .slice(0, 1),
       ]),
     );
     const score = scoreCase(scaled, perfect, 0);
@@ -455,7 +468,7 @@ describe("сохранение расследования", () => {
     expect(store.get().hints[0].text).toBe(caseFile.hints.find((h) => h.level === 1)!.text);
   });
 
-    it("результат хранит версию дела, игры и формата; файл результата пересчитывается по input", async () => {
+  it("результат хранит версию дела, игры и формата; файл результата пересчитывается по input", async () => {
     actions.goFinal();
     actions.setAnswer("q_right", ["correspondence_secrecy"]);
     await actions.submit();
@@ -471,7 +484,7 @@ describe("сохранение расследования", () => {
     expect(judgeFinish(caseFile, file.input).score.total).toBe(record.total);
   });
 
-    it("ссылки на исчезнувшие из дела улики выбрасываются", async () => {
+  it("ссылки на исчезнувшие из дела улики выбрасываются", async () => {
     actions.interact("obj_computer");
     actions.addObjectToJournal("obj_computer");
     const save = readSave("case-001")!;
@@ -665,7 +678,10 @@ describe("moveTo с областью", () => {
       id: "z_goal",
       name: "Цель",
       // первая клетка занята другим человеком — берётся вторая
-      cells: [{ x: other.x, y: other.y }, { x: start.x, y: start.y }],
+      cells: [
+        { x: other.x, y: other.y },
+        { x: start.x, y: start.y },
+      ],
       actions: [{ kind: "effects", trigger: "enter", effects: [{ type: "moveTo", characterId: "krylov", locationId: loc.id, x: 0, y: 0, zoneId: "z_goal" }] }],
     } as never);
     const c = validateCase(raw);
@@ -699,11 +715,7 @@ describe("эффекты осмотра предмета (onInteract)", () => {
     raw.flags = [...(raw.flags ?? []), { id: "seen_pc", name: "Компьютер осмотрен" }];
     raw.counters = [{ id: "looks", name: "Осмотры" }];
     const obj = raw.locations.flatMap((l) => l.objects).find((o) => o.id === "obj_computer")!;
-    obj.onInteract = [
-      ...obj.onInteract,
-      { type: "changeVariable", variableId: "seen_pc", action: "on" },
-      { type: "changeVariable", variableId: "looks", action: "add", value: 1, once: true },
-    ];
+    obj.onInteract = [...obj.onInteract, { type: "changeVariable", variableId: "seen_pc", action: "on" }, { type: "changeVariable", variableId: "looks", action: "add", value: 1, once: true }];
     const c = validateCase(raw);
     if (!c.ok) throw new Error(c.errors.join("; "));
     setPlatform(createMemoryPlatform());
@@ -745,7 +757,10 @@ describe("эффекты варианта ответа", () => {
 
   it("эффект «сообщение» показывает тост", () => {
     const raw = load("case-001.json") as unknown as CaseFile;
-    raw.dialogues.find((d) => d.id === "dlg_alina")!.nodes.find((n) => n.id === "start")!.choices.find((c) => c.id === "pass")!.effects = [{ type: "message", text: "Вы что-то заметили" }];
+    raw.dialogues
+      .find((d) => d.id === "dlg_alina")!
+      .nodes.find((n) => n.id === "start")!
+      .choices.find((c) => c.id === "pass")!.effects = [{ type: "message", text: "Вы что-то заметили" }];
     const c = validateCase(raw);
     if (!c.ok) throw new Error(c.errors.join("; "));
     setPlatform(createMemoryPlatform());
@@ -835,7 +850,11 @@ describe("осмотр без окна и повторные эффекты", ()
       const ev = objectEvidenceIds(computer(c))[0];
       computer(c).interaction = null;
       // улика теперь выдаётся эффектом, иначе она недостижима
-      computer(c).onInteract = [{ type: "addEvidence", evidenceId: ev }, { ...inc, once: true }, { type: "message", text: "Щёлк", once: true }];
+      computer(c).onInteract = [
+        { type: "addEvidence", evidenceId: ev },
+        { ...inc, once: true },
+        { type: "message", text: "Щёлк", once: true },
+      ];
     });
     actions.interact("obj_computer");
     expect(store.get().overlay).toBeNull();
@@ -901,9 +920,7 @@ describe("области: режимы запуска и текст отказа
 
   it("валидатор: выход не может срабатывать при выходе из области", () => {
     const raw = load("case-001.json") as unknown as CaseFile;
-    raw.locations[0].zones = [
-      { id: "z_exit", name: "Выход", cells: [{ x: 1, y: 1 }], actions: [{ kind: "exit", to: raw.locations[0].id, spawn: { x: 2, y: 2 }, trigger: "leave" }] },
-    ];
+    raw.locations[0].zones = [{ id: "z_exit", name: "Выход", cells: [{ x: 1, y: 1 }], actions: [{ kind: "exit", to: raw.locations[0].id, spawn: { x: 2, y: 2 }, trigger: "leave" }] }];
     const r = validateCase(raw);
     expect(r.ok ? "" : r.errors.join("\n")).toContain("не может срабатывать при выходе");
   });
@@ -934,8 +951,14 @@ describe("эффекты: startDialogue, travel, removeEvidence в игре", ()
 
   it("removeEvidence убирает улику из дела и показывает сообщение", () => {
     start((c) => {
-      const ev = c.locations.flatMap((l) => l.objects).find((o) => o.id === "obj_computer")!.onInteract.flatMap((e) => (e.type === "addEvidence" ? [e.evidenceId] : []))[0];
-      c.dialogues.find((d) => d.id === "dlg_alina")!.nodes.find((n) => n.id === "start")!.choices.find((ch) => ch.id === "pass")!.effects = [{ type: "removeEvidence", evidenceId: ev }];
+      const ev = c.locations
+        .flatMap((l) => l.objects)
+        .find((o) => o.id === "obj_computer")!
+        .onInteract.flatMap((e) => (e.type === "addEvidence" ? [e.evidenceId] : []))[0];
+      c.dialogues
+        .find((d) => d.id === "dlg_alina")!
+        .nodes.find((n) => n.id === "start")!
+        .choices.find((ch) => ch.id === "pass")!.effects = [{ type: "removeEvidence", evidenceId: ev }];
       // сопоставление на этой улике запретило бы убирать её — берём улику, которой нет в сопоставлениях
       c.deductions.forEach((d) => (d.evidenceIds = d.evidenceIds.map((id) => (id === ev ? c.evidence.find((e) => e.id !== ev && !d.evidenceIds.includes(e.id))!.id : id))));
     });
@@ -951,9 +974,10 @@ describe("эффекты: startDialogue, travel, removeEvidence в игре", ()
 
   it("travel переносит игрока и запускает вход в локацию", () => {
     start((c) => {
-      c.dialogues.find((d) => d.id === "dlg_alina")!.nodes.find((n) => n.id === "start")!.choices.find((ch) => ch.id === "pass")!.effects = [
-        { type: "travel", locationId: "admin_building", x: 5, y: 5 },
-      ];
+      c.dialogues
+        .find((d) => d.id === "dlg_alina")!
+        .nodes.find((n) => n.id === "start")!
+        .choices.find((ch) => ch.id === "pass")!.effects = [{ type: "travel", locationId: "admin_building", x: 5, y: 5 }];
     });
     actions.interact("npc_alina");
     actions.choose("pass");
@@ -988,7 +1012,10 @@ describe("эффект failCase", () => {
   it("показывает окно «Дело провалено», стирает сохранение, не пишет результат; «заново» начинает дело сначала", async () => {
     const raw = load("case-001.json") as unknown as CaseFile;
     raw.counters = [{ id: "n", name: "Счёт" }];
-    raw.dialogues.find((d) => d.id === "dlg_alina")!.nodes.find((n) => n.id === "start")!.choices.find((c) => c.id === "pass")!.effects = [
+    raw.dialogues
+      .find((d) => d.id === "dlg_alina")!
+      .nodes.find((n) => n.id === "start")!
+      .choices.find((c) => c.id === "pass")!.effects = [
       { type: "changeVariable", variableId: "n", action: "add", value: 1 },
       { type: "failCase", text: "Вас поймали" },
     ];
@@ -1144,7 +1171,10 @@ describe("тестовое дело: ветка «Новые возможнос�
     actions.choose("n3b");
     expect(p().collected).not.toContain("test_key");
     // 4. составное условие: вариант 1 уже выбирался и вне вестибюля, нужен флаг A или ключ
-    const compound = c.caseFile.dialogues.find((d) => d.id === "dlg_timur")!.nodes.find((n) => n.id === "n_menu")!.choices.find((x) => x.id === "n4")!;
+    const compound = c.caseFile.dialogues
+      .find((d) => d.id === "dlg_timur")!
+      .nodes.find((n) => n.id === "n_menu")!
+      .choices.find((x) => x.id === "n4")!;
     expect(actions.isChoiceVisible(compound)).toBe(false);
     actions.choose("n4a");
     expect(actions.isChoiceVisible(compound)).toBe(true);
@@ -1172,7 +1202,13 @@ describe("человек, скрытый условием", () => {
 
 describe("текст реплики по условию", () => {
   it("nodeText берёт первый вариант с выполненным условием, иначе основной", () => {
-    const node = { text: "Здравствуйте.", textVariants: [{ requires: { flags: ["a"] }, text: "Снова вы?" }, { requires: { flags: ["b"] }, text: "Вы вернулись." }] };
+    const node = {
+      text: "Здравствуйте.",
+      textVariants: [
+        { requires: { flags: ["a"] }, text: "Снова вы?" },
+        { requires: { flags: ["b"] }, text: "Вы вернулись." },
+      ],
+    };
     const p = (flags: string[]) => ({ ...startProgress(testCaseJson as unknown as CaseFile), flags });
     expect(nodeText(node, p([]))).toBe("Здравствуйте.");
     expect(nodeText(node, p(["b"]))).toBe("Вы вернулись.");
@@ -1200,10 +1236,17 @@ describe("узел-переход (auto)", () => {
       const dlg = c.dialogues.find((d) => d.id === "dlg_alina")!;
       const orig = dlg.startNodeId;
       dlg.nodes.push(
-        { id: "router", mood: "neutral", text: "", effects: [], auto: true, choices: [
-          { id: "to_warm", text: "если тёплый приём", next: "warm_start", effects: [inc], requires: { flags: ["warm"] } },
-          { id: "to_normal", text: "иначе", next: orig, effects: [] },
-        ] },
+        {
+          id: "router",
+          mood: "neutral",
+          text: "",
+          effects: [],
+          auto: true,
+          choices: [
+            { id: "to_warm", text: "если тёплый приём", next: "warm_start", effects: [inc], requires: { flags: ["warm"] } },
+            { id: "to_normal", text: "иначе", next: orig, effects: [] },
+          ],
+        },
         { id: "warm_start", mood: "friendly", text: "Рада вас видеть!", effects: [], choices: [{ id: "ok", text: "Хорошо.", next: null, effects: [] }] },
       );
       dlg.startNodeId = "router";
@@ -1237,7 +1280,14 @@ describe("узел-переход (auto)", () => {
     start((c) => {
       const dlg = c.dialogues.find((d) => d.id === "dlg_alina")!;
       dlg.nodes.push(
-        { id: "router", mood: "neutral", text: "", effects: [{ type: "changeVariable", variableId: "warm", action: "on" }], auto: true, choices: [{ id: "to_warm", text: "тёплый", next: "warm_start", effects: [inc], requires: { flags: ["warm"] } }] },
+        {
+          id: "router",
+          mood: "neutral",
+          text: "",
+          effects: [{ type: "changeVariable", variableId: "warm", action: "on" }],
+          auto: true,
+          choices: [{ id: "to_warm", text: "тёплый", next: "warm_start", effects: [inc], requires: { flags: ["warm"] } }],
+        },
         { id: "warm_start", mood: "friendly", text: "Рада вас видеть!", effects: [], choices: [{ id: "ok", text: "Хорошо.", next: null, effects: [] }] },
       );
       dlg.startNodeId = "router";

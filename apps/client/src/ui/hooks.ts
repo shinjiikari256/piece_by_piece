@@ -135,9 +135,7 @@ export function useScrollKeys(root: RefObject<HTMLElement | null>) {
     if (!delta || e.ctrlKey || e.metaKey || e.altKey || e.shiftKey || e.defaultPrevented) return;
     if (e.target instanceof Element && e.target.closest('input, textarea, select, [aria-haspopup], [role="listbox"]')) return;
     // первая (внешняя) прокручиваемая область окна, которой есть что прокручивать
-    const scroller = [...(root.current?.querySelectorAll<HTMLElement>("*") ?? [])].find(
-      (x) => x.scrollHeight > x.clientHeight + 1 && /auto|scroll/.test(getComputedStyle(x).overflowY),
-    );
+    const scroller = [...(root.current?.querySelectorAll<HTMLElement>("*") ?? [])].find((x) => x.scrollHeight > x.clientHeight + 1 && /auto|scroll/.test(getComputedStyle(x).overflowY));
     if (!scroller || scroller.contains(document.activeElement)) return; // внутри области браузер прокрутит сам
     // стрелки могут занять обработчики, подключённые позже, — решаем после всех
     setTimeout(() => {

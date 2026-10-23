@@ -30,10 +30,38 @@ describe("спрайты предметов", () => {
 
   it("обязательный набор заготовок на месте: следы преступления, столы, мелкие предметы", () => {
     const required = [
-      "blood_pool", "blood_splatter", "blood_drops", "body_floor", "body_wall", "body_covered", "chalk_outline", "evidence_tag",
-      "desk", "computer_desk", "desk_papers", "desk_corner", "conference_table_3", "conference_table_4", "coffee_table", "dining_table", "kitchen_table",
-      "bar_counter", "judge_bench", "school_desk", "lab_table", "nightstand", "operating_table",
-      "door_h", "door_v", "safe", "cabinet", "crate", "documents", "folder", "key", "flashlight",
+      "blood_pool",
+      "blood_splatter",
+      "blood_drops",
+      "body_floor",
+      "body_wall",
+      "body_covered",
+      "chalk_outline",
+      "evidence_tag",
+      "desk",
+      "computer_desk",
+      "desk_papers",
+      "desk_corner",
+      "conference_table_3",
+      "conference_table_4",
+      "coffee_table",
+      "dining_table",
+      "kitchen_table",
+      "bar_counter",
+      "judge_bench",
+      "school_desk",
+      "lab_table",
+      "nightstand",
+      "operating_table",
+      "door_h",
+      "door_v",
+      "safe",
+      "cabinet",
+      "crate",
+      "documents",
+      "folder",
+      "key",
+      "flashlight",
     ];
     for (const k of required) expect(SPRITES[k], k).toBeTruthy();
     for (const k of ["blood_pool", "blood_splatter", "blood_drops", "body_floor", "body_wall", "body_covered", "chalk_outline"]) {
@@ -65,7 +93,10 @@ describe("спрайты предметов", () => {
     for (const [frame, ops] of Object.entries(spec.frames)) {
       for (const op of ops) {
         expect([4, 5], `${key}/${frame}`).toContain(op.length);
-        expect(op.slice(0, 4).every((n) => Number.isInteger(n)), `${key}/${frame} числа`).toBe(true);
+        expect(
+          op.slice(0, 4).every((n) => Number.isInteger(n)),
+          `${key}/${frame} числа`,
+        ).toBe(true);
         if (op.length === 5) expect(op[4], `${key}/${frame} цвет`).toMatch(SPRITE_COLOR);
       }
     }
@@ -85,7 +116,19 @@ describe("drawSprite", () => {
       fillRect: (...a: number[]) => calls.push(`rect ${a}`),
       clearRect: (...a: number[]) => calls.push(`clear ${a}`),
     };
-    const spec = { w: 4, h: 4, footprint: { w: 1, h: 1 }, solid: false, frames: { default: [[0, 0, 4, 4, "#ff000080"], [1, 1, 2, 2]], open: [[0, 0, 1, 1, "#00ff00"]] } };
+    const spec = {
+      w: 4,
+      h: 4,
+      footprint: { w: 1, h: 1 },
+      solid: false,
+      frames: {
+        default: [
+          [0, 0, 4, 4, "#ff000080"],
+          [1, 1, 2, 2],
+        ],
+        open: [[0, 0, 1, 1, "#00ff00"]],
+      },
+    };
     drawSprite(ctx as never, spec as never);
     expect(calls).toEqual(["fill #ff000080", "rect 0,0,4,4", "clear 1,1,2,2"]);
     calls.length = 0;

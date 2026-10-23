@@ -249,8 +249,7 @@ describe("результаты", () => {
   });
 
   /** Результат в базе напрямую: записывает их судья (`/cases/:id/finish`), в тестах статистики нужны готовые строки. */
-  const addResult = (userId: number, r: ReturnType<typeof result>) =>
-    db.insert(schema.results).values({ ...r, userId, finishedAt: new Date(r.finishedAt), source: "client" });
+  const addResult = (userId: number, r: ReturnType<typeof result>) => db.insert(schema.results).values({ ...r, userId, finishedAt: new Date(r.finishedAt), source: "client" });
 
   it("свои результаты видны; карточка пользователя считает сводку; гостю — нельзя", async () => {
     expect((await client(app).get("/me/results")).status).toBe(401);

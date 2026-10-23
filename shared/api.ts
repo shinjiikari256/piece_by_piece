@@ -39,21 +39,11 @@ export const Login = z
   .toLowerCase()
   .min(3, "Логин — от 3 символов")
   .max(32, "Логин — до 32 символов")
-  .regex(
-    /^[a-z0-9._-]+$/,
-    "В логине — латинские буквы, цифры, точка, дефис, подчёркивание",
-  );
+  .regex(/^[a-z0-9._-]+$/, "В логине — латинские буквы, цифры, точка, дефис, подчёркивание");
 
-export const Password = z
-  .string()
-  .min(8, "Пароль — от 8 символов")
-  .max(128, "Пароль — до 128 символов");
+export const Password = z.string().min(8, "Пароль — от 8 символов").max(128, "Пароль — до 128 символов");
 
-export const FullName = z
-  .string()
-  .trim()
-  .min(3, "Укажите ФИО")
-  .max(120, "ФИО слишком длинное");
+export const FullName = z.string().trim().min(3, "Укажите ФИО").max(120, "ФИО слишком длинное");
 
 export const RegisterBody = z.object({
   login: Login,
@@ -369,7 +359,10 @@ export type ResultFile = z.infer<typeof ResultFileSchema>;
 export const ImportBody = z.object({
   /** Только показать, что получится, ничего не записывая. */
   dryRun: z.boolean().default(false),
-  items: z.array(z.object({ file: z.unknown(), userId: z.number().int().optional() })).min(1).max(200),
+  items: z
+    .array(z.object({ file: z.unknown(), userId: z.number().int().optional() }))
+    .min(1)
+    .max(200),
 });
 
 export type ImportStatus = "imported" | "would_import" | "duplicate" | "unmatched" | "ambiguous" | "invalid" | "no_case";

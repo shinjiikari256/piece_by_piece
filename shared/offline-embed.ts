@@ -27,7 +27,9 @@ export function embedCases(template: string, cases: CaseFile[]): { html: string;
 /** Все встроенные спрайты из папки `sprites/data` (каждый файл — группа `{ id, label, sprites }`). */
 export function readSpriteSpecs(dir: string): Record<string, unknown> {
   const specs: Record<string, unknown> = {};
-  for (const f of readdirSync(dir).filter((n) => n.endsWith(".json")).sort()) {
+  for (const f of readdirSync(dir)
+    .filter((n) => n.endsWith(".json"))
+    .sort()) {
     const group = JSON.parse(readFileSync(path.join(dir, f), "utf8")) as { sprites: Record<string, unknown> };
     Object.assign(specs, group.sprites);
   }

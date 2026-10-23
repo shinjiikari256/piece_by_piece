@@ -32,7 +32,13 @@ export function jpegsToPdf(jpegs: Uint8Array[], width: number, height: number, t
     push("\nendobj\n");
   };
   // строки PDF в UTF-16BE — чтобы кириллица в названии читалась
-  const pdfText = (s: string) => "<FEFF" + [...s].map((ch) => ch.charCodeAt(0).toString(16).padStart(4, "0")).join("").toUpperCase() + ">";
+  const pdfText = (s: string) =>
+    "<FEFF" +
+    [...s]
+      .map((ch) => ch.charCodeAt(0).toString(16).padStart(4, "0"))
+      .join("")
+      .toUpperCase() +
+    ">";
   const W = 595.28;
   const H = 841.89;
   const content = `q ${W} 0 0 ${H} 0 0 cm /Im0 Do Q`;
@@ -56,7 +62,12 @@ export function jpegsToPdf(jpegs: Uint8Array[], width: number, height: number, t
     obj(p + 2, `<< /Length ${content.length} >>\nstream\n${content}\nendstream`);
   });
   const xref = length;
-  push(`xref\n0 ${total}\n0000000000 65535 f \n${offsets.slice(1).map((o) => `${String(o).padStart(10, "0")} 00000 n \n`).join("")}`);
+  push(
+    `xref\n0 ${total}\n0000000000 65535 f \n${offsets
+      .slice(1)
+      .map((o) => `${String(o).padStart(10, "0")} 00000 n \n`)
+      .join("")}`,
+  );
   push(`trailer\n<< /Size ${total} /Root 1 0 R /Info 3 0 R >>\nstartxref\n${xref}\n%%EOF\n`);
   return new Blob(parts as BlobPart[], { type: "application/pdf" });
 }

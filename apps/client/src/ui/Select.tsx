@@ -80,7 +80,12 @@ export function Select({
 
   useEffect(() => {
     if (!open) return;
-    setActive(Math.max(0, shown.findIndex((o) => o.value === value)));
+    setActive(
+      Math.max(
+        0,
+        shown.findIndex((o) => o.value === value),
+      ),
+    );
     const onScroll = (e: Event) => {
       if (!popup.current?.contains(e.target as Node)) close();
     };

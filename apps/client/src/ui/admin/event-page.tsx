@@ -93,7 +93,11 @@ export function EventPage({ id, groups }: { id: number | "new"; groups: AdminGro
         <div className="stack">
           <span className="muted small">Закрывается</span>
           <DateTimePicker label="Закрывается" value={draft.closesAt} emptyLabel="не закрывается" onChange={(v) => patch({ closesAt: v })} />
-          {badRange && <span className="small" data-tone="bad">Закрытие должно быть позже открытия.</span>}
+          {badRange && (
+            <span className="small" data-tone="bad">
+              Закрытие должно быть позже открытия.
+            </span>
+          )}
         </div>
         <div className="pair">
           <label className="stack">
@@ -102,7 +106,13 @@ export function EventPage({ id, groups }: { id: number | "new"; groups: AdminGro
           </label>
           <label className="stack">
             <span className="muted small">Зачётных попыток на дело</span>
-            <input className="input" inputMode="numeric" value={draft.maxScoredAttempts} onChange={(e) => patch({ maxScoredAttempts: e.target.value.replace(/\D/g, "") })} placeholder="без ограничения" />
+            <input
+              className="input"
+              inputMode="numeric"
+              value={draft.maxScoredAttempts}
+              onChange={(e) => patch({ maxScoredAttempts: e.target.value.replace(/\D/g, "") })}
+              placeholder="без ограничения"
+            />
           </label>
         </div>
         <fieldset className="stack">

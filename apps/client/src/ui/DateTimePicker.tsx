@@ -33,7 +33,13 @@ export function DateTimePicker({ value, onChange, emptyLabel, label }: { value: 
       {d && (
         <>
           <input type="number" className="dtp__num" min={1} max={31} aria-label="День" value={d.getDate()} onChange={(e) => set({ day: clamp(e.target.value, 1, 31) })} />
-          <Select className="dtp__month" title="Месяц" value={String(d.getMonth() + 1)} options={MONTHS.map((m, i) => ({ value: String(i + 1), label: m }))} onChange={(v) => set({ month: Number(v) })} />
+          <Select
+            className="dtp__month"
+            title="Месяц"
+            value={String(d.getMonth() + 1)}
+            options={MONTHS.map((m, i) => ({ value: String(i + 1), label: m }))}
+            onChange={(v) => set({ month: Number(v) })}
+          />
           <input type="number" className="dtp__year" min={1970} max={9999} aria-label="Год" value={d.getFullYear()} onChange={(e) => set({ year: clamp(e.target.value, 1970, 9999) })} />
           <span className="dtp__clock">
             <input type="number" className="dtp__num" min={0} max={23} aria-label="Часы" value={pad(d.getHours())} onChange={(e) => set({ hour: clamp(e.target.value, 0, 23) })} />

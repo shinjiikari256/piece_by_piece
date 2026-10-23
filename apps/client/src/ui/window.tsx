@@ -5,17 +5,7 @@ import { useEscape, useFocusTrap } from "./hooks";
  * Затемнённая подложка под окном. `layer="window"` — окна игры и сайта, `layer="dialog"` — диалоги поверх них;
  * `align="end"` — окно прижато к низу (разговор). `onDismiss` — клик мимо окна.
  */
-export function Backdrop({
-  layer = "window",
-  align,
-  onDismiss,
-  children,
-}: {
-  layer?: "window" | "dialog";
-  align?: "end";
-  onDismiss?: () => void;
-  children: ReactNode;
-}) {
+export function Backdrop({ layer = "window", align, onDismiss, children }: { layer?: "window" | "dialog"; align?: "end"; onDismiss?: () => void; children: ReactNode }) {
   const ref = useRef<HTMLDivElement>(null);
   useFocusTrap(ref);
   return (

@@ -15,7 +15,10 @@ export const readDraft = (id: string): unknown | null => readJson<unknown | null
 
 export const deleteDraft = (id: string) => removeKey(PREFIX + id);
 
-export const listDraftIds = (): string[] => listKeys(PREFIX).map((k) => k.slice(PREFIX.length)).sort();
+export const listDraftIds = (): string[] =>
+  listKeys(PREFIX)
+    .map((k) => k.slice(PREFIX.length))
+    .sort();
 
 /** Копия дела для «Запустить» — не зависит от «Сохранить». */
 export const savePlaytest = (raw: unknown) => writeJson(PLAYTEST_KEY, raw);

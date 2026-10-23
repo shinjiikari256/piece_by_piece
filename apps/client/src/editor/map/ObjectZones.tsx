@@ -22,8 +22,7 @@ export function ObjectZones({ draft, object, locationId }: { draft: CaseFile; ob
   const linked = all.filter(({ zone }) => launches(zone));
   const free = all.filter(({ zone }) => !launches(zone));
 
-  const edit = (zoneId: string, fn: (z: Zone) => Zone) =>
-    editor.update((c) => ({ ...c, locations: c.locations.map((l) => ({ ...l, zones: l.zones.map((z) => (z.id === zoneId ? fn(z) : z)) })) }));
+  const edit = (zoneId: string, fn: (z: Zone) => Zone) => editor.update((c) => ({ ...c, locations: c.locations.map((l) => ({ ...l, zones: l.zones.map((z) => (z.id === zoneId ? fn(z) : z)) })) }));
 
   return (
     <section className="stack">

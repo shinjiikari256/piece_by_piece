@@ -6,7 +6,15 @@ const sprite = (over: Partial<CustomSprite> = {}): CustomSprite => ({ key: "a", 
 const draft = (): CaseFile =>
   ({
     sprites: [sprite()],
-    locations: [{ id: "l", objects: [{ id: "o", sprite: "a" }, { id: "p", sprite: "table" }] }],
+    locations: [
+      {
+        id: "l",
+        objects: [
+          { id: "o", sprite: "a" },
+          { id: "p", sprite: "table" },
+        ],
+      },
+    ],
   }) as unknown as CaseFile;
 
 describe("helpers спрайтов", () => {

@@ -85,16 +85,8 @@ export function Folder({
   useScrollKeys(ref);
   return (
     <main className="menu" ref={ref}>
-      <div
-        className={`folder ${wide ? "folder--wide" : ""} ${tabs ? "folder--tabbed" : ""} ${tall ? "folder--tall" : ""}`}
-      >
-        <FolderTabs
-          tabs={tabs ?? (tab ? [{ id: "tab", label: tab }] : [])}
-          active={tabs ? active ?? "" : "tab"}
-          onTab={onTab}
-          back={back}
-          onClose={onClose}
-        />
+      <div className={`folder ${wide ? "folder--wide" : ""} ${tabs ? "folder--tabbed" : ""} ${tall ? "folder--tall" : ""}`}>
+        <FolderTabs tabs={tabs ?? (tab ? [{ id: "tab", label: tab }] : [])} active={tabs ? (active ?? "") : "tab"} onTab={onTab} back={back} onClose={onClose} />
         <div className="folder__sheet paper">
           {stamp && <div className="stamp">{stamp}</div>}
           {/* у папки с закладками высота постоянная — длинное содержимое прокручивается внутри */}
@@ -139,12 +131,7 @@ export function CaseList({ cases }: { cases: CaseSummary[] | null }) {
                   <span className="case-file__meta">
                     Сложность: {DIFFICULTY[c.difficulty]}
                     {c.timeBonus && ` · бонус за ${c.timeBonus.minutes} мин`}
-                    {c.isDraft && (
-                      <span className="review review--draft">
-                        {" "}
-                        · черновик конструктора
-                      </span>
-                    )}
+                    {c.isDraft && <span className="review review--draft"> · черновик конструктора</span>}
                   </span>
                 </span>
               </button>
@@ -191,36 +178,26 @@ export function HowToContent({ bare }: { bare?: boolean } = {}) {
       {!bare && <h1>Как играть</h1>}
       <ol>
         <li>
-          <strong>Осматривайтесь.</strong> <kbd>W</kbd> <kbd>A</kbd>{" "}
-          <kbd>S</kbd> <kbd>D</kbd> или стрелки — движение, <kbd>E</kbd>{" "}
-          <kbd>Enter</kbd> <kbd>Пробел</kbd> — осмотреть, заговорить, пройти в
+          <strong>Осматривайтесь.</strong> <kbd>W</kbd> <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd> или стрелки — движение, <kbd>E</kbd> <kbd>Enter</kbd> <kbd>Пробел</kbd> — осмотреть, заговорить, пройти в
           дверь. На телефоне — джойстик и кнопка действия.
         </li>
         <li>
-          <strong>Собирайте материалы.</strong> Всё осмотренное и услышанное
-          само попадает в «Материалы» (<kbd>M</kbd>). Отмечайте важное и
-          неважное, фильтруйте по виду, достоверности и людям.
+          <strong>Собирайте материалы.</strong> Всё осмотренное и услышанное само попадает в «Материалы» (<kbd>M</kbd>). Отмечайте важное и неважное, фильтруйте по виду, достоверности и людям.
         </li>
         <li>
-          <strong>Расспрашивайте.</strong> Заданные вопросы отмечаются ✓. Новые
-          вопросы появляются, когда у вас есть нужные улики. Кто-то лжёт — ищите
-          противоречия. Приведите одного человека к другому — получится очная
-          ставка.
+          <strong>Расспрашивайте.</strong> Заданные вопросы отмечаются ✓. Новые вопросы появляются, когда у вас есть нужные улики. Кто-то лжёт — ищите противоречия. Приведите одного человека к другому
+          — получится очная ставка.
         </li>
         <li>
-          <strong>Сопоставляйте</strong> в «Материалах» (кнопка «Сопоставить»): выберите два материала, которые вместе что-то
-          доказывают, — получите вывод. Вывод можно сопоставлять дальше.
+          <strong>Сопоставляйте</strong> в «Материалах» (кнопка «Сопоставить»): выберите два материала, которые вместе что-то доказывают, — получите вывод. Вывод можно сопоставлять дальше.
         </li>
         <li>
-          <strong>Вынесите решение</strong> (<kbd>V</kbd>): какое право
-          затронуто, было ли нарушение, кто отвечает и чем это подтверждается.
+          <strong>Вынесите решение</strong> (<kbd>V</kbd>): какое право затронуто, было ли нарушение, кто отвечает и чем это подтверждается.
         </li>
       </ol>
       <p>
-        Заметки — <kbd>N</kbd>; выделите текст и нажмите «В заметки». Правая
-        кнопка мыши — быстрые команды. Подсказки (<kbd>H</kbd>) помогают, но
-        снижают балл; уложитесь в срок и пройдите успешно — получите бонус. <kbd>Esc</kbd>{" "}
-        закрывает любое окно, <kbd>I</kbd> — эта памятка.
+        Заметки — <kbd>N</kbd>; выделите текст и нажмите «В заметки». Правая кнопка мыши — быстрые команды. Подсказки (<kbd>H</kbd>) помогают, но снижают балл; уложитесь в срок и пройдите успешно —
+        получите бонус. <kbd>Esc</kbd> закрывает любое окно, <kbd>I</kbd> — эта памятка.
       </p>
     </div>
   );
@@ -270,10 +247,7 @@ export function Intro() {
   } else if (save) {
     footer = (
       <>
-        <button
-          className="btn btn--primary btn--big"
-          onClick={() => void actions.resume()}
-        >
+        <button className="btn btn--primary btn--big" onClick={() => void actions.resume()}>
           Продолжить расследование
         </button>
         <button className="btn" onClick={() => setConfirmReset(true)}>
@@ -283,23 +257,14 @@ export function Intro() {
     );
   } else {
     footer = (
-      <button
-        className="btn btn--primary btn--big"
-        onClick={actions.beginInvestigation}
-      >
+      <button className="btn btn--primary btn--big" onClick={actions.beginInvestigation}>
         Приступить к расследованию
       </button>
     );
   }
 
   return (
-    <Folder
-      tab={`ДЕЛО №${caseFile.number}`}
-      onClose={actions.leaveToSite}
-      wide
-      stamp="Учебное"
-      actions={footer}
-    >
+    <Folder tab={`ДЕЛО №${caseFile.number}`} onClose={actions.leaveToSite} wide stamp="Учебное" actions={footer}>
       <h1 className="intro__title">{caseFile.title}</h1>
       {caseFile.introduction.split("\n\n").map((p, i) => (
         <p key={i}>{p}</p>
@@ -307,9 +272,8 @@ export function Intro() {
       {caseFile.timeBonus && !save && (
         <p className="intro__bonus">
           ⏱ Уложитесь в {caseFile.timeBonus.minutes} мин
-          {(caseFile.timeBonus.minScore ?? DEFAULT_BONUS_SCORE) > 0 &&
-            ` и наберите не меньше ${caseFile.timeBonus.minScore} баллов`}{" "}
-          — получите ещё +{caseFile.timeBonus.points}. Время пойдёт с началом расследования.
+          {(caseFile.timeBonus.minScore ?? DEFAULT_BONUS_SCORE) > 0 && ` и наберите не меньше ${caseFile.timeBonus.minScore} баллов`} — получите ещё +{caseFile.timeBonus.points}. Время пойдёт с
+          началом расследования.
         </p>
       )}
       {outdated && save && (
@@ -318,16 +282,11 @@ export function Intro() {
           {save.caseUpdatedAt
             ? `вы играли в версию от ${formatSaveDate(save.caseUpdatedAt)}, а сейчас версия от ${formatSaveDate(caseFile.updatedAt)}.`
             : `ваше сохранение сделано на более ранней версии, текущая — от ${formatSaveDate(caseFile.updatedAt)}.`}{" "}
-          Улики, диалоги или карта могли поменяться, поэтому продолжить старое
-          расследование нельзя: прогресс (
-          {progressPercent(save, caseFile.evidence.length, caseFile.deductions.length)}%) будет сброшен.
+          Улики, диалоги или карта могли поменяться, поэтому продолжить старое расследование нельзя: прогресс ({progressPercent(save, caseFile.evidence.length, caseFile.deductions.length)}%) будет
+          сброшен.
         </Alert>
       )}
-      {save && !outdated && (
-        <p className="resume__status">
-          ● Расследование уже идёт: пройдено около {progressPercent(save, caseFile.evidence.length, caseFile.deductions.length)}%
-        </p>
-      )}
+      {save && !outdated && <p className="resume__status">● Расследование уже идёт: пройдено около {progressPercent(save, caseFile.evidence.length, caseFile.deductions.length)}%</p>}
     </Folder>
   );
 }

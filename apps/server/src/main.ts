@@ -16,17 +16,11 @@ import { connectPostgres } from "./db";
  *   OFFLINE_DIR      папка с шаблонами game.html / editor.html; вне production — offline/server (`pnpm offline:templates`)
  */
 const env = process.env;
-const { db, close } = await connectPostgres(
-  env.DATABASE_URL ??
-    "postgres://neraskrytoe:neraskrytoe@localhost:5433/neraskrytoe",
-);
+const { db, close } = await connectPostgres(env.DATABASE_URL ?? "postgres://neraskrytoe:neraskrytoe@localhost:5433/neraskrytoe");
 
 const admin = await ensureAdmin(db, env.ADMIN_LOGIN, env.ADMIN_PASSWORD);
 if (admin === "created") console.log(`Создан администратор ${env.ADMIN_LOGIN}`);
-if (admin === "skipped")
-  console.warn(
-    "В базе нет администратора: задайте ADMIN_LOGIN и ADMIN_PASSWORD и перезапустите сервер",
-  );
+if (admin === "skipped") console.warn("В базе нет администратора: задайте ADMIN_LOGIN и ADMIN_PASSWORD и перезапустите сервер");
 
 const seeded = await seedCases(db);
 if (seeded.created.length) console.log(`Дела обновлены: ${seeded.created.join(", ")}`);
@@ -40,9 +34,7 @@ const app = createApp(db, {
 void sweepRateHits(db);
 setInterval(() => void sweepRateHits(db), 3_600_000).unref();
 const port = Number(env.PORT ?? 8787);
-const server = serve({ fetch: app.fetch, port }, () =>
-  console.log(`API: http://localhost:${port}/api`),
-);
+const server = serve({ fetch: app.fetch, port }, () => console.log(`API: http://localhost:${port}/api`));
 
 for (const sig of ["SIGINT", "SIGTERM"] as const)
   process.on(sig, () => {

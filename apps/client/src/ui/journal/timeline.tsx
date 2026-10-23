@@ -30,10 +30,12 @@ export function TimelineTab() {
   /** Кто связан с событием — по найденным уликам (ненайденные не раскрываются). */
   const links = useMemo(() => {
     const found = caseFile.evidence.filter((e) => progress.collected.includes(e.id));
-    return new Map(known.map((ev) => {
-      const via = found.filter((e) => e.relatedEvents.includes(ev.id));
-      return [ev.id, { people: [...new Set(via.flatMap((e) => e.relatedCharacters))], evidence: via }] as const;
-    }));
+    return new Map(
+      known.map((ev) => {
+        const via = found.filter((e) => e.relatedEvents.includes(ev.id));
+        return [ev.id, { people: [...new Set(via.flatMap((e) => e.relatedCharacters))], evidence: via }] as const;
+      }),
+    );
   }, [caseFile, progress.collected, known]);
   const people = caseFile.characters.filter((c) => known.some((ev) => links.get(ev.id)?.people.includes(c.id)));
   const shown = person === "all" ? known : known.filter((ev) => links.get(ev.id)?.people.includes(person));
@@ -89,15 +91,25 @@ export function TimelineTab() {
                 <div className="row row--wrap">
                   {(links.get(current.id)?.people ?? []).map((id) => {
                     const c = caseFile.characters.find((x) => x.id === id);
-                    return c && (
-                      <span key={id} className="event-chip">
-                        <Portrait look={resolveLook(c)} />
-                        {c.name}
-                      </span>
+                    return (
+                      c && (
+                        <span key={id} className="event-chip">
+                          <Portrait look={resolveLook(c)} />
+                          {c.name}
+                        </span>
+                      )
                     );
                   })}
                 </div>
-                {(links.get(current.id)?.evidence ?? []).length > 0 && <p className="muted">Известно из: {links.get(current.id)!.evidence.map((e) => e.title).join(" · ")}</p>}
+                {(links.get(current.id)?.evidence ?? []).length > 0 && (
+                  <p className="muted">
+                    Известно из:{" "}
+                    {links
+                      .get(current.id)!
+                      .evidence.map((e) => e.title)
+                      .join(" · ")}
+                  </p>
+                )}
               </article>
             ) : (
               <p className="muted">Выберите событие, чтобы увидеть подробности.</p>
@@ -169,7 +181,12 @@ function DayCard({ day, selected, onSelect }: { day: Day; selected: string | nul
           return (
             <div key={p.entry} className="timeline__event" data-selected={sel} style={{ ["--lane-n" as string]: p.lane }}>
               {p.band && e.band ? (
-                <div className="timeline__strip" data-open-start={e.band.openStart || undefined} data-open-end={e.band.openEnd || undefined} style={{ left: p.band.x0, width: Math.max(p.band.x1 - p.band.x0, 4) }}>
+                <div
+                  className="timeline__strip"
+                  data-open-start={e.band.openStart || undefined}
+                  data-open-end={e.band.openEnd || undefined}
+                  style={{ left: p.band.x0, width: Math.max(p.band.x1 - p.band.x0, 4) }}
+                >
                   <span className="timeline__bar" />
                   {!e.band.openStart && <span className="timeline__cap" data-side="start" />}
                   {!e.band.openEnd && <span className="timeline__cap" data-side="end" />}

@@ -32,7 +32,11 @@ export function ListSection({ field, onDone }: { field: keyof CaseFile; onDone?:
   const itemSchema: JS = SCHEMA.properties[field].items;
   // выбранный элемент и вкладка карточки — в адресе (`?item=…&tab=…`); вкладка не сбрасывается при переключении между элементами
   const [itemKey, setItemKey] = useUrlParam("item", "");
-  const [evidenceTab, setEvidenceTab] = useUrlParam<EvidenceTab>("tab", "main", EVIDENCE_TABS.map((t) => t.id));
+  const [evidenceTab, setEvidenceTab] = useUrlParam<EvidenceTab>(
+    "tab",
+    "main",
+    EVIDENCE_TABS.map((t) => t.id),
+  );
   const keyOf = (item: unknown, i: number) => String((item as { id?: string }).id ?? i);
   const found = list.findIndex((x, k) => keyOf(x, k) === itemKey);
   const index = found >= 0 ? found : Math.min(0, list.length - 1);
@@ -130,39 +134,18 @@ export function ListSection({ field, onDone }: { field: keyof CaseFile; onDone?:
           />
         ) : field === "characters" ? (
           <>
-            <ObjectFields
-              schema={itemSchema}
-              value={list[index]}
-              ctx={{ draft }}
-              skip={["look", "appearance"]}
-              onChange={(v) => update(list.map((x, i) => (i === index ? v : x)))}
-            />
+            <ObjectFields schema={itemSchema} value={list[index]} ctx={{ draft }} skip={["look", "appearance"]} onChange={(v) => update(list.map((x, i) => (i === index ? v : x)))} />
             <h3 className="ed__subhead">Внешность</h3>
-            <LookEditor
-              character={list[index] as Character}
-              others={(list as Character[]).filter((_, i) => i !== index)}
-              onChange={(v) => update(list.map((x, i) => (i === index ? v : x)))}
-            />
+            <LookEditor character={list[index] as Character} others={(list as Character[]).filter((_, i) => i !== index)} onChange={(v) => update(list.map((x, i) => (i === index ? v : x)))} />
           </>
         ) : field === "events" ? (
           <>
             <ObjectFields schema={itemSchema} value={list[index]} ctx={{ draft }} only={["id", "title"]} onChange={(v) => update(list.map((x, i) => (i === index ? v : x)))} />
-            <EventWhen
-              at={(list[index] as CaseEvent).at}
-              until={(list[index] as CaseEvent).until}
-              onChange={(w) => update(list.map((x, i) => (i === index ? withWhen(x as CaseEvent, w) : x)))}
-            />
+            <EventWhen at={(list[index] as CaseEvent).at} until={(list[index] as CaseEvent).until} onChange={(w) => update(list.map((x, i) => (i === index ? withWhen(x as CaseEvent, w) : x)))} />
             <ObjectFields schema={itemSchema} value={list[index]} ctx={{ draft }} only={["showInTimeline", "requires"]} onChange={(v) => update(list.map((x, i) => (i === index ? v : x)))} />
           </>
         ) : (
-          <Field
-            name={String(field)}
-            schema={itemSchema}
-            value={list[index]}
-            ctx={{ draft }}
-            bare
-            onChange={(v) => update(list.map((x, i) => (i === index ? v : x)))}
-          />
+          <Field name={String(field)} schema={itemSchema} value={list[index]} ctx={{ draft }} bare onChange={(v) => update(list.map((x, i) => (i === index ? v : x)))} />
         )}
       </div>
     </section>
@@ -197,19 +180,7 @@ function evidenceOrigins(d: CaseFile, id: string): string[] {
   return out;
 }
 
-function EvidencePanel({
-  evidence,
-  schema,
-  tab,
-  onTab: setTab,
-  onChange,
-}: {
-  evidence: Evidence;
-  schema: JS;
-  tab: EvidenceTab;
-  onTab: (t: EvidenceTab) => void;
-  onChange: (v: unknown) => void;
-}) {
+function EvidencePanel({ evidence, schema, tab, onTab: setTab, onChange }: { evidence: Evidence; schema: JS; tab: EvidenceTab; onTab: (t: EvidenceTab) => void; onChange: (v: unknown) => void }) {
   const draft = useEditor((s) => s.draft);
   const origins = evidenceOrigins(draft, evidence.id);
   return (
@@ -229,14 +200,11 @@ function EvidencePanel({
       />
       {tab === "links" && (
         <div className="ed__note">
-          <b>Где игрок получает:</b>{" "}
-          {origins.length ? origins.join("; ") : <span className="is-warn">нигде — улику нельзя найти в игре</span>}
+          <b>Где игрок получает:</b> {origins.length ? origins.join("; ") : <span className="is-warn">нигде — улику нельзя найти в игре</span>}
         </div>
       )}
       {tab === "attachments" && (
-        <p className="muted">
-          Фото, сканы, аудио, видео и ссылки — показываются в карточке улики. Для файла укажите адрес; для ссылки — адрес (http/https) и текст, который увидит игрок.
-        </p>
+        <p className="muted">Фото, сканы, аудио, видео и ссылки — показываются в карточке улики. Для файла укажите адрес; для ссылки — адрес (http/https) и текст, который увидит игрок.</p>
       )}
       {tab === "main" ? (
         <div className="ef__fields">

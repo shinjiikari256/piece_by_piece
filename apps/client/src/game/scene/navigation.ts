@@ -47,7 +47,12 @@ export function findPath(isFree: IsFree, start: Tile, goals: Tile[]): { x: numbe
       found = key;
       break;
     }
-    for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
+    for (const [dx, dy] of [
+      [1, 0],
+      [-1, 0],
+      [0, 1],
+      [0, -1],
+    ]) {
       const nx = cur.x + dx;
       const ny = cur.y + dy;
       const nk = `${nx},${ny}`;
@@ -100,7 +105,12 @@ export function reachWithin(isFree: IsFree, start: Tile, maxSteps: number): Set<
   for (let step = 0; step < maxSteps; step++) {
     const next: Tile[] = [];
     for (const cur of frontier)
-      for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
+      for (const [dx, dy] of [
+        [1, 0],
+        [-1, 0],
+        [0, 1],
+        [0, -1],
+      ]) {
         const t = { x: cur.x + dx, y: cur.y + dy };
         const key = `${t.x},${t.y}`;
         if (!seen.has(key) && isFree(t.x, t.y)) {

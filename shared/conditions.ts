@@ -108,11 +108,7 @@ export const clampCounter = (v: number, def?: { min?: number; max?: number }): n
 
 export function meets(cond: Condition | undefined, p: Progress, locationId?: string): boolean {
   if (!cond) return true;
-  return (
-    meetsRows(cond, p, locationId) &&
-    (cond.allOf ?? []).every((part) => meets(part, p, locationId)) &&
-    (!cond.anyOf?.length || cond.anyOf.some((alt) => meets(alt, p, locationId)))
-  );
+  return meetsRows(cond, p, locationId) && (cond.allOf ?? []).every((part) => meets(part, p, locationId)) && (!cond.anyOf?.length || cond.anyOf.some((alt) => meets(alt, p, locationId)));
 }
 
 /** Текст реплики: первый вариант `textVariants` с выполненным условием, иначе основной. */
@@ -210,7 +206,10 @@ export function applyEffects(effects: Effect[], p: Progress, ctx: EffectContext 
           const cur = next.counters[id] ?? 0;
           const n = e.value ?? 0;
           const v = e.action === "add" ? cur + n : e.action === "subtract" ? cur - n : n;
-          next.counters[id] = clampCounter(v, counterDefs.find((c) => c.id === id));
+          next.counters[id] = clampCounter(
+            v,
+            counterDefs.find((c) => c.id === id),
+          );
         }
         break;
       }

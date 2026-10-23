@@ -92,7 +92,12 @@ export function DialogHost() {
         </>
       }
     >
-      {current.text?.split("\n").filter(Boolean).map((p, i) => <p key={i}>{p}</p>)}
+      {current.text
+        ?.split("\n")
+        .filter(Boolean)
+        .map((p, i) => (
+          <p key={i}>{p}</p>
+        ))}
     </Dialog>
   );
 }

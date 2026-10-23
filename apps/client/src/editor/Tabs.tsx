@@ -55,7 +55,7 @@ export function Tabs<T extends string>({
           title={t.title}
           data-drop={over === t.id && dragged !== t.id ? "" : undefined}
           draggable={!!onReorder}
-          onDragStart={onReorder ? (e) => (e.dataTransfer.effectAllowed = "move", setDragged(t.id)) : undefined}
+          onDragStart={onReorder ? (e) => ((e.dataTransfer.effectAllowed = "move"), setDragged(t.id)) : undefined}
           onDragOver={onReorder && dragged ? (e) => (e.preventDefault(), setOver(t.id)) : undefined}
           onDrop={onReorder ? (e) => (e.preventDefault(), dragged && dragged !== t.id && onReorder(dragged, t.id), setDragged(null), setOver(null)) : undefined}
           onDragEnd={onReorder ? () => (setDragged(null), setOver(null)) : undefined}

@@ -1,7 +1,10 @@
 import { describe, expect, it } from "vitest";
 import { clipDuration, clipFrameAt, findAction, findTransition, loopFrameAt, timerActive, timerDelay } from "../../../../shared/object-anim";
 
-const clip = [{ frame: "a", ms: 100 }, { frame: "b", ms: 200 }];
+const clip = [
+  { frame: "a", ms: 100 },
+  { frame: "b", ms: 200 },
+];
 
 describe("анимации предметов", () => {
   it("кадр клипа по времени; после конца — null", () => {
@@ -15,7 +18,12 @@ describe("анимации предметов", () => {
   });
 
   it("переход: точное совпадение, затем «*»; нет совпадения — null", () => {
-    const o = { transitions: [{ from: "x", to: "y", clip }, { from: "*", to: "open", clip: [{ frame: "z", ms: 10 }] }] };
+    const o = {
+      transitions: [
+        { from: "x", to: "y", clip },
+        { from: "*", to: "open", clip: [{ frame: "z", ms: 10 }] },
+      ],
+    };
     expect(findTransition(o, "x", "y")).toBe(clip);
     expect(findTransition(o, "q", "open")?.[0].frame).toBe("z");
     expect(findTransition(o, "y", "x")).toBeNull();
@@ -23,7 +31,12 @@ describe("анимации предметов", () => {
   });
 
   it("действие: по состоянию, без state — в любом; таймер: период с добавкой", () => {
-    const o = { actions: [{ on: "interact" as const, state: "open", clip }, { on: "interact" as const, clip: [{ frame: "z", ms: 10 }] }] };
+    const o = {
+      actions: [
+        { on: "interact" as const, state: "open", clip },
+        { on: "interact" as const, clip: [{ frame: "z", ms: 10 }] },
+      ],
+    };
     expect(findAction(o, "open")).toBe(clip);
     expect(findAction(o, "closed")?.[0].frame).toBe("z");
     expect(findAction({}, "open")).toBeNull();

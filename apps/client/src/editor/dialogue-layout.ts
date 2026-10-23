@@ -49,4 +49,3 @@ export function autoLayout(d: Dialogue, heights: Record<string, number> = {}): R
   }
   return out;
 }
-

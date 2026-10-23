@@ -43,10 +43,7 @@ const summarize = (c: CaseFile): ServerCaseSummary => ({
 export const caseRoutes = new Hono<AppEnv>()
   .get("/cases", async (c) => {
     const user = requireUser(c);
-    const rows = await c.var.db
-      .select({ body: caseVersions.body, visibility: cases.visibility })
-      .from(cases)
-      .innerJoin(caseVersions, eq(caseVersions.id, cases.currentVersionId));
+    const rows = await c.var.db.select({ body: caseVersions.body, visibility: cases.visibility }).from(cases).innerJoin(caseVersions, eq(caseVersions.id, cases.currentVersionId));
     const opened = user.role === "student" ? await studentCaseIds(c.var.db, user.groupId) : null;
     return c.json(
       rows

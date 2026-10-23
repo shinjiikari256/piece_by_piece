@@ -1,7 +1,20 @@
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { Select } from "../../ui/Select";
 import type { Condition } from "../../../../../shared/case";
-import { ARRAY_KEYS, LIST_KEYS, addAtom, conditionToModel, describeFormula, formulaOf, modelToCondition, parseFormula, removeAtom, replaceAtom, type ConditionModel, type ListKey } from "../../../../../shared/condition-formula";
+import {
+  ARRAY_KEYS,
+  LIST_KEYS,
+  addAtom,
+  conditionToModel,
+  describeFormula,
+  formulaOf,
+  modelToCondition,
+  parseFormula,
+  removeAtom,
+  replaceAtom,
+  type ConditionModel,
+  type ListKey,
+} from "../../../../../shared/condition-formula";
 import { Icon } from "../../ui/icons";
 import { FormCtx, Option, charOption } from "../SchemaForm";
 import { RefMulti } from "./RefChips";
@@ -228,43 +241,20 @@ export function ConditionEditor({ value, onChange, ctx, label }: { value: Condit
   );
 }
 
-function FlagMulti({
-  label,
-  value,
-  onChange,
-  ctx,
-  extra,
-}: {
-  label: ReactNode;
-  value: string[];
-  onChange: (v: string[]) => void;
-  ctx: FormCtx;
-  extra?: ReactNode;
-}) {
+function FlagMulti({ label, value, onChange, ctx, extra }: { label: ReactNode; value: string[]; onChange: (v: string[]) => void; ctx: FormCtx; extra?: ReactNode }) {
   const [dialog, setDialog] = useState<{ edit?: string } | null>(null);
   const d = ctx.draft;
   return (
     <div className="ef ef--refs">
       <div className="ef__refhead row row--wrap">
         {label}
-        <Select
-          className="sel--add"
-          value=""
-          placeholder="+ флаг"
-          options={flagOptions(d, value)}
-          onChange={(f) => (f === NEW_FLAG ? setDialog({}) : onChange([...value, f]))}
-        />
+        <Select className="sel--add" value="" placeholder="+ флаг" options={flagOptions(d, value)} onChange={(f) => (f === NEW_FLAG ? setDialog({}) : onChange([...value, f]))} />
         {extra}
       </div>
       {value.length > 0 && (
         <div className="ef__chips row row--wrap">
           {value.map((f) => (
-            <span
-              key={f}
-              className="ef__chip ef__chip--flag"
-              title="Двойной клик — изменить название"
-              onDoubleClick={() => setDialog({ edit: f })}
-            >
+            <span key={f} className="ef__chip ef__chip--flag" title="Двойной клик — изменить название" onDoubleClick={() => setDialog({ edit: f })}>
               <span className="ef__chip-label">
                 {flagName(d, f) || <span className="is-warn">без названия</span>}
                 <code>({f})</code>
@@ -295,12 +285,7 @@ export function FlagPicker({ value, onChange, ctx }: { value: string; onChange: 
   const d = ctx.draft;
   return (
     <div className="flag-picker row row--wrap">
-      <Select
-        value={value}
-        placeholder="выберите флаг"
-        options={flagOptions(d)}
-        onChange={(f) => (f === NEW_FLAG ? setDialog("new") : onChange(f))}
-      />
+      <Select value={value} placeholder="выберите флаг" options={flagOptions(d)} onChange={(f) => (f === NEW_FLAG ? setDialog("new") : onChange(f))} />
       {value && (
         <button
           className={`btn btn--sm btn--icon ${flagName(d, value) ? "" : "is-warn"}`}

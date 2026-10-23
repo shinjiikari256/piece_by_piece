@@ -14,7 +14,9 @@ type Counter = NonNullable<CaseFile["counters"]>[number];
 export function deleteCounter(d: CaseFile, id: string): CaseFile {
   const clean = (node: unknown): unknown => {
     if (Array.isArray(node)) {
-      return node.filter((x) => !(x && typeof x === "object" && (x as { type?: string; variableId?: string }).type === "changeVariable" && (x as { variableId?: string }).variableId === id)).map(clean);
+      return node
+        .filter((x) => !(x && typeof x === "object" && (x as { type?: string; variableId?: string }).type === "changeVariable" && (x as { variableId?: string }).variableId === id))
+        .map(clean);
     }
     if (node && typeof node === "object") {
       const out: Record<string, unknown> = {};
@@ -105,15 +107,18 @@ export function CounterEditor({ counter, uses, onRenamed }: { counter: Counter; 
   const draft = useEditor((s) => s.draft);
   const { id, name } = counter;
   const refs = countRefs(draft as unknown as Record<string, unknown>, id);
-  const patch = (p: Partial<Counter>, merge?: string) =>
-    editor.update((d) => ({ ...d, counters: (d.counters ?? []).map((c) => (c.id === id ? { ...c, ...p } : c)) }), merge);
+  const patch = (p: Partial<Counter>, merge?: string) => editor.update((d) => ({ ...d, counters: (d.counters ?? []).map((c) => (c.id === id ? { ...c, ...p } : c)) }), merge);
   const commitKey = async (next: string) => {
     if (isVariableKeyTaken(draft, next)) {
       await tell({ title: "Такой счётчик уже есть", text: `Ключ «${next}» занят — выберите другой.` });
       return false;
     }
     if (refs > 0) {
-      const ok = await ask({ title: "Переименовать ключ счётчика?", text: `Счётчик используется в ${refs} мест(ах). Ключ «${id}» заменится на «${next}» во всех ссылках.`, confirmLabel: "Переименовать" });
+      const ok = await ask({
+        title: "Переименовать ключ счётчика?",
+        text: `Счётчик используется в ${refs} мест(ах). Ключ «${id}» заменится на «${next}» во всех ссылках.`,
+        confirmLabel: "Переименовать",
+      });
       if (!ok) return false;
     }
     editor.update((d) => renameKey(d as unknown as Record<string, unknown>, id, next) as unknown as CaseFile);

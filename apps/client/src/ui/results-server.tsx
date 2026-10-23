@@ -47,7 +47,9 @@ export function ServerResults({ staff }: { staff: boolean }) {
           </button>
         )}
       </header>
-      {staff && importing && <ResultsImport students={(options?.users ?? []).map((u) => ({ id: u.id, label: `${u.fullName}${u.group ? ` · ${u.group}` : ""}` }))} onDone={() => setReload((n) => n + 1)} />}
+      {staff && importing && (
+        <ResultsImport students={(options?.users ?? []).map((u) => ({ id: u.id, label: `${u.fullName}${u.group ? ` · ${u.group}` : ""}` }))} onDone={() => setReload((n) => n + 1)} />
+      )}
       <div className="toolbar">
         <Select
           value={filters.case}
@@ -61,11 +63,7 @@ export function ServerResults({ staff }: { staff: boolean }) {
               value={filters.group}
               placeholder="Все группы"
               onChange={(v) => set({ group: v })}
-              options={[
-                { value: "", label: "Все группы" },
-                ...(options?.groups ?? []).map((g) => ({ value: String(g.id), label: g.name })),
-                { value: "none", label: "Без группы" },
-              ]}
+              options={[{ value: "", label: "Все группы" }, ...(options?.groups ?? []).map((g) => ({ value: String(g.id), label: g.name })), { value: "none", label: "Без группы" }]}
             />
             <Select
               value={filters.user}

@@ -3,7 +3,6 @@ import { T } from "./canvases";
 import type { CaseFile as CaseFileT, Location as LocationT } from "../../../../../shared/case";
 import { editor } from "../state";
 
-
 import type { Selection } from "./types";
 
 export function normRect(r: { from: { x: number; y: number }; to: { x: number; y: number } }) {
@@ -27,7 +26,6 @@ export function addLocation(draft: CaseFileT, select: (i: number) => void) {
   }));
   select(draft.locations.length);
 }
-
 
 /** Прямоугольник в базовых пикселях карты (клетка — `T` пикселей). */
 export interface PxRect {
@@ -83,12 +81,7 @@ const inside = (r: PxRect, px: number, py: number) => px >= r.x && px < r.x + r.
  * Порядок рисования тот же, что в `renderMap`: по линии пола, настенные и ковры — под остальными.
  * `opaque` — необязательная проверка, что в этой точке картинки есть пиксель (прозрачные углы не в счёт).
  */
-export function pickTopmost(
-  loc: LocationT,
-  px: number,
-  py: number,
-  opaque?: (s: Exclude<Selection, null>, localX: number, localY: number) => boolean,
-): Selection {
+export function pickTopmost(loc: LocationT, px: number, py: number, opaque?: (s: Exclude<Selection, null>, localX: number, localY: number) => boolean): Selection {
   const items: { order: number; sel: Exclude<Selection, null>; rect: PxRect }[] = [
     ...loc.objects.map((o) => ({ order: SPRITES[o.sprite].flat ? -1 : o.y, sel: { kind: "object", id: o.id } as const, rect: objectRect(o) })),
     ...loc.npcs.map((n) => ({ order: n.y, sel: { kind: "npc", id: n.id } as const, rect: npcRect(n) })),

@@ -43,7 +43,6 @@ const GROUPS: { label: string; categories: QuestionCategory[] }[] = [
   { label: "Доказательства", categories: ["evidence"] },
 ];
 
-
 export function scoreQuestion(q: Question, selected: string[]): QuestionResult {
   const chosen = q.options.filter((o) => selected.includes(o.id));
   const raw = chosen.reduce((s, o) => s + o.points, 0);
@@ -56,9 +55,7 @@ export function scoreQuestion(q: Question, selected: string[]): QuestionResult {
 }
 
 export function hintPenalty(c: CaseFile, hintsUsed: number): number {
-  return c.hints
-    .filter((h) => h.level <= hintsUsed)
-    .reduce((s, h) => s + h.penalty, 0);
+  return c.hints.filter((h) => h.level <= hintsUsed).reduce((s, h) => s + h.penalty, 0);
 }
 
 /** Порог успеха для бонуса за время (в баллах), если в деле не задан свой: любой результат выше нуля. */

@@ -1,8 +1,6 @@
 import { useEffect, useRef } from "react";
 import { formSchema } from "../json-schema";
-import {
-  drawTile,
-} from "../../game/art";
+import { drawTile } from "../../game/art";
 import { Location, LocationObject, NpcPlacement, isInteractive } from "../../../../../shared/case";
 import type { CaseFile as CaseFileT, Location as LocationT, LocationObject as LocationObjectT, NpcDialogue, Zone } from "../../../../../shared/case";
 import { Icon } from "../../ui/icons";
@@ -19,7 +17,6 @@ import { NpcDialogues } from "./NpcDialogues";
 import { Field, ObjectFields, type JS } from "../SchemaForm";
 import { T } from "./canvases";
 import { LIST_KEY, type Selection, type Tool } from "./types";
-
 
 const OBJECT_SCHEMA: JS = formSchema(LocationObject);
 const NPC_SCHEMA: JS = formSchema(NpcPlacement);
@@ -98,7 +95,8 @@ export function SelectedPanel({
         {back}
         <h3>Старт игрока</h3>
         <p className="muted">
-          Клетка {loc.playerStart?.x}, {loc.playerStart?.y}. Стартовая локация — та, где стоит этот маркер; он один на дело. Перетащите ▶ на карте или выберите инструмент «Старт» в другой локации, чтобы перенести.
+          Клетка {loc.playerStart?.x}, {loc.playerStart?.y}. Стартовая локация — та, где стоит этот маркер; он один на дело. Перетащите ▶ на карте или выберите инструмент «Старт» в другой локации,
+          чтобы перенести.
         </p>
       </>
     );
@@ -107,7 +105,7 @@ export function SelectedPanel({
     const zone = loc.zones.find((z) => z.id === sel.id);
     if (!zone) return null;
     const drawing = tool.kind === "zone";
-        const erase = drawing && !!(tool as { erase?: boolean }).erase;
+    const erase = drawing && !!(tool as { erase?: boolean }).erase;
     return (
       <>
         {back}
@@ -174,16 +172,11 @@ export function SelectedPanel({
       {back}
       <h3>{title}</h3>
       {(() => {
-        const onChange = (v: unknown) =>
-          updateLoc((l) => ({ ...l, [key]: (l[key] as { id: string }[]).map((x) => (x.id === sel.id ? v : x)) }), `${key}:${sel.id}`);
+        const onChange = (v: unknown) => updateLoc((l) => ({ ...l, [key]: (l[key] as { id: string }[]).map((x) => (x.id === sel.id ? v : x)) }), `${key}:${sel.id}`);
         return sel.kind === "npc" ? (
           <>
             <ObjectFields schema={schema} value={item} ctx={{ draft }} skip={["dialogues"]} onChange={onChange} />
-            <NpcDialogues
-              dialogues={(item as unknown as { dialogues: NpcDialogue[] }).dialogues ?? []}
-              draft={draft}
-              onChange={(dialogues) => onChange({ ...(item as object), dialogues })}
-            />
+            <NpcDialogues dialogues={(item as unknown as { dialogues: NpcDialogue[] }).dialogues ?? []} draft={draft} onChange={(dialogues) => onChange({ ...(item as object), dialogues })} />
           </>
         ) : (
           <>

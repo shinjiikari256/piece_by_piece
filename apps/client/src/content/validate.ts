@@ -5,13 +5,27 @@ import { isRangeOrdered, parseEventTime } from "../../../../shared/events";
 import { isEntryTrigger, isInteractive } from "../../../../shared/case";
 import { conditionParams } from "../../../../shared/sprite-bindings";
 import { parseCase } from "../../../../shared/migrate";
-import { FLOOR_TILES, SPRITES, SPRITE_GROUPS, registerCaseArt, WALL_TILES, partOf, PART_ROLES, PART_SLOTS, BUILTIN_PARTS, CHAR_W, CHAR_H, resolveLook, solidCells, TILE_GROUPS, TILES } from "../game/art";
+import {
+  FLOOR_TILES,
+  SPRITES,
+  SPRITE_GROUPS,
+  registerCaseArt,
+  WALL_TILES,
+  partOf,
+  PART_ROLES,
+  PART_SLOTS,
+  BUILTIN_PARTS,
+  CHAR_W,
+  CHAR_H,
+  resolveLook,
+  solidCells,
+  TILE_GROUPS,
+  TILES,
+} from "../game/art";
 import { zoneTargetCell } from "./case-utils";
 import { findPath } from "../game/scene/navigation";
 
-export type ValidationResult =
-  | { ok: true; caseFile: CaseFile }
-  | { ok: false; errors: string[] };
+export type ValidationResult = { ok: true; caseFile: CaseFile } | { ok: false; errors: string[] };
 
 const FLOOR = FLOOR_TILES;
 
@@ -39,8 +53,7 @@ function checkIntegrity(c: CaseFile): string[] {
     if (!sp.name.trim()) err(`${W}: не задано название`);
     for (const [fr, ops] of Object.entries(sp.frames))
       for (const [x, y, w, h] of ops) if (x < 0 || y < 0 || x + w > sp.w || y + h > sp.h) err(`${W}: кадр ${fr}: прямоугольник выходит за размер ${sp.w}×${sp.h}`);
-    for (const cell of sp.cells ?? [])
-      if (cell.dx < 0 || cell.dx >= sp.footprint.w || cell.dy < 0 || cell.dy >= sp.footprint.h) err(`${W}: клетка ${cell.dx},${cell.dy} вне опоры`);
+    for (const cell of sp.cells ?? []) if (cell.dx < 0 || cell.dx >= sp.footprint.w || cell.dy < 0 || cell.dy >= sp.footprint.h) err(`${W}: клетка ${cell.dx},${cell.dy} вне опоры`);
   }
   // тайлы дела и легенда карты
   const builtinTiles = new Set(TILE_GROUPS.flatMap((g) => g.keys));
@@ -144,7 +157,8 @@ function checkIntegrity(c: CaseFile): string[] {
           err(`${W}: привязка — у спрайта нет переменной «${pid}»`);
           continue;
         }
-        const kindOk = q.kind === "flag" ? (c.flags ?? []).some((x) => x.id === target) : q.kind === "counter" ? (c.counters ?? []).some((x) => x.id === target) : (c.enums ?? []).some((x) => x.id === target);
+        const kindOk =
+          q.kind === "flag" ? (c.flags ?? []).some((x) => x.id === target) : q.kind === "counter" ? (c.counters ?? []).some((x) => x.id === target) : (c.enums ?? []).some((x) => x.id === target);
         if (!kindOk) err(`${W}: привязка «${pid}» → «${target}»: нет такой переменной нужного вида`);
         else if (q.kind === "enum") {
           const en = (c.enums ?? []).find((x) => x.id === target)!;
@@ -152,10 +166,12 @@ function checkIntegrity(c: CaseFile): string[] {
         }
       }
       if (!o.states?.length) {
-        const used = new Set((sp.states ?? []).flatMap((st) => {
-          const u = conditionParams(st.when);
-          return [...u.flags, ...u.counters, ...u.enums.map((e) => e.id)];
-        }));
+        const used = new Set(
+          (sp.states ?? []).flatMap((st) => {
+            const u = conditionParams(st.when);
+            return [...u.flags, ...u.counters, ...u.enums.map((e) => e.id)];
+          }),
+        );
         for (const pid of used) if (params.has(pid) && !o.bindings?.[pid]) err(`${W}: переменная спрайта «${pid}» не привязана к переменной дела`);
       }
     }
@@ -169,7 +185,10 @@ function checkIntegrity(c: CaseFile): string[] {
     return seen;
   };
 
-  const characters = unique("characters", c.characters.map((x) => x.id));
+  const characters = unique(
+    "characters",
+    c.characters.map((x) => x.id),
+  );
   // одинаковая внешность у двух персонажей сбивает игрока с толку
   const seenLooks = new Map<string, string>();
   for (const ch of c.characters) {
@@ -178,37 +197,76 @@ function checkIntegrity(c: CaseFile): string[] {
     if (other) err(`characters: у «${ch.id}» такая же внешность, как у «${other}»`);
     else seenLooks.set(key, ch.id);
   }
-  const counterIds = unique("counters", (c.counters ?? []).map((x) => x.id));
+  const counterIds = unique(
+    "counters",
+    (c.counters ?? []).map((x) => x.id),
+  );
   (c.flags ?? []).forEach((f) => counterIds.has(f.id) && err(`counters: ключ «${f.id}» занят и флагом, и счётчиком — ключи должны отличаться`));
   (c.counters ?? []).forEach((x) => {
     if (!x.name.trim()) err(`counters: у счётчика «${x.id}» нет названия`);
     if (x.min !== undefined && x.max !== undefined && x.min > x.max) err(`counters: у счётчика «${x.id}» наименьшее значение больше наибольшего`);
     if (x.initial !== undefined && ((x.min !== undefined && x.initial < x.min) || (x.max !== undefined && x.initial > x.max))) err(`counters: начальное значение счётчика «${x.id}» вне его границ`);
   });
-  const enumIds = unique("enums", (c.enums ?? []).map((x) => x.id));
+  const enumIds = unique(
+    "enums",
+    (c.enums ?? []).map((x) => x.id),
+  );
   (c.flags ?? []).forEach((f) => enumIds.has(f.id) && err(`enums: ключ «${f.id}» занят и флагом, и перечислением — ключи должны отличаться`));
   (c.counters ?? []).forEach((x) => enumIds.has(x.id) && err(`enums: ключ «${x.id}» занят и счётчиком, и перечислением — ключи должны отличаться`));
   const enumValues = new Map<string, Set<string>>();
   for (const e of c.enums ?? []) {
     if (!e.name.trim()) err(`enums: у перечисления «${e.id}» нет названия`);
     if (!e.values.length) err(`enums: у перечисления «${e.id}» нет значений`);
-    enumValues.set(e.id, unique(`enums ${e.id} values`, e.values.map((x) => x.id)));
+    enumValues.set(
+      e.id,
+      unique(
+        `enums ${e.id} values`,
+        e.values.map((x) => x.id),
+      ),
+    );
     e.values.forEach((x) => x.name.trim() || err(`enums: у значения «${x.id}» перечисления «${e.id}» нет названия`));
     if (e.initial !== undefined && !e.values.some((x) => x.id === e.initial)) err(`enums: начальное значение «${e.initial}» перечисления «${e.id}» не из списка значений`);
   }
-  const evidence = unique("evidence", c.evidence.map((x) => x.id));
+  const evidence = unique(
+    "evidence",
+    c.evidence.map((x) => x.id),
+  );
   const itemIds = new Set(c.evidence.filter((x) => x.kind === "item").map((x) => x.id));
-  const events = unique("events", c.events.map((x) => x.id));
-  const dialogues = unique("dialogues", c.dialogues.map((x) => x.id));
-  const deductions = unique("deductions", c.deductions.map((x) => x.id));
-  const locationIds = unique("locations", c.locations.map((l) => l.id));
+  const events = unique(
+    "events",
+    c.events.map((x) => x.id),
+  );
+  const dialogues = unique(
+    "dialogues",
+    c.dialogues.map((x) => x.id),
+  );
+  const deductions = unique(
+    "deductions",
+    c.deductions.map((x) => x.id),
+  );
+  const locationIds = unique(
+    "locations",
+    c.locations.map((l) => l.id),
+  );
   if (!c.locations.length) err("locations: нужна хотя бы одна локация");
   const starts = c.locations.filter((l) => l.playerStart).length;
   if (starts !== 1) err(`locations: клетка старта игрока должна быть ровно одна (сейчас ${starts})`);
-  unique("location objects/npcs", c.locations.flatMap((l) => [...l.objects.map((o) => o.id), ...l.npcs.map((n) => n.id)]));
-  unique("npcs (персонаж в двух местах)", c.locations.flatMap((l) => l.npcs.map((n) => n.characterId)));
-  unique("questions", c.questions.map((q) => q.id));
-  unique("zones", c.locations.flatMap((l) => l.zones.map((z) => z.id)));
+  unique(
+    "location objects/npcs",
+    c.locations.flatMap((l) => [...l.objects.map((o) => o.id), ...l.npcs.map((n) => n.id)]),
+  );
+  unique(
+    "npcs (персонаж в двух местах)",
+    c.locations.flatMap((l) => l.npcs.map((n) => n.characterId)),
+  );
+  unique(
+    "questions",
+    c.questions.map((q) => q.id),
+  );
+  unique(
+    "zones",
+    c.locations.flatMap((l) => l.zones.map((z) => z.id)),
+  );
 
   const ref = (set: Set<string>, id: string, where: string) => {
     if (!set.has(id)) err(`${where}: неизвестная ссылка «${id}»`);
@@ -223,7 +281,10 @@ function checkIntegrity(c: CaseFile): string[] {
     cond?.inLocation?.forEach((id) => ref(locationIds, id, where));
     cond?.notInLocation?.forEach((id) => ref(locationIds, id, where));
     cond?.chosen?.forEach((r) => {
-      const choice = c.dialogues.find((d) => d.id === r.dialogueId)?.nodes.find((n) => n.id === r.nodeId)?.choices.find((ch) => ch.id === r.choiceId);
+      const choice = c.dialogues
+        .find((d) => d.id === r.dialogueId)
+        ?.nodes.find((n) => n.id === r.nodeId)
+        ?.choices.find((ch) => ch.id === r.choiceId);
       if (!choice) err(`${where}: вариант ответа «${r.dialogueId}/${r.nodeId}/${r.choiceId}» не найден`);
     });
     cond?.counters?.forEach((r) => {
@@ -277,8 +338,7 @@ function checkIntegrity(c: CaseFile): string[] {
           if (e.value === undefined) err(`${where}: у счётчика «${e.variableId}» не указано число`);
         }
       }
-      if (e.type === "addCharacterNote" || e.type === "follow" || e.type === "stay" || e.type === "returnHome" || e.type === "moveTo")
-        ref(characters, e.characterId, where);
+      if (e.type === "addCharacterNote" || e.type === "follow" || e.type === "stay" || e.type === "returnHome" || e.type === "moveTo") ref(characters, e.characterId, where);
       if (e.type === "moveTo") checkMoveTo(e, where);
     }
   };
@@ -340,7 +400,10 @@ function checkIntegrity(c: CaseFile): string[] {
       const spec = SPRITES[o.sprite];
       for (const c of solidCells(o.x, o.y, spec)) occupy(c.x, c.y, `object ${o.id}`);
       if (o.states?.length) {
-        unique(`${L}/object ${o.id}.states`, o.states.map((st) => st.id));
+        unique(
+          `${L}/object ${o.id}.states`,
+          o.states.map((st) => st.id),
+        );
         for (const st of o.states) {
           if (st.frame && !spec.frames[st.frame]) err(`${L}/object ${o.id}: состояние ${st.id}: у спрайта ${o.sprite} нет кадра ${st.frame}`);
           checkCondition(st.when, `${L}/object ${o.id}: состояние ${st.id}.when`);
@@ -434,18 +497,27 @@ function checkIntegrity(c: CaseFile): string[] {
   // Диалоги
   for (const d of c.dialogues) {
     ref(characters, d.characterId, `dialogue ${d.id}`);
-    const nodes = unique(`dialogue ${d.id} nodes`, d.nodes.map((n) => n.id));
+    const nodes = unique(
+      `dialogue ${d.id} nodes`,
+      d.nodes.map((n) => n.id),
+    );
     ref(nodes, d.startNodeId, `dialogue ${d.id}.startNodeId`);
     for (const n of d.nodes) {
       const where = `dialogue ${d.id}/${n.id}`;
       if (n.speaker) ref(characters, n.speaker, `${where}.speaker`);
       if (!n.choices.length) err(`${where}: нет вариантов ответа`);
-      unique(`${where} choices`, n.choices.map((ch) => ch.id));
+      unique(
+        `${where} choices`,
+        n.choices.map((ch) => ch.id),
+      );
       for (const ch of n.choices) {
         if (ch.next !== null) ref(nodes, ch.next, `${where}/${ch.id}.next`);
         checkCondition(ch.requires, `${where}/${ch.id}.requires`);
       }
-      unique(`${where} presentations`, (n.presentations ?? []).map((p) => p.id));
+      unique(
+        `${where} presentations`,
+        (n.presentations ?? []).map((p) => p.id),
+      );
       for (const p of n.presentations ?? []) {
         if (p.next !== null) ref(nodes, p.next, `${where}/present:${p.id}.next`);
         checkCondition(p.requires, `${where}/present:${p.id}.requires`);
@@ -494,7 +566,10 @@ function checkIntegrity(c: CaseFile): string[] {
   };
   for (const d of c.deductions) if (visit(d.id)) err(`deduction ${d.id}: цепочка сопоставлений замкнута в круг`);
   // у каждого флага — русское название
-  const named = unique("flags", (c.flags ?? []).map((f) => f.id));
+  const named = unique(
+    "flags",
+    (c.flags ?? []).map((f) => f.id),
+  );
   const usedFlags = new Set<string>();
   const addFlagOf = (e: Effect) => {
     const f = flagOfEffect(e);
@@ -561,16 +636,12 @@ function checkIntegrity(c: CaseFile): string[] {
       ids.forEach((id) => itemIds.has(id) && err(`${where}: «${id}» — предмет, а не улика; убери его из вариантов`));
       evidence.forEach((id) => itemIds.has(id) || ids.includes(id) || err(`${where}: нет варианта для улики «${id}»`));
     }
-    const best =
-      q.kind === "multi"
-        ? q.options.reduce((s, o) => s + Math.max(0, o.points), 0)
-        : Math.max(...q.options.map((o) => o.points));
+    const best = q.kind === "multi" ? q.options.reduce((s, o) => s + Math.max(0, o.points), 0) : Math.max(...q.options.map((o) => o.points));
     if (best !== q.maxPoints) err(`${where}: максимум по вариантам ${best}, а maxPoints ${q.maxPoints}`);
     total += q.maxPoints;
   }
   if (total <= 0) err("questions: сумма maxPoints должна быть больше нуля");
-  if (c.timeBonus?.minScore != null && c.timeBonus.minScore > total)
-    err(`timeBonus: порог ${c.timeBonus.minScore} баллов больше максимума ${total} — бонус недостижим`);
+  if (c.timeBonus?.minScore != null && c.timeBonus.minScore > total) err(`timeBonus: порог ${c.timeBonus.minScore} баллов больше максимума ${total} — бонус недостижим`);
   for (const cat of ["right", "violation", "qualification", "responsible", "evidence"] as const) {
     if (!c.questions.some((q) => q.category === cat)) err(`questions: нет вопроса категории «${cat}»`);
   }

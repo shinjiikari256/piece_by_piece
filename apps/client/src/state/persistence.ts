@@ -42,4 +42,3 @@ export function listSaves(): SaveData[] {
   const saves = listKeys(PREFIX).map((k) => readSave(k.slice(PREFIX.length)));
   return saves.filter((s): s is SaveData => !!s).sort((a, b) => b.savedAt - a.savedAt);
 }
-

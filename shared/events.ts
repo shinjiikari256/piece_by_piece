@@ -36,7 +36,10 @@ export function parseEventTime(text: string): EventMoment | null {
  * Так событие «3 октября» встаёт рядом с «1 октября 2026», а не в начало или конец ленты.
  */
 export function defaultEventYear(events: { at: string; until?: string }[]): number {
-  const years = events.flatMap((e) => [e.at, e.until]).map((x) => (x ? parseEventTime(x)?.year : undefined)).filter((y): y is number => y !== undefined);
+  const years = events
+    .flatMap((e) => [e.at, e.until])
+    .map((x) => (x ? parseEventTime(x)?.year : undefined))
+    .filter((y): y is number => y !== undefined);
   return years.length ? Math.min(...years) : NO_YEAR;
 }
 
@@ -75,7 +78,8 @@ export function eventParts(at: string, until?: string): { dayKey: string; day: s
   const day = dayText(a);
   const dayKey = `${a.year ?? ""}-${a.month}-${a.day}`;
   if (!b) return { dayKey, day, when: clock(a), range: false };
-  if (dayText(b) === day) return { dayKey, day, when: a.hour === undefined && b.hour === undefined ? "" : `${clock(a) || "00:00"} – ${clock(b) || "00:00"}`, range: a.hour !== undefined || b.hour !== undefined };
+  if (dayText(b) === day)
+    return { dayKey, day, when: a.hour === undefined && b.hour === undefined ? "" : `${clock(a) || "00:00"} – ${clock(b) || "00:00"}`, range: a.hour !== undefined || b.hour !== undefined };
   return { dayKey, day, when: `${clock(a)}${clock(a) ? " " : ""}до ${dayText(b)}${clock(b) ? `, ${clock(b)}` : ""}`.trim(), range: true };
 }
 

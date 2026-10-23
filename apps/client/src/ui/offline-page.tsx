@@ -28,10 +28,13 @@ export function OfflinePage() {
 
   useEffect(() => {
     if (!staff) return;
-    api<{ variants: OfflineVariant[] }>("GET", "/admin/offline").then((r) => {
-      setAvailable(r.variants);
-      if (r.variants.length && !r.variants.includes("game")) setVariant(r.variants[0]);
-    }, () => setAvailable([]));
+    api<{ variants: OfflineVariant[] }>("GET", "/admin/offline").then(
+      (r) => {
+        setAvailable(r.variants);
+        if (r.variants.length && !r.variants.includes("game")) setVariant(r.variants[0]);
+      },
+      () => setAvailable([]),
+    );
     api<CaseRow[]>("GET", "/admin/cases").then(setCases, () => setCases([]));
   }, [staff]);
 

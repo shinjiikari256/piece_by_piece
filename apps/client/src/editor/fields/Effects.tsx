@@ -12,11 +12,25 @@ import { ClipEditor } from "./ClipEditor";
 import { SPRITES } from "../../game/art/sprites";
 import { firstFloorCell } from "../../content/case-utils";
 
-const cellOf = (l: Parameters<typeof firstFloorCell>[0] | undefined) => (l ? l.playerStart ?? firstFloorCell(l) : { x: 0, y: 0 });
+const cellOf = (l: Parameters<typeof firstFloorCell>[0] | undefined) => (l ? (l.playerStart ?? firstFloorCell(l)) : { x: 0, y: 0 });
 
 // ---------- эффекты ----------
 
-const EFFECT_TYPES: Effect["type"][] = ["addEvidence", "removeEvidence", "changeVariable", "message", "startDialogue", "travel", "failCase", "follow", "stay", "returnHome", "moveTo", "addCharacterNote", "playAnimation"];
+const EFFECT_TYPES: Effect["type"][] = [
+  "addEvidence",
+  "removeEvidence",
+  "changeVariable",
+  "message",
+  "startDialogue",
+  "travel",
+  "failCase",
+  "follow",
+  "stay",
+  "returnHome",
+  "moveTo",
+  "addCharacterNote",
+  "playAnimation",
+];
 
 const blankEffect = (type: Effect["type"], d: FormCtx["draft"]): Effect => {
   const ch = d.characters[0]?.id ?? "";
@@ -79,7 +93,9 @@ function VariableEffect({ effect, ctx, onChange }: { effect: Extract<Effect, { t
         placeholder="какая переменная"
         options={[
           { value: NEW_VARIABLE, label: "+ Добавить переменную…" },
-          ...flagsOf(d).filter((f) => kindOf(f) === "flag").map((f) => ({ value: f, label: `Флаг · ${flagLabel(d, f)}` })),
+          ...flagsOf(d)
+            .filter((f) => kindOf(f) === "flag")
+            .map((f) => ({ value: f, label: `Флаг · ${flagLabel(d, f)}` })),
           ...counters.map((c) => ({ value: c.id, label: `Счётчик · ${c.name || c.id}` })),
           ...enums.map((x) => ({ value: x.id, label: `Перечисление · ${x.name || x.id}` })),
         ]}
@@ -120,9 +136,7 @@ export function EffectsEditor({ value, onChange, ctx }: { value: Effect[]; onCha
         <div key={i} className="fx__row">
           <span className="fx__type">{ENUM_LABELS[e.type]}</span>
           <div className="fx__arg stack">
-            {e.type === "addEvidence" && (
-              <Select value={e.evidenceId} placeholder="какую улику" options={evidence} onChange={(v) => set(i, { ...e, evidenceId: v })} />
-            )}
+            {e.type === "addEvidence" && <Select value={e.evidenceId} placeholder="какую улику" options={evidence} onChange={(v) => set(i, { ...e, evidenceId: v })} />}
             {e.type === "failCase" && (
               <textarea
                 rows={2}
@@ -134,9 +148,7 @@ export function EffectsEditor({ value, onChange, ctx }: { value: Effect[]; onCha
                 }}
               />
             )}
-            {e.type === "removeEvidence" && (
-              <Select value={e.evidenceId} placeholder="какую улику убрать" options={evidence} onChange={(v) => set(i, { ...e, evidenceId: v })} />
-            )}
+            {e.type === "removeEvidence" && <Select value={e.evidenceId} placeholder="какую улику убрать" options={evidence} onChange={(v) => set(i, { ...e, evidenceId: v })} />}
             {e.type === "startDialogue" && (
               <Select
                 value={e.dialogueId}
@@ -147,17 +159,14 @@ export function EffectsEditor({ value, onChange, ctx }: { value: Effect[]; onCha
             )}
             {e.type === "travel" && (
               <>
-                <Select
-                  value={e.locationId}
-                  placeholder="в какую локацию"
-                  options={locations}
-                  onChange={(v) => set(i, { ...e, locationId: v, ...cellOf(d.locations.find((l) => l.id === v)) })}
-                />
+                <Select value={e.locationId} placeholder="в какую локацию" options={locations} onChange={(v) => set(i, { ...e, locationId: v, ...cellOf(d.locations.find((l) => l.id === v)) })} />
                 <div className="row">
                   <button className="btn btn--sm" onClick={() => setPicking(i)}>
                     Где появится игрок…
                   </button>
-                  <span className="muted">клетка {e.x}, {e.y}</span>
+                  <span className="muted">
+                    клетка {e.x}, {e.y}
+                  </span>
                 </div>
               </>
             )}
@@ -177,9 +186,7 @@ export function EffectsEditor({ value, onChange, ctx }: { value: Effect[]; onCha
               </>
             )}
             {e.type === "changeVariable" && <VariableEffect effect={e} ctx={ctx} onChange={(v) => set(i, v)} />}
-            {"characterId" in e && (
-              <Select value={e.characterId} placeholder="кто" options={chars} onChange={(v) => set(i, { ...e, characterId: v } as Effect)} />
-            )}
+            {"characterId" in e && <Select value={e.characterId} placeholder="кто" options={chars} onChange={(v) => set(i, { ...e, characterId: v } as Effect)} />}
             {e.type === "moveTo" && (
               <>
                 <Select
@@ -192,10 +199,7 @@ export function EffectsEditor({ value, onChange, ctx }: { value: Effect[]; onCha
                 <Select
                   value={e.zoneId ?? ""}
                   placeholder="Куда: клетка или область"
-                  options={[
-                    { value: "", label: "Клетка на карте" },
-                    ...(d.locations.find((l) => l.id === e.locationId)?.zones ?? []).map((z) => ({ value: z.id, label: `Область «${z.name}»` })),
-                  ]}
+                  options={[{ value: "", label: "Клетка на карте" }, ...(d.locations.find((l) => l.id === e.locationId)?.zones ?? []).map((z) => ({ value: z.id, label: `Область «${z.name}»` }))]}
                   onChange={(v) => set(i, { ...e, zoneId: v || undefined })}
                 />
                 {e.zoneId ? (
@@ -205,7 +209,9 @@ export function EffectsEditor({ value, onChange, ctx }: { value: Effect[]; onCha
                     <button className="btn btn--sm" onClick={() => setPicking(i)}>
                       Выбрать клетку на карте…
                     </button>
-                    <span className="muted">клетка {e.x}, {e.y}</span>
+                    <span className="muted">
+                      клетка {e.x}, {e.y}
+                    </span>
                   </div>
                 )}
                 <input
@@ -216,12 +222,8 @@ export function EffectsEditor({ value, onChange, ctx }: { value: Effect[]; onCha
                 />
               </>
             )}
-            {e.type === "message" && (
-              <textarea rows={2} value={e.text} placeholder="Что увидит игрок (короткое сообщение на экране)" onChange={(ev) => set(i, { ...e, text: ev.target.value })} />
-            )}
-            {e.type === "addCharacterNote" && (
-              <textarea rows={2} value={e.text} placeholder="Что запишется в карточку персонажа" onChange={(ev) => set(i, { ...e, text: ev.target.value })} />
-            )}
+            {e.type === "message" && <textarea rows={2} value={e.text} placeholder="Что увидит игрок (короткое сообщение на экране)" onChange={(ev) => set(i, { ...e, text: ev.target.value })} />}
+            {e.type === "addCharacterNote" && <textarea rows={2} value={e.text} placeholder="Что запишется в карточку персонажа" onChange={(ev) => set(i, { ...e, text: ev.target.value })} />}
             <label className="ef ef--bool">
               <input
                 type="checkbox"

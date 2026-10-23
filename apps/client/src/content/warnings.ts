@@ -31,7 +31,8 @@ export function caseWarnings(c: CaseFile): string[] {
   for (const d of c.dialogues) {
     for (const n of d.nodes) {
       if (!n.auto) continue;
-      if (!n.choices.some((ch) => !ch.requires || !Object.keys(ch.requires).length)) out.push(`dialogue ${d.id}/${n.id}: у перехода нет варианта без условия — если ни одно условие не выполнится, разговор закончится`);
+      if (!n.choices.some((ch) => !ch.requires || !Object.keys(ch.requires).length))
+        out.push(`dialogue ${d.id}/${n.id}: у перехода нет варианта без условия — если ни одно условие не выполнится, разговор закончится`);
     }
     const autoNext = (id: string) => (d.nodes.find((n) => n.id === id)?.auto ? d.nodes.find((n) => n.id === id)!.choices.flatMap((ch) => (ch.next ? [ch.next] : [])) : []);
     for (const n of d.nodes) {
@@ -57,12 +58,13 @@ export function caseWarnings(c: CaseFile): string[] {
 
   // флаги: условие ждёт флаг, который никто не ставит (обратное — флаг поставлен, но не проверяется — не предупреждаем: так пишут «история» дела)
   const set = new Set<string>((c.flags ?? []).filter((f) => f.initial).map((f) => f.id)); // начальные флаги стоят с самого начала
-  const effects = (list: Effect[]) => list.forEach((e) => {
-    const f = flagOfEffect(e);
-    if (f && f.action !== "off") set.add(f.flag);
-    if (e.type === "changeVariable" && !e.valueId) changed.add(e.variableId);
-    if (e.type === "changeVariable" && e.action === "assign" && e.valueId) assigned.add(`${e.variableId}:${e.valueId}`);
-  });
+  const effects = (list: Effect[]) =>
+    list.forEach((e) => {
+      const f = flagOfEffect(e);
+      if (f && f.action !== "off") set.add(f.flag);
+      if (e.type === "changeVariable" && !e.valueId) changed.add(e.variableId);
+      if (e.type === "changeVariable" && e.action === "assign" && e.valueId) assigned.add(`${e.variableId}:${e.valueId}`);
+    });
   // значения перечислений: условие ждёт значение, которое ни один эффект не выбирает и которое не начальное
   const assigned = new Set<string>(initialEnumPairs(c));
   const changed = new Set<string>(); // счётчики, которые меняет хоть один эффект
@@ -80,10 +82,11 @@ export function caseWarnings(c: CaseFile): string[] {
     effects(site.effects);
     site.effects.forEach((e) => positive(e.requires));
   });
-  for (const d of c.dialogues) for (const n of d.nodes) {
-    n.choices.forEach((ch) => positive(ch.requires));
-    n.textVariants?.forEach((tv) => positive(tv.requires));
-  }
+  for (const d of c.dialogues)
+    for (const n of d.nodes) {
+      n.choices.forEach((ch) => positive(ch.requires));
+      n.textVariants?.forEach((tv) => positive(tv.requires));
+    }
   c.hints.forEach((h) => positive(h.requires));
   c.events.forEach((ev) => positive(ev.requires));
   if (c.settings?.timelineYear === undefined && c.events.some((ev) => ev.showInTimeline && (!/^\d{4}-/.test(ev.at) || (ev.until && !/^\d{4}-/.test(ev.until)))))
@@ -101,7 +104,8 @@ export function caseWarnings(c: CaseFile): string[] {
     );
   }
   for (const f of needsSetting) if (!set.has(f)) out.push(`flag ${f}: условия ждут этот флаг, но ни один эффект его не ставит — то, что за ним, недостижимо`);
-  for (const key of needsValue) if (!assigned.has(key)) out.push(`enum ${key.split(":")[0]}: условия ждут значение «${key.split(":")[1]}», но ни один эффект его не выбирает — то, что за ним, недостижимо`);
+  for (const key of needsValue)
+    if (!assigned.has(key)) out.push(`enum ${key.split(":")[0]}: условия ждут значение «${key.split(":")[1]}», но ни один эффект его не выбирает — то, что за ним, недостижимо`);
 
   // счётчики: условие вне границ счётчика или счётчик, который никто не меняет, а условие требует другого значения
   const counters = new Map((c.counters ?? []).map((k) => [k.id, k]));

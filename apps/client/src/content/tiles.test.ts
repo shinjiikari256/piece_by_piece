@@ -33,7 +33,11 @@ describe("тайлы дела", () => {
 
   it("проверки: встроенный ключ, неизвестная основа, выход за размер, легенда с неизвестным тайлом", () => {
     const c = base();
-    c.tiles = [...(c.tiles ?? []), { key: "wall", name: "Подмена", solid: true, layers: [{ ops: [] }] }, { key: "bad", name: "Плохой", solid: false, base: "nope", layers: [{ ops: [[10, 10, 8, 8, "#ffffff"]] }] }];
+    c.tiles = [
+      ...(c.tiles ?? []),
+      { key: "wall", name: "Подмена", solid: true, layers: [{ ops: [] }] },
+      { key: "bad", name: "Плохой", solid: false, base: "nope", layers: [{ ops: [[10, 10, 8, 8, "#ffffff"]] }] },
+    ];
     c.legend = { ...c.legend, "9": "ghost" };
     const errs = errorsOf(c).join("\n");
     expect(errs).toContain("tile wall: ключ совпадает со встроенным тайлом");

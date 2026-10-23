@@ -64,7 +64,7 @@ export function conditionToModel(c: Condition | undefined): ConditionModel {
   return { atoms, ast };
 }
 
-const copy = <T,>(x: T): T => JSON.parse(JSON.stringify(x));
+const copy = <T>(x: T): T => JSON.parse(JSON.stringify(x));
 
 /** Положить строку в узел; `false` — слот ключа занят (строка пойдёт в `allOf`, чтобы не слиться с другой). */
 function place(node: Condition, row: Condition): boolean {

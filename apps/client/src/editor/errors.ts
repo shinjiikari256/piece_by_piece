@@ -59,8 +59,7 @@ export function locateError(message: string, c: CaseFile): LocatedError {
   if ((m = message.match(/^tile (\S+?):/))) return make("sprites", { sub: "tiles", id: m[1] });
   if (/^legend/.test(message)) return make("sprites", { sub: "tiles" });
   if ((m = message.match(/^part (\S+?)\/(\S+?):/))) return make("sprites", { sub: "parts", id: `${m[1]}/${m[2]}` });
-  if ((m = message.match(/^location (\S+?)\/(object|npc|exit|zone) (\S+?):/)))
-    return make("locations", { sub: m[1], kind: m[2] as Focus["kind"], id: m[3] });
+  if ((m = message.match(/^location (\S+?)\/(object|npc|exit|zone) (\S+?):/))) return make("locations", { sub: m[1], kind: m[2] as Focus["kind"], id: m[3] });
   if ((m = message.match(/^location (\S+?)[/.:]/))) return make("locations", { sub: m[1] });
   if ((m = message.match(/^(object|npc) (\S+?)[:.]/))) {
     const kind = m[1] as "object" | "npc";
@@ -93,11 +92,41 @@ export function locateError(message: string, c: CaseFile): LocatedError {
 
 /** Служебные слова в сообщениях проверки (разбор адреса идёт по ним) → русские слова для показа. */
 const WORDS: Record<string, string> = {
-  dialogue: "диалог", dialogues: "диалоги", evidence: "улика", deduction: "сопоставление", deductions: "сопоставления",
-  question: "вопрос", questions: "вопросы", flag: "флаг", counter: "счётчик", flags: "флаги", counters: "счётчики", enum: "перечисление", enums: "перечисления",
-  location: "локация", tile: "тайл", legend: "легенда", locations: "локации", characters: "персонажи", events: "события", settings: "настройки", hints: "подсказки", solution: "решение",
-  lawReference: "закон", timeBonus: "бонус за время", object: "предмет", zone: "область", npc: "человек",
-  moveTo: "перемещение", addEvidence: "выдача улики", spawn: "точка появления", playerStart: "старт игрока", startNodeId: "первая реплика", speaker: "говорящий", requires: "условие", choices: "варианты ответа",
+  dialogue: "диалог",
+  dialogues: "диалоги",
+  evidence: "улика",
+  deduction: "сопоставление",
+  deductions: "сопоставления",
+  question: "вопрос",
+  questions: "вопросы",
+  flag: "флаг",
+  counter: "счётчик",
+  flags: "флаги",
+  counters: "счётчики",
+  enum: "перечисление",
+  enums: "перечисления",
+  location: "локация",
+  tile: "тайл",
+  legend: "легенда",
+  locations: "локации",
+  characters: "персонажи",
+  events: "события",
+  settings: "настройки",
+  hints: "подсказки",
+  solution: "решение",
+  lawReference: "закон",
+  timeBonus: "бонус за время",
+  object: "предмет",
+  zone: "область",
+  npc: "человек",
+  moveTo: "перемещение",
+  addEvidence: "выдача улики",
+  spawn: "точка появления",
+  playerStart: "старт игрока",
+  startNodeId: "первая реплика",
+  speaker: "говорящий",
+  requires: "условие",
+  choices: "варианты ответа",
 };
 
 /** Сообщение проверки для показа: служебные английские слова заменены русскими (сами сообщения остаются прежними — по ним ищется место). */

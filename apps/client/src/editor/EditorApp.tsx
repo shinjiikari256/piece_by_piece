@@ -25,9 +25,6 @@ import { OFFLINE, OFFLINE_EDITOR } from "../env";
 import { startPlaytest } from "./actions";
 import { listActions } from "./shared";
 
-
-
-
 /** Правая кнопка в конструкторе: копирование и основные команды. */
 function editorMenu({ target, selection }: MenuContext): MenuItem[] {
   const st = editorStore.get();
@@ -145,7 +142,9 @@ export function EditorApp() {
       el.focus();
     };
     const first = (root: Element | null | undefined) =>
-      [...(root?.querySelectorAll<HTMLElement>('input:not(:disabled), textarea:not(:disabled), button:not(:disabled), a[href], [tabindex]:not([tabindex="-1"])') ?? [])].find((x) => x.offsetParent !== null);
+      [...(root?.querySelectorAll<HTMLElement>('input:not(:disabled), textarea:not(:disabled), button:not(:disabled), a[href], [tabindex]:not([tabindex="-1"])') ?? [])].find(
+        (x) => x.offsetParent !== null,
+      );
     if (e.key === "ArrowRight" && active?.closest(".ed__nav")) {
       focus(document.querySelector<HTMLElement>(".ed__main .ed__item[aria-current]") ?? first(document.querySelector(".ed__main")));
     } else if (e.key === "ArrowRight" && active?.classList.contains("ed__item")) {
@@ -187,7 +186,14 @@ export function EditorApp() {
           Закрыть
         </button>
         {SECTIONS.map((s) => (
-          <button key={s.id} className="ed__nav-item" tabIndex={section === s.id || (section === "errors" && !errors.length && !warnings.length && s.id === "general") ? 0 : -1} aria-current={section === s.id || undefined} onClick={() => editor.goto(s.id)} title={s.hint}>
+          <button
+            key={s.id}
+            className="ed__nav-item"
+            tabIndex={section === s.id || (section === "errors" && !errors.length && !warnings.length && s.id === "general") ? 0 : -1}
+            aria-current={section === s.id || undefined}
+            onClick={() => editor.goto(s.id)}
+            title={s.hint}
+          >
             {s.label}
             <span className="ed__nav-count">{countFor(draft, s.id)}</span>
           </button>
@@ -229,9 +235,6 @@ export function EditorApp() {
   );
 }
 
-
-
-
 function countFor(d: CaseFile, id: SectionId): string {
   const n: Partial<Record<SectionId, number>> = {
     characters: d.characters.length,
@@ -247,8 +250,3 @@ function countFor(d: CaseFile, id: SectionId): string {
   };
   return n[id] !== undefined ? String(n[id]) : "";
 }
-
-
-
-
-

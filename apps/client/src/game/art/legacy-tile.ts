@@ -112,8 +112,7 @@ export function drawTileLegacy(ctx: Ctx, ch: string, ox: number, oy: number, n: 
     }
     case "a": {
       rect(ctx, ox, oy, T, T, "#5d636b");
-      for (let y = 0; y < T; y += 2)
-        for (let x = 0; x < T; x += 2) if (noise(ox + x, oy + y) > 0.8) rect(ctx, ox + x, oy + y, 1, 1, "#6e757e");
+      for (let y = 0; y < T; y += 2) for (let x = 0; x < T; x += 2) if (noise(ox + x, oy + y) > 0.8) rect(ctx, ox + x, oy + y, 1, 1, "#6e757e");
       break;
     }
     case "p": {
@@ -135,8 +134,7 @@ export function drawTileLegacy(ctx: Ctx, ch: string, ox: number, oy: number, n: 
     }
     case "b": {
       rect(ctx, ox, oy, T, T, "#7d97b5");
-      for (let y = 0; y < T; y++)
-        for (let x = 0; x < T; x++) if (noise(ox + x, oy + y) > 0.92) rect(ctx, ox + x, oy + y, 1, 1, "#90a8c4");
+      for (let y = 0; y < T; y++) for (let x = 0; x < T; x++) if (noise(ox + x, oy + y) > 0.92) rect(ctx, ox + x, oy + y, 1, 1, "#90a8c4");
       break;
     }
     case "k": {
@@ -151,8 +149,7 @@ export function drawTileLegacy(ctx: Ctx, ch: string, ox: number, oy: number, n: 
       rect(ctx, ox, oy, T, T, "#a8433a");
       rect(ctx, ox, oy, T, 1, "#e0b23c");
       rect(ctx, ox, oy + T - 1, T, 1, "#e0b23c");
-      for (let y = 0; y < T; y++)
-        for (let x = 0; x < T; x++) if (noise(ox + x, oy + y) > 0.9) rect(ctx, ox + x, oy + y, 1, 1, "#b8524a");
+      for (let y = 0; y < T; y++) for (let x = 0; x < T; x++) if (noise(ox + x, oy + y) > 0.9) rect(ctx, ox + x, oy + y, 1, 1, "#b8524a");
       break;
     }
     case "w": {

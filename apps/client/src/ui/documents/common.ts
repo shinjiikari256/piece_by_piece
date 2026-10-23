@@ -1,4 +1,3 @@
-
 import { mixColors, roleColor } from "../../util/colors";
 
 /** A4 при 200 dpi. */
@@ -10,22 +9,54 @@ export const PAGE_H = 2339;
  * Золото листа — рамка «обвязки» (`--border-chrome`), тёмный и светлый оттенки считаются от него.
  */
 export const C = {
-  get paper() { return roleColor("--bg-paper", "#fbf7ee"); },
-  get paperEdge() { return roleColor("--bg-paper-dim", "#f3ecdc"); },
-  get surface() { return roleColor("--bg-surface", "#ffffff"); },
-  get onDark() { return roleColor("--text-on-dark", "#ffffff"); },
-  get ink() { return roleColor("--text", "#2b231c"); },
-  get soft() { return roleColor("--text-soft", "#5d5247"); },
-  get muted() { return roleColor("--text-muted", "#887a6b"); },
-  get line() { return roleColor("--border", "#e0d4bd"); },
-  get gold() { return roleColor("--border-chrome", "#b48d55"); },
-  get goldDark() { return mixColors(this.gold, "#000000", 0.25); },
-  get goldLight() { return mixColors(this.gold, "#ffffff", 0.35); },
-  get accent() { return roleColor("--accent", "#2b4c7e"); },
-  get good() { return roleColor("--good", "#2e7d4f"); },
-  get warn() { return roleColor("--warn-strong", "#e0b23c"); },
-  get bad() { return roleColor("--bad", "#b03a2e"); },
-  get shadow() { return roleColor("--overlay-dark-2", "rgba(20, 12, 4, 0.18)"); },
+  get paper() {
+    return roleColor("--bg-paper", "#fbf7ee");
+  },
+  get paperEdge() {
+    return roleColor("--bg-paper-dim", "#f3ecdc");
+  },
+  get surface() {
+    return roleColor("--bg-surface", "#ffffff");
+  },
+  get onDark() {
+    return roleColor("--text-on-dark", "#ffffff");
+  },
+  get ink() {
+    return roleColor("--text", "#2b231c");
+  },
+  get soft() {
+    return roleColor("--text-soft", "#5d5247");
+  },
+  get muted() {
+    return roleColor("--text-muted", "#887a6b");
+  },
+  get line() {
+    return roleColor("--border", "#e0d4bd");
+  },
+  get gold() {
+    return roleColor("--border-chrome", "#b48d55");
+  },
+  get goldDark() {
+    return mixColors(this.gold, "#000000", 0.25);
+  },
+  get goldLight() {
+    return mixColors(this.gold, "#ffffff", 0.35);
+  },
+  get accent() {
+    return roleColor("--accent", "#2b4c7e");
+  },
+  get good() {
+    return roleColor("--good", "#2e7d4f");
+  },
+  get warn() {
+    return roleColor("--warn-strong", "#e0b23c");
+  },
+  get bad() {
+    return roleColor("--bad", "#b03a2e");
+  },
+  get shadow() {
+    return roleColor("--overlay-dark-2", "rgba(20, 12, 4, 0.18)");
+  },
 };
 
 export type Tone = "good" | "warn" | "bad";
@@ -34,12 +65,7 @@ export const toneColor = (t: Tone) => (t === "good" ? C.good : t === "warn" ? C.
 export const font = (weight: number, size: number, family = "Rubik") => `${weight} ${size}px "${family}", system-ui, sans-serif`;
 
 export async function loadFonts() {
-  await Promise.all([
-    document.fonts.load(font(700, 40)),
-    document.fonts.load(font(500, 40)),
-    document.fonts.load(font(400, 40)),
-    document.fonts.load(font(400, 40, "PT Mono")),
-  ]);
+  await Promise.all([document.fonts.load(font(700, 40)), document.fonts.load(font(500, 40)), document.fonts.load(font(400, 40)), document.fonts.load(font(400, 40, "PT Mono"))]);
 }
 
 export function wrap(ctx: CanvasRenderingContext2D, text: string, maxWidth: number): string[] {

@@ -3,7 +3,10 @@ import { TILE } from "../art";
 import { BLOCK_LIMIT_MS, redirect, startWalk, stepWalk, tileOfPoint, turnBack, type Point, type Walk } from "./walker";
 
 // коридор 6×3: стены вокруг, пол — всё остальное; blocked — клетки с помехой
-const make = (blocked: Set<string> = new Set()) => (x: number, y: number) => x >= 0 && x < 6 && y >= 0 && y < 3 && !blocked.has(`${x},${y}`);
+const make =
+  (blocked: Set<string> = new Set()) =>
+  (x: number, y: number) =>
+    x >= 0 && x < 6 && y >= 0 && y < 3 && !blocked.has(`${x},${y}`);
 const pointOf = (x: number, y: number): Point => ({ x: (x + 0.5) * TILE, y: (y + 1) * TILE - 2 });
 
 /** Шагать, пока ход не закончится или не выйдет время; возвращает событие и сколько мс прошло. */

@@ -5,7 +5,9 @@ import { validateCase } from "../apps/client/src/content/validate";
 const dir = path.resolve("apps/client/src/content/cases");
 let failed = 0;
 
-for (const file of readdirSync(dir).filter((f) => f.endsWith(".json")).sort()) {
+for (const file of readdirSync(dir)
+  .filter((f) => f.endsWith(".json"))
+  .sort()) {
   const result = validateCase(JSON.parse(readFileSync(path.join(dir, file), "utf8")));
   if (result.ok) {
     console.log(`✓ ${file} — «${result.caseFile.title}» (${result.caseFile.published ? "в списке" : "скрыто"})`);

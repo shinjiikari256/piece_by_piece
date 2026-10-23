@@ -21,10 +21,18 @@ type EventRow = typeof events.$inferSelect;
 async function checkEvent(db: Db, user: { id: number; role: string; groupId: number | null }, eventId: number, caseId: string, now: Date): Promise<EventRow> {
   const [ev] = await db.select().from(events).where(eq(events.id, eventId));
   if (!ev) throw new ApiError(404, "not_found", "Мероприятие не найдено");
-  const [inEvent] = await db.select().from(eventCases).where(and(eq(eventCases.eventId, eventId), eq(eventCases.caseId, caseId)));
+  const [inEvent] = await db
+    .select()
+    .from(eventCases)
+    .where(and(eq(eventCases.eventId, eventId), eq(eventCases.caseId, caseId)));
   if (!inEvent) throw new ApiError(404, "not_found", "Этого дела нет в мероприятии");
   if (user.role === "student") {
-    const [access] = user.groupId ? await db.select().from(eventAccess).where(and(eq(eventAccess.eventId, eventId), eq(eventAccess.groupId, user.groupId))) : [];
+    const [access] = user.groupId
+      ? await db
+          .select()
+          .from(eventAccess)
+          .where(and(eq(eventAccess.eventId, eventId), eq(eventAccess.groupId, user.groupId)))
+      : [];
     if (!access) throw new ApiError(404, "not_found", "Мероприятие не найдено");
     if (!isOpen(ev, now)) throw new ApiError(409, "event_closed", "Мероприятие сейчас закрыто");
     if (ev.maxScoredAttempts != null) {
@@ -59,8 +67,7 @@ export function elapsedMs(a: Pick<AttemptRow, "startedAt" | "pausedAt" | "paused
   return Math.max(0, now.getTime() - a.startedAt.getTime() - paused);
 }
 
-const log = (db: Db, attemptId: string, type: string, payload?: unknown, at = new Date()) =>
-  db.insert(attemptEvents).values({ attemptId, type, payload: payload ?? null, at });
+const log = (db: Db, attemptId: string, type: string, payload?: unknown, at = new Date()) => db.insert(attemptEvents).values({ attemptId, type, payload: payload ?? null, at });
 
 async function caseBody(db: Db, versionId: number): Promise<CaseFile> {
   const [row] = await db.select({ body: caseVersions.body }).from(caseVersions).where(eq(caseVersions.id, versionId));
@@ -69,7 +76,10 @@ async function caseBody(db: Db, versionId: number): Promise<CaseFile> {
 
 /** Своя действующая попытка или 404/409. */
 async function ownAttempt(c: Ctx, id: string, userId: number): Promise<AttemptRow> {
-  const [a] = await c.var.db.select().from(attempts).where(and(eq(attempts.id, id), eq(attempts.userId, userId)));
+  const [a] = await c.var.db
+    .select()
+    .from(attempts)
+    .where(and(eq(attempts.id, id), eq(attempts.userId, userId)));
   if (!a) throw new ApiError(404, "not_found", "Попытка не найдена");
   return a;
 }
@@ -78,7 +88,10 @@ function mustBeActive(a: AttemptRow) {
 }
 
 const touch = (db: Db, id: string, set: Partial<AttemptRow> = {}, now = new Date()) =>
-  db.update(attempts).set({ ...set, lastEventAt: now }).where(eq(attempts.id, id));
+  db
+    .update(attempts)
+    .set({ ...set, lastEventAt: now })
+    .where(eq(attempts.id, id));
 
 /** Судья на сервере: прохождения (попытки), проверки, подсказки, пауза и сдача. */
 export const attemptRoutes = new Hono<AppEnv>()
@@ -98,14 +111,10 @@ export const attemptRoutes = new Hono<AppEnv>()
       .returning({ id: attempts.id });
     for (const s of stale) await log(db, s.id, "abandoned", null, now);
 
-    const [current] = await db
-      .select({ id: cases.currentVersionId, visibility: cases.visibility })
-      .from(cases)
-      .where(eq(cases.id, caseId));
+    const [current] = await db.select({ id: cases.currentVersionId, visibility: cases.visibility }).from(cases).where(eq(cases.id, caseId));
     if (!current?.id) throw new ApiError(404, "not_found", "Дело не найдено");
     const currentBody = await caseBody(db, current.id);
-    if (user.role === "student" && (!currentBody.published || !(await studentSeesCase(db, user, caseId, current.visibility, !fresh))))
-      throw new ApiError(404, "not_found", "Дело не найдено");
+    if (user.role === "student" && (!currentBody.published || !(await studentSeesCase(db, user, caseId, current.visibility, !fresh)))) throw new ApiError(404, "not_found", "Дело не найдено");
 
     let [a] = await db
       .select()
@@ -201,7 +210,10 @@ export const attemptRoutes = new Hono<AppEnv>()
       .from(attemptEvents)
       .where(and(eq(attemptEvents.attemptId, a.id), eq(attemptEvents.type, "check")))
       .orderBy(asc(attemptEvents.id));
-    const ids = solved.map((e) => e.payload as { deductionId: string; correct: boolean }).filter((p) => p.correct).map((p) => p.deductionId);
+    const ids = solved
+      .map((e) => e.payload as { deductionId: string; correct: boolean })
+      .filter((p) => p.correct)
+      .map((p) => p.deductionId);
     const revealed: Revealed = {
       ...judge.revealed(await caseBody(c.var.db, a.caseVersionId), ids, a.hintsUsed),
       wrongDeductions: a.wrongDeductions,

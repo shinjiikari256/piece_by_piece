@@ -10,7 +10,10 @@ function shade(hex: string, amount = 0.2): string {
   const m = /^#?([0-9a-f]{6})$/i.exec(hex.trim());
   if (!m) return hex;
   const n = parseInt(m[1], 16);
-  const ch = (v: number) => Math.round(v * (1 - amount)).toString(16).padStart(2, "0");
+  const ch = (v: number) =>
+    Math.round(v * (1 - amount))
+      .toString(16)
+      .padStart(2, "0");
   return `#${ch((n >> 16) & 255)}${ch((n >> 8) & 255)}${ch(n & 255)}`;
 }
 

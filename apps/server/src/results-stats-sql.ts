@@ -55,7 +55,10 @@ export async function queryResultsStats(db: Db, where: SQL | undefined): Promise
     })
     .from(results)
     .innerJoin(users, eq(users.id, results.userId))
-    .innerJoin(sql`lateral jsonb_array_elements(case when jsonb_typeof(${results.score} -> 'groups') = 'array' then ${results.score} -> 'groups' else '[]'::jsonb end) with ordinality as g(value, ord)`, sql`true`)
+    .innerJoin(
+      sql`lateral jsonb_array_elements(case when jsonb_typeof(${results.score} -> 'groups') = 'array' then ${results.score} -> 'groups' else '[]'::jsonb end) with ordinality as g(value, ord)`,
+      sql`true`,
+    )
     .where(sql`${where ?? sql`true`} and coalesce((g.value ->> 'max')::numeric, 0) <> 0`)
     .groupBy(sql`g.value ->> 'label'`)
     .orderBy(sql`min(g.ord)`);

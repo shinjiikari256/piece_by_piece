@@ -66,15 +66,7 @@ export function AuthPage({ tab }: { tab: AuthTab }) {
   return (
     <div className="auth-folder">
       <Folder tabs={AUTH_TABS} active={tab} onTab={(id) => navigate(`/${id}`)}>
-        {tab === "guest" ? (
-          <GuestForm />
-        ) : server !== "online" ? (
-          <NoServer />
-        ) : tab === "login" ? (
-          <LoginForm />
-        ) : (
-          <RegisterForm />
-        )}
+        {tab === "guest" ? <GuestForm /> : server !== "online" ? <NoServer /> : tab === "login" ? <LoginForm /> : <RegisterForm />}
       </Folder>
     </div>
   );
@@ -84,9 +76,7 @@ function NoServer() {
   return (
     <div className="auth-pane">
       <h1>Нет связи с сервером</h1>
-      <p className="muted">
-        Вход и регистрация работают, когда доступен сервер. Сейчас можно играть без входа — результаты останутся в этом браузере.
-      </p>
+      <p className="muted">Вход и регистрация работают, когда доступен сервер. Сейчас можно играть без входа — результаты останутся в этом браузере.</p>
       <Link className="btn btn--primary" to="/guest">
         Играть без входа
       </Link>
@@ -185,7 +175,9 @@ function GuestForm() {
       className="form auth-pane"
       onSubmit={(e) => {
         e.preventDefault();
-        void platform().profile.read().then((profile) => platform().profile.write({ ...profile, name: name.trim() }));
+        void platform()
+          .profile.read()
+          .then((profile) => platform().profile.write({ ...profile, name: name.trim() }));
         setDone(true);
       }}
     >

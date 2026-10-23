@@ -1,27 +1,11 @@
 import { Hono } from "hono";
 import { and, asc, count, desc, eq, inArray, sql } from "drizzle-orm";
-import {
-  GroupBody,
-  LinkBody,
-  type AdminGroup,
-} from "../../../../../shared/api";
+import { GroupBody, LinkBody, type AdminGroup } from "../../../../../shared/api";
 import { randomToken } from "../../auth";
 import { groupTeachers, groups, joinLinks, users } from "../../db/schema";
-import {
-  ApiError,
-  parseBody,
-  requireAdmin,
-  requireStaff,
-  type AppEnv,
-} from "../../http";
+import { ApiError, parseBody, requireAdmin, requireStaff, type AppEnv } from "../../http";
 
-import {
-  assertGroupAccess,
-  audit,
-  loadLinkFor,
-  ownGroupIds,
-  toLink,
-} from "./access";
+import { assertGroupAccess, audit, loadLinkFor, ownGroupIds, toLink } from "./access";
 
 export const groupsRoutes = new Hono<AppEnv>()
   .get("/groups", async (c) => {
@@ -31,28 +15,16 @@ export const groupsRoutes = new Hono<AppEnv>()
     const list = await db
       .select()
       .from(groups)
-      .where(
-        own ? (own.length ? inArray(groups.id, own) : sql`false`) : undefined,
-      )
+      .where(own ? (own.length ? inArray(groups.id, own) : sql`false`) : undefined)
       .orderBy(asc(groups.name));
     const teachers = await db.select().from(groupTeachers);
-    const counts = await db
-      .select({ groupId: users.groupId, status: users.status, n: count() })
-      .from(users)
-      .where(eq(users.role, "student"))
-      .groupBy(users.groupId, users.status);
+    const counts = await db.select({ groupId: users.groupId, status: users.status, n: count() }).from(users).where(eq(users.role, "student")).groupBy(users.groupId, users.status);
     const result: AdminGroup[] = list.map((g) => ({
       id: g.id,
       name: g.name,
-      teacherIds: teachers
-        .filter((t) => t.groupId === g.id)
-        .map((t) => t.userId),
-      students: counts
-        .filter((x) => x.groupId === g.id)
-        .reduce((s, x) => s + x.n, 0),
-      pending:
-        counts.find((x) => x.groupId === g.id && x.status === "pending")?.n ??
-        0,
+      teacherIds: teachers.filter((t) => t.groupId === g.id).map((t) => t.userId),
+      students: counts.filter((x) => x.groupId === g.id).reduce((s, x) => s + x.n, 0),
+      pending: counts.find((x) => x.groupId === g.id && x.status === "pending")?.n ?? 0,
     }));
     return c.json(result);
   })
@@ -61,21 +33,9 @@ export const groupsRoutes = new Hono<AppEnv>()
     const db = c.var.db;
     const admin = requireAdmin(c);
     const body = await parseBody(c, GroupBody);
-    const [g] = await db
-      .insert(groups)
-      .values({ name: body.name })
-      .onConflictDoNothing()
-      .returning();
-    if (!g)
-      throw new ApiError(
-        409,
-        "group_exists",
-        "Группа с таким названием уже есть",
-      );
-    if (body.teacherIds?.length)
-      await db
-        .insert(groupTeachers)
-        .values(body.teacherIds.map((userId) => ({ groupId: g.id, userId })));
+    const [g] = await db.insert(groups).values({ name: body.name }).onConflictDoNothing().returning();
+    if (!g) throw new ApiError(409, "group_exists", "Группа с таким названием уже есть");
+    if (body.teacherIds?.length) await db.insert(groupTeachers).values(body.teacherIds.map((userId) => ({ groupId: g.id, userId })));
     await audit(db, admin.id, "groups.create", { id: g.id, ...body });
     return c.json({ id: g.id, name: g.name }, 201);
   })
@@ -91,19 +51,12 @@ export const groupsRoutes = new Hono<AppEnv>()
       .where(eq(groups.id, id))
       .returning()
       .catch(() => {
-        throw new ApiError(
-          409,
-          "group_exists",
-          "Группа с таким названием уже есть",
-        );
+        throw new ApiError(409, "group_exists", "Группа с таким названием уже есть");
       });
     if (!g) throw new ApiError(404, "not_found", "Группа не найдена");
     if (body.teacherIds) {
       await db.delete(groupTeachers).where(eq(groupTeachers.groupId, id));
-      if (body.teacherIds.length)
-        await db
-          .insert(groupTeachers)
-          .values(body.teacherIds.map((userId) => ({ groupId: id, userId })));
+      if (body.teacherIds.length) await db.insert(groupTeachers).values(body.teacherIds.map((userId) => ({ groupId: id, userId })));
     }
     await audit(db, admin.id, "groups.update", { id, ...body });
     return c.json({ id: g.id, name: g.name });
@@ -125,11 +78,7 @@ export const groupsRoutes = new Hono<AppEnv>()
     const staff = requireStaff(c);
     const groupId = Number(c.req.param("id"));
     await assertGroupAccess(db, staff, groupId);
-    const links = await db
-      .select()
-      .from(joinLinks)
-      .where(eq(joinLinks.groupId, groupId))
-      .orderBy(desc(joinLinks.createdAt));
+    const links = await db.select().from(joinLinks).where(eq(joinLinks.groupId, groupId)).orderBy(desc(joinLinks.createdAt));
     const stats = links.length
       ? await db
           .select({
@@ -151,8 +100,7 @@ export const groupsRoutes = new Hono<AppEnv>()
         toLink(
           l,
           stats.filter((s) => s.linkId === l.id).reduce((n, s) => n + s.n, 0),
-          stats.find((s) => s.linkId === l.id && s.status === "pending")?.n ??
-            0,
+          stats.find((s) => s.linkId === l.id && s.status === "pending")?.n ?? 0,
         ),
       ),
     );
@@ -184,10 +132,7 @@ export const groupsRoutes = new Hono<AppEnv>()
     const staff = requireStaff(c);
     const id = Number(c.req.param("id"));
     await loadLinkFor(db, staff, id);
-    await db
-      .update(joinLinks)
-      .set({ revokedAt: new Date() })
-      .where(eq(joinLinks.id, id));
+    await db.update(joinLinks).set({ revokedAt: new Date() }).where(eq(joinLinks.id, id));
     await audit(db, staff.id, "links.revoke", { id });
     return c.json({ ok: true });
   })
@@ -201,14 +146,7 @@ export const groupsRoutes = new Hono<AppEnv>()
     const confirmed = await db
       .update(users)
       .set({ status: "active" })
-      .where(
-        and(
-          eq(users.joinLinkId, id),
-          eq(users.groupId, link.groupId),
-          eq(users.status, "pending"),
-          eq(users.role, "student"),
-        ),
-      )
+      .where(and(eq(users.joinLinkId, id), eq(users.groupId, link.groupId), eq(users.status, "pending"), eq(users.role, "student")))
       .returning({ id: users.id });
     await audit(db, staff.id, "links.confirm", {
       id,

@@ -1,9 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import {
-  STATUS_LABEL,
-  type AdminGroup,
-  type UserStatus,
-} from "../../../../../shared/api";
+import { STATUS_LABEL, type AdminGroup, type UserStatus } from "../../../../../shared/api";
 import { isStaff, useAccount } from "../../state/account";
 import { ApiFailure, api } from "../../state/api";
 import { tell } from "../dialog";
@@ -20,12 +16,15 @@ import { SettingsSection } from "./settings";
 
 type AdminRoute = Extract<Route, { page: "admin" }>;
 
-export const fail = (e: unknown) =>
-  void tell({ title: "Не получилось", text: e instanceof ApiFailure ? e.message : "Ошибка связи с сервером" });
+export const fail = (e: unknown) => void tell({ title: "Не получилось", text: e instanceof ApiFailure ? e.message : "Ошибка связи с сервером" });
 
 export const date = (iso: string | null) => (iso ? formatDate(iso) : "—");
 
-export const StatusChip = ({ status }: { status: UserStatus }) => <span className="status" data-tone={STATUS_TONE[status]}>{STATUS_LABEL[status]}</span>;
+export const StatusChip = ({ status }: { status: UserStatus }) => (
+  <span className="status" data-tone={STATUS_TONE[status]}>
+    {STATUS_LABEL[status]}
+  </span>
+);
 
 export function AdminPage({ route }: { route: AdminRoute }) {
   const server = useAccount((s) => s.server);
@@ -42,9 +41,7 @@ export function AdminPage({ route }: { route: AdminRoute }) {
     return (
       <div className="page page--narrow">
         <h1>Пользователи</h1>
-        <p className="muted">
-          {server === "none" ? "Раздел работает только с сервером: запустите `pnpm server:dev` (и базу — `pnpm db:up`)." : "Раздел доступен преподавателям и администратору."}
-        </p>
+        <p className="muted">{server === "none" ? "Раздел работает только с сервером: запустите `pnpm server:dev` (и базу — `pnpm db:up`)." : "Раздел доступен преподавателям и администратору."}</p>
       </div>
     );
   const isAdmin = me!.role === "admin";

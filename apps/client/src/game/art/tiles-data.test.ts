@@ -26,9 +26,18 @@ describe("тайлы из данных", () => {
       for (const below of SIDES)
         for (const left of SIDES)
           for (const right of [undefined, "#", ".", "S", "D"])
-            for (const [ox, oy] of [[0, 0], [16, 0], [0, 16], [48, 32], [208, 112]]) {
+            for (const [ox, oy] of [
+              [0, 0],
+              [16, 0],
+              [0, 16],
+              [48, 32],
+              [208, 112],
+            ]) {
               const nb = { below, left, right, above: below };
-              expect(record((c) => drawTile(c, ch, ox, oy, nb)), `${ch} ${JSON.stringify(nb)} ${ox},${oy}`).toEqual(record((c) => drawTileLegacy(c, ch, ox, oy, nb)));
+              expect(
+                record((c) => drawTile(c, ch, ox, oy, nb)),
+                `${ch} ${JSON.stringify(nb)} ${ox},${oy}`,
+              ).toEqual(record((c) => drawTileLegacy(c, ch, ox, oy, nb)));
               n++;
             }
     expect(n).toBeGreaterThan(10000);

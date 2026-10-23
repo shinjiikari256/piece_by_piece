@@ -6,8 +6,7 @@ import { embedSprites, readSpriteSpecs } from "../../../shared/offline-embed";
 const TEMPLATE = "<html><head><title>Дело</title></head><body></body></html>";
 const SPRITES_DIR = new URL("../../client/src/game/art/sprites/data", import.meta.url).pathname;
 
-const caseWith = (...sprites: string[]) =>
-  ({ locations: [{ objects: sprites.map((sprite) => ({ sprite })) }] }) as unknown as CaseFile;
+const caseWith = (...sprites: string[]) => ({ locations: [{ objects: sprites.map((sprite) => ({ sprite })) }] }) as unknown as CaseFile;
 
 /** Вшитый набор спрайтов из шаблона (`id="sprites"`). */
 const embeddedKeys = (html: string) => {

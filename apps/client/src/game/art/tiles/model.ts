@@ -52,7 +52,10 @@ export const TILES: Record<string, TileSpec> = {};
 /** Группы тайлов для палитры: ключи по порядку. */
 export const TILE_GROUPS: { id: string; label: string; keys: string[] }[] = [];
 
-for (const [id, label, data] of [["floor", "Пол", floor], ["wall", "Стены", wall]] as const) {
+for (const [id, label, data] of [
+  ["floor", "Пол", floor],
+  ["wall", "Стены", wall],
+] as const) {
   const keys = Object.keys(data);
   for (const key of keys) TILES[key] = (data as unknown as Record<string, TileSpec>)[key];
   TILE_GROUPS.push({ id, label, keys });

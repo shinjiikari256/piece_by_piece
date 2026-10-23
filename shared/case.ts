@@ -117,9 +117,7 @@ export const Effect = z.discriminatedUnion("type", [
     .object({ type: z.literal("playAnimation"), objectId: z.string(), clip: z.array(ClipStep).min(1), ...effectWhen })
     .describe("Проиграть анимацию предмета один раз, не меняя его состояния (диалог заставил дверь постучать); только вид, на условия не влияет"),
   z.object({ type: z.literal("startDialogue"), dialogueId: z.string(), ...effectWhen }).describe("Запустить диалог (после остальных эффектов списка)"),
-  z
-    .object({ type: z.literal("travel"), locationId: z.string(), x: z.number().int(), y: z.number().int(), ...effectWhen })
-    .describe("Перенести игрока в локацию, на клетку x, y"),
+  z.object({ type: z.literal("travel"), locationId: z.string(), x: z.number().int(), y: z.number().int(), ...effectWhen }).describe("Перенести игрока в локацию, на клетку x, y"),
   z
     .object({ type: z.literal("failCase"), text: z.string().optional().describe("Что увидит игрок в окне «Дело провалено»"), ...effectWhen })
     .describe("Неудачное завершение дела: игрок видит окно и начинает заново; результат не записывается"),
@@ -200,7 +198,9 @@ export const Evidence = z.object({
   title: z.string(),
   description: z.string().describe("Короткое описание для карточки"),
   details: z.string().describe("Полный текст: содержимое документа, показания и т.п."),
-  kind: z.enum(["evidence", "testimony", "item"]).describe("Улика (документ, вещь, цифровой след…), показания или предмет (ключ, фонарь: лежит в журнале, но уликой не считается — в сопоставления и вопросы не попадает)"),
+  kind: z
+    .enum(["evidence", "testimony", "item"])
+    .describe("Улика (документ, вещь, цифровой след…), показания или предмет (ключ, фонарь: лежит в журнале, но уликой не считается — в сопоставления и вопросы не попадает)"),
   subtype: z.string().optional().describe("Вид улики для подписи: «Документ», «Цифровой след», «Вещь»"),
   relatedCharacters: z.array(z.string()),
   relatedEvents: z.array(z.string()),
@@ -346,11 +346,16 @@ export const SpriteParam = z.object({
   id: z.string().regex(/^[a-z][a-z0-9_]*$/),
   name: z.string().describe("Название для автора"),
   kind: z.enum(["flag", "counter", "enum"]).describe("Флаг, число или перечисление"),
-  values: z.array(z.object({ id: z.string(), name: z.string() })).optional().describe("Значения перечисления"),
+  values: z
+    .array(z.object({ id: z.string(), name: z.string() }))
+    .optional()
+    .describe("Значения перечисления"),
 });
 
 /** Состояние спрайта: только вид (кадр, проходимость, цикл); условие — над переменными спрайта (`flags`, `notFlags`, `counters`, `enums`, `allOf`, `anyOf`). */
-export const SpriteState = ObjectState.pick({ id: true, when: true, frame: true, solid: true, loop: true }).extend({ name: z.string().optional().describe("Название для автора; без него показывается ключ") });
+export const SpriteState = ObjectState.pick({ id: true, when: true, frame: true, solid: true, loop: true }).extend({
+  name: z.string().optional().describe("Название для автора; без него показывается ключ"),
+});
 
 const SpriteOp = z.union([
   z.tuple([z.number().int(), z.number().int(), z.number().int().min(1), z.number().int().min(1), z.string().regex(/^#[0-9a-f]{6}([0-9a-f]{2})?$/i)]),
@@ -359,14 +364,20 @@ const SpriteOp = z.union([
 
 /** Спрайт, нарисованный автором дела (встроенные хранятся только ключом): те же поля, что у встроенного, плюс название и группа. */
 export const CustomSprite = z.object({
-  key: z.string().regex(/^[a-z][a-z0-9_]*$/).describe("Ключ: латиница, цифры, _; не совпадает со встроенным"),
+  key: z
+    .string()
+    .regex(/^[a-z][a-z0-9_]*$/)
+    .describe("Ключ: латиница, цифры, _; не совпадает со встроенным"),
   name: z.string().describe("Название в палитре"),
   group: z.string().optional().describe("Группа палитры; без значения — «Свои»"),
   w: z.number().int().min(1).max(256).describe("Ширина в пикселях (16 px = тайл)"),
   h: z.number().int().min(1).max(256).describe("Высота в пикселях"),
   footprint: z.object({ w: z.number().int().min(1).max(16), h: z.number().int().min(1).max(16) }).describe("Опора в клетках: вправо и вверх от точки предмета"),
   solid: z.boolean().describe("Мешает ли проходу"),
-  cells: z.array(z.object({ dx: z.number().int(), dy: z.number().int(), solid: z.boolean() })).optional().describe("Исключения из solid по клеткам опоры"),
+  cells: z
+    .array(z.object({ dx: z.number().int(), dy: z.number().int(), solid: z.boolean() }))
+    .optional()
+    .describe("Исключения из solid по клеткам опоры"),
   flat: z.boolean().optional(),
   mount: z.number().int().optional(),
   opensNear: z.boolean().optional(),
@@ -386,7 +397,10 @@ const PartOp = z.union([
 
 /** Часть персонажа, нарисованная автором (причёска, деталь одежды…): рисунок 16×24, цвета — `#rrggbb[aa]` или роли внешности (`$hair`, `$top`…). */
 export const CustomPart = z.object({
-  key: z.string().regex(/^[a-z][a-z0-9_]*$/).describe("Ключ: латиница, цифры, _; не совпадает со встроенным в том же слоте"),
+  key: z
+    .string()
+    .regex(/^[a-z][a-z0-9_]*$/)
+    .describe("Ключ: латиница, цифры, _; не совпадает со встроенным в том же слоте"),
   name: z.string().describe("Название в списке частей"),
   slot: PartSlot.describe("Слот: причёска, деталь одежды, лицо, низ"),
   bob: z.boolean().optional().describe("На позе «вдох» сдвигается на пиксель вниз вместе с телом"),
@@ -399,7 +413,12 @@ const TileRectOp = z.tuple([z.number().int(), z.number().int(), z.number().int()
 const TileOp = z.union([
   TileRectOp,
   z.object({ checker: z.tuple([TileColor, TileColor]) }),
-  z.object({ noise: z.object({ step: z.number().int().min(1), rules: z.array(z.object({ gt: z.number().optional(), lt: z.number().optional(), size: z.tuple([z.number().int().min(1), z.number().int().min(1)]), color: TileColor })) }) }),
+  z.object({
+    noise: z.object({
+      step: z.number().int().min(1),
+      rules: z.array(z.object({ gt: z.number().optional(), lt: z.number().optional(), size: z.tuple([z.number().int().min(1), z.number().int().min(1)]), color: TileColor })),
+    }),
+  }),
   z.object({ chance: z.object({ gt: z.number(), ops: z.array(TileRectOp) }) }),
   z.object({ planks: z.object({ line: TileColor, step: z.number().int().min(1), shiftOdd: z.number().int() }) }),
 ]);
@@ -407,7 +426,10 @@ const TileNeighbor = z.union([z.string(), z.array(z.string())]);
 
 /** Тайл клетки карты, нарисованный автором: рисунок 16×16 слоями (слой может зависеть от соседних клеток). */
 export const CustomTile = z.object({
-  key: z.string().regex(/^[a-z][a-z0-9_]*$/).describe("Ключ: латиница, цифры, _; не совпадает со встроенным"),
+  key: z
+    .string()
+    .regex(/^[a-z][a-z0-9_]*$/)
+    .describe("Ключ: латиница, цифры, _; не совпадает со встроенным"),
   name: z.string().describe("Название в палитре карты"),
   solid: z.boolean().describe("Непроходимая клетка (стена, забор)"),
   base: z.string().optional().describe("Тайл, рисуемый под этим (ключ)"),
@@ -455,10 +477,7 @@ export const NpcPlacement = z.object({
   characterId: z.string(),
   dialogueId: z.string().describe("Диалог по умолчанию — запускается, если ни один из `dialogues` не подошёл"),
   requires: Condition.optional().describe("Человек есть на карте, только пока условие выполнено; без условия — всегда"),
-  dialogues: z
-    .array(NpcDialogue)
-    .default([])
-    .describe("Диалоги по условию, по порядку: запускается первый подходящий; очная ставка — диалог с условием «другой персонаж идёт за игроком»"),
+  dialogues: z.array(NpcDialogue).default([]).describe("Диалоги по условию, по порядку: запускается первый подходящий; очная ставка — диалог с условием «другой персонаж идёт за игроком»"),
   x: z.number().int(),
   y: z.number().int(),
 });
@@ -519,13 +538,8 @@ export const Location = z.object({
     .describe(
       "Карта по строкам одинаковой длины. Стены: # стена, W окно, B кирпич, G стекло, P крашеная, F забор. Пол: . плитка, , ковролин, _ паркет, w тёмный паркет, b линолеум, k кафель, m мрамор, r ковровая дорожка, S лестница, D проём, g трава, a асфальт, p тротуар",
     ),
-  areas: z.array(
-    z.object({ name: z.string(), x: z.number().int(), y: z.number().int() }),
-  ).describe("Подписи на карте: помещения, места, что угодно (не только области)"),
-  playerStart: z
-    .object({ x: z.number().int(), y: z.number().int() })
-    .optional()
-    .describe("Старт игрока: задан ровно в одной локации — она и стартовая"),
+  areas: z.array(z.object({ name: z.string(), x: z.number().int(), y: z.number().int() })).describe("Подписи на карте: помещения, места, что угодно (не только области)"),
+  playerStart: z.object({ x: z.number().int(), y: z.number().int() }).optional().describe("Старт игрока: задан ровно в одной локации — она и стартовая"),
   objects: z.array(LocationObject),
   npcs: z.array(NpcPlacement),
   zones: z.array(Zone).default([]).describe("Именованные области с действиями: диалог, предмет, выход в другую локацию"),
@@ -542,11 +556,7 @@ export const DialogueChoice = z.object({
 
 export const DialoguePresentation = z.object({
   id: z.string(),
-  evidenceIds: z
-    .array(z.string())
-    .default([])
-    .meta({ always: true })
-    .describe("Какие материалы это предъявление принимает; пусто — любой"),
+  evidenceIds: z.array(z.string()).default([]).meta({ always: true }).describe("Какие материалы это предъявление принимает; пусто — любой"),
   next: z.string().nullable().describe("id следующего узла (реакция персонажа) или null — закончить разговор"),
   requires: Condition.optional(),
   effects: z.array(Effect).default([]).meta({ always: true }).describe("Что произойдёт, когда игрок предъявит материал (до реакции персонажа)"),
@@ -566,7 +576,9 @@ export const DialogueNode = z.object({
   presentations: z
     .array(DialoguePresentation)
     .optional()
-    .describe("Предъявление материала из журнала: в этом узле появляется кнопка «Предъявить». Срабатывает первое подходящее по порядку (материал в списке или список пуст, условие выполнено); нет подходящего — собеседник не реагирует"),
+    .describe(
+      "Предъявление материала из журнала: в этом узле появляется кнопка «Предъявить». Срабатывает первое подходящее по порядку (материал в списке или список пуст, условие выполнено); нет подходящего — собеседник не реагирует",
+    ),
   auto: z
     .boolean()
     .optional()
@@ -583,13 +595,9 @@ export const Dialogue = z.object({
 export const Deduction = z.object({
   id: z.string(),
   title: z.string(),
-  evidenceIds: z
-    .array(z.string())
-    .describe("Два материала: улики или уже установленные факты (id сопоставления) — так строятся цепочки"),
+  evidenceIds: z.array(z.string()).describe("Два материала: улики или уже установленные факты (id сопоставления) — так строятся цепочки"),
   question: z.string(),
-  options: z.array(
-    z.object({ id: z.string(), text: z.string(), correct: z.boolean(), feedback: z.string() }),
-  ),
+  options: z.array(z.object({ id: z.string(), text: z.string(), correct: z.boolean(), feedback: z.string() })),
   conclusion: z.string().describe("Установленный факт, попадает в журнал"),
   requires: Condition.optional().describe("Когда сопоставление доступно: пока условие не выполнено, эти материалы игра не связывает (как будто сопоставления нет)"),
   effects: z.array(Effect).describe("Эффекты верного ответа"),
@@ -610,9 +618,7 @@ export const Question = z.object({
   category: QuestionCategory,
   prompt: z.string(),
   kind: z.enum(["single", "multi"]),
-  source: z
-    .enum(["inline", "characters", "evidence"])
-    .describe("characters/evidence — варианты берутся из персонажей/найденных улик, label можно оставить пустым"),
+  source: z.enum(["inline", "characters", "evidence"]).describe("characters/evidence — варианты берутся из персонажей/найденных улик, label можно оставить пустым"),
   maxPoints: z.number().int(),
   options: z.array(
     z.object({
@@ -625,14 +631,7 @@ export const Question = z.object({
   ),
 });
 
-export const LiabilityKind = z.enum([
-  "right",
-  "violation",
-  "administrative",
-  "criminal",
-  "civil",
-  "disciplinary",
-]);
+export const LiabilityKind = z.enum(["right", "violation", "administrative", "criminal", "civil", "disciplinary"]);
 
 export const Solution = z.object({
   right: z.string().describe("id права: совпадает с id одного из вариантов вопроса категории right"),
@@ -730,7 +729,9 @@ export const CaseFile = z.object({
       z.object({
         id: z.string(),
         name: z.string().describe("Что описывает перечисление, по-русски (например, «Сейф»)"),
-        values: z.array(z.object({ id: z.string(), name: z.string().describe("Название значения, по-русски (например, «Закрыт»)") })).describe("Возможные значения; в каждый момент действует ровно одно"),
+        values: z
+          .array(z.object({ id: z.string(), name: z.string().describe("Название значения, по-русски (например, «Закрыт»)") }))
+          .describe("Возможные значения; в каждый момент действует ровно одно"),
         initial: z.string().optional().describe("Значение в начале расследования (по умолчанию — первое)"),
       }),
     )
@@ -749,13 +750,7 @@ export const CaseFile = z.object({
     .object({
       minutes: z.number().int().describe("За сколько минут нужно уложиться"),
       points: z.number().int().describe("Сколько баллов сверх суммы за вопросы дать за это"),
-      minScore: z
-        .number()
-        .int()
-        .min(0)
-        .optional()
-        .meta({ always: true })
-        .describe("Бонус дают, только если набрано не меньше этого числа баллов. Пусто или 0 — при любом результате выше нуля"),
+      minScore: z.number().int().min(0).optional().meta({ always: true }).describe("Бонус дают, только если набрано не меньше этого числа баллов. Пусто или 0 — при любом результате выше нуля"),
     })
     .optional()
     .describe("Бонус за скорость: время считается от начала расследования"),
@@ -766,10 +761,7 @@ export const CaseFile = z.object({
     .optional()
     .describe("Настройки: какие возможности дела включены"),
   meta: CaseMeta.optional(),
-  updatedAt: z
-    .string()
-    .optional()
-    .describe("Когда дело последний раз меняли, ISO 8601 (2026-10-12T15:30:00Z). Сохранения игроков от другой версии сбрасываются"),
+  updatedAt: z.string().optional().describe("Когда дело последний раз меняли, ISO 8601 (2026-10-12T15:30:00Z). Сохранения игроков от другой версии сбрасываются"),
   locations: z.array(Location).describe("Первая — стартовая"),
   characters: z.array(Character),
   events: z.array(CaseEvent),

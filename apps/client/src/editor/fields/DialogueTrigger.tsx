@@ -23,8 +23,7 @@ export function DialogueTrigger({ draft, dialogue }: { draft: CaseFile; dialogue
   const free = all.filter(({ zone }) => !launches(zone));
   const home = draft.locations.find((l) => l.npcs.some((n) => n.dialogueId === dialogue.id || n.characterId === dialogue.characterId))?.id;
 
-  const edit = (zoneId: string, fn: (z: Zone) => Zone) =>
-    editor.update((c) => ({ ...c, locations: c.locations.map((l) => ({ ...l, zones: l.zones.map((z) => (z.id === zoneId ? fn(z) : z)) })) }));
+  const edit = (zoneId: string, fn: (z: Zone) => Zone) => editor.update((c) => ({ ...c, locations: c.locations.map((l) => ({ ...l, zones: l.zones.map((z) => (z.id === zoneId ? fn(z) : z)) })) }));
 
   return (
     <section className="dg__trigger stack">

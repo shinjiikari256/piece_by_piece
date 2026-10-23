@@ -97,7 +97,12 @@ export function CellPicker({
       </div>
       <p className="cell-picker__status">
         Курсор: {cursor.x}, {cursor.y}
-        {chosen && <b> · выбрана клетка {chosen.x}, {chosen.y}</b>}
+        {chosen && (
+          <b>
+            {" "}
+            · выбрана клетка {chosen.x}, {chosen.y}
+          </b>
+        )}
       </p>
     </Dialog>
   );

@@ -79,9 +79,7 @@ export function deleteEnumValue(d: CaseFile, enumId: string, valueId: string): C
   }) as Omit<CaseFile, "enums">;
   return {
     ...cleaned,
-    enums: (enums ?? []).map((e) =>
-      e.id === enumId ? { ...e, values: e.values.filter((v) => v.id !== valueId), ...(e.initial === valueId ? { initial: undefined } : {}) } : e,
-    ),
+    enums: (enums ?? []).map((e) => (e.id === enumId ? { ...e, values: e.values.filter((v) => v.id !== valueId), ...(e.initial === valueId ? { initial: undefined } : {}) } : e)),
   } as CaseFile;
 }
 
@@ -90,13 +88,12 @@ export function renameEnumValue(d: CaseFile, enumId: string, from: string, to: s
   const { enums, ...rest } = d;
   const cleaned = walk(rest, {
     effect: (e) => (e.variableId === enumId && e.valueId === from ? { ...e, valueId: to } : e),
-    row: (r) => (r.enumId === enumId ? { ...r, ...(r.in ? { in: sameList(r.in, (x) => (x === from ? to : x)) } : {}), ...(r.notIn ? { notIn: sameList(r.notIn, (x) => (x === from ? to : x)) } : {}) } : r),
+    row: (r) =>
+      r.enumId === enumId ? { ...r, ...(r.in ? { in: sameList(r.in, (x) => (x === from ? to : x)) } : {}), ...(r.notIn ? { notIn: sameList(r.notIn, (x) => (x === from ? to : x)) } : {}) } : r,
   }) as Omit<CaseFile, "enums">;
   return {
     ...cleaned,
-    enums: (enums ?? []).map((e) =>
-      e.id === enumId ? { ...e, values: e.values.map((v) => (v.id === from ? { ...v, id: to } : v)), ...(e.initial === from ? { initial: to } : {}) } : e,
-    ),
+    enums: (enums ?? []).map((e) => (e.id === enumId ? { ...e, values: e.values.map((v) => (v.id === from ? { ...v, id: to } : v)), ...(e.initial === from ? { initial: to } : {}) } : e)),
   } as CaseFile;
 }
 
@@ -104,13 +101,13 @@ export function renameEnumValue(d: CaseFile, enumId: string, from: string, to: s
 function valueRefs(d: CaseFile, enumId: string, valueId: string): number {
   let n = 0;
   walk(d.dialogues, {
-    effect: (e) => (n += e.variableId === enumId && e.valueId === valueId ? 1 : 0, e),
-    row: (r) => (n += r.enumId === enumId && (r.in?.includes(valueId) || r.notIn?.includes(valueId)) ? 1 : 0, r),
+    effect: (e) => ((n += e.variableId === enumId && e.valueId === valueId ? 1 : 0), e),
+    row: (r) => ((n += r.enumId === enumId && (r.in?.includes(valueId) || r.notIn?.includes(valueId)) ? 1 : 0), r),
   });
   for (const part of [d.deductions, d.locations, d.evidence]) {
     walk(part, {
-      effect: (e) => (n += e.variableId === enumId && e.valueId === valueId ? 1 : 0, e),
-      row: (r) => (n += r.enumId === enumId && (r.in?.includes(valueId) || r.notIn?.includes(valueId)) ? 1 : 0, r),
+      effect: (e) => ((n += e.variableId === enumId && e.valueId === valueId ? 1 : 0), e),
+      row: (r) => ((n += r.enumId === enumId && (r.in?.includes(valueId) || r.notIn?.includes(valueId)) ? 1 : 0), r),
     });
   }
   return n;
@@ -125,7 +122,10 @@ export function EnumDialog({ onDone }: { onDone: (id: string | null) => void }) 
   const [id, setId] = useState("");
   const [manualKey, setManualKey] = useState(false);
   const [text, setText] = useState("Закрыт\nОткрыт");
-  const names = text.split("\n").map((x) => x.trim()).filter(Boolean);
+  const names = text
+    .split("\n")
+    .map((x) => x.trim())
+    .filter(Boolean);
   const taken = !!id && isVariableKeyTaken(draft, id);
   const ready = !!id.trim() && !!name.trim() && names.length > 0 && !taken;
   const save = () => {
@@ -205,7 +205,11 @@ export function EnumEditor({ def, uses, onRenamed }: { def: EnumDef; uses: FlagU
       return false;
     }
     if (refs > 0) {
-      const ok = await ask({ title: "Переименовать ключ перечисления?", text: `Перечисление используется в ${refs} мест(ах). Ключ «${id}» заменится на «${next}» во всех ссылках.`, confirmLabel: "Переименовать" });
+      const ok = await ask({
+        title: "Переименовать ключ перечисления?",
+        text: `Перечисление используется в ${refs} мест(ах). Ключ «${id}» заменится на «${next}» во всех ссылках.`,
+        confirmLabel: "Переименовать",
+      });
       if (!ok) return false;
     }
     editor.update((d) => renameKey(d as unknown as Record<string, unknown>, id, next) as unknown as CaseFile);
@@ -264,7 +268,14 @@ export function EnumEditor({ def, uses, onRenamed }: { def: EnumDef; uses: FlagU
                 placeholder="Название значения"
                 onChange={(e) => patch({ values: def.values.map((x) => (x.id === v.id ? { ...x, name: e.target.value } : x)) }, `enum:${id}:${v.id}`)}
               />
-              <input className="flag-input" defaultValue={v.id} key={v.id} title="Ключ значения (Enter — применить, обновит все ссылки)" onBlur={(e) => renameValue(v.id, e.target.value)} onKeyDown={blurOnEnter} />
+              <input
+                className="flag-input"
+                defaultValue={v.id}
+                key={v.id}
+                title="Ключ значения (Enter — применить, обновит все ссылки)"
+                onBlur={(e) => renameValue(v.id, e.target.value)}
+                onKeyDown={blurOnEnter}
+              />
               <button className="btn btn--sm btn--icon" onClick={() => removeValue(v.id)} title="Убрать значение" aria-label="Убрать значение">
                 ✕
               </button>

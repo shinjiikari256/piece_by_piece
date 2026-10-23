@@ -7,13 +7,7 @@ const grid = (rows: string[]) => (x: number, y: number) => rows[y]?.[x] === ".";
 const centerOf = (x: number, y: number) => ({ x: (x + 0.5) * TILE, y: (y + 1) * TILE - 2 });
 
 describe("навигация в сцене", () => {
-  const room = grid([
-    "#######",
-    "#..#..#",
-    "#..#..#",
-    "#.....#",
-    "#######",
-  ]);
+  const room = grid(["#######", "#..#..#", "#..#..#", "#.....#", "#######"]);
 
   it("путь огибает перегородку и начинается со стартовой клетки", () => {
     const path = findPath(room, { x: 1, y: 1 }, [{ x: 5, y: 1 }])!;

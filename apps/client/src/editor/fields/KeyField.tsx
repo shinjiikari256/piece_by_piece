@@ -4,7 +4,6 @@ import { ask, tell } from "../../ui/dialog";
 import { editor, useEditor } from "../state";
 import { countRefs, isEntityKey, renameKey } from "../keys";
 
-
 /**
  * Ключ элемента. Сам не меняется никогда: только вручную (Enter или уход с поля).
  * Если на ключ ссылаются — подтверждение и переименование во всех местах.

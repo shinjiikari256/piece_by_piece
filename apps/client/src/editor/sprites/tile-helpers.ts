@@ -30,7 +30,10 @@ const CANDIDATES = [..."0123456789", ..."abcdefghijklmnopqrstuvwxyz", ..."ABCDEF
 export const freeChar = (legend: Record<string, string>): string | null => CANDIDATES.find((c) => !(c in legend)) ?? null;
 
 /** Символы легенды, которые ведут на тайл. */
-export const charsOf = (d: Pick<CaseFile, "legend">, key: string): string[] => Object.entries(legendOf(d)).filter(([, k]) => k === key).map(([c]) => c);
+export const charsOf = (d: Pick<CaseFile, "legend">, key: string): string[] =>
+  Object.entries(legendOf(d))
+    .filter(([, k]) => k === key)
+    .map(([c]) => c);
 
 /** Назначить тайлу единственный символ (прежние символы тайла освобождаются). Занятый другим тайлом символ — отказ (`null`). */
 export function setTileChar<T extends Pick<CaseFile, "legend">>(d: T, key: string, ch: string): T | null {
@@ -90,7 +93,13 @@ const CLASS_NAMES: Record<string, string> = { solid: "стена", floor: "по�
 export function describeWhen(when: TileLayer["when"]): string {
   const parts = (Object.keys(SIDE_NAMES) as (keyof typeof SIDE_NAMES)[])
     .filter((s) => when?.[s] !== undefined)
-    .map((s) => `${SIDE_NAMES[s]} ${[when![s]!].flat().map((v) => CLASS_NAMES[v] ?? v).join(" или ")}`);
+    .map(
+      (s) =>
+        `${SIDE_NAMES[s]} ${[when![s]!]
+          .flat()
+          .map((v) => CLASS_NAMES[v] ?? v)
+          .join(" или ")}`,
+    );
   return parts.length ? parts.join(", ") : "всегда";
 }
 

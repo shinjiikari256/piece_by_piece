@@ -20,13 +20,19 @@ const OnlineHeader = OFFLINE ? null : lazy(() => loadOnline().then((m) => ({ def
 const OnlinePage = OFFLINE ? null : lazy(() => loadOnline().then((m) => ({ default: m.OnlinePage })));
 const OnlineEvents = OFFLINE ? null : lazy(() => loadOnline().then((m) => ({ default: m.OnlineEvents })));
 
-
 /** Сайт вокруг игры: шапка и обычные страницы. Папки — только у дел. */
 export function Site() {
   const route = useRoute();
   return (
     <div className="site">
-      <a className="skip-link" href="#main" onClick={(e) => { e.preventDefault(); document.getElementById("main")?.focus(); }}>
+      <a
+        className="skip-link"
+        href="#main"
+        onClick={(e) => {
+          e.preventDefault();
+          document.getElementById("main")?.focus();
+        }}
+      >
         К содержимому
       </a>
       <SiteHeader route={route} />
@@ -78,7 +84,15 @@ function SiteHeader({ route }: { route: Route }) {
         </nav>
         <div className="site-header__user row">
           <ThemeMenu />
-          {!me && <PhoneMenu route={route}>{login && <Link role="menuitem" to="/login">Вход</Link>}</PhoneMenu>}
+          {!me && (
+            <PhoneMenu route={route}>
+              {login && (
+                <Link role="menuitem" to="/login">
+                  Вход
+                </Link>
+              )}
+            </PhoneMenu>
+          )}
           {OnlineHeader && (
             <Suspense fallback={null}>
               <OnlineHeader route={route} />
@@ -139,10 +153,7 @@ function Landing() {
         <div className="hero__text">
           <p className="hero__kicker">Учебная игра</p>
           <h1>{APP_NAME}</h1>
-          <p className="hero__lead">
-            Осмотрите место, поговорите со свидетелями, сопоставьте улики — определите, какое право нарушено, кто за это
-            отвечает и чем это доказать.
-          </p>
+          <p className="hero__lead">Осмотрите место, поговорите со свидетелями, сопоставьте улики — определите, какое право нарушено, кто за это отвечает и чем это доказать.</p>
           <div className="hero__actions">
             <Link className="btn btn--primary btn--big" to="/cases">
               Выбрать дело

@@ -4,7 +4,13 @@ import { copyPart, isBuiltinPart, newPart, partId, partUses, partView, patchPart
 
 const mine: CustomPart = { key: "wig", name: "Парик", slot: "hair", frames: { default: [[0, 0, 1, 1, "$hair"]], talk: [] } };
 const draft = (parts: CustomPart[] = [mine]) =>
-  ({ parts, characters: [{ id: "a", name: "Анна", appearance: { hairStyle: "wig", accentStyle: "tie", bottom: "pants" } }, { id: "b", name: "Борис" }] }) as unknown as CaseFile;
+  ({
+    parts,
+    characters: [
+      { id: "a", name: "Анна", appearance: { hairStyle: "wig", accentStyle: "tie", bottom: "pants" } },
+      { id: "b", name: "Борис" },
+    ],
+  }) as unknown as CaseFile;
 
 describe("части персонажей в конструкторе", () => {
   it("адрес части разбирается обратно", () => {

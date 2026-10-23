@@ -62,7 +62,8 @@ export function SpriteParams({ sprite }: { sprite: CustomSprite }) {
   return (
     <div className="stack">
       <p className="muted">
-        Переменная — то, от чего зависит вид предмета: например, «Горит» (да / нет), «Заряд» (число) или «Режим» (один из списка). Что именно она значит в деле, вы укажете предмету на карте, когда поставите его.
+        Переменная — то, от чего зависит вид предмета: например, «Горит» (да / нет), «Заряд» (число) или «Режим» (один из списка). Что именно она значит в деле, вы укажете предмету на карте, когда
+        поставите его.
       </p>
       {params.map((q) => (
         <fieldset key={q.id} className="sprite-card">
@@ -145,7 +146,12 @@ export function SpriteStates({ sprite }: { sprite: CustomSprite }) {
   };
   const remove = (i: number) => {
     const id = states[i].id;
-    upd(sprite, { states: states.filter((_, k) => k !== i), transitions: sprite.transitions?.filter((t) => t.from !== id && t.to !== id), actions: sprite.actions?.filter((a) => a.state !== id), timers: sprite.timers?.filter((t) => t.state !== id) });
+    upd(sprite, {
+      states: states.filter((_, k) => k !== i),
+      transitions: sprite.transitions?.filter((t) => t.from !== id && t.to !== id),
+      actions: sprite.actions?.filter((a) => a.state !== id),
+      timers: sprite.timers?.filter((t) => t.state !== id),
+    });
   };
   return (
     <div className="stack">
@@ -167,8 +173,12 @@ export function SpriteStates({ sprite }: { sprite: CustomSprite }) {
                 <Icon name="bolt" size={16} />
               </span>
               <input aria-label="Название состояния" value={st.name ?? ""} placeholder={`Состояние ${i + 1}`} onChange={(e) => set(i, { name: e.target.value })} />
-              <button className="btn btn--sm btn--icon" aria-label="Выше" disabled={i === 0} onClick={() => move(i, -1)}>↑</button>
-              <button className="btn btn--sm btn--icon" aria-label="Ниже" disabled={i === states.length - 1} onClick={() => move(i, 1)}>↓</button>
+              <button className="btn btn--sm btn--icon" aria-label="Выше" disabled={i === 0} onClick={() => move(i, -1)}>
+                ↑
+              </button>
+              <button className="btn btn--sm btn--icon" aria-label="Ниже" disabled={i === states.length - 1} onClick={() => move(i, 1)}>
+                ↓
+              </button>
               <button className="btn btn--sm btn--icon" aria-label="Удалить состояние" title="Удалить состояние" onClick={() => remove(i)}>
                 <Icon name="trash" size={15} />
               </button>
@@ -200,7 +210,9 @@ export function SpriteStates({ sprite }: { sprite: CustomSprite }) {
                 </div>
               </div>
             </div>
-            <Check checked={!!st.loop} onChange={(on) => set(i, { loop: on ? { clip: [{ frame: st.frame ?? "default", ms: 200 }] } : undefined })} hint="Кадры сменяют друг друга по кругу.">Анимация по кругу</Check>
+            <Check checked={!!st.loop} onChange={(on) => set(i, { loop: on ? { clip: [{ frame: st.frame ?? "default", ms: 200 }] } : undefined })} hint="Кадры сменяют друг друга по кругу.">
+              Анимация по кругу
+            </Check>
             {st.loop && (
               <div className="stack">
                 <ClipEditor value={st.loop.clip} frames={frames} onChange={(clip) => set(i, { loop: { ...st.loop!, clip } })} />
@@ -225,9 +237,7 @@ export function SpriteStates({ sprite }: { sprite: CustomSprite }) {
 export function SpriteAnims({ sprite }: { sprite: CustomSprite }) {
   return (
     <div className="stack">
-      <p className="muted">
-        Короткие анимации поверх состояний: переход (например, дверь открывается), реакция на осмотр и повтор по таймеру (мигание). Кадры и состояния берутся из этого спрайта.
-      </p>
+      <p className="muted">Короткие анимации поверх состояний: переход (например, дверь открывается), реакция на осмотр и повтор по таймеру (мигание). Кадры и состояния берутся из этого спрайта.</p>
       <ObjectFields
         schema={SCHEMA}
         value={sprite}

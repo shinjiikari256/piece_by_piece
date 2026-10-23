@@ -13,7 +13,11 @@ export const investigation = {
     const obj = state.caseFile && findObject(state.caseFile, objectId);
     const ids = obj ? objectEvidenceIds(obj) : [];
     if (!ids.length) return;
-    const { progress, newEvidence, messages, removedEvidence, followUp } = applyEffects(ids.map((evidenceId) => ({ type: "addEvidence" as const, evidenceId })), state.progress, fxCtx());
+    const { progress, newEvidence, messages, removedEvidence, followUp } = applyEffects(
+      ids.map((evidenceId) => ({ type: "addEvidence" as const, evidenceId })),
+      state.progress,
+      fxCtx(),
+    );
     set({ progress });
     announce(newEvidence, messages, removedEvidence, followUp);
   },
@@ -77,9 +81,7 @@ export const investigation = {
     if (o?.kind !== "dialogue" || !state.progress.collected.includes(evidenceId)) return;
     const dialogue = state.caseFile?.dialogues.find((d) => d.id === o.dialogueId);
     const node = dialogue?.nodes.find((n) => n.id === o.nodeId);
-    const hit = node?.presentations?.find(
-      (p) => (!p.evidenceIds.length || p.evidenceIds.includes(evidenceId)) && meets(p.requires, state.progress, state.locationId),
-    );
+    const hit = node?.presentations?.find((p) => (!p.evidenceIds.length || p.evidenceIds.includes(evidenceId)) && meets(p.requires, state.progress, state.locationId));
     if (!dialogue || !hit) return toast("Собеседник не реагирует");
     // отметка ✓ у предъявленного материала; условие `chosen` понимает её как вариант `present:<id улики>`
     const key = choiceKey(o.dialogueId, o.nodeId, `present:${evidenceId}`);

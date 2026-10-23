@@ -10,24 +10,19 @@ export const startLocation = (c: PublicCase): Location => c.locations.find((l) =
 
 /** Первая клетка пола — запасная точка там, где старта нет (в локациях, куда входят через выходы). */
 export function firstFloorCell(loc: Location): { x: number; y: number } {
-  for (let y = 0; y < loc.tiles.length; y++)
-    for (let x = 0; x < loc.tiles[y].length; x++) if (FLOOR_TILES.has(loc.tiles[y][x])) return { x, y };
+  for (let y = 0; y < loc.tiles.length; y++) for (let x = 0; x < loc.tiles[y].length; x++) if (FLOOR_TILES.has(loc.tiles[y][x])) return { x, y };
   return { x: 0, y: 0 };
 }
 
-export const getLocation = (c: PublicCase, id: string): Location =>
-  c.locations.find((l) => l.id === id) ?? startLocation(c);
+export const getLocation = (c: PublicCase, id: string): Location => c.locations.find((l) => l.id === id) ?? startLocation(c);
 
 export const allObjects = (c: PublicCase): LocationObject[] => c.locations.flatMap((l) => l.objects);
 
-export const findObject = (c: PublicCase, id: string): LocationObject | undefined =>
-  allObjects(c).find((o) => o.id === id);
+export const findObject = (c: PublicCase, id: string): LocationObject | undefined => allObjects(c).find((o) => o.id === id);
 
-export const allNpcs = (c: PublicCase): (NpcPlacement & { locationId: string })[] =>
-  c.locations.flatMap((l) => l.npcs.map((n) => ({ ...n, locationId: l.id })));
+export const allNpcs = (c: PublicCase): (NpcPlacement & { locationId: string })[] => c.locations.flatMap((l) => l.npcs.map((n) => ({ ...n, locationId: l.id })));
 
-export const npcOfCharacter = (c: PublicCase, characterId: string) =>
-  allNpcs(c).find((n) => n.characterId === characterId);
+export const npcOfCharacter = (c: PublicCase, characterId: string) => allNpcs(c).find((n) => n.characterId === characterId);
 
 export interface EvidenceSource {
   text: string;
@@ -61,7 +56,6 @@ export function cellFree(loc: Location, x: number, y: number, characterId?: stri
   const person = loc.npcs.some((n) => n.x === x && n.y === y && n.characterId !== characterId);
   return !solid && !person;
 }
-
 
 /**
  * Клетка внутри области, куда встанет персонаж: первая свободная по порядку клеток области.

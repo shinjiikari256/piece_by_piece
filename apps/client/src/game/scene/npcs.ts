@@ -92,8 +92,7 @@ export class NpcCrowd {
     }
     for (const [characterId, want] of wanted) {
       if (this.npcs.has(characterId)) continue;
-      const npcDef = this.ctx.location.npcs.find((n) => n.characterId === characterId) ??
-        this.ctx.caseFile.locations.flatMap((l) => l.npcs).find((n) => n.characterId === characterId)!;
+      const npcDef = this.ctx.location.npcs.find((n) => n.characterId === characterId) ?? this.ctx.caseFile.locations.flatMap((l) => l.npcs).find((n) => n.characterId === characterId)!;
       const tile = want.mode === "follower" ? this.freeTileNear(tileOfSprite(this.ctx.player)) : want.tile;
       this.addNpc(npcDef.id, characterId, tile, want.mode);
     }
@@ -226,11 +225,7 @@ export class NpcCrowd {
     const character = this.ctx.caseFile.characters.find((c) => c.id === characterId)!;
     const cx = (tile.x + 0.5) * TILE;
     const bottom = (tile.y + 1) * TILE - 2;
-    const sprite = this.ctx.scene.add
-      .sprite(cx, bottom, `chr_${character.id}`, "idle")
-      .setOrigin(0.5, 1)
-      .setScale(SCALE)
-      .setDepth(bottom);
+    const sprite = this.ctx.scene.add.sprite(cx, bottom, `chr_${character.id}`, "idle").setOrigin(0.5, 1).setScale(SCALE).setDepth(bottom);
     if (mode === "static") this.tiles.add(`${tile.x},${tile.y}`);
     const npc: Npc = {
       id,
@@ -272,7 +267,14 @@ export class NpcCrowd {
   }
 
   private freeTileNear(t: { x: number; y: number }) {
-    for (const [dx, dy] of [[-1, 0], [1, 0], [0, 1], [0, -1], [-1, 1], [1, 1]]) {
+    for (const [dx, dy] of [
+      [-1, 0],
+      [1, 0],
+      [0, 1],
+      [0, -1],
+      [-1, 1],
+      [1, 1],
+    ]) {
       if (this.ctx.isFree(t.x + dx, t.y + dy)) return { x: t.x + dx, y: t.y + dy };
     }
     return t;

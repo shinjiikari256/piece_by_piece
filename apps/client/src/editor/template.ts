@@ -52,9 +52,7 @@ export function blankCase(): CaseFile {
         onEnter: [],
       },
     ],
-    characters: [
-      { id: "witness", name: "Свидетель", look: "casual_m", position: "кто он", description: "Что о нём известно." },
-    ],
+    characters: [{ id: "witness", name: "Свидетель", look: "casual_m", position: "кто он", description: "Что о нём известно." }],
     events: [{ id: "ev_main", title: "Главное событие", at: "01-01" }],
     evidence: [
       {

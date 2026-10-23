@@ -42,17 +42,7 @@ function Drag({ className, label, onMove, onEnd, children }: { className: string
  * кодом цвета (HEX / RGB / HSL), недавними цветами и цветами рисунка. Пипетка — отдельный инструмент холста.
  * `alpha` — 1…255.
  */
-export function ColorPicker({
-  color,
-  alpha,
-  swatches = [],
-  onChange,
-}: {
-  color: string;
-  alpha: number;
-  swatches?: string[];
-  onChange: (color: string, alpha: number) => void;
-}) {
+export function ColorPicker({ color, alpha, swatches = [], onChange }: { color: string; alpha: number; swatches?: string[]; onChange: (color: string, alpha: number) => void }) {
   const [open, setOpen] = useState(false);
   const [format, setFormat] = useState<ColorFormat>("hex");
   const [hsv, setHsv] = useState<Hsv>(() => hexToHsv(color));
@@ -162,7 +152,15 @@ function Swatches({ title, list, color, onPick }: { title: string; list: string[
       <span className="muted">{title}</span>
       <div className="colorpick__swatches">
         {list.map((c) => (
-          <button key={c} type="button" className="colorpick__swatch" style={{ background: c }} title={c} aria-pressed={c.slice(0, 7).toLowerCase() === color.toLowerCase()} onClick={() => onPick(c)} />
+          <button
+            key={c}
+            type="button"
+            className="colorpick__swatch"
+            style={{ background: c }}
+            title={c}
+            aria-pressed={c.slice(0, 7).toLowerCase() === color.toLowerCase()}
+            onClick={() => onPick(c)}
+          />
         ))}
       </div>
     </div>

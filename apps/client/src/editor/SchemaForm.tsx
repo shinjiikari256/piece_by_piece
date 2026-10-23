@@ -76,7 +76,9 @@ export function Field({ name, schema, value, onChange, ctx, bare }: FieldProps):
     const own = { from: "Из состояния", to: "В состояние", state: "Только в состоянии" }[name];
     return (
       <div className="ef">
-        <span className="ef__label" title={schema.description}>{own}</span>
+        <span className="ef__label" title={schema.description}>
+          {own}
+        </span>
         <Select value={String(value ?? "")} options={ids.map((v) => ({ value: v, label: nice(v) }))} onChange={onChange} />
       </div>
     );
@@ -235,30 +237,14 @@ export function Field({ name, schema, value, onChange, ctx, bare }: FieldProps):
   }
 }
 
-export function ObjectFields({
-  schema,
-  value,
-  onChange,
-  ctx,
-  skip = [],
-  only,
-}: {
-  schema: JS;
-  value: unknown;
-  onChange: (v: unknown) => void;
-  ctx: FormCtx;
-  skip?: string[];
-  only?: string[];
-}) {
+export function ObjectFields({ schema, value, onChange, ctx, skip = [], only }: { schema: JS; value: unknown; onChange: (v: unknown) => void; ctx: FormCtx; skip?: string[]; only?: string[] }) {
   const obj = (value ?? {}) as Record<string, unknown>;
   const required: string[] = schema.required ?? [];
   const keys = Object.keys(schema.properties ?? {}).filter((k) => !skip.includes(k) && k !== "bindings" && (!only || only.includes(k))); // привязки спрайта — свой редактор (map/ObjectBindings)
   // координаты x и y — одной строкой
   const isCell = (k: string) => (k === "x" || k === "y") && schema.properties[k]?.type === "integer";
   const paired = keys.includes("x") && keys.includes("y") && isCell("x") && isCell("y");
-  const field = (key: string) => (
-    <Field key={key} name={key} schema={schema.properties[key]} value={obj[key]} ctx={ctx} onChange={(v) => onChange({ ...obj, [key]: v })} />
-  );
+  const field = (key: string) => <Field key={key} name={key} schema={schema.properties[key]} value={obj[key]} ctx={ctx} onChange={(v) => onChange({ ...obj, [key]: v })} />;
   return (
     <div className="ef__fields">
       {keys.map((key) => {
@@ -285,11 +271,7 @@ export function ObjectFields({
         return (
           <div key={key} className={`ef__row ${optional && !always ? "is-optional" : ""}`}>
             {key === "id" && typeof obj.id === "string" ? (
-              <KeyField
-                value={obj.id}
-                suggestion={typeof obj.number === "string" ? caseKey(obj.number) : toKey(String(obj.title ?? obj.name ?? ""))}
-                onChange={(v) => onChange({ ...obj, id: v })}
-              />
+              <KeyField value={obj.id} suggestion={typeof obj.number === "string" ? caseKey(obj.number) : toKey(String(obj.title ?? obj.name ?? ""))} onChange={(v) => onChange({ ...obj, id: v })} />
             ) : (
               <Field
                 name={key}
@@ -324,21 +306,7 @@ export function ObjectFields({
   );
 }
 
-function ArrayField({
-  label,
-  items,
-  value,
-  onChange,
-  ctx,
-  name,
-}: {
-  label: string;
-  items: JS;
-  value: unknown[];
-  onChange: (v: unknown) => void;
-  ctx: FormCtx;
-  name: string;
-}) {
+function ArrayField({ label, items, value, onChange, ctx, name }: { label: string; items: JS; value: unknown[]; onChange: (v: unknown) => void; ctx: FormCtx; name: string }) {
   const [open, setOpen] = useState<number | null>(null);
   const move = (i: number, dir: -1 | 1) => {
     const next = moveItem(value, i, dir);
@@ -373,14 +341,7 @@ function ArrayField({
             </div>
             {open === i && (
               <div className="ef__item-body">
-                <Field
-                  name={name}
-                  schema={items}
-                  value={item}
-                  ctx={ctx}
-                  bare
-                  onChange={(v) => onChange(value.map((x, j) => (j === i ? v : x)))}
-                />
+                <Field name={name} schema={items} value={item} ctx={ctx} bare onChange={(v) => onChange(value.map((x, j) => (j === i ? v : x)))} />
               </div>
             )}
           </li>

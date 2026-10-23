@@ -110,10 +110,7 @@ export function Downloads({ record, grade, names }: { record: ResultRecord | nul
           <div>
             <h3>Результат расследования</h3>
             <p className="muted">PDF с оценкой, разделами и вашими ответами: по какому делу, кому выдан, когда и где пройдено.</p>
-            <button
-              className="btn btn--primary"
-              onClick={guard(() => void downloadResultPdf(resultDoc))}
-            >
+            <button className="btn btn--primary" onClick={guard(() => void downloadResultPdf(resultDoc))}>
               <Icon name="save" size={15} /> Скачать результат
             </button>
           </div>
@@ -130,10 +127,7 @@ export function Downloads({ record, grade, names }: { record: ResultRecord | nul
                 Вы проходили дело без входа, поэтому преподаватель не видит этот результат. Скачайте файл и передайте ему.
                 {server === "online" && " В следующий раз войдите перед прохождением — результат сохранится сам."}
               </p>
-              <button
-                className="btn"
-                onClick={guard(() => downloadResult(record, profile))}
-              >
+              <button className="btn" onClick={guard(() => downloadResult(record, profile))}>
                 <Icon name="save" size={15} /> Скачать файл (.json)
               </button>
             </div>
@@ -153,8 +147,7 @@ function EmbeddedBrowserNote() {
   const url = siteUrl();
   return (
     <Alert tone="warn" icon as="div" className="embedded-note">
-      <b>Этот браузер не умеет сохранять файлы</b> (встроенный браузер VS Code). Откройте игру в обычном браузере — Chrome, Firefox,
-      Яндекс — и скачайте там: <code>{url}</code>{" "}
+      <b>Этот браузер не умеет сохранять файлы</b> (встроенный браузер VS Code). Откройте игру в обычном браузере — Chrome, Firefox, Яндекс — и скачайте там: <code>{url}</code>{" "}
       <button className="linkbtn" onClick={() => void navigator.clipboard?.writeText(url)}>
         скопировать адрес
       </button>

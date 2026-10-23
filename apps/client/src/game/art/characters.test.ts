@@ -37,15 +37,26 @@ function expectSame(a: Rect[], b: Rect[], label: string) {
 }
 
 const BASE: Look = {
-  skin: "#e0a070", hair: "#3a2a1a", hairStyle: "short", top: "#4f7fbf", topShade: "#3f6aa3", accent: "#c0392b", accentStyle: "tie",
-  legs: "#2b3a55", shoes: "#1d2229",
+  skin: "#e0a070",
+  hair: "#3a2a1a",
+  hairStyle: "short",
+  top: "#4f7fbf",
+  topShade: "#3f6aa3",
+  accent: "#c0392b",
+  accentStyle: "tie",
+  legs: "#2b3a55",
+  shoes: "#1d2229",
 };
 
 describe("части персонажей из данных", () => {
   it("каждый готовый облик рисуется так же, как прежним кодом, во всех позах", () => {
     for (const [name, look] of Object.entries(LOOKS)) {
       for (const frame of CHAR_FRAMES) {
-        expectSame(record((c) => drawCharacterLegacy(c, look, frame, 5)), record((c) => drawCharacter(c, look, frame, 5)), `${name}/${frame}`);
+        expectSame(
+          record((c) => drawCharacterLegacy(c, look, frame, 5)),
+          record((c) => drawCharacter(c, look, frame, 5)),
+          `${name}/${frame}`,
+        );
       }
     }
   });
@@ -58,7 +69,11 @@ describe("части персонажей из данных", () => {
           for (const bottom of ["pants", "skirt"] as const) {
             const look = { ...BASE, hairStyle, accentStyle, glasses: !!(bits & 1), mustache: !!(bits & 2), beard: !!(bits & 4), bottom, eyes: "#334455" } as Look;
             for (const frame of CHAR_FRAMES) {
-              expectSame(record((c) => drawCharacterLegacy(c, look, frame, 0)), record((c) => drawCharacter(c, look, frame, 0)), `${hairStyle}/${accentStyle}/${bits}/${bottom}/${frame}`);
+              expectSame(
+                record((c) => drawCharacterLegacy(c, look, frame, 0)),
+                record((c) => drawCharacter(c, look, frame, 0)),
+                `${hairStyle}/${accentStyle}/${bits}/${bottom}/${frame}`,
+              );
               n++;
             }
           }
@@ -85,6 +100,10 @@ describe("части персонажей из данных", () => {
 
   it("свою внешность рисует так же, как её готовый вид", () => {
     const l = lookFromCustom({ ...BASE, glasses: false, mustache: false, beard: false } as never);
-    expectSame(record((c) => drawCharacterLegacy(c, l, "idle", 0)), record((c) => drawCharacter(c, l, "idle", 0)), "custom");
+    expectSame(
+      record((c) => drawCharacterLegacy(c, l, "idle", 0)),
+      record((c) => drawCharacter(c, l, "idle", 0)),
+      "custom",
+    );
   });
 });

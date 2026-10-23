@@ -89,7 +89,13 @@ function SpriteEditor() {
           const keys = g.keys.filter((k) => !q || nameOf(k).toLowerCase().includes(q) || k.includes(q));
           if (!keys.length) return null;
           return (
-            <PaletteGroup key={g.id} title={g.label} count={keys.length} open={!!q || (open[g.id] ?? (g.id.startsWith("custom:") || keys.includes(key)))} onToggle={() => setOpen((o) => ({ ...o, [g.id]: !(o[g.id] ?? (g.id.startsWith("custom:") || keys.includes(key))) }))}>
+            <PaletteGroup
+              key={g.id}
+              title={g.label}
+              count={keys.length}
+              open={!!q || (open[g.id] ?? (g.id.startsWith("custom:") || keys.includes(key)))}
+              onToggle={() => setOpen((o) => ({ ...o, [g.id]: !(o[g.id] ?? (g.id.startsWith("custom:") || keys.includes(key))) }))}
+            >
               <div className="sprite-list">
                 {keys.map((k) => {
                   const own = draft.sprites?.find((x) => x.key === k);

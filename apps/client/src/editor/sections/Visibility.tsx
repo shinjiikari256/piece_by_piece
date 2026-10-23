@@ -13,11 +13,7 @@ export function VisibilitySection() {
     <section className="ed__panel ed__panel--narrow">
       <h2>Видимость</h2>
       <p className="muted">Кому из игроков дело показывается в списке. Скрытое дело открывается только из конструктора.</p>
-      {online ? (
-        <ServerVisibility caseId={draft.id} published={draft.published} />
-      ) : (
-        <p className="muted">Выбор групп доступен при работе с сервером: там живут группы и учётные записи.</p>
-      )}
+      {online ? <ServerVisibility caseId={draft.id} published={draft.published} /> : <p className="muted">Выбор групп доступен при работе с сервером: там живут группы и учётные записи.</p>}
     </section>
   );
 }
@@ -31,9 +27,8 @@ function ServerVisibility({ caseId, published }: { caseId: string; published: bo
   useEffect(() => {
     setState("loading");
     api<AdminGroup[]>("GET", "/admin/groups").then(setGroups, () => setGroups([]));
-    api<CaseVisibility>("GET", `/admin/cases/${encodeURIComponent(caseId)}/visibility`).then(
-      setState,
-      (e) => (e instanceof ApiFailure && e.status === 404 ? setState("missing") : setError(e instanceof ApiFailure ? e.message : "Нет связи с сервером.")),
+    api<CaseVisibility>("GET", `/admin/cases/${encodeURIComponent(caseId)}/visibility`).then(setState, (e) =>
+      e instanceof ApiFailure && e.status === 404 ? setState("missing") : setError(e instanceof ApiFailure ? e.message : "Нет связи с сервером."),
     );
   }, [caseId]);
 
@@ -78,7 +73,11 @@ function ServerVisibility({ caseId, published }: { caseId: string; published: bo
       )}
       {!published && <p className="muted small">Пока дело не показывается в списке, оно скрыто от всех независимо от групп.</p>}
       <p className="muted small">Снятая видимость закрывает только новые попытки: начатое можно дойти до сдачи, результаты остаются. Дела мероприятий группа видит независимо от этой настройки.</p>
-      {error && <p className="small" data-tone="bad">{error}</p>}
+      {error && (
+        <p className="small" data-tone="bad">
+          {error}
+        </p>
+      )}
     </div>
   );
 }

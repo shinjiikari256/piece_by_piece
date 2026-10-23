@@ -9,21 +9,13 @@ type Migration = (data: Record<string, unknown>) => Record<string, unknown>;
 
 export type Migrated = { ok: true; data: Record<string, unknown> } | { ok: false; error: string };
 
-export function runMigrations(
-  raw: unknown,
-  key: string,
-  chain: Record<number, Migration>,
-  current: number,
-  what: string,
-): Migrated {
+export function runMigrations(raw: unknown, key: string, chain: Record<number, Migration>, current: number, what: string): Migrated {
   if (typeof raw !== "object" || raw === null || Array.isArray(raw)) return { ok: false, error: `${what}: ожидался объект` };
   let data = raw as Record<string, unknown>;
   const given = data[key];
   let version = given === undefined ? 1 : given;
-  if (typeof version !== "number" || !Number.isInteger(version) || version < 1)
-    return { ok: false, error: `${what}: неверная версия формата «${String(given)}»` };
-  if (version > current)
-    return { ok: false, error: `${what}: версия формата ${version} новее поддерживаемой (${current}) — обновите приложение` };
+  if (typeof version !== "number" || !Number.isInteger(version) || version < 1) return { ok: false, error: `${what}: неверная версия формата «${String(given)}»` };
+  if (version > current) return { ok: false, error: `${what}: версия формата ${version} новее поддерживаемой (${current}) — обновите приложение` };
   while (version < current) {
     const step = chain[version];
     if (!step) return { ok: false, error: `${what}: нет миграции с версии ${version}` };
@@ -53,12 +45,19 @@ function caseV1toV2(data: Raw): Raw {
     const taken = new Set(zones.map((z) => z.id as string));
     const floor = (x: number, y: number) => !!tiles[y]?.[x] && !WALL_CHARS.has(tiles[y][x]);
     const exitCells = new Set(((loc.exits as Raw[] | undefined) ?? []).map((e) => `${e.x},${e.y}`));
-    for (const exit of ((loc.exits as Raw[] | undefined) ?? [])) {
+    for (const exit of (loc.exits as Raw[] | undefined) ?? []) {
       const { x, y } = exit as { x: number; y: number };
       // клетка выхода и проходимые соседи, кроме клеток соседних выходов: области одной лестницы не пересекаются
       const cells = [
         { x, y },
-        ...[[1, 0], [-1, 0], [0, 1], [0, -1]].map(([dx, dy]) => ({ x: x + dx, y: y + dy })).filter((c) => floor(c.x, c.y) && !exitCells.has(`${c.x},${c.y}`)),
+        ...[
+          [1, 0],
+          [-1, 0],
+          [0, 1],
+          [0, -1],
+        ]
+          .map(([dx, dy]) => ({ x: x + dx, y: y + dy }))
+          .filter((c) => floor(c.x, c.y) && !exitCells.has(`${c.x},${c.y}`)),
       ];
       const target = ((data.locations as Raw[] | undefined) ?? []).find((l) => l.id === exit.to);
       let id = String(exit.id);
@@ -280,9 +279,26 @@ function caseV9toV10(data: Raw): Raw {
 
 /** Легенда карты формата 10: символы встроенных тайлов (как в `DEFAULT_TILE_LEGEND` клиента). */
 const LEGEND_V10: Record<string, string> = {
-  "#": "wall", W: "window", B: "brick", G: "glass", P: "painted_wall", F: "fence",
-  ".": "tile", ",": "carpet", _: "parquet", w: "dark_parquet", b: "linoleum", k: "ceramic", m: "marble", r: "runner",
-  S: "stairs", Z: "stairs_side", D: "doorway", g: "grass", a: "asphalt", p: "sidewalk",
+  "#": "wall",
+  W: "window",
+  B: "brick",
+  G: "glass",
+  P: "painted_wall",
+  F: "fence",
+  ".": "tile",
+  ",": "carpet",
+  _: "parquet",
+  w: "dark_parquet",
+  b: "linoleum",
+  k: "ceramic",
+  m: "marble",
+  r: "runner",
+  S: "stairs",
+  Z: "stairs_side",
+  D: "doorway",
+  g: "grass",
+  a: "asphalt",
+  p: "sidewalk",
 };
 
 /** 10 → 11: у дела появилась легенда карты (символ → ключ тайла); добавляется со встроенными символами. */
@@ -291,19 +307,27 @@ function caseV10toV11(data: Raw): Raw {
 }
 
 /** Звенья цепочки: `caseMigrations[v]` переводит дело версии v в v + 1. */
-export const caseMigrations: Record<number, Migration> = { 1: caseV1toV2, 2: caseV2toV3, 3: caseV3toV4, 4: caseV4toV5, 5: caseV5toV6, 6: caseV6toV7, 7: caseV7toV8, 8: caseV8toV9, 9: caseV9toV10, 10: caseV10toV11 };
+export const caseMigrations: Record<number, Migration> = {
+  1: caseV1toV2,
+  2: caseV2toV3,
+  3: caseV3toV4,
+  4: caseV4toV5,
+  5: caseV5toV6,
+  6: caseV6toV7,
+  7: caseV7toV8,
+  8: caseV8toV9,
+  9: caseV9toV10,
+  10: caseV10toV11,
+};
 
-export const migrateCase = (raw: unknown, chain = caseMigrations, current = CASE_FORMAT_VERSION): Migrated =>
-  runMigrations(raw, "formatVersion", chain, current, "дело");
+export const migrateCase = (raw: unknown, chain = caseMigrations, current = CASE_FORMAT_VERSION): Migrated => runMigrations(raw, "formatVersion", chain, current, "дело");
 
 /** Разбор дела: миграция до текущего формата, затем схема. Все входы дел (файлы, черновики, импорт) идут через неё. */
 export function parseCase(raw: unknown): { success: true; data: CaseFile } | { success: false; errors: string[] } {
   const m = migrateCase(raw);
   if (!m.ok) return { success: false, errors: [m.error] };
   const parsed = CaseFile.safeParse(m.data);
-  return parsed.success
-    ? { success: true, data: parsed.data }
-    : { success: false, errors: parsed.error.issues.map((i) => `${i.path.join(".") || "(root)"}: ${i.message}`) };
+  return parsed.success ? { success: true, data: parsed.data } : { success: false, errors: parsed.error.issues.map((i) => `${i.path.join(".") || "(root)"}: ${i.message}`) };
 }
 
 // ——— Сохранение расследования (localStorage, поле `v`) ———
@@ -311,5 +335,4 @@ export function parseCase(raw: unknown): { success: true; data: CaseFile } | { s
 export const SAVE_FORMAT_VERSION = 1;
 export const saveMigrations: Record<number, Migration> = {};
 
-export const migrateSave = (raw: unknown, chain = saveMigrations, current = SAVE_FORMAT_VERSION): Migrated =>
-  runMigrations(raw, "v", chain, current, "сохранение");
+export const migrateSave = (raw: unknown, chain = saveMigrations, current = SAVE_FORMAT_VERSION): Migrated => runMigrations(raw, "v", chain, current, "сохранение");

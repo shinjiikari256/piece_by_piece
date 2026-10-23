@@ -1,13 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import {
-  ROLE_LABEL,
-  ROLE_OPTIONS,
-  type AdminGroup,
-  type AdminUser,
-  type Role,
-  type UserDetail,
-  type UsersPatch,
-} from "../../../../../shared/api";
+import { ROLE_LABEL, ROLE_OPTIONS, type AdminGroup, type AdminUser, type Role, type UserDetail, type UsersPatch } from "../../../../../shared/api";
 import { useAccount } from "../../state/account";
 import { ApiFailure, api } from "../../state/api";
 import { Select } from "../Select";
@@ -101,24 +93,14 @@ export function UserPage({ id, groups, isAdmin }: { id: number; groups: AdminGro
         </div>
         <div className="form">
           <Field label="ФИО">
-            <input
-              className="input"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              onBlur={() => void saveName()}
-              onKeyDown={blurOnEnter}
-            />
+            <input className="input" value={name} onChange={(e) => setName(e.target.value)} onBlur={() => void saveName()} onKeyDown={blurOnEnter} />
           </Field>
           <div className="pair">
             <Field label="Логин">
               <input className="input mono" value={u.login} readOnly />
             </Field>
             <Field label="Роль">
-              {isAdmin && !self ? (
-                <Select value={u.role} onChange={(v) => void patch({ role: v as Role })} options={ROLE_OPTIONS} />
-              ) : (
-                <input className="input" value={ROLE_LABEL[u.role]} disabled />
-              )}
+              {isAdmin && !self ? <Select value={u.role} onChange={(v) => void patch({ role: v as Role })} options={ROLE_OPTIONS} /> : <input className="input" value={ROLE_LABEL[u.role]} disabled />}
             </Field>
           </div>
           <div className="pair">

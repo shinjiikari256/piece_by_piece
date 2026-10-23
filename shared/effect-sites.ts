@@ -96,10 +96,24 @@ function walkEffects<C extends EffectCase>(c: C, visit: (effects: Effect[], owne
         ...z,
         actions: z.actions.map((a, i) =>
           a.kind === "effects"
-            ? { ...a, effects: visit(a.effects, { kind: "zone", locationId: l.id, locationName: l.name, zoneId: z.id, zoneName: z.name, actionIndex: i }, `location ${l.id}/zone ${z.id}: действие №${i + 1}`) }
+            ? {
+                ...a,
+                effects: visit(
+                  a.effects,
+                  { kind: "zone", locationId: l.id, locationName: l.name, zoneId: z.id, zoneName: z.name, actionIndex: i },
+                  `location ${l.id}/zone ${z.id}: действие №${i + 1}`,
+                ),
+              }
             : a,
         ),
-        ...(z.fallback ? { fallback: { ...z.fallback, effects: visit(z.fallback.effects, { kind: "zoneFallback", locationId: l.id, locationName: l.name, zoneId: z.id, zoneName: z.name }, `location ${l.id}/zone ${z.id}: запасной ответ`) } } : {}),
+        ...(z.fallback
+          ? {
+              fallback: {
+                ...z.fallback,
+                effects: visit(z.fallback.effects, { kind: "zoneFallback", locationId: l.id, locationName: l.name, zoneId: z.id, zoneName: z.name }, `location ${l.id}/zone ${z.id}: запасной ответ`),
+              },
+            }
+          : {}),
       })),
     })),
   };

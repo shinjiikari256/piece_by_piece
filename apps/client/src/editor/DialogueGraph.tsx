@@ -60,8 +60,7 @@ export function DialogueEditor() {
   const [layout, setLayout] = useState<Layout>(() => loadLayout(draft.id));
   useEffect(() => setLayout(loadLayout(draft.id)), [draft.id]);
 
-  const updateDialogue = (fn: (d: Dialogue) => Dialogue, merge?: string) =>
-    editor.update((c) => ({ ...c, dialogues: c.dialogues.map((d) => (d.id === dialogue?.id ? fn(d) : d)) }), merge);
+  const updateDialogue = (fn: (d: Dialogue) => Dialogue, merge?: string) => editor.update((c) => ({ ...c, dialogues: c.dialogues.map((d) => (d.id === dialogue?.id ? fn(d) : d)) }), merge);
 
   const positions = useMemo(() => {
     if (!dialogue) return {};
@@ -90,13 +89,7 @@ export function DialogueEditor() {
 
   const node = dialogue.nodes.find((n) => n.id === selected);
   return (
-    <section
-      className="dg"
-      data-view={view}
-      data-list-collapsed={listPanel.collapsed || undefined}
-      data-side-collapsed={sidePanel.collapsed || undefined}
-      style={panelVars(listPanel, sidePanel)}
-    >
+    <section className="dg" data-view={view} data-list-collapsed={listPanel.collapsed || undefined} data-side-collapsed={sidePanel.collapsed || undefined} style={panelVars(listPanel, sidePanel)}>
       {listPanel.collapsed && <PanelRail panel={listPanel} />}
       <div className="dg__list">
         <button className="btn btn--sm dg__phone-close" onClick={() => setView("graph")}>
@@ -148,13 +141,14 @@ export function DialogueEditor() {
         onConnect={(nodeId, choiceId, target) =>
           updateDialogue((d) => ({
             ...d,
-            nodes: d.nodes.map((n) =>
-              n.id === nodeId ? { ...n, choices: n.choices.map((c) => (c.id === choiceId ? { ...c, next: target } : c)) } : n,
-            ),
+            nodes: d.nodes.map((n) => (n.id === nodeId ? { ...n, choices: n.choices.map((c) => (c.id === choiceId ? { ...c, next: target } : c)) } : n)),
           }))
         }
         onAddNode={(p) => {
-          const id = freeId("node_", dialogue.nodes.map((n) => n.id));
+          const id = freeId(
+            "node_",
+            dialogue.nodes.map((n) => n.id),
+          );
           updateDialogue((d) => ({
             ...d,
             nodes: [...d.nodes, { id, text: "Новая реплика", mood: "neutral", effects: [], choices: [{ id: "back", text: "Понятно.", next: d.startNodeId, effects: [] }] }],
@@ -166,7 +160,23 @@ export function DialogueEditor() {
           updateDialogue((d) => ({
             ...d,
             nodes: d.nodes.map((n) =>
-              n.id === nodeId ? { ...n, choices: [...n.choices, { id: freeId("c", n.choices.map((c) => c.id)), text: "Новый вариант", next: null, effects: [] }] } : n,
+              n.id === nodeId
+                ? {
+                    ...n,
+                    choices: [
+                      ...n.choices,
+                      {
+                        id: freeId(
+                          "c",
+                          n.choices.map((c) => c.id),
+                        ),
+                        text: "Новый вариант",
+                        next: null,
+                        effects: [],
+                      },
+                    ],
+                  }
+                : n,
             ),
           }))
         }
@@ -184,11 +194,7 @@ export function DialogueEditor() {
             <div className="dg__side-head row">
               <h3>Реплика «{node.id}»</h3>
               {node.id !== dialogue.startNodeId && (
-                <button
-                  className="btn btn--sm"
-                  onClick={() => updateDialogue((d) => ({ ...d, startNodeId: node.id }))}
-                  title="Разговор будет начинаться с этой реплики"
-                >
+                <button className="btn btn--sm" onClick={() => updateDialogue((d) => ({ ...d, startNodeId: node.id }))} title="Разговор будет начинаться с этой реплики">
                   ★ сделать первой
                 </button>
               )}
@@ -199,9 +205,7 @@ export function DialogueEditor() {
                   if (!ok) return;
                   updateDialogue((d) => ({
                     ...d,
-                    nodes: d.nodes
-                      .filter((n) => n.id !== node.id)
-                      .map((n) => ({ ...n, choices: n.choices.map((c) => (c.next === node.id ? { ...c, next: null } : c)) })),
+                    nodes: d.nodes.filter((n) => n.id !== node.id).map((n) => ({ ...n, choices: n.choices.map((c) => (c.next === node.id ? { ...c, next: null } : c)) })),
                   }));
                   setSelected(null);
                 }}
@@ -209,10 +213,7 @@ export function DialogueEditor() {
                 удалить
               </button>
             </div>
-            <p className="muted dg__side-help">
-              Реплика — то, что говорит персонаж. Ниже — варианты ответа игрока: у каждого «Дальше» — следующая реплика или
-              «конец разговора».
-            </p>
+            <p className="muted dg__side-help">Реплика — то, что говорит персонаж. Ниже — варианты ответа игрока: у каждого «Дальше» — следующая реплика или «конец разговора».</p>
             <ObjectFields
               schema={NODE_SCHEMA}
               value={node}
@@ -223,9 +224,7 @@ export function DialogueEditor() {
                   (d) => ({
                     ...d,
                     startNodeId: d.startNodeId === node.id ? next.id : d.startNodeId,
-                    nodes: d.nodes.map((n) =>
-                      n.id === node.id ? next : { ...n, choices: n.choices.map((c) => (c.next === node.id ? { ...c, next: next.id } : c)) },
-                    ),
+                    nodes: d.nodes.map((n) => (n.id === node.id ? next : { ...n, choices: n.choices.map((c) => (c.next === node.id ? { ...c, next: next.id } : c)) })),
                   }),
                   `node:${dialogue.id}:${node.id}`,
                 );
@@ -252,13 +251,14 @@ export function DialogueEditor() {
             />
             <div className="dg__help">
               <p>
-                <b>Как устроен граф.</b> Карточка — реплика персонажа, строки под ней — варианты ответа игрока. Разговор
-                начинается с карточки <span className="dg-tag dg-tag--start">★ начало</span>.
+                <b>Как устроен граф.</b> Карточка — реплика персонажа, строки под ней — варианты ответа игрока. Разговор начинается с карточки <span className="dg-tag dg-tag--start">★ начало</span>.
               </p>
               <ul>
                 <li>Клик по карточке — редактировать; тяните за заголовок, чтобы двигать.</li>
                 <li>Тяните от кружка справа у варианта к карточке — так задаётся, что персонаж ответит дальше.</li>
-                <li>Отпустите на пустом месте — вариант станет <span className="dg-tag dg-tag--end">конец</span> разговора.</li>
+                <li>
+                  Отпустите на пустом месте — вариант станет <span className="dg-tag dg-tag--end">конец</span> разговора.
+                </li>
                 <li>Двойной клик по пустому месту — новая реплика.</li>
               </ul>
             </div>
@@ -282,7 +282,10 @@ export function DialogueEditor() {
 }
 
 function addDialogue(draft: CaseFile, select: (id: string) => void) {
-  const id = freeId("dlg_", draft.dialogues.map((d) => d.id));
+  const id = freeId(
+    "dlg_",
+    draft.dialogues.map((d) => d.id),
+  );
   const characterId = draft.characters[0]?.id ?? "";
   editor.update((c) => ({
     ...c,
@@ -292,9 +295,7 @@ function addDialogue(draft: CaseFile, select: (id: string) => void) {
         id,
         characterId,
         startNodeId: "start",
-        nodes: [
-          { id: "start", text: "Здравствуйте.", mood: "neutral", effects: [], choices: [{ id: "bye", text: "До свидания.", next: null, effects: [] }] },
-        ],
+        nodes: [{ id: "start", text: "Здравствуйте.", mood: "neutral", effects: [], choices: [{ id: "bye", text: "До свидания.", next: null, effects: [] }] }],
       },
     ],
   }));

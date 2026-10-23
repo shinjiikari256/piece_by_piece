@@ -80,7 +80,8 @@ export interface GameState {
   savedPlayer: { x: number; y: number; locationId: string } | undefined;
 }
 
-export const initialState = (): GameState => ({  screen: "menu",
+export const initialState = (): GameState => ({
+  screen: "menu",
   caseFile: null,
   startedAt: null,
   progress: emptyProgress(),

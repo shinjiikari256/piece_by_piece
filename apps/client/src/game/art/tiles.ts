@@ -5,9 +5,26 @@ import { TILES, drawTileKey, type TileNeighbors } from "./tiles/model";
 
 /** Символы карты встроенных тайлов → ключи тайлов. */
 export const DEFAULT_TILE_LEGEND: Readonly<Record<string, string>> = {
-  "#": "wall", W: "window", B: "brick", G: "glass", P: "painted_wall", F: "fence",
-  ".": "tile", ",": "carpet", _: "parquet", w: "dark_parquet", b: "linoleum", k: "ceramic", m: "marble", r: "runner",
-  S: "stairs", Z: "stairs_side", D: "doorway", g: "grass", a: "asphalt", p: "sidewalk",
+  "#": "wall",
+  W: "window",
+  B: "brick",
+  G: "glass",
+  P: "painted_wall",
+  F: "fence",
+  ".": "tile",
+  ",": "carpet",
+  _: "parquet",
+  w: "dark_parquet",
+  b: "linoleum",
+  k: "ceramic",
+  m: "marble",
+  r: "runner",
+  S: "stairs",
+  Z: "stairs_side",
+  D: "doorway",
+  g: "grass",
+  a: "asphalt",
+  p: "sidewalk",
 };
 /** Легенда текущего дела: символ карты → ключ тайла (меняется на месте при `registerCaseTiles`). */
 export const TILE_LEGEND: Record<string, string> = { ...DEFAULT_TILE_LEGEND };

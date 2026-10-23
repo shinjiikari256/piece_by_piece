@@ -57,13 +57,13 @@ export function ResultsImport({ students, onDone }: { students: { id: number; la
   };
 
   const setUser = (i: number, userId: number) => setEntries((l) => l.map((e, k) => (k === i ? { ...e, userId } : e)));
-  const ready = entries.filter((e) => e.result && (e.result.status === "would_import" || (e.userId && e.result.status !== "duplicate" && e.result.status !== "invalid" && e.result.status !== "no_case")));
+  const ready = entries.filter(
+    (e) => e.result && (e.result.status === "would_import" || (e.userId && e.result.status !== "duplicate" && e.result.status !== "invalid" && e.result.status !== "no_case")),
+  );
 
   return (
     <div className="card stack">
-      <p className="muted">
-        Выберите файлы результатов (.json), которые прислали студенты. Портал сам найдёт студента по ФИО и пересчитает баллы по ответам — цифры из файла не берутся.
-      </p>
+      <p className="muted">Выберите файлы результатов (.json), которые прислали студенты. Портал сам найдёт студента по ФИО и пересчитает баллы по ответам — цифры из файла не берутся.</p>
       <input ref={input} type="file" accept=".json,application/json" multiple hidden onChange={(e) => void pick(e.target.files).then(() => (e.target.value = ""))} />
       <div className="row">
         <button className="btn" disabled={busy} onClick={() => input.current?.click()}>
@@ -84,15 +84,27 @@ export function ResultsImport({ students, onDone }: { students: { id: number; la
             return (
               <li key={i} className="row">
                 <span className="small">{e.name}</span>
-                <span className="small muted">{r?.player} {r?.caseTitle && `· ${r.caseTitle}`}</span>
-                {r?.total !== undefined && <span className="small">{r.total}/{r.max}</span>}
-                {st && <span className="status" data-tone={st.tone}>{st.label}</span>}
+                <span className="small muted">
+                  {r?.player} {r?.caseTitle && `· ${r.caseTitle}`}
+                </span>
+                {r?.total !== undefined && (
+                  <span className="small">
+                    {r.total}/{r.max}
+                  </span>
+                )}
+                {st && (
+                  <span className="status" data-tone={st.tone}>
+                    {st.label}
+                  </span>
+                )}
                 {r?.versionChanged && <span className="small muted">дело с тех пор менялось</span>}
                 {needsUser && (
                   <Select
                     value={e.userId ? String(e.userId) : ""}
                     placeholder="Выберите студента"
-                    options={(r.candidates?.map((c) => ({ value: String(c.id), label: `${c.fullName}${c.group ? ` · ${c.group}` : ""}` })) ?? students.map((s) => ({ value: String(s.id), label: s.label })))}
+                    options={
+                      r.candidates?.map((c) => ({ value: String(c.id), label: `${c.fullName}${c.group ? ` · ${c.group}` : ""}` })) ?? students.map((s) => ({ value: String(s.id), label: s.label }))
+                    }
                     onChange={(v) => setUser(i, Number(v))}
                   />
                 )}

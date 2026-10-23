@@ -72,7 +72,10 @@ export function DrawPanel({
   };
   const del = async () => {
     if (!(await ask({ title: `Удалить кадр «${frameLabel(frame)}»?`, text: "Если на него ссылаются состояния или анимации, редактор покажет ошибку.", confirmLabel: "Удалить", danger: true }))) return;
-    editor.update((d) => ({ ...d, sprites: d.sprites?.map((s) => (s.key === sprite.key ? { ...s, frames: Object.fromEntries(Object.entries(s.frames).filter(([k]) => k !== frame)) as CustomSprite["frames"] } : s)) }));
+    editor.update((d) => ({
+      ...d,
+      sprites: d.sprites?.map((s) => (s.key === sprite.key ? { ...s, frames: Object.fromEntries(Object.entries(s.frames).filter(([k]) => k !== frame)) as CustomSprite["frames"] } : s)),
+    }));
     onFrame("default");
   };
   return (
@@ -113,10 +116,18 @@ export function PropsPanel({ sprite }: { sprite: CustomSprite }) {
         Размер задаётся в клетках поля: одна клетка — {CELL}×{CELL} пикселей рисунка. Сейчас рисунок {sprite.w}×{sprite.h} пикселей. Нарисованное не обрезается.
       </p>
       <h3>Особенности</h3>
-      <Check checked={!!sprite.flat} onChange={(flat) => upd(sprite, { flat: flat || undefined })} hint="Например, ковёр: персонажи всегда выше него.">Лежит на полу</Check>
-      <Check checked={!!sprite.mirrorRight} onChange={(v) => upd(sprite, { mirrorRight: v || undefined })} hint="Для боковых дверей: притолока всегда у внешней стены.">Зеркалится в правой половине карты</Check>
-      <Check checked={!!sprite.opensNear} onChange={(v) => upd(sprite, { opensNear: v || undefined })} hint="Показывается кадр «Открыт», пока рядом игрок или спутник.">Открывается, когда рядом кто-то</Check>
-      <Check checked={!!sprite.mount} onChange={(v) => upd(sprite, { mount: v ? 8 : undefined })}>Висит на стене</Check>
+      <Check checked={!!sprite.flat} onChange={(flat) => upd(sprite, { flat: flat || undefined })} hint="Например, ковёр: персонажи всегда выше него.">
+        Лежит на полу
+      </Check>
+      <Check checked={!!sprite.mirrorRight} onChange={(v) => upd(sprite, { mirrorRight: v || undefined })} hint="Для боковых дверей: притолока всегда у внешней стены.">
+        Зеркалится в правой половине карты
+      </Check>
+      <Check checked={!!sprite.opensNear} onChange={(v) => upd(sprite, { opensNear: v || undefined })} hint="Показывается кадр «Открыт», пока рядом игрок или спутник.">
+        Открывается, когда рядом кто-то
+      </Check>
+      <Check checked={!!sprite.mount} onChange={(v) => upd(sprite, { mount: v ? 8 : undefined })}>
+        Висит на стене
+      </Check>
       {!!sprite.mount && <NumField label="Высота над полом" value={sprite.mount} min={1} max={64} suffix="пикс." onChange={(mount) => upd(sprite, { mount })} />}
       <p className="muted">
         Ключ спрайта: <code>{sprite.key}</code> (внутреннее имя, остаётся неизменным).
@@ -137,7 +148,9 @@ function GroupField({ sprite }: { sprite: CustomSprite }) {
   return (
     <>
       <div className="ef">
-        <span className="ef__label" title="Раздел палитры предметов в «Локациях», где будет лежать спрайт">Группа в палитре предметов</span>
+        <span className="ef__label" title="Раздел палитры предметов в «Локациях», где будет лежать спрайт">
+          Группа в палитре предметов
+        </span>
         <Select
           value={value}
           options={[...labels.map((l) => ({ value: l, label: l })), { value: NEW_GROUP, label: "Новая группа…" }]}
@@ -181,11 +194,25 @@ export function FootBar({ sprite, readOnly }: { sprite: CustomSprite; readOnly: 
     <div className="foot-bar">
       <label>
         Опора, клеток: ширина
-        <input type="number" min={1} max={cellsOf(sprite.w)} value={w} disabled={readOnly} onChange={(e) => e.target.value !== "" && set(Math.min(cellsOf(sprite.w), Math.max(1, Math.trunc(Number(e.target.value)))), h)} />
+        <input
+          type="number"
+          min={1}
+          max={cellsOf(sprite.w)}
+          value={w}
+          disabled={readOnly}
+          onChange={(e) => e.target.value !== "" && set(Math.min(cellsOf(sprite.w), Math.max(1, Math.trunc(Number(e.target.value)))), h)}
+        />
       </label>
       <label>
         высота
-        <input type="number" min={1} max={cellsOf(sprite.h)} value={h} disabled={readOnly} onChange={(e) => e.target.value !== "" && set(w, Math.min(cellsOf(sprite.h), Math.max(1, Math.trunc(Number(e.target.value)))))} />
+        <input
+          type="number"
+          min={1}
+          max={cellsOf(sprite.h)}
+          value={h}
+          disabled={readOnly}
+          onChange={(e) => e.target.value !== "" && set(w, Math.min(cellsOf(sprite.h), Math.max(1, Math.trunc(Number(e.target.value)))))}
+        />
       </label>
       <label className="foot-bar__check" title="Новое значение сбрасывает исключения для отдельных клеток">
         <input type="checkbox" checked={sprite.solid} disabled={readOnly} onChange={(e) => upd(sprite, { solid: e.target.checked, cells: undefined })} />

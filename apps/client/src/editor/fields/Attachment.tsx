@@ -8,12 +8,7 @@ export function AttachmentSource({ value, onChange }: { value: string; onChange:
     <div className="attach-src">
       {isImage && value && <img className="attach-src__preview" src={value} alt="" />}
       <div className="attach-src__row">
-        <input
-          value={embedded ? "(встроенный файл)" : value}
-          readOnly={embedded}
-          placeholder="https://…"
-          onChange={(e) => onChange(e.target.value)}
-        />
+        <input value={embedded ? "(встроенный файл)" : value} readOnly={embedded} placeholder="https://…" onChange={(e) => onChange(e.target.value)} />
         {value && (
           <button className="btn btn--sm btn--danger" onClick={() => onChange("")}>
             ✕

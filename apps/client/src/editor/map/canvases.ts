@@ -1,16 +1,5 @@
 import { useMemo } from "react";
-import {
-  BASE_TILE,
-  CHAR_H,
-  CHAR_W,
-  SPRITES,
-  TILE_NAMES,
-  drawCharacter,
-  drawSprite,
-  spriteVersion,
-  type Look,
-} from "../../game/art";
-
+import { BASE_TILE, CHAR_H, CHAR_W, SPRITES, TILE_NAMES, drawCharacter, drawSprite, spriteVersion, type Look } from "../../game/art";
 
 /** Клетки палитры по легенде текущего дела (тайлы дела подключаются при правке). */
 export const tileTools = () => Object.entries(TILE_NAMES).map(([ch, label]) => ({ ch, label }));

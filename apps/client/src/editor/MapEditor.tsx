@@ -26,8 +26,6 @@ import { stepZoom, ZoomControl } from "../ui/zoom-control";
 /** Нижняя граница масштаба карты: можно отдалить сильнее 100%, чтобы увидеть большую карту целиком. */
 const MIN_ZOOM = 0.3;
 
-
-
 export function MapEditor() {
   const palettePanel = usePanel("map-palette", "Палитра", "left", { width: 272, min: 180, max: 520 });
   const paletteDock = usePanel("map-palette-bottom", "Палитра", "bottom", { width: 260, min: 140, max: 520 });
@@ -68,14 +66,23 @@ export function MapEditor() {
   const canvas = useRef<HTMLCanvasElement>(null);
   const art = useSpriteCanvases();
 
-  const updateLoc = (fn: (l: LocationT) => LocationT, merge?: string) =>
-    editor.update((d) => ({ ...d, locations: d.locations.map((l, i) => (i === li ? fn(l) : l)) }), merge);
+  const updateLoc = (fn: (l: LocationT) => LocationT, merge?: string) => editor.update((d) => ({ ...d, locations: d.locations.map((l, i) => (i === li ? fn(l) : l)) }), merge);
 
   // ---------- рисование ----------
   useEffect(() => {
     const cv = canvas.current;
     if (!cv || !loc) return;
-    renderMap(cv, { loc, art, characters: draft.characters, tool, npcCharacter, hover, rect, selected: sel?.kind === "zone" ? null : selectionBox(loc, sel), zoneSel: sel?.kind === "zone" ? sel.id : null });
+    renderMap(cv, {
+      loc,
+      art,
+      characters: draft.characters,
+      tool,
+      npcCharacter,
+      hover,
+      rect,
+      selected: sel?.kind === "zone" ? null : selectionBox(loc, sel),
+      zoneSel: sel?.kind === "zone" ? sel.id : null,
+    });
   });
   useEffect(() => {
     const cv = canvas.current;
@@ -140,14 +147,7 @@ export function MapEditor() {
       {(dock === "left" ? palettePanel : paletteDock).collapsed ? (
         <PanelRail panel={dock === "left" ? palettePanel : paletteDock} />
       ) : (
-        <MapPalette
-          draft={draft}
-          tool={tool}
-          setTool={setTool}
-          pickTile={pickTile}
-          npcCharacter={npcCharacter}
-          setNpcCharacter={setNpcCharacter}
-        />
+        <MapPalette draft={draft} tool={tool} setTool={setTool} pickTile={pickTile} npcCharacter={npcCharacter} setNpcCharacter={setNpcCharacter} />
       )}
 
       {/* ---------- карта: вкладки локаций только над ней; палитра и инспектор — равнозначные ей блоки ---------- */}
@@ -260,13 +260,7 @@ export function MapEditor() {
             ) : (
               <>
                 <h3>Локация</h3>
-                <ObjectFields
-                  schema={LOCATION_SCHEMA}
-                  value={loc}
-                  ctx={{ draft }}
-                  only={["id", "name"]}
-                  onChange={(v) => updateLoc(() => v as LocationT, `loc:${li}`)}
-                />
+                <ObjectFields schema={LOCATION_SCHEMA} value={loc} ctx={{ draft }} only={["id", "name"]} onChange={(v) => updateLoc(() => v as LocationT, `loc:${li}`)} />
                 <div className="lm__size">
                   <span className="ef__label">Размер карты</span>
                   <div>
@@ -274,20 +268,8 @@ export function MapEditor() {
                     <SizeInput label="высота" value={h} onChange={(v) => updateLoc((l) => resize(l, w, v))} />
                   </div>
                 </div>
-                <ObjectFields
-                  schema={LOCATION_SCHEMA}
-                  value={loc}
-                  ctx={{ draft }}
-                  only={["areas"]}
-                  onChange={(v) => updateLoc(() => v as LocationT, `loc:${li}`)}
-                />
-                <ObjectFields
-                  schema={LOCATION_SCHEMA}
-                  value={loc}
-                  ctx={{ draft }}
-                  only={["onEnter"]}
-                  onChange={(v) => updateLoc(() => v as LocationT, `loc:${li}`)}
-                />
+                <ObjectFields schema={LOCATION_SCHEMA} value={loc} ctx={{ draft }} only={["areas"]} onChange={(v) => updateLoc(() => v as LocationT, `loc:${li}`)} />
+                <ObjectFields schema={LOCATION_SCHEMA} value={loc} ctx={{ draft }} only={["onEnter"]} onChange={(v) => updateLoc(() => v as LocationT, `loc:${li}`)} />
                 {draft.locations.length > 1 && (
                   <div className="row lm__order">
                     <button

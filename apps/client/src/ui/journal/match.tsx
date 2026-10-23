@@ -8,11 +8,7 @@ import { useCase } from "./index";
 
 // ---------- Сопоставление (панель в «Материалах») ----------
 
-type MatchState =
-  | { step: "pick" }
-  | { step: "nothing" }
-  | { step: "question"; deduction: Deduction; wrong?: string }
-  | { step: "solved"; deduction: Deduction; feedback?: string };
+type MatchState = { step: "pick" } | { step: "nothing" } | { step: "question"; deduction: Deduction; wrong?: string } | { step: "solved"; deduction: Deduction; feedback?: string };
 
 export function MatchPanel({ picked, onRemove, onClear }: { picked: string[]; onRemove: (id: string) => void; onClear: () => void }) {
   const caseFile = useCase();
@@ -88,7 +84,9 @@ export function MatchPanel({ picked, onRemove, onClear }: { picked: string[]; on
         )}
         {state.step === "nothing" && (
           <>
-            <p className="verdict" data-tone="bad">Эти материалы не складываются в вывод. Попробуйте другую комбинацию.</p>
+            <p className="verdict" data-tone="bad">
+              Эти материалы не складываются в вывод. Попробуйте другую комбинацию.
+            </p>
             <button className="btn" onClick={onClear}>
               Очистить
             </button>
@@ -105,7 +103,11 @@ export function MatchPanel({ picked, onRemove, onClear }: { picked: string[]; on
                 </button>
               ))}
             </div>
-            {state.wrong && <p className="verdict" data-tone="bad">Не сходится. {state.wrong}</p>}
+            {state.wrong && (
+              <p className="verdict" data-tone="bad">
+                Не сходится. {state.wrong}
+              </p>
+            )}
           </div>
         )}
         {state.step === "solved" && (

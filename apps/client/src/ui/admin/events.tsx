@@ -47,7 +47,9 @@ export function EventsSection({ groups }: { groups: AdminGroup[] }) {
           <li key={e.id} className="card stack">
             <div className="row">
               <b>{e.title}</b>
-              <span className="status" data-tone={e.open ? "good" : "warn"}>{e.open ? "идёт" : "закрыто"}</span>
+              <span className="status" data-tone={e.open ? "good" : "warn"}>
+                {e.open ? "идёт" : "закрыто"}
+              </span>
             </div>
             <span className="muted small">{period(e)}</span>
             <span className="small">Дела: {e.caseIds.map(caseName).join(", ")}</span>

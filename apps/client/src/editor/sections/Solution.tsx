@@ -7,7 +7,12 @@ import { SCHEMA } from "../shared";
 
 const SOLUTION_TABS = [
   { id: "verdict", label: "Вердикт", hint: "Правильный ответ: какое право, нарушено ли, кто виноват.", keys: ["right", "rightText", "violation", "responsibleCharacter", "correctAnswer"] },
-  { id: "story", label: "Что произошло", hint: "Рассказ для разбора после ответа игрока: что произошло и кто в чём солгал. Поддерживается **жирный** и *курсив*.", keys: ["whatHappened", "explanation"] },
+  {
+    id: "story",
+    label: "Что произошло",
+    hint: "Рассказ для разбора после ответа игрока: что произошло и кто в чём солгал. Поддерживается **жирный** и *курсив*.",
+    keys: ["whatHappened", "explanation"],
+  },
   { id: "law", label: "Квалификация", hint: "Правовая оценка и виды ответственности: применима ли каждая.", keys: ["legalQualification", "qualificationNotes"] },
   { id: "evidence", label: "Ключевые улики", hint: "Что доказывает вывод — показывается в разборе.", keys: ["keyEvidence"] },
   { id: "sources", label: "Источники", hint: "Нормы и литература: статьи нормативных актов.", keys: ["sources"] },
@@ -15,7 +20,11 @@ const SOLUTION_TABS = [
 
 export function SolutionSection() {
   const draft = useEditor((s) => s.draft);
-  const [tab, setTab] = useUrlParam<(typeof SOLUTION_TABS)[number]["id"]>("tab", "verdict", SOLUTION_TABS.map((t) => t.id));
+  const [tab, setTab] = useUrlParam<(typeof SOLUTION_TABS)[number]["id"]>(
+    "tab",
+    "verdict",
+    SOLUTION_TABS.map((t) => t.id),
+  );
   const current = SOLUTION_TABS.find((t) => t.id === tab)!;
   return (
     <section className="conf-panel">

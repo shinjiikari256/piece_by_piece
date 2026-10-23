@@ -16,7 +16,12 @@ import { registerCaseParts } from "./characters/registry";
 import { registerCaseTiles } from "./tiles/registry";
 
 /** Подключить весь рисованный контент дела: спрайты предметов и части персонажей. */
-export function registerCaseArt(c: { sprites?: Parameters<typeof registerCaseSprites>[0]; parts?: Parameters<typeof registerCaseParts>[0]; tiles?: Parameters<typeof registerCaseTiles>[0]["tiles"]; legend?: Record<string, string> }) {
+export function registerCaseArt(c: {
+  sprites?: Parameters<typeof registerCaseSprites>[0];
+  parts?: Parameters<typeof registerCaseParts>[0];
+  tiles?: Parameters<typeof registerCaseTiles>[0]["tiles"];
+  legend?: Record<string, string>;
+}) {
   registerCaseSprites(c.sprites);
   registerCaseParts(c.parts);
   registerCaseTiles({ tiles: c.tiles, legend: c.legend });

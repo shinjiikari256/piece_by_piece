@@ -111,7 +111,10 @@ describe("мероприятия", () => {
     await db.delete(schema.results);
     expect((await play(later.id)).json.debrief).toBeNull();
     expect((await call("GET", "/cases/case-001/debrief")).status).toBe(403);
-    await db.update(schema.events).set({ closesAt: new Date(Date.now() - 1000) }).where(eq(schema.events.id, later.id));
+    await db
+      .update(schema.events)
+      .set({ closesAt: new Date(Date.now() - 1000) })
+      .where(eq(schema.events.id, later.id));
     expect((await call("GET", "/cases/case-001/debrief")).json).toEqual(JSON.parse(JSON.stringify(full.solution)));
 
     // свободная игра раскрывает сразу

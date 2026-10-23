@@ -6,16 +6,7 @@ import { effectSites } from "../../../../shared/effect-sites";
 import { DEFAULT_STATE, clipFrameAt, findAction, findTransition, loopFrameAt, timerActive, timerDelay } from "../../../../shared/object-anim";
 import { objectView } from "../../../../shared/object-state";
 import { firstFloorCell, getLocation } from "../content/case-utils";
-import {
-  BASE_TILE,
-  SCALE,
-  SPRITES,
-  footprintCells,
-  solidCells,
-  TILE,
-  WALL_TILES,
-    drawTile,
-} from "./art";
+import { BASE_TILE, SCALE, SPRITES, footprintCells, solidCells, TILE, WALL_TILES, drawTile } from "./art";
 import { gameBridge, gameZoom } from "./bridge";
 import type { SceneHost } from "./host";
 import { collides, findPath, nearestFree, reachWithin, slideShift, type IsFree, type Tile } from "./scene/navigation";
@@ -265,11 +256,21 @@ export class OfficeScene extends Phaser.Scene {
     const scene = this;
     return new NpcCrowd({
       scene,
-      get host() { return scene.host; },
-      get caseFile() { return scene.caseFile; },
-      get location() { return scene.location; },
-      get player() { return scene.player; },
-      get trail() { return scene.trail; },
+      get host() {
+        return scene.host;
+      },
+      get caseFile() {
+        return scene.caseFile;
+      },
+      get location() {
+        return scene.location;
+      },
+      get player() {
+        return scene.player;
+      },
+      get trail() {
+        return scene.trail;
+      },
       isFree: (x, y) => scene.isFree(x, y),
       makeLabel: (text) => scene.makeLabel(text),
       makeClickable: (item) => scene.makeClickable(item),
@@ -286,7 +287,10 @@ export class OfficeScene extends Phaser.Scene {
   }
 
   private buildObjects() {
-    const animated = new Set(effectSites(this.caseFile as unknown as Parameters<typeof effectSites>[0]) /* нужны только эффекты, ответов сопоставлений они не касаются */.flatMap((s) => s.effects.flatMap((e) => (e.type === "playAnimation" ? [e.objectId] : []))));
+    const animated = new Set(
+      effectSites(this.caseFile as unknown as Parameters<typeof effectSites>[0]) /* нужны только эффекты, ответов сопоставлений они не касаются */
+        .flatMap((s) => s.effects.flatMap((e) => (e.type === "playAnimation" ? [e.objectId] : []))),
+    );
     for (const o of this.location.objects) {
       const spec = SPRITES[o.sprite];
       const cx = (o.x + spec.footprint.w / 2) * TILE;
@@ -433,7 +437,6 @@ export class OfficeScene extends Phaser.Scene {
     this.host.onInteract(id);
   }
 
-
   // ---------- выходы ----------
 
   // ---------- области-триггеры ----------
@@ -456,7 +459,11 @@ export class OfficeScene extends Phaser.Scene {
         x: cx,
         y: (top + 0.5) * TILE,
         footprint: z.cells,
-        sprite: this.add.image(cx, (top + 1) * TILE, "exit_zone").setOrigin(0.5, 1).setScale(SCALE).setDepth(0),
+        sprite: this.add
+          .image(cx, (top + 1) * TILE, "exit_zone")
+          .setOrigin(0.5, 1)
+          .setScale(SCALE)
+          .setDepth(0),
         labelText: this.makeLabel(z.name),
         labelAt: { x: cx, y: top * TILE - 4 },
         zone: { id: z.id, cells },
@@ -467,9 +474,7 @@ export class OfficeScene extends Phaser.Scene {
 
   /** Область-выход под клеткой, у которой сейчас есть подходящее действие (клик по ней — идти и пройти). */
   private exitZoneAt(tile: Tile) {
-    return this.location.zones?.find(
-      (z) => z.actions.some((a) => a.kind === "exit") && z.cells.some((c) => c.x === tile.x && c.y === tile.y) && this.host.hasZoneAction(z.id),
-    );
+    return this.location.zones?.find((z) => z.actions.some((a) => a.kind === "exit") && z.cells.some((c) => c.x === tile.x && c.y === tile.y) && this.host.hasZoneAction(z.id));
   }
 
   /** Клик по выходу: игрок идёт в область и по приходу проходит (автовыход срабатывает сам при входе); уже стоит внутри — проходит сразу. */
@@ -480,7 +485,8 @@ export class OfficeScene extends Phaser.Scene {
       this.host.onInteract(`zone:${zone.id}`);
       return;
     }
-    if (this.walkTo(zone.cells.filter((c) => this.isFree(c.x, c.y))) && !zone.actions.some((a) => a.kind === "exit" && (a.trigger === "enter" || a.trigger === "enterEvery"))) this.pendingInteraction = `zone:${zone.id}`;
+    if (this.walkTo(zone.cells.filter((c) => this.isFree(c.x, c.y))) && !zone.actions.some((a) => a.kind === "exit" && (a.trigger === "enter" || a.trigger === "enterEvery")))
+      this.pendingInteraction = `zone:${zone.id}`;
   }
 
   /** Выход под курсором (подпись показана, пока наведён). */
@@ -540,10 +546,7 @@ export class OfficeScene extends Phaser.Scene {
     const view = this.cameras.main.worldView;
     for (const { labelText: label, labelAt: at } of this.interactables) {
       const half = label.width / 2 + LABEL_EDGE;
-      label.setPosition(
-        Phaser.Math.Clamp(at.x, view.left + half, view.right - half),
-        Math.max(at.y, view.top + label.height + LABEL_EDGE),
-      );
+      label.setPosition(Phaser.Math.Clamp(at.x, view.left + half, view.right - half), Math.max(at.y, view.top + label.height + LABEL_EDGE));
     }
   }
 
@@ -577,8 +580,7 @@ export class OfficeScene extends Phaser.Scene {
     for (const e of doors) {
       const view = objectView(e.o, progress, locationId);
       const solid = view.state?.solid ?? SPRITES[e.o.sprite].solid;
-      const near =
-        !solid && walkers.some((w) => Phaser.Math.Distance.Between(w.x, w.y - TILE / 4, e.img.x, e.img.y - TILE / 2) < TILE * 1.7);
+      const near = !solid && walkers.some((w) => Phaser.Math.Distance.Between(w.x, w.y - TILE / 4, e.img.x, e.img.y - TILE / 2) < TILE * 1.7);
       const tex = ensureObjectFrameTexture(this.textures, e.o.sprite, near ? "open" : view.state?.frame);
       if (e.img.texture.key !== tex) e.img.setTexture(tex);
     }
@@ -588,9 +590,7 @@ export class OfficeScene extends Phaser.Scene {
     // точка входа из двери → сохранённая позиция → старт локации
     const { spawn } = this.host.getState();
     const saved = this.host.savedPlayer(this.caseFile.id);
-    const start =
-      spawn ??
-      (saved && saved.locationId === this.location.id && this.isFree(saved.x, saved.y) ? saved : this.location.playerStart ?? firstFloorCell(this.location));
+    const start = spawn ?? (saved && saved.locationId === this.location.id && this.isFree(saved.x, saved.y) ? saved : (this.location.playerStart ?? firstFloorCell(this.location)));
     if (spawn) this.host.consumeSpawn();
     this.lastSavedTile = `${start.x},${start.y}`;
     this.player = this.add
@@ -612,12 +612,14 @@ export class OfficeScene extends Phaser.Scene {
         return;
       }
       // Подойти к объекту и взаимодействовать по прибытии (к висящему на стене — только спереди)
-      const goals = item.access ?? item.footprint.flatMap((t) => [
-        { x: t.x, y: t.y + 1 },
-        { x: t.x - 1, y: t.y },
-        { x: t.x + 1, y: t.y },
-        { x: t.x, y: t.y - 1 },
-      ]);
+      const goals =
+        item.access ??
+        item.footprint.flatMap((t) => [
+          { x: t.x, y: t.y + 1 },
+          { x: t.x - 1, y: t.y },
+          { x: t.x + 1, y: t.y },
+          { x: t.x, y: t.y - 1 },
+        ]);
       if (this.walkTo(goals)) this.pendingInteraction = item.id;
     });
   }
@@ -677,9 +679,7 @@ export class OfficeScene extends Phaser.Scene {
   /** Можно ли пользоваться предметом отсюда: игрок стоит по ту же сторону стены, с которой к нему подходят. */
   private canUse(item: Interactable) {
     const reach = this.reachableTiles();
-    const tiles =
-      item.access ??
-      item.footprint.flatMap((f) => [-1, 0, 1].flatMap((dx) => [-1, 0, 1].map((dy) => ({ x: f.x + dx, y: f.y + dy }))));
+    const tiles = item.access ?? item.footprint.flatMap((f) => [-1, 0, 1].flatMap((dx) => [-1, 0, 1].map((dy) => ({ x: f.x + dx, y: f.y + dy }))));
     return tiles.some((t) => reach.has(`${t.x},${t.y}`));
   }
 

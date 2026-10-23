@@ -34,7 +34,13 @@ describe("эффект moveTo: ядро", () => {
 describe("эффект changeVariable: флаги", () => {
   it("снимает флаг, повторно — безопасно; исходное состояние не меняется", () => {
     const start = { ...emptyProgress(), flags: ["a", "b"] };
-    const { progress } = applyEffects([{ type: "changeVariable", variableId: "a", action: "off" }, { type: "changeVariable", variableId: "нет_такого", action: "off" }], start);
+    const { progress } = applyEffects(
+      [
+        { type: "changeVariable", variableId: "a", action: "off" },
+        { type: "changeVariable", variableId: "нет_такого", action: "off" },
+      ],
+      start,
+    );
     expect(progress.flags).toEqual(["b"]);
     expect(start.flags).toEqual(["a", "b"]);
   });
@@ -77,7 +83,13 @@ describe("эффект moveTo: валидатор", () => {
     const wall = loc.tiles[0][0];
     const errors = withEffect(move("krylov", x, y), (c) => {
       const tiles = c.locations[0].tiles.map((row) => row.split(""));
-      for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) tiles[y + dy][x + dx] = wall;
+      for (const [dx, dy] of [
+        [1, 0],
+        [-1, 0],
+        [0, 1],
+        [0, -1],
+      ])
+        tiles[y + dy][x + dx] = wall;
       c.locations[0].tiles = tiles.map((row) => row.join(""));
     });
     expect(errors.join("\n")).toContain("не дойти");
@@ -115,7 +127,16 @@ describe("области и их действия: формат и валида�
     const r = validateCase(c);
     return r.ok ? "" : r.errors.join("\n");
   };
-  const zone = (id: string, over: Partial<CaseFile["locations"][0]["zones"][0]> = {}) => ({ id, name: "Холл", cells: [{ x: 15, y: 13 }, { x: 16, y: 13 }], actions: [], ...over });
+  const zone = (id: string, over: Partial<CaseFile["locations"][0]["zones"][0]> = {}) => ({
+    id,
+    name: "Холл",
+    cells: [
+      { x: 15, y: 13 },
+      { x: 16, y: 13 },
+    ],
+    actions: [],
+    ...over,
+  });
 
   it("дело без областей проходит (области по умолчанию пустые)", () => {
     expect(errorsOf(base())).toEqual("");
@@ -126,7 +147,12 @@ describe("области и их действия: формат и валида�
     const c = base();
     const obj = c.locations[0].objects.find((o) => o.interaction)!;
     c.locations[0].zones = [
-      zone("zone_hall", { actions: [{ kind: "dialogue", dialogueId: c.dialogues[0].id, trigger: "enter" }, { kind: "object", objectId: obj.id, requires: { flags: [] } }] }),
+      zone("zone_hall", {
+        actions: [
+          { kind: "dialogue", dialogueId: c.dialogues[0].id, trigger: "enter" },
+          { kind: "object", objectId: obj.id, requires: { flags: [] } },
+        ],
+      }),
     ];
     expect(errorsOf(c)).toEqual("");
   });
@@ -136,7 +162,14 @@ describe("области и их действия: формат и валида�
     const decoration = c.locations[0].objects.find((o) => !o.interaction)!;
     c.locations[0].zones = [
       zone("z", { cells: [] }),
-      zone("z", { cells: [{ x: 999, y: 0 }], actions: [{ kind: "dialogue", dialogueId: "нет_такого" }, { kind: "object", objectId: decoration.id }, { kind: "object", objectId: "нет_предмета" }] }),
+      zone("z", {
+        cells: [{ x: 999, y: 0 }],
+        actions: [
+          { kind: "dialogue", dialogueId: "нет_такого" },
+          { kind: "object", objectId: decoration.id },
+          { kind: "object", objectId: "нет_предмета" },
+        ],
+      }),
     ];
     const text = errorsOf(c);
     expect(text).toContain("область пуста");
@@ -199,7 +232,16 @@ describe("миграция формата 2 → 3", () => {
     const { caseMigrations } = await import("../../../../shared/migrate");
     const old = {
       formatVersion: 2,
-      locations: [{ id: "l", npcs: [{ id: "n1", characterId: "a", dialogueId: "da", x: 1, y: 1 }, { id: "n2", characterId: "b", dialogueId: "db", x: 2, y: 1 }, { id: "n3", characterId: "c", dialogueId: "dc", x: 3, y: 1 }] }],
+      locations: [
+        {
+          id: "l",
+          npcs: [
+            { id: "n1", characterId: "a", dialogueId: "da", x: 1, y: 1 },
+            { id: "n2", characterId: "b", dialogueId: "db", x: 2, y: 1 },
+            { id: "n3", characterId: "c", dialogueId: "dc", x: 3, y: 1 },
+          ],
+        },
+      ],
       confrontations: [{ id: "c1", characters: ["a", "b"], dialogueId: "dab", requires: { notFlags: ["done"] } }],
     };
     const next = caseMigrations[2](old) as { confrontations?: unknown; locations: { npcs: { characterId: string; dialogues: unknown[] }[] }[] };
@@ -217,7 +259,12 @@ describe("предупреждения дела", () => {
     const { caseWarnings } = await import("./warnings");
     expect(caseWarnings(structuredClone(case001) as unknown as CaseFile).filter((w) => w.startsWith("dialogue") || w.includes("/zone"))).toEqual([]);
     const c = structuredClone(case001) as unknown as CaseFile;
-    c.dialogues.push({ id: "dlg_lonely", characterId: c.characters[0].id, startNodeId: "s", nodes: [{ id: "s", text: "…", mood: "neutral", effects: [], choices: [{ id: "end", text: "ок", next: null, effects: [], requires: { flags: ["flag_never_set"] } }] }] });
+    c.dialogues.push({
+      id: "dlg_lonely",
+      characterId: c.characters[0].id,
+      startNodeId: "s",
+      nodes: [{ id: "s", text: "…", mood: "neutral", effects: [], choices: [{ id: "end", text: "ок", next: null, effects: [], requires: { flags: ["flag_never_set"] } }] }],
+    });
     c.locations[0].zones = [{ id: "z_empty", name: "Пустая", cells: [{ x: 1, y: 1 }], actions: [] }];
     const text = caseWarnings(c).join("\n");
     expect(text).toContain("dialogue dlg_lonely: никто не запускает");
@@ -227,12 +274,28 @@ describe("предупреждения дела", () => {
   it("счётчики: условие вне границ и счётчик, который никто не меняет", async () => {
     const { caseWarnings } = await import("./warnings");
     const c = structuredClone(case001) as unknown as CaseFile;
-    c.counters = [{ id: "k_out", name: "Вне", initial: 0, min: 0, max: 5 }, { id: "k_stuck", name: "Стоит", initial: 0 }];
-    c.dialogues.push({ id: "dlg_k", characterId: c.characters[0].id, startNodeId: "s", nodes: [{ id: "s", text: "…", mood: "neutral", effects: [], choices: [
-      { id: "a", text: "a", next: null, effects: [], requires: { counters: [{ counterId: "k_out", min: 6 }] } },
-      { id: "b", text: "b", next: null, effects: [], requires: { counters: [{ counterId: "k_stuck", min: 1 }] } },
-      { id: "c", text: "c", next: null, effects: [] },
-    ] }] });
+    c.counters = [
+      { id: "k_out", name: "Вне", initial: 0, min: 0, max: 5 },
+      { id: "k_stuck", name: "Стоит", initial: 0 },
+    ];
+    c.dialogues.push({
+      id: "dlg_k",
+      characterId: c.characters[0].id,
+      startNodeId: "s",
+      nodes: [
+        {
+          id: "s",
+          text: "…",
+          mood: "neutral",
+          effects: [],
+          choices: [
+            { id: "a", text: "a", next: null, effects: [], requires: { counters: [{ counterId: "k_out", min: 6 }] } },
+            { id: "b", text: "b", next: null, effects: [], requires: { counters: [{ counterId: "k_stuck", min: 1 }] } },
+            { id: "c", text: "c", next: null, effects: [] },
+          ],
+        },
+      ],
+    });
     const text = caseWarnings(c).join("\n");
     expect(text).toContain("counter k_out: условие требует значение вне границ");
     expect(text).toContain("counter k_stuck: никакой эффект не меняет счётчик");
@@ -257,7 +320,16 @@ describe("условия: «или» и «игрок в локации»", () =>
 
 it("валидатор: неизвестная локация в inLocation (в том числе внутри anyOf)", () => {
   const c = structuredClone(case001) as unknown as CaseFile;
-  c.locations[0].objects.push({ id: "d_or", sprite: "door_h", x: 0, y: 0, label: "", interaction: null, onInteract: [], states: [{ id: "s", when: { anyOf: [{ inLocation: ["нет_такой"] }] } }] } as never);
+  c.locations[0].objects.push({
+    id: "d_or",
+    sprite: "door_h",
+    x: 0,
+    y: 0,
+    label: "",
+    interaction: null,
+    onInteract: [],
+    states: [{ id: "s", when: { anyOf: [{ inLocation: ["нет_такой"] }] } }],
+  } as never);
   const r = validateCase(c);
   expect(r.ok === false && r.errors.some((e) => e.includes("нет_такой"))).toBe(true);
 });
@@ -338,8 +410,7 @@ describe("счётчики и начальные флаги", () => {
   });
   it("границы счётчика: эффекты и начальное значение не выходят за min/max", () => {
     const defs = [{ id: "hp", min: 0, max: 10 }];
-    const fx = (action: "add" | "subtract" | "set", value: number, p = emptyProgress()) =>
-      applyEffects([{ type: "changeVariable", variableId: "hp", action, value }], p, { counters: defs }).progress;
+    const fx = (action: "add" | "subtract" | "set", value: number, p = emptyProgress()) => applyEffects([{ type: "changeVariable", variableId: "hp", action, value }], p, { counters: defs }).progress;
     const full = fx("add", 99);
     expect(full.counters.hp).toBe(10);
     expect(fx("subtract", 99, full).counters.hp).toBe(0);
@@ -350,7 +421,16 @@ describe("счётчики и начальные флаги", () => {
     const c = withCounters();
     c.counters![0].name = " ";
     c.dialogues[0].nodes[0].effects.push({ type: "changeVariable", variableId: "нет", action: "add", value: 1 });
-    c.locations[0].objects.push({ id: "d_cnt", sprite: "door_h", x: 0, y: 0, label: "", interaction: null, onInteract: [], states: [{ id: "s", when: { counters: [{ counterId: "trust", min: 5, max: 1 }] } }] } as never);
+    c.locations[0].objects.push({
+      id: "d_cnt",
+      sprite: "door_h",
+      x: 0,
+      y: 0,
+      label: "",
+      interaction: null,
+      onInteract: [],
+      states: [{ id: "s", when: { counters: [{ counterId: "trust", min: 5, max: 1 }] } }],
+    } as never);
     const r = validateCase(c);
     const text = r.ok ? "" : r.errors.join("\n");
     expect(text).toContain("нет названия");
@@ -434,7 +514,17 @@ describe("условия-отрицания: notEvidence, notDeductions", () => 
 describe("перечисления", () => {
   const withEnum = () => {
     const c = structuredClone(case001) as unknown as CaseFile;
-    c.enums = [{ id: "safe", name: "Сейф", values: [{ id: "closed", name: "Закрыт" }, { id: "open", name: "Открыт" }, { id: "broken", name: "Сломан" }] }];
+    c.enums = [
+      {
+        id: "safe",
+        name: "Сейф",
+        values: [
+          { id: "closed", name: "Закрыт" },
+          { id: "open", name: "Открыт" },
+          { id: "broken", name: "Сломан" },
+        ],
+      },
+    ];
     return c;
   };
   it("startProgress: начальное значение — заданное или первое", () => {
@@ -548,18 +638,38 @@ describe("миграция 6 → 7: trigger области", () => {
   it("auto: true становится trigger: enter", () => {
     const old = structuredClone(case002) as unknown as Record<string, any>; // eslint-disable-line @typescript-eslint/no-explicit-any
     old.formatVersion = 6;
-    old.locations[0].zones = [{ id: "z", name: "Z", cells: [{ x: 1, y: 1 }], actions: [{ kind: "effects", effects: [], auto: true }, { kind: "effects", effects: [] }] }];
+    old.locations[0].zones = [
+      {
+        id: "z",
+        name: "Z",
+        cells: [{ x: 1, y: 1 }],
+        actions: [
+          { kind: "effects", effects: [], auto: true },
+          { kind: "effects", effects: [] },
+        ],
+      },
+    ];
     const r = migrateCase(old);
     expect(r.ok).toBe(true);
     if (!r.ok) return;
-    expect((r.data.locations as any[])[0].zones[0].actions).toEqual([{ kind: "effects", effects: [], trigger: "enter" }, { kind: "effects", effects: [] }]); // eslint-disable-line @typescript-eslint/no-explicit-any
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    expect((r.data.locations as any[])[0].zones[0].actions).toEqual([
+      { kind: "effects", effects: [], trigger: "enter" },
+      { kind: "effects", effects: [] },
+    ]);
   });
 });
 
 describe("эффекты removeEvidence, startDialogue, travel", () => {
   it("removeEvidence убирает улику и сообщает об этом; повторно — нет", () => {
     const p = { ...emptyProgress(), collected: ["a", "b"] };
-    const out = applyEffects([{ type: "removeEvidence", evidenceId: "a" }, { type: "removeEvidence", evidenceId: "a" }], p);
+    const out = applyEffects(
+      [
+        { type: "removeEvidence", evidenceId: "a" },
+        { type: "removeEvidence", evidenceId: "a" },
+      ],
+      p,
+    );
     expect(out.progress.collected).toEqual(["b"]);
     expect(out.removedEvidence).toEqual(["a"]);
   });
@@ -652,7 +762,16 @@ describe("«где используется»: счётчики, перечис�
   const base = () => {
     const c = structuredClone(case001) as unknown as CaseFile;
     c.counters = [{ id: "hp", name: "Здоровье" }];
-    c.enums = [{ id: "safe", name: "Сейф", values: [{ id: "closed", name: "Закрыт" }, { id: "open", name: "Открыт" }] }];
+    c.enums = [
+      {
+        id: "safe",
+        name: "Сейф",
+        values: [
+          { id: "closed", name: "Закрыт" },
+          { id: "open", name: "Открыт" },
+        ],
+      },
+    ];
     const node = c.dialogues[0].nodes[0];
     node.effects.push({ type: "changeVariable", variableId: "hp", action: "subtract", value: 1 }, { type: "changeVariable", variableId: "safe", action: "assign", valueId: "open" });
     node.choices[0].requires = { counters: [{ counterId: "hp", min: 1 }], enums: [{ enumId: "safe", in: ["open"] }], notEvidence: [c.evidence[0].id] };
@@ -681,7 +800,11 @@ describe("человек на карте по условию; диалог не 
     const r = validateCase(c);
     expect(r.ok ? "" : r.errors.join("\n")).toContain("нет_улики");
     c.locations[0].npcs[0].requires = { flags: ["show"] };
-    expect(flagUsage(c).get("show")?.some((u) => u.where.startsWith("Человек на карте"))).toBe(true);
+    expect(
+      flagUsage(c)
+        .get("show")
+        ?.some((u) => u.where.startsWith("Человек на карте")),
+    ).toBe(true);
     expect(deleteFlag(c, "show").locations[0].npcs[0].requires).toBeUndefined();
   });
   it("предупреждение: у всех вариантов реплики есть условие", () => {

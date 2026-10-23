@@ -8,8 +8,7 @@ import { ownGroupIds } from "./admin";
 
 type EventRow = typeof events.$inferSelect;
 
-export const isOpen = (e: Pick<EventRow, "opensAt" | "closesAt">, now = new Date()) =>
-  (!e.opensAt || e.opensAt <= now) && (!e.closesAt || now < e.closesAt);
+export const isOpen = (e: Pick<EventRow, "opensAt" | "closesAt">, now = new Date()) => (!e.opensAt || e.opensAt <= now) && (!e.closesAt || now < e.closesAt);
 
 async function describe(db: Db, rows: EventRow[], userId?: number): Promise<ServerEvent[]> {
   if (!rows.length) return [];
@@ -30,8 +29,14 @@ async function describe(db: Db, rows: EventRow[], userId?: number): Promise<Serv
     closesAt: r.closesAt?.toISOString() ?? null,
     debriefPolicy: r.debriefPolicy,
     maxScoredAttempts: r.maxScoredAttempts,
-    caseIds: cs.filter((x) => x.eventId === r.id).map((x) => x.caseId).sort(),
-    groupIds: gs.filter((x) => x.eventId === r.id).map((x) => x.groupId).sort((a, b) => a - b),
+    caseIds: cs
+      .filter((x) => x.eventId === r.id)
+      .map((x) => x.caseId)
+      .sort(),
+    groupIds: gs
+      .filter((x) => x.eventId === r.id)
+      .map((x) => x.groupId)
+      .sort((a, b) => a - b),
     open: isOpen(r),
     ...(userId ? { doneByCase: Object.fromEntries(done.filter((d) => d.eventId === r.id).map((d) => [d.caseId, d.n])) } : {}),
   }));
@@ -48,7 +53,10 @@ export const eventRoutes = new Hono<AppEnv>()
       const own = await ownGroupIds(db, user.id);
       const byGroup = own.length ? await db.select({ id: eventAccess.eventId }).from(eventAccess).where(inArray(eventAccess.groupId, own)) : [];
       const ids = byGroup.map((x) => x.id);
-      rows = await db.select().from(events).where(ids.length ? or(eq(events.createdBy, user.id), inArray(events.id, ids)) : eq(events.createdBy, user.id));
+      rows = await db
+        .select()
+        .from(events)
+        .where(ids.length ? or(eq(events.createdBy, user.id), inArray(events.id, ids)) : eq(events.createdBy, user.id));
     } else {
       if (!user.groupId) return c.json([]);
       const ids = (await db.select({ id: eventAccess.eventId }).from(eventAccess).where(eq(eventAccess.groupId, user.groupId))).map((x) => x.id);
@@ -61,7 +69,10 @@ export const eventRoutes = new Hono<AppEnv>()
     const staff = requireStaff(c);
     const body = await parseBody(c, EventBody);
     await checkRefs(c.var.db, staff, body);
-    const [row] = await c.var.db.insert(events).values({ ...fields(body), createdBy: staff.id }).returning();
+    const [row] = await c.var.db
+      .insert(events)
+      .values({ ...fields(body), createdBy: staff.id })
+      .returning();
     await setLinks(c.var.db, row.id, body);
     return c.json((await describe(c.var.db, [row]))[0], 201);
   })

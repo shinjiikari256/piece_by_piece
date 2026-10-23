@@ -51,9 +51,7 @@ export function resultsStats(rows: StatsRow[]): ResultsStats {
     avgMinutes: avg(rows.flatMap((r) => (r.elapsedMs == null ? [] : [r.elapsedMs / 60_000]))),
     avgHints: avg(rows.map((r) => r.hintsUsed)),
     avgWrongDeductions: avg(rows.map((r) => r.wrongDeductions)),
-    bonusShare: withBonus.length
-      ? Math.round((withBonus.filter((r) => ((r.score as ScoreJson).timeBonus?.points ?? 0) > 0).length / withBonus.length) * 100)
-      : null,
+    bonusShare: withBonus.length ? Math.round((withBonus.filter((r) => ((r.score as ScoreJson).timeBonus?.points ?? 0) > 0).length / withBonus.length) * 100) : null,
     buckets: [
       { label: "0–39%", count: bucket(-Infinity, 40) },
       { label: "40–64%", count: bucket(40, 65) },
@@ -70,4 +68,3 @@ export function resultsStats(rows: StatsRow[]): ResultsStats {
     ],
   };
 }
-

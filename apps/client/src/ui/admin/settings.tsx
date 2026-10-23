@@ -1,7 +1,5 @@
 import { useEffect, useState } from "react";
-import {
-  type Settings,
-} from "../../../../../shared/api";
+import { type Settings } from "../../../../../shared/api";
 import { api } from "../../state/api";
 import { fail } from "./index";
 

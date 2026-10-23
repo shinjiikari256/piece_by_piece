@@ -42,13 +42,17 @@ const difficulty = args.difficulty!;
 const evidenceCount = Number(args.evidence);
 const characterCount = Number(args.characters);
 
-if (!topic) fail("--topic: тема дела, например \"тайна переписки\" или \"расторжение трудового договора\"");
+if (!topic) fail('--topic: тема дела, например "тайна переписки" или "расторжение трудового договора"');
 if (!["easy", "medium", "hard"].includes(difficulty)) fail("--difficulty: easy | medium | hard");
 if (!Number.isInteger(evidenceCount) || evidenceCount < 5 || evidenceCount > 12) fail("--evidence: целое от 5 до 12");
 if (!Number.isInteger(characterCount) || characterCount < 3 || characterCount > 5) fail("--characters: целое от 3 до 5");
 
 function nextCasePath() {
-  const taken = new Set(readdirSync(CASES_DIR).map((f) => f.match(/^case-(\d{3})\.json$/)?.[1]).filter(Boolean));
+  const taken = new Set(
+    readdirSync(CASES_DIR)
+      .map((f) => f.match(/^case-(\d{3})\.json$/)?.[1])
+      .filter(Boolean),
+  );
   for (let n = 1; n < 1000; n++) {
     const num = String(n).padStart(3, "0");
     if (!taken.has(num)) return { file: path.join(CASES_DIR, `case-${num}.json`), num };
@@ -56,9 +60,7 @@ function nextCasePath() {
   fail("нет свободного номера дела");
 }
 
-const target = args.out
-  ? { file: path.resolve(args.out), num: path.basename(args.out).match(/(\d+)/)?.[1] ?? "000" }
-  : nextCasePath();
+const target = args.out ? { file: path.resolve(args.out), num: path.basename(args.out).match(/(\d+)/)?.[1] ?? "000" } : nextCasePath();
 if (existsSync(target.file) && !args.force) fail(`${target.file} уже существует (используйте --force)`);
 
 const SYSTEM = `Ты — автор учебных детективных сценариев для браузерной игры «${APP_NAME}» для студентов юридического факультета. Право — российское; отрасль определяется темой дела.
@@ -133,7 +135,7 @@ async function main() {
       writeFileSync(target.file, JSON.stringify(caseFile, null, 2) + "\n");
       console.log(`✓ ${path.relative(process.cwd(), target.file)} — «${result.caseFile.title}»`);
       console.log("  Статус: черновик. Перед мероприятием юридическое содержание проверяет человек;");
-      console.log('  после проверки поставьте published: true — дело появится в списке.');
+      console.log("  после проверки поставьте published: true — дело появится в списке.");
       return;
     }
 

@@ -59,7 +59,11 @@ describe.each(SIZES)("$name: нет горизонтального перепо�
     await page.waitForFunction(() => (window as any).__game.store.get().screen === "play");
     await page.evaluate(() => {
       const { store } = (window as any).__game;
-      const ids = store.get().caseFile.evidence.filter((e: any) => (e.kind ?? "evidence") === "evidence").slice(0, 3).map((e: any) => e.id);
+      const ids = store
+        .get()
+        .caseFile.evidence.filter((e: any) => (e.kind ?? "evidence") === "evidence")
+        .slice(0, 3)
+        .map((e: any) => e.id);
       store.get().progress.collected.push(...ids);
     });
     return page;
@@ -83,7 +87,11 @@ describe("касание: перетаскивание карточки в яч�
     await page.waitForFunction(() => (window as any).__game.store.get().screen === "play");
     await page.evaluate(() => {
       const { store, actions } = (window as any).__game;
-      const ids = store.get().caseFile.evidence.filter((e: any) => (e.kind ?? "evidence") === "evidence").slice(0, 3).map((e: any) => e.id);
+      const ids = store
+        .get()
+        .caseFile.evidence.filter((e: any) => (e.kind ?? "evidence") === "evidence")
+        .slice(0, 3)
+        .map((e: any) => e.id);
       store.get().progress.collected.push(...ids);
       actions.open({ kind: "journal", tab: "materials", match: true });
     });
@@ -102,9 +110,7 @@ describe("касание: перетаскивание карточки в яч�
       });
     }
     await cdp.send("Input.dispatchTouchEvent", { type: "touchEnd", touchPoints: [] });
-    await expect
-      .poll(() => page.evaluate(() => document.querySelector("[data-slot]")?.textContent?.trim() ?? ""), { timeout: 3000 })
-      .not.toBe(before);
+    await expect.poll(() => page.evaluate(() => document.querySelector("[data-slot]")?.textContent?.trim() ?? ""), { timeout: 3000 }).not.toBe(before);
   });
 });
 
@@ -114,7 +120,11 @@ describe("конструктор: поворот экрана", () => {
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto(`${BASE}/editor`);
     await page.waitForFunction(() => (window as any).__editor);
-    await page.getByRole("button", { name: /Новое дело|Создать/i }).first().click().catch(() => undefined);
+    await page
+      .getByRole("button", { name: /Новое дело|Создать/i })
+      .first()
+      .click()
+      .catch(() => undefined);
     const before = await page.evaluate(() => JSON.stringify((({ screen, section, draft, dirty }) => ({ screen, section, draft, dirty }))((window as any).__editor.editorStore.get())));
     await page.setViewportSize({ width: 844, height: 390 });
     await page.waitForTimeout(300);

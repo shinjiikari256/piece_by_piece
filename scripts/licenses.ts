@@ -9,16 +9,7 @@ import { existsSync, readFileSync, readdirSync, realpathSync, writeFileSync } fr
 import path from "node:path";
 
 /** Пакеты, которые уходят игрокам в бандле. Новая зависимость должна быть в одном из двух списков. */
-const CLIENT = [
-  "@fontsource/pt-mono",
-  "@fontsource/rubik",
-  "phaser",
-  "react",
-  "react-dom",
-  "transliteration",
-  "uqr",
-  "zod",
-];
+const CLIENT = ["@fontsource/pt-mono", "@fontsource/rubik", "phaser", "react", "react-dom", "transliteration", "uqr", "zod"];
 /** Работают только на сервере и игрокам не передаются. */
 const SERVER_ONLY = ["@hono/node-server", "@node-rs/argon2", "drizzle-orm", "hono", "postgres"];
 
@@ -45,7 +36,14 @@ function resolvePkgDir(name: string, fromDir: string): string | null {
 }
 
 const licenseOf = (p: Pkg): string =>
-  typeof p.license === "string" ? p.license : p.license?.type ?? p.licenses?.map((l) => l.type).filter(Boolean).join(" OR ") ?? "";
+  typeof p.license === "string"
+    ? p.license
+    : (p.license?.type ??
+      p.licenses
+        ?.map((l) => l.type)
+        .filter(Boolean)
+        .join(" OR ") ??
+      "");
 
 /** LICENSE и NOTICE (Apache-2.0 требует приложить и его). */
 function noticeFiles(dir: string): string {
@@ -58,7 +56,7 @@ function noticeFiles(dir: string): string {
 }
 
 const repoUrl = (p: Pkg) =>
-  (typeof p.repository === "string" ? p.repository : p.repository?.url ?? p.homepage ?? "")
+  (typeof p.repository === "string" ? p.repository : (p.repository?.url ?? p.homepage ?? ""))
     .replace(/^git\+/, "")
     .replace(/\.git$/, "")
     .replace(/^git:\/\//, "https://")
@@ -91,8 +89,7 @@ for (const dep of CLIENT) visit(dep, root);
 const list = [...seen.values()].sort((a, b) => a.name.localeCompare(b.name) || a.version.localeCompare(b.version));
 const body = list
   .map(
-    (p) =>
-      `${"=".repeat(72)}\n${p.name} ${p.version} — ${p.license || "лицензия не указана"}\n${p.url}\n${"=".repeat(72)}\n\n${p.text || `(файла лицензии в пакете нет; лицензия: ${p.license})`}\n`,
+    (p) => `${"=".repeat(72)}\n${p.name} ${p.version} — ${p.license || "лицензия не указана"}\n${p.url}\n${"=".repeat(72)}\n\n${p.text || `(файла лицензии в пакете нет; лицензия: ${p.license})`}\n`,
   )
   .join("\n");
 const out = path.join(root, "apps/client/public/licenses.txt");

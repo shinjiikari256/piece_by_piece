@@ -4,8 +4,6 @@
  * без библиотек, работает и в офлайн-файле.
  */
 
-
-
 export { downloadCertificate, downloadResultPdf, jpegsToPdf } from "./pdf";
 export { drawCertificate, type CertificateData } from "./certificate";
 export { drawResultPages, type ResultDocData } from "./result";

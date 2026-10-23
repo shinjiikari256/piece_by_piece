@@ -7,7 +7,14 @@ describe("опора предмета", () => {
   it("ширина идёт вправо, высота — вверх от точки предмета", () => {
     const cells = footprintCells(3, 5, { w: 2, h: 2 });
     expect(cells).toHaveLength(4);
-    expect(cells).toEqual(expect.arrayContaining([{ x: 3, y: 5 }, { x: 4, y: 5 }, { x: 3, y: 4 }, { x: 4, y: 4 }]));
+    expect(cells).toEqual(
+      expect.arrayContaining([
+        { x: 3, y: 5 },
+        { x: 4, y: 5 },
+        { x: 3, y: 4 },
+        { x: 4, y: 4 },
+      ]),
+    );
   });
 
   it("опора 1×1 — одна клетка", () => {
@@ -17,8 +24,7 @@ describe("опора предмета", () => {
   it("footprintHas совпадает с footprintCells и не захватывает соседние клетки", () => {
     const fp = { w: 3, h: 2 };
     const cells = footprintCells(2, 4, fp);
-    for (let x = 0; x < 8; x++)
-      for (let y = 0; y < 8; y++) expect(footprintHas(2, 4, fp, x, y), `${x},${y}`).toBe(cells.some((c) => c.x === x && c.y === y));
+    for (let x = 0; x < 8; x++) for (let y = 0; y < 8; y++) expect(footprintHas(2, 4, fp, x, y), `${x},${y}`).toBe(cells.some((c) => c.x === x && c.y === y));
   });
 
   it("solidCells: общее solid, исключения cells и явное значение состояния", () => {

@@ -11,7 +11,11 @@ import { visibleUsers } from "./admin";
 
 const norm = (s: string) => s.toLowerCase().replace(/ё/g, "е").replace(/\s+/g, " ").trim();
 
-interface Candidate { id: number; fullName: string; group: string | null }
+interface Candidate {
+  id: number;
+  fullName: string;
+  group: string | null;
+}
 
 /** Студента ищем по ФИО (и по группе, если ФИО повторяется) среди тех, кого видит преподаватель. */
 function match(file: ResultFile, people: Candidate[]): { user?: Candidate; many?: Candidate[] } {

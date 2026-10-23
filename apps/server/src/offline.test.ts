@@ -19,7 +19,14 @@ async function call(method: string, path: string, body?: unknown): Promise<{ sta
   });
   const set = res.headers.get("set-cookie");
   if (set) cookie = set.split(";")[0];
-  return { status: res.status, res, json: await res.clone().json().catch(() => null) };
+  return {
+    status: res.status,
+    res,
+    json: await res
+      .clone()
+      .json()
+      .catch(() => null),
+  };
 }
 
 beforeEach(async () => {

@@ -11,11 +11,7 @@ export async function studentCaseIds(db: Db, groupId: number | null): Promise<Se
   if (groupId === null) return new Set();
   const [byGroup, byEvent] = await Promise.all([
     db.select({ id: caseGroups.caseId }).from(caseGroups).where(eq(caseGroups.groupId, groupId)),
-    db
-      .select({ id: eventCases.caseId })
-      .from(eventCases)
-      .innerJoin(eventAccess, eq(eventAccess.eventId, eventCases.eventId))
-      .where(eq(eventAccess.groupId, groupId)),
+    db.select({ id: eventCases.caseId }).from(eventCases).innerJoin(eventAccess, eq(eventAccess.eventId, eventCases.eventId)).where(eq(eventAccess.groupId, groupId)),
   ]);
   return new Set([...byGroup, ...byEvent].map((r) => r.id));
 }
@@ -23,13 +19,7 @@ export async function studentCaseIds(db: Db, groupId: number | null): Promise<Se
 /**
  * Видит ли студент дело. Снятая видимость закрывает только новые попытки: начатую (`resume`) можно дойти до сдачи.
  */
-export async function studentSeesCase(
-  db: Db,
-  user: { id: number; groupId: number | null },
-  caseId: string,
-  visibility: CaseVisibility,
-  resume = true,
-): Promise<boolean> {
+export async function studentSeesCase(db: Db, user: { id: number; groupId: number | null }, caseId: string, visibility: CaseVisibility, resume = true): Promise<boolean> {
   if (visibility === "all") return true;
   if (user.groupId !== null && (await studentCaseIds(db, user.groupId)).has(caseId)) return true;
   if (!resume) return false;

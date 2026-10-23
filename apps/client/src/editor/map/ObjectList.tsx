@@ -45,7 +45,12 @@ export function ObjectList({ loc, draft, sel, onPick }: { loc: LocationT; draft:
         "objects",
         "Предметы",
         loc.objects.map((o) =>
-          row({ kind: "object", id: o.id }, <ArtThumb kind="sprite" id={o.sprite} scale={1} />, o.label || SPRITE_NAMES[o.sprite] || o.sprite, `${o.id} · клетка ${o.x}, ${o.y}${o.interaction ? " · улика" : ""}`),
+          row(
+            { kind: "object", id: o.id },
+            <ArtThumb kind="sprite" id={o.sprite} scale={1} />,
+            o.label || SPRITE_NAMES[o.sprite] || o.sprite,
+            `${o.id} · клетка ${o.x}, ${o.y}${o.interaction ? " · улика" : ""}`,
+          ),
         ),
         has("object"),
       )}
@@ -62,11 +67,21 @@ export function ObjectList({ loc, draft, sel, onPick }: { loc: LocationT; draft:
         "zones",
         "Области",
         loc.zones.map((z) =>
-          row({ kind: "zone", id: z.id }, <span className="lm__row-glyph">▦</span>, z.name, `${z.id} · ${z.actions.length ? z.actions.map((a) => actionSummary(a, draft)).join("; ") : "без действий"}`),
+          row(
+            { kind: "zone", id: z.id },
+            <span className="lm__row-glyph">▦</span>,
+            z.name,
+            `${z.id} · ${z.actions.length ? z.actions.map((a) => actionSummary(a, draft)).join("; ") : "без действий"}`,
+          ),
         ),
         has("zone"),
       )}
-      {section("start", "Старт", loc.playerStart ? [row({ kind: "start" }, <span className="lm__row-glyph">▶</span>, "Старт игрока", `клетка ${loc.playerStart.x}, ${loc.playerStart.y}`)] : [], has("start"))}
+      {section(
+        "start",
+        "Старт",
+        loc.playerStart ? [row({ kind: "start" }, <span className="lm__row-glyph">▶</span>, "Старт игрока", `клетка ${loc.playerStart.x}, ${loc.playerStart.y}`)] : [],
+        has("start"),
+      )}
       {loc.objects.length + loc.npcs.length + loc.zones.length === 0 && <p className="muted">На локации пока ничего нет — выберите инструмент слева и кликните по карте.</p>}
     </div>
   );

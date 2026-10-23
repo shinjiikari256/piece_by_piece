@@ -38,7 +38,10 @@ function Timer({ startedAt, minutes, points, minScore }: { startedAt: number; mi
   const m = Math.floor(left / 60000);
   const s = Math.floor((left % 60000) / 1000);
   return (
-    <div className={`timer ${left < 60_000 ? "is-urgent" : ""}`} title={minScore > 0 ? `Уложитесь и наберите не меньше ${minScore} баллов — получите +${points}` : `Уложитесь вовремя — получите +${points}`}>
+    <div
+      className={`timer ${left < 60_000 ? "is-urgent" : ""}`}
+      title={minScore > 0 ? `Уложитесь и наберите не меньше ${minScore} баллов — получите +${points}` : `Уложитесь вовремя — получите +${points}`}
+    >
       <Icon name="clock" size={16} /> {m}:{String(s).padStart(2, "0")} <span className="timer__bonus">+{points}</span>
     </div>
   );
@@ -64,13 +67,7 @@ function TopBar() {
             <Icon name="back" size={20} />
           </Link>
         ) : (
-          <button
-            className="icon-btn topbar__home"
-            onMouseDown={keepFocus}
-            onClick={() => actions.open({ kind: "exit" })}
-            title="В главное меню (Esc)"
-            aria-label="В главное меню"
-          >
+          <button className="icon-btn topbar__home" onMouseDown={keepFocus} onClick={() => actions.open({ kind: "exit" })} title="В главное меню (Esc)" aria-label="В главное меню">
             <Icon name="home" size={20} />
           </button>
         )}
@@ -79,33 +76,26 @@ function TopBar() {
       </div>
       <div className="topbar__stats">
         {startedAt && caseFile.timeBonus && screen === "play" && (
-          <Timer startedAt={startedAt} minutes={caseFile.timeBonus.minutes} points={caseFile.timeBonus.points}
-            minScore={caseFile.timeBonus.minScore ?? DEFAULT_BONUS_SCORE}
-          />
+          <Timer startedAt={startedAt} minutes={caseFile.timeBonus.minutes} points={caseFile.timeBonus.points} minScore={caseFile.timeBonus.minScore ?? DEFAULT_BONUS_SCORE} />
         )}
         {/* сколько найдено и установлено — в «Материалах»; здесь только общий процент */}
-        <span className="topbar__progress" style={{ "--pct": progress } as React.CSSProperties} title={`Прогресс расследования: ${progress}% — подробно в материалах дела`} role="img" aria-label={`Прогресс расследования: ${progress}%`}>
+        <span
+          className="topbar__progress"
+          style={{ "--pct": progress } as React.CSSProperties}
+          title={`Прогресс расследования: ${progress}% — подробно в материалах дела`}
+          role="img"
+          aria-label={`Прогресс расследования: ${progress}%`}
+        >
           <span className="progress">
             <span className="progress__bar" style={{ width: `${progress}%` }} />
           </span>
           <b>{progress}%</b>
         </span>
         <span className="topbar__label">Прогресс</span>
-        <button
-          className="topbar__notes" aria-pressed={notesOpen}
-          onMouseDown={keepFocus}
-          onClick={() => actions.toggleNotes()}
-          title="Заметки (N)"
-        >
+        <button className="topbar__notes" aria-pressed={notesOpen} onMouseDown={keepFocus} onClick={() => actions.toggleNotes()} title="Заметки (N)">
           <Icon name="notes" size={18} /> <span className="topbar__notes-text">Заметки</span> <kbd>N</kbd>
         </button>
-        <button
-          className="icon-btn topbar__help"
-          onMouseDown={keepFocus}
-          onClick={() => runTool("howto")}
-          title="Как играть (I)"
-          aria-label="Как играть"
-        >
+        <button className="icon-btn topbar__help" onMouseDown={keepFocus} onClick={() => runTool("howto")} title="Как играть (I)" aria-label="Как играть">
           <Icon name="help" size={20} />
         </button>
       </div>
@@ -156,7 +146,9 @@ function BottomBar() {
 
   return (
     <nav className="bottombar" aria-label="Действия">
-      <p className="sr-only" role="status">{focus ? `Рядом: ${focus}. Нажмите E, Enter или Пробел` : ""}</p>
+      <p className="sr-only" role="status">
+        {focus ? `Рядом: ${focus}. Нажмите E, Enter или Пробел` : ""}
+      </p>
       <button
         onMouseDown={keepFocus}
         className="tool"
@@ -164,22 +156,30 @@ function BottomBar() {
         onClick={() => gameBridge.interactNearest?.()}
         title={!focus && followers ? "Отпустить спутников: они вернутся на свои места (E, Enter, Пробел)" : "Взаимодействие (E, Enter, Пробел)"}
       >
-        <span className="tool__icon"><Icon name={!focus && followers ? "user" : "hand"} /></span>
+        <span className="tool__icon">
+          <Icon name={!focus && followers ? "user" : "hand"} />
+        </span>
         <span className="tool__label ellipsis">{focus ? focus : followers ? "Отпустить спутников" : "Взаимодействие"}</span>
         <kbd>E</kbd>
       </button>
       <button onMouseDown={keepFocus} className="tool" onClick={() => runTool("journal")}>
-        <span className="tool__icon"><Logo size={20} /></span>
+        <span className="tool__icon">
+          <Logo size={20} />
+        </span>
         <span className="tool__label ellipsis">Материалы</span>
         <kbd>{KEY_LABEL.journal}</kbd>
       </button>
       <button onMouseDown={keepFocus} className="tool" onClick={() => runTool("hints")}>
-        <span className="tool__icon"><Icon name="bulb" /></span>
+        <span className="tool__icon">
+          <Icon name="bulb" />
+        </span>
         <span className="tool__label ellipsis">Подсказка</span>
         <kbd>{KEY_LABEL.hints}</kbd>
       </button>
       <button onMouseDown={keepFocus} className="tool tool--decide" onClick={() => runTool("final")}>
-        <span className="tool__icon"><Icon name="scale" /></span>
+        <span className="tool__icon">
+          <Icon name="scale" />
+        </span>
         <span className="tool__label ellipsis">Вынести решение</span>
         <kbd>{KEY_LABEL.final}</kbd>
       </button>

@@ -64,8 +64,7 @@ class BundledCaseRepository implements CaseRepository {
       if (result.ok) {
         this.cases.set(result.caseFile.id, result.caseFile);
         if (path in devModules) this.devIds.add(result.caseFile.id);
-      }
-      else console.error(`Сценарий ${path} пропущен:\n  ${result.errors.join("\n  ")}`);
+      } else console.error(`Сценарий ${path} пропущен:\n  ${result.errors.join("\n  ")}`);
     }
   }
 

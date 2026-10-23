@@ -1,13 +1,6 @@
 import { Hono } from "hono";
 import { and, desc, eq, ilike, inArray, isNull, or, sql } from "drizzle-orm";
-import {
-  ResetPasswordBody,
-  UsersPatch,
-  UsersQuery,
-  type UserDetail,
-  UserEditBody,
-  UserMergeBody,
-} from "../../../../../shared/api";
+import { ResetPasswordBody, UsersPatch, UsersQuery, type UserDetail, UserEditBody, UserMergeBody } from "../../../../../shared/api";
 import { toServerResult, userResults, userStats } from "../results";
 import { deleteUserSessions, generatePassword, hashPassword } from "../../auth";
 import { attempts, groups, results, users } from "../../db/schema";
@@ -24,14 +17,8 @@ export const usersRoutes = new Hono<AppEnv>()
       await visibleUsers(db, staff),
       q.status ? eq(users.status, q.status) : undefined,
       q.role ? eq(users.role, q.role) : undefined,
-      q.group === "none"
-        ? isNull(users.groupId)
-        : q.group !== undefined
-          ? eq(users.groupId, q.group)
-          : undefined,
-      q.q
-        ? or(ilike(users.fullName, `%${q.q}%`), ilike(users.login, `%${q.q}%`))
-        : undefined,
+      q.group === "none" ? isNull(users.groupId) : q.group !== undefined ? eq(users.groupId, q.group) : undefined,
+      q.q ? or(ilike(users.fullName, `%${q.q}%`), ilike(users.login, `%${q.q}%`)) : undefined,
     );
     const rows = await db
       .select({ user: users, group: { id: groups.id, name: groups.name } })
@@ -39,14 +26,9 @@ export const usersRoutes = new Hono<AppEnv>()
       .leftJoin(groups, eq(groups.id, users.groupId))
       .where(where)
       // неподтверждённые — сверху, потом свежие
-      .orderBy(
-        sql`case when ${users.status} = 'pending' then 0 else 1 end`,
-        desc(users.createdAt),
-      )
+      .orderBy(sql`case when ${users.status} = 'pending' then 0 else 1 end`, desc(users.createdAt))
       .limit(2000);
-    return c.json(
-      rows.map((r) => toAdminUser(r.user, r.group?.id ? r.group : null)),
-    );
+    return c.json(rows.map((r) => toAdminUser(r.user, r.group?.id ? r.group : null)));
   })
 
   /** Карточка пользователя: данные, результаты, сводка. */
@@ -73,33 +55,17 @@ export const usersRoutes = new Hono<AppEnv>()
     const db = c.var.db;
     const staff = requireStaff(c);
     const { ids, set } = await parseBody(c, UsersPatch);
-    if (set.role && staff.role !== "admin")
-      throw new ApiError(
-        403,
-        "forbidden",
-        "Роли назначает только администратор",
-      );
-    if (ids.includes(staff.id) && (set.role || set.status))
-      throw new ApiError(
-        400,
-        "self",
-        "Свою роль и статус поменять нельзя — попросите другого администратора",
-      );
+    if (set.role && staff.role !== "admin") throw new ApiError(403, "forbidden", "Роли назначает только администратор");
+    if (ids.includes(staff.id) && (set.role || set.status)) throw new ApiError(400, "self", "Свою роль и статус поменять нельзя — попросите другого администратора");
     if (set.groupId != null) await assertGroupAccess(db, staff, set.groupId);
     const allowed = await db
       .select({ id: users.id })
       .from(users)
       .where(and(inArray(users.id, ids), await visibleUsers(db, staff)));
-    if (allowed.length !== new Set(ids).size)
-      throw new ApiError(
-        403,
-        "forbidden",
-        "Среди выбранных есть недоступные вам пользователи",
-      );
+    if (allowed.length !== new Set(ids).size) throw new ApiError(403, "forbidden", "Среди выбранных есть недоступные вам пользователи");
     await db.update(users).set(set).where(inArray(users.id, ids));
     // заблокированного выкидываем сразу
-    if (set.status === "blocked")
-      await Promise.all(ids.map((id) => deleteUserSessions(db, id)));
+    if (set.status === "blocked") await Promise.all(ids.map((id) => deleteUserSessions(db, id)));
     await audit(db, staff.id, "users.update", { ids, set });
     return c.json({ updated: ids.length });
   })
@@ -115,10 +81,7 @@ export const usersRoutes = new Hono<AppEnv>()
       .from(users)
       .where(and(eq(users.id, id), await visibleUsers(db, staff)));
     if (!target) throw new ApiError(404, "not_found", "Пользователь не найден");
-    await db
-      .update(users)
-      .set({ fullName: body.fullName })
-      .where(eq(users.id, id));
+    await db.update(users).set({ fullName: body.fullName }).where(eq(users.id, id));
     await audit(db, staff.id, "users.rename", { id, fullName: body.fullName });
     return c.json({ ok: true });
   })
@@ -145,28 +108,17 @@ export const usersRoutes = new Hono<AppEnv>()
     const staff = requireStaff(c);
     const id = Number(c.req.param("id"));
     const { intoId } = await parseBody(c, UserMergeBody);
-    if (id === intoId)
-      throw new ApiError(400, "self", "Выберите другого пользователя");
-    if (id === staff.id)
-      throw new ApiError(400, "self", "Себя объединить нельзя");
+    if (id === intoId) throw new ApiError(400, "self", "Выберите другого пользователя");
+    if (id === staff.id) throw new ApiError(400, "self", "Себя объединить нельзя");
     const found = await db
       .select({ id: users.id, login: users.login, fullName: users.fullName })
       .from(users)
-      .where(
-        and(inArray(users.id, [id, intoId]), await visibleUsers(db, staff)),
-      );
+      .where(and(inArray(users.id, [id, intoId]), await visibleUsers(db, staff)));
     const from = found.find((u) => u.id === id);
-    if (!from || !found.some((u) => u.id === intoId))
-      throw new ApiError(404, "not_found", "Пользователь не найден");
+    if (!from || !found.some((u) => u.id === intoId)) throw new ApiError(404, "not_found", "Пользователь не найден");
     await db.transaction(async (tx) => {
-      await tx
-        .update(results)
-        .set({ userId: intoId })
-        .where(eq(results.userId, id));
-      await tx
-        .update(attempts)
-        .set({ userId: intoId })
-        .where(eq(attempts.userId, id));
+      await tx.update(results).set({ userId: intoId }).where(eq(results.userId, id));
+      await tx.update(attempts).set({ userId: intoId }).where(eq(attempts.userId, id));
       await tx.delete(users).where(eq(users.id, id));
     });
     await audit(db, staff.id, "users.merge", { from, intoId });

@@ -41,8 +41,7 @@ export const query = (f: Filters, extra: Record<string, string | number> = {}) =
   return p.toString();
 };
 
-export const open = (r: ResultRow) =>
-  void openResult(r.caseId, r.record!).catch(() => tell({ title: "Не удалось открыть результат", text: "Этого дела больше нет в списке." }));
+export const open = (r: ResultRow) => void openResult(r.caseId, r.record!).catch(() => tell({ title: "Не удалось открыть результат", text: "Этого дела больше нет в списке." }));
 
 export function ResultsPage() {
   const server = useAccount((s) => s.server);

@@ -263,12 +263,22 @@ describe("игра в браузере", () => {
       actions.choose("t1"); // Тимур идёт в клетку 22,14
       actions.close();
     });
-    const state = () => page.evaluate(() => {
-      const scene = (window as any).__scene;
-      const n = scene.crowd.npcs.get("timur");
-      const item = scene.interactables.find((i: any) => i.id === "npc_timur");
-      return { mode: n.mode, tile: [n.tile.x, n.tile.y], x: n.x, y: n.y, item: [item.x, item.y], label: n.labelText.x, sprite: n.sprite.x, place: (window as any).__game.store.get().progress.npcPlaces.timur };
-    });
+    const state = () =>
+      page.evaluate(() => {
+        const scene = (window as any).__scene;
+        const n = scene.crowd.npcs.get("timur");
+        const item = scene.interactables.find((i: any) => i.id === "npc_timur");
+        return {
+          mode: n.mode,
+          tile: [n.tile.x, n.tile.y],
+          x: n.x,
+          y: n.y,
+          item: [item.x, item.y],
+          label: n.labelText.x,
+          sprite: n.sprite.x,
+          place: (window as any).__game.store.get().progress.npcPlaces.timur,
+        };
+      });
     // в пути: идёт (не телепорт), итоговое место в состоянии уже записано
     await page.waitForTimeout(600);
     const walking = await state();
@@ -403,8 +413,7 @@ describe("игра в браузере", () => {
     await page.getByRole("button", { name: /Приступить к расследованию/ }).click();
     await page.waitForFunction(() => (window as any).__game.store.get().screen === "play" && (window as any).__scene);
     const overlay = () => page.evaluate(() => (window as any).__game.store.get().overlay);
-    const placeAt = (x: number, y: number) =>
-      page.evaluate(([tx, ty]) => (window as any).__scene.player.setPosition((tx + 0.5) * 32, (ty + 1) * 32 - 2), [x, y]);
+    const placeAt = (x: number, y: number) => page.evaluate(([tx, ty]) => (window as any).__scene.player.setPosition((tx + 0.5) * 32, (ty + 1) * 32 - 2), [x, y]);
     // вход в область с автозапуском
     await placeAt(14, 10);
     await page.waitForFunction(() => (window as any).__game.store.get().overlay?.dialogueId === "dlg_zone_auto");
@@ -447,7 +456,10 @@ describe("игра в браузере", () => {
     await page.locator(".lm__tool", { hasText: "Область" }).click();
     const canvas = page.locator(".lm__canvas");
     const box = (await canvas.boundingBox())!;
-    const dims = await page.evaluate(() => { const l = (window as any).__editor.editorStore.get().draft.locations[0]; return { w: l.tiles[0].length, h: l.tiles.length }; });
+    const dims = await page.evaluate(() => {
+      const l = (window as any).__editor.editorStore.get().draft.locations[0];
+      return { w: l.tiles[0].length, h: l.tiles.length };
+    });
     const cell = (x: number, y: number) => ({ x: box.x + (box.width / dims.w) * (x + 0.5), y: box.y + (box.height / dims.h) * (y + 0.5) });
     const zones = () => page.evaluate(() => (window as any).__editor.editorStore.get().draft.locations[0].zones as { id: string; name: string; color?: string; cells: { x: number; y: number }[] }[]);
     // мазок по трём клеткам создаёт область
@@ -493,7 +505,10 @@ describe("игра в браузере", () => {
     expect(await page.getByRole("button", { name: "Создать", exact: true }).isDisabled()).toBe(true); // нет клеток
     const canvas = page.locator(".cell-picker__canvas");
     const box = (await canvas.boundingBox())!;
-    const dims = await page.evaluate(() => { const l = (window as any).__editor.editorStore.get().draft.locations[0]; return { w: l.tiles[0].length, h: l.tiles.length }; });
+    const dims = await page.evaluate(() => {
+      const l = (window as any).__editor.editorStore.get().draft.locations[0];
+      return { w: l.tiles[0].length, h: l.tiles.length };
+    });
     const at = (x: number, y: number) => ({ x: box.x + (box.width / dims.w) * (x + 0.5), y: box.y + (box.height / dims.h) * (y + 0.5) });
     await page.mouse.move(at(10, 5).x, at(10, 5).y);
     await page.mouse.down();
@@ -518,7 +533,10 @@ describe("игра в браузере", () => {
     await page.locator(".lm__tool", { hasText: "Область" }).click();
     const canvas = page.locator(".lm__canvas");
     const box = (await canvas.boundingBox())!;
-    const dims = await page.evaluate(() => { const l = (window as any).__editor.editorStore.get().draft.locations[0]; return { w: l.tiles[0].length, h: l.tiles.length }; });
+    const dims = await page.evaluate(() => {
+      const l = (window as any).__editor.editorStore.get().draft.locations[0];
+      return { w: l.tiles[0].length, h: l.tiles.length };
+    });
     const at = (x: number, y: number) => ({ x: box.x + (box.width / dims.w) * (x + 0.5), y: box.y + (box.height / dims.h) * (y + 0.5) });
     await page.mouse.click(at(5, 5).x, at(5, 5).y);
     await page.locator(".zact .sel--add").click();
@@ -577,7 +595,10 @@ describe("игра в браузере", () => {
     await page.locator('input[placeholder^="Например"]').fill("Проход");
     const canvas = page.locator(".cell-picker__canvas");
     const box = (await canvas.boundingBox())!;
-    const dims = await page.evaluate(() => { const l = (window as any).__editor.editorStore.get().draft.locations[0]; return { w: l.tiles[0].length, h: l.tiles.length }; });
+    const dims = await page.evaluate(() => {
+      const l = (window as any).__editor.editorStore.get().draft.locations[0];
+      return { w: l.tiles[0].length, h: l.tiles.length };
+    });
     await page.mouse.click(box.x + (box.width / dims.w) * 10.5, box.y + (box.height / dims.h) * 5.5);
     await page.getByRole("button", { name: "Создать", exact: true }).click();
     await expect.poll(() => page.locator(".ed__item-note", { hasText: "не подключён" }).count()).toBe(0);
@@ -712,13 +733,16 @@ describe("игра в браузере", () => {
 
   it("конструктор: боковые панели локаций и диалогов меняют ширину, сворачиваются и помнят размер", async () => {
     const page = await h.page();
-    for (const [path, host] of [["locations", ".lm"], ["dialogues", ".dg"]] as const) {
+    for (const [path, host] of [
+      ["locations", ".lm"],
+      ["dialogues", ".dg"],
+    ] as const) {
       await page.goto(`${BASE}/editor/case-001/${path}`);
       await page.waitForFunction(() => (window as any).__editor?.editorStore.get().screen === "case");
       const right = page.locator(`${host} > .panel-grip[data-side="right"]`);
       const width = () => page.evaluate((sel) => document.querySelector<HTMLElement>(sel)!.style.getPropertyValue("--col-right"), host);
       await right.focus();
-      const before = parseInt(await width() || "0") || (await page.evaluate((sel) => parseInt(getComputedStyle(document.querySelector(sel)!).gridTemplateColumns.split(" ").at(-1)!), host));
+      const before = parseInt((await width()) || "0") || (await page.evaluate((sel) => parseInt(getComputedStyle(document.querySelector(sel)!).gridTemplateColumns.split(" ").at(-1)!), host));
       await page.keyboard.press("ArrowLeft"); // к основному блоку — шире
       await expect.poll(async () => parseInt(await width())).toBeGreaterThan(before);
       // мышью: потянуть границу влево
@@ -766,7 +790,11 @@ describe("игра в браузере", () => {
     const page = await h.page();
     await page.goto(`${BASE}/editor/case-001/locations`);
     await page.waitForFunction(() => (window as any).__editor?.editorStore.get().screen === "case");
-    const rect = (sel: string) => page.evaluate((s) => { const r = document.querySelector(s)!.getBoundingClientRect(); return { x: r.x, y: r.y, w: r.width, h: r.height }; }, sel);
+    const rect = (sel: string) =>
+      page.evaluate((s) => {
+        const r = document.querySelector(s)!.getBoundingClientRect();
+        return { x: r.x, y: r.y, w: r.width, h: r.height };
+      }, sel);
     // инструментов «Кисть» и «Прямоугольник» нет: выбор клетки сразу включает кисть, Shift — прямоугольник; пол и стены — одна секция «Клетки»
     expect(await page.locator(".lm__tool").allTextContents()).toEqual(expect.not.arrayContaining([expect.stringMatching(/Кисть|Прямоуг/)]));
     expect(await page.locator(".lm__section-head").allTextContents()).toEqual([expect.stringContaining("Клетки"), expect.stringContaining("Предметы"), expect.stringContaining("Люди")]);
@@ -790,7 +818,10 @@ describe("игра в браузере", () => {
     await page.locator(".lm__section-head").first().click();
     expect(await sectionWidth()).toBeLessThan(full / 3);
     // название свёрнутой секции повёрнуто вдоль: выше, чем шире, и стрелка остаётся сверху
-    const title = await page.evaluate(() => { const r = document.querySelector(".lm__palette .lm__section:not([data-open]) .lm__section-title")!.getBoundingClientRect(); return { w: r.width, h: r.height }; });
+    const title = await page.evaluate(() => {
+      const r = document.querySelector(".lm__palette .lm__section:not([data-open]) .lm__section-title")!.getBoundingClientRect();
+      return { w: r.width, h: r.height };
+    });
     expect(title.h).toBeGreaterThan(title.w);
     await page.locator(".lm__section-head").first().click();
     expect(await sectionWidth()).toBeGreaterThan(full / 2);
@@ -831,7 +862,10 @@ describe("игра в браузере", () => {
     await page.mouse.click(box.x + tile * (start.x + 0.5), box.y + tile * (start.y + 0.5));
     await page.getByRole("button", { name: "Выбрать", exact: true }).click();
     const effect = await page.evaluate(() =>
-      (window as any).__editor.editorStore.get().draft.deductions.flatMap((d: any) => d.effects).find((e: any) => e.type === "moveTo"),
+      (window as any).__editor.editorStore
+        .get()
+        .draft.deductions.flatMap((d: any) => d.effects)
+        .find((e: any) => e.type === "moveTo"),
     );
     expect(effect).toMatchObject({ type: "moveTo", x: start.x, y: start.y });
     await page.close();

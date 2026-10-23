@@ -3,9 +3,7 @@ import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useWindowKey } from "./hooks";
 import { Icon, type IconName } from "./icons";
 
-export type MenuItem =
-  | { label: string; icon?: IconName; hint?: string; disabled?: boolean; danger?: boolean; run: () => void }
-  | "sep";
+export type MenuItem = { label: string; icon?: IconName; hint?: string; disabled?: boolean; danger?: boolean; run: () => void } | "sep";
 
 /** Что под курсором: элемент и выделенный текст на момент клика. */
 export interface MenuContext {
@@ -97,13 +95,7 @@ export function ContextMenu({ build }: { build: (ctx: MenuContext) => MenuItem[]
   if (!menu) return null;
   return (
     // eslint-disable-next-line jsx-a11y/interactive-supports-focus -- фокус и стрелки ведёт useMenuKeys
-    <div
-      ref={ref}
-      className="ctx-menu"
-      role="menu"
-      style={{ left: pos?.left ?? menu.x, top: pos?.top ?? menu.y, visibility: pos ? "visible" : "hidden" }}
-      onContextMenu={(e) => e.preventDefault()}
-    >
+    <div ref={ref} className="ctx-menu" role="menu" style={{ left: pos?.left ?? menu.x, top: pos?.top ?? menu.y, visibility: pos ? "visible" : "hidden" }} onContextMenu={(e) => e.preventDefault()}>
       {menu.items.map((it, i) =>
         it === "sep" ? (
           <div key={i} className="ctx-menu__sep" role="separator" />

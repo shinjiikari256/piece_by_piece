@@ -65,8 +65,16 @@ describe("миграция сохранения", () => {
 
   it("сохранение читается через миграцию; новее версия, мусор и чужое дело — null", () => {
     const save = {
-      caseId: "case-001", screen: "play" as const, progress: { collected: [], deductions: [], characterNotes: {}, flags: [] },
-      examined: [], usedChoices: [], wrongDeductions: 0, playerNotes: "", hintsUsed: 0, answers: {}, locationId: "l1",
+      caseId: "case-001",
+      screen: "play" as const,
+      progress: { collected: [], deductions: [], characterNotes: {}, flags: [] },
+      examined: [],
+      usedChoices: [],
+      wrongDeductions: 0,
+      playerNotes: "",
+      hintsUsed: 0,
+      answers: {},
+      locationId: "l1",
     };
     expect(writeSave(save as unknown as Parameters<typeof writeSave>[0])).toBe(true);
     expect(readSave("case-001")?.caseId).toBe("case-001");
@@ -110,7 +118,9 @@ describe("миграция 9 → 10: двери становятся предм�
   it("запертая дверь — состояния unlocked (по условию) и locked (непроходимо, сообщение)", () => {
     const m = migrateCase(old);
     if (!m.ok) throw new Error(m.error);
-    const lock = (m.data as { locations: { objects: { id: string; sprite: string; y: number; states: { id: string; solid?: boolean; onInteract?: { text: string }[] }[] }[] }[] }).locations[0].objects.find((o) => o.id === "d_lock")!;
+    const lock = (
+      m.data as { locations: { objects: { id: string; sprite: string; y: number; states: { id: string; solid?: boolean; onInteract?: { text: string }[] }[] }[] }[] }
+    ).locations[0].objects.find((o) => o.id === "d_lock")!;
     expect(lock).toMatchObject({ sprite: "door_v", y: 5 });
     expect(lock.states.map((s) => s.id)).toEqual(["unlocked", "locked"]);
     expect(lock.states[1].solid).toBe(true);

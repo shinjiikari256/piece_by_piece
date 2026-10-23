@@ -1,10 +1,4 @@
-import {
-  CHAR_H,
-  LOOKS,
-  SPRITES,
-  drawTile,
-  resolveLook,
-} from "../../game/art";
+import { CHAR_H, LOOKS, SPRITES, drawTile, resolveLook } from "../../game/art";
 import { LocationObject, NpcPlacement } from "../../../../../shared/case";
 import type { CaseFile as CaseFileT, Location as LocationT } from "../../../../../shared/case";
 import { lookCanvas, T, useSpriteCanvases } from "./canvases";
@@ -35,15 +29,10 @@ export function renderMap(cv: HTMLCanvasElement, s: MapRenderState) {
   cv.height = h * T;
   const ctx = cv.getContext("2d")!;
   ctx.imageSmoothingEnabled = false;
-  loc.tiles.forEach((row, y) =>
-    [...row].forEach((ch, x) =>
-      drawTile(ctx, ch, x * T, y * T, { below: loc.tiles[y + 1]?.[x], above: loc.tiles[y - 1]?.[x], left: row[x - 1], right: row[x + 1] }),
-    ),
+  loc.tiles.forEach((row, y) => [...row].forEach((ch, x) => drawTile(ctx, ch, x * T, y * T, { below: loc.tiles[y + 1]?.[x], above: loc.tiles[y - 1]?.[x], left: row[x - 1], right: row[x + 1] })));
+  const items = [...loc.objects.map((o) => ({ y: SPRITES[o.sprite].flat ? -1 : o.y, draw: () => drawObject(ctx, o) })), ...loc.npcs.map((n) => ({ y: n.y, draw: () => drawNpc(ctx, n) }))].sort(
+    (a, b) => a.y - b.y,
   );
-  const items = [
-    ...loc.objects.map((o) => ({ y: SPRITES[o.sprite].flat ? -1 : o.y, draw: () => drawObject(ctx, o) })),
-    ...loc.npcs.map((n) => ({ y: n.y, draw: () => drawNpc(ctx, n) })),
-  ].sort((a, b) => a.y - b.y);
   items.forEach((i) => i.draw());
 
   // области-триггеры: цветная заливка клеток, подпись у верхней левой клетки

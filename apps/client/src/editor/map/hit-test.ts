@@ -30,11 +30,7 @@ export function opaqueAt(loc: LocationT, art: Art, characters: CaseFile["charact
 }
 
 /** Что лежит под курсором: старт, верхний предмет или человек, затем клетка предмета, в самом низу — область. */
-export function hitTest(
-  loc: LocationT,
-  t: { x: number; y: number; px?: number; py?: number },
-  opaque: (s: NonNullable<Selection>, lx: number, ly: number) => boolean,
-): Selection {
+export function hitTest(loc: LocationT, t: { x: number; y: number; px?: number; py?: number }, opaque: (s: NonNullable<Selection>, lx: number, ly: number) => boolean): Selection {
   if (loc.playerStart?.x === t.x && loc.playerStart.y === t.y) return { kind: "start" };
   // верхний из нарисованных предметов, людей и дверей под курсором — целиком, а не по клетке под ногами
   const top = t.px === undefined || t.py === undefined ? null : pickTopmost(loc, t.px, t.py, opaque);
@@ -57,4 +53,3 @@ export function posOf(loc: LocationT, s: Selection) {
   const list = loc[LIST_KEY[s.kind]] as { id: string; x: number; y: number }[];
   return list.find((x) => x.id === s.id) ?? null;
 }
-

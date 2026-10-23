@@ -92,7 +92,11 @@ describe("учётная запись против сервера (PGlite)", () 
     await page.locator(".eh__case", { hasText: "Чужие письма" }).getByRole("button", { name: "Открыть" }).click();
     await page.getByRole("button", { name: "Запустить" }).first().click();
     await page.waitForTimeout(2500);
-    const state = await page.evaluate(() => ({ screen: (window as any).__game?.store.get().screen, caseId: (window as any).__game?.store.get().caseFile?.id, banner: !!document.querySelector(".playtest-banner") }));
+    const state = await page.evaluate(() => ({
+      screen: (window as any).__game?.store.get().screen,
+      caseId: (window as any).__game?.store.get().caseFile?.id,
+      banner: !!document.querySelector(".playtest-banner"),
+    }));
     expect(state).toEqual({ screen: "play", caseId: "case-001", banner: true });
     await page.close();
   });

@@ -56,7 +56,13 @@ export function MapPalette({
       <div className="lm__tools">
         <ToolButton on={tool.kind === "select"} onClick={() => setTool({ kind: "select" })} icon="⬚" label="Выбор" keyHint="V" />
         <ToolButton on={tool.kind === "zone"} onClick={() => setTool({ kind: "zone" })} icon="▦" label="Область" />
-        <ToolButton on={tool.kind === "start"} onClick={() => setTool({ kind: "start" })} icon="▶" label="Старт" hint="Старт игрока один на дело: клик переносит его сюда, и эта локация становится стартовой" />
+        <ToolButton
+          on={tool.kind === "start"}
+          onClick={() => setTool({ kind: "start" })}
+          icon="▶"
+          label="Старт"
+          hint="Старт игрока один на дело: клик переносит его сюда, и эта локация становится стартовой"
+        />
       </div>
 
       {/* пол и стены — одна группа «Клетки»: выбор клетки сразу включает кисть, Shift — прямоугольник */}
@@ -75,12 +81,7 @@ export function MapPalette({
             <PaletteGroup key={g.id} title={g.label} count={keys.length} open={groupOpen(g.id)} onToggle={() => toggleGroup(g.id)}>
               <div className="lm__things">
                 {keys.map((k) => (
-                  <button
-                    key={k}
-                    className="lm__thing" aria-pressed={tool.kind === "object" && tool.sprite === k}
-                    onClick={() => setTool({ kind: "object", sprite: k })}
-                    title={SPRITE_NAMES[k] ?? k}
-                  >
+                  <button key={k} className="lm__thing" aria-pressed={tool.kind === "object" && tool.sprite === k} onClick={() => setTool({ kind: "object", sprite: k })} title={SPRITE_NAMES[k] ?? k}>
                     <span className="lm__thing-art">
                       <ArtThumb kind="sprite" id={k} scale={1.5} />
                     </span>

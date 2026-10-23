@@ -27,13 +27,7 @@ export function EventTimePicker({ value, onChange, label }: { value: string; onC
     <div className="event-time">
       {label && <span className="ef__label event-time__label">{label}</span>}
       <input type="number" className="event-time__num" min={1} max={31} aria-label="День" value={t.day} onChange={(e) => set({ day: clamp(e.target.value, 1, 31) })} />
-      <Select
-        className="event-time__month"
-        title="Месяц"
-        value={String(t.month)}
-        options={MONTHS.map((m, i) => ({ value: String(i + 1), label: m }))}
-        onChange={(v) => set({ month: Number(v) })}
-      />
+      <Select className="event-time__month" title="Месяц" value={String(t.month)} options={MONTHS.map((m, i) => ({ value: String(i + 1), label: m }))} onChange={(v) => set({ month: Number(v) })} />
       <input
         type="number"
         className="event-time__year"
@@ -49,9 +43,29 @@ export function EventTimePicker({ value, onChange, label }: { value: string; onC
         время
       </label>
       <span className="event-time__clock">
-        <input type="number" className="event-time__num" min={0} max={23} aria-label="Часы" disabled={!hasTime} value={hasTime ? pad(t.hour!) : ""} placeholder="чч" onChange={(e) => set({ hour: clamp(e.target.value, 0, 23) })} />
+        <input
+          type="number"
+          className="event-time__num"
+          min={0}
+          max={23}
+          aria-label="Часы"
+          disabled={!hasTime}
+          value={hasTime ? pad(t.hour!) : ""}
+          placeholder="чч"
+          onChange={(e) => set({ hour: clamp(e.target.value, 0, 23) })}
+        />
         <span aria-hidden>:</span>
-        <input type="number" className="event-time__num" min={0} max={59} aria-label="Минуты" disabled={!hasTime} value={hasTime ? pad(t.minute ?? 0) : ""} placeholder="мм" onChange={(e) => set({ minute: clamp(e.target.value, 0, 59) })} />
+        <input
+          type="number"
+          className="event-time__num"
+          min={0}
+          max={59}
+          aria-label="Минуты"
+          disabled={!hasTime}
+          value={hasTime ? pad(t.minute ?? 0) : ""}
+          placeholder="мм"
+          onChange={(e) => set({ minute: clamp(e.target.value, 0, 59) })}
+        />
       </span>
     </div>
   );

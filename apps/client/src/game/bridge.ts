@@ -42,8 +42,7 @@ export type GameZoom = "fit" | number;
 export const GAME_ZOOM_MAX = 3;
 
 /** По умолчанию: на десктопе «вписать», на телефоне 100% (те же условия, что у мобильной шапки в mobile.css). */
-const defaultZoom = (): GameZoom =>
-  typeof window !== "undefined" && window.matchMedia?.("(max-width: 1024px), (max-height: 500px)").matches ? 1 : "fit";
+const defaultZoom = (): GameZoom => (typeof window !== "undefined" && window.matchMedia?.("(max-width: 1024px), (max-height: 500px)").matches ? 1 : "fit");
 
 const ZOOM_KEY = "zoom";
 

@@ -27,7 +27,7 @@ function watchObjectStates() {
       const key = `${l.id}/${o.id}`;
       const [was, is] = [prev.get(key) ?? null, now.get(key) ?? null];
       if (was === is) continue;
-      const fx = (id: string | null, phase: "onExit" | "onEnter") => (id ? o.states?.find((st) => st.id === id)?.[phase] ?? [] : []);
+      const fx = (id: string | null, phase: "onExit" | "onEnter") => (id ? (o.states?.find((st) => st.id === id)?.[phase] ?? []) : []);
       run.push({ site: `state:${o.id}/${was}>exit`, effects: fx(was, "onExit") }, { site: `state:${o.id}/${is}>enter`, effects: fx(is, "onEnter") });
     }
   stateDepth++;

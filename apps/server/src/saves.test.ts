@@ -19,8 +19,7 @@ async function call(method: string, path: string, body?: unknown, withCookie = t
 
 const save = (savedAt: number, extra: Record<string, unknown> = {}) => ({ v: 1, caseId: "case-001", savedAt, hintsUsed: 0, ...extra });
 
-const register = (login: string) =>
-  call("POST", "/auth/register", { login, fullName: `Студент ${login}`, password: "password123", consent: true });
+const register = (login: string) => call("POST", "/auth/register", { login, fullName: `Студент ${login}`, password: "password123", consent: true });
 
 beforeEach(async () => {
   app = createApp(await memoryDb(), { secureCookies: false, trustProxy: false });

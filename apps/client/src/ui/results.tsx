@@ -86,10 +86,18 @@ export function ResultsTable({ rows, onOpen, showUser }: { rows: ResultRow[]; on
         <tr>
           {showUser && <th scope="col">Кто</th>}
           <th scope="col">Дело</th>
-          <th scope="col" className="num">Баллы</th>
-          <th scope="col" className="num">Процент</th>
-          <th scope="col" className="num">Подсказки</th>
-          <th scope="col" className="num">Время</th>
+          <th scope="col" className="num">
+            Баллы
+          </th>
+          <th scope="col" className="num">
+            Процент
+          </th>
+          <th scope="col" className="num">
+            Подсказки
+          </th>
+          <th scope="col" className="num">
+            Время
+          </th>
           <th scope="col">Когда</th>
         </tr>
       </thead>
@@ -123,7 +131,9 @@ export function ResultsTable({ rows, onOpen, showUser }: { rows: ResultRow[]; on
               <b>{r.total}</b> / {r.max}
             </td>
             <td className="num">
-              <span className="score-pill" data-tone={scoreTone(r.total, r.max, bonusMax(r))}>{percent(r)}%</span>
+              <span className="score-pill" data-tone={scoreTone(r.total, r.max, bonusMax(r))}>
+                {percent(r)}%
+              </span>
             </td>
             <td className="num">{r.hintsUsed}</td>
             <td className="num">{minutes(r.elapsedMs)}</td>

@@ -25,7 +25,12 @@ const SAMPLES: Look[] = [
 const POSE_NAMES: Record<string, string> = { default: "Любая поза", idle: "Стоит", idle2: "Вдох", walk1: "Шаг 1", walk2: "Шаг 2", talk: "Говорит" };
 const poseLabel = (p: string) => POSE_NAMES[p] ?? frameLabel(p);
 
-const rectOf = (d: { x0: number; y0: number; x1: number; y1: number }): [number, number, number, number] => [Math.min(d.x0, d.x1), Math.min(d.y0, d.y1), Math.abs(d.x1 - d.x0) + 1, Math.abs(d.y1 - d.y0) + 1];
+const rectOf = (d: { x0: number; y0: number; x1: number; y1: number }): [number, number, number, number] => [
+  Math.min(d.x0, d.x1),
+  Math.min(d.y0, d.y1),
+  Math.abs(d.x1 - d.x0) + 1,
+  Math.abs(d.y1 - d.y0) + 1,
+];
 
 /** Манекен с частью: часть подключена через реестр (дело регистрирует свои части при каждой правке), поэтому рисуется так же, как в игре. */
 function drawOn(ctx: CanvasRenderingContext2D, part: CustomPart, look: Look, pose: string, ox: number) {
@@ -37,7 +42,23 @@ function drawOn(ctx: CanvasRenderingContext2D, part: CustomPart, look: Look, pos
   drawCharacter(ctx, on, pose === "default" ? "idle" : (pose as never), ox);
 }
 
-function PartCanvas({ part, pose, tool, color, alpha, readOnly, onPick }: { part: CustomPart; pose: string; tool: Tool; color: string; alpha: number; readOnly: boolean; onPick: (c: string, a: number) => void }) {
+function PartCanvas({
+  part,
+  pose,
+  tool,
+  color,
+  alpha,
+  readOnly,
+  onPick,
+}: {
+  part: CustomPart;
+  pose: string;
+  tool: Tool;
+  color: string;
+  alpha: number;
+  readOnly: boolean;
+  onPick: (c: string, a: number) => void;
+}) {
   const canvas = useRef<HTMLCanvasElement>(null);
   const stroke = useRef({ id: 0, last: "" });
   const [drag, setDrag] = useState<{ x0: number; y0: number; x1: number; y1: number } | null>(null);
@@ -122,7 +143,15 @@ function PartPreview({ part }: { part: CustomPart }) {
       ctx.restore();
     });
   }, [part]);
-  return <canvas ref={canvas} className="sprite-stage__canvas" width={CHAR_W * CHAR_FRAMES.length} height={CHAR_H * SAMPLES.length} style={{ width: CHAR_W * CHAR_FRAMES.length * 3, height: CHAR_H * SAMPLES.length * 3 }} />;
+  return (
+    <canvas
+      ref={canvas}
+      className="sprite-stage__canvas"
+      width={CHAR_W * CHAR_FRAMES.length}
+      height={CHAR_H * SAMPLES.length}
+      style={{ width: CHAR_W * CHAR_FRAMES.length * 3, height: CHAR_H * SAMPLES.length * 3 }}
+    />
+  );
 }
 
 /** Раздел «Части персонажей»: причёски, детали одежды, лицо и низ — рисунок 16×24 с ролями цвета, предпросмотр на манекенах. */
@@ -208,19 +237,18 @@ export function PartsSection() {
       <div className="lm__main">
         {part ? (
           <>
-            <Tabs
-              variant="bar"
-              className="lm__tabs"
-              tabs={POSES.filter((p) => p === "default" || part.frames[p]).map((p) => ({ id: p, label: poseLabel(p) }))}
-              active={shown}
-              onChange={setPose}
-            />
+            <Tabs variant="bar" className="lm__tabs" tabs={POSES.filter((p) => p === "default" || part.frames[p]).map((p) => ({ id: p, label: poseLabel(p) }))} active={shown} onChange={setPose} />
             <div className="lm__center">
               <div className="lm__stage">
                 <PartCanvas part={part} pose={pose} tool={tool} color={color} alpha={alpha} readOnly={builtin} onPick={(c, a) => (setColor(c), setAlpha(a))} />
               </div>
               <div className="lm__status">
-                <span className="lm__hint">{builtin ? "Встроенная часть нельзя изменить — сделайте копию и правьте её" : (TOOLS.find((t) => t.id === tool)?.hint ?? "")}<span className="sprite-status__size">{CHAR_W}×{CHAR_H} пикс. · манекен показывает, как часть сядет на персонажа</span></span>
+                <span className="lm__hint">
+                  {builtin ? "Встроенная часть нельзя изменить — сделайте копию и правьте её" : (TOOLS.find((t) => t.id === tool)?.hint ?? "")}
+                  <span className="sprite-status__size">
+                    {CHAR_W}×{CHAR_H} пикс. · манекен показывает, как часть сядет на персонажа
+                  </span>
+                </span>
               </div>
             </div>
           </>
@@ -247,10 +275,22 @@ export function PartsSection() {
                 </button>
               ))}
               <span className="sprite-toolbar__gap" />
-              <button className="btn btn--icon btn--sm" disabled={builtin || !(part.frames[shown]?.length)} title="Отменить последний мазок" aria-label="Отменить последнее" onClick={() => editor.update((d) => setPartOps(d, part.slot, part.key, shown, (part.frames[shown] ?? []).slice(0, -1)))}>
+              <button
+                className="btn btn--icon btn--sm"
+                disabled={builtin || !part.frames[shown]?.length}
+                title="Отменить последний мазок"
+                aria-label="Отменить последнее"
+                onClick={() => editor.update((d) => setPartOps(d, part.slot, part.key, shown, (part.frames[shown] ?? []).slice(0, -1)))}
+              >
                 <Icon name="undo" size={16} />
               </button>
-              <button className="btn btn--icon btn--sm" disabled={builtin || !(part.frames[shown]?.length)} title="Очистить кадр" aria-label="Очистить кадр" onClick={() => editor.update((d) => setPartOps(d, part.slot, part.key, shown, []))}>
+              <button
+                className="btn btn--icon btn--sm"
+                disabled={builtin || !part.frames[shown]?.length}
+                title="Очистить кадр"
+                aria-label="Очистить кадр"
+                onClick={() => editor.update((d) => setPartOps(d, part.slot, part.key, shown, []))}
+              >
                 <Icon name="trash" size={16} />
               </button>
             </div>
@@ -287,7 +327,12 @@ export function PartsSection() {
               <p className="muted">Кадр «Любая поза» рисуется во всех позах, у которых нет своего кадра.</p>
               <div className="row">
                 {POSES.filter((p) => !part.frames[p]).map((p) => (
-                  <button key={p} className="btn btn--sm" title="Добавить отдельный кадр — копию основного" onClick={() => (editor.update((d) => setPartOps(d, part.slot, part.key, p, [...(part.frames.default ?? [])])), setPose(p))}>
+                  <button
+                    key={p}
+                    className="btn btn--sm"
+                    title="Добавить отдельный кадр — копию основного"
+                    onClick={() => (editor.update((d) => setPartOps(d, part.slot, part.key, p, [...(part.frames.default ?? [])])), setPose(p))}
+                  >
                     + {poseLabel(p)}
                   </button>
                 ))}

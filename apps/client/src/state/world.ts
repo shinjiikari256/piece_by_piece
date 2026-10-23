@@ -57,7 +57,16 @@ function runZoneAction(zoneId: string, a: ZoneAction) {
     if (dialogue) enterNode(`zone:${zoneId}`, dialogue.id, dialogue.startNodeId);
   } else if (a.kind === "object") world.interact(a.objectId);
   else if (a.kind === "effects") {
-    const { progress, newEvidence, messages, removedEvidence, followUp } = applyEffects(withZoneTargets(a.effects), state.progress, fxCtx(`zone:${zoneId}#${state.caseFile?.locations.flatMap((l) => l.zones).find((z) => z.id === zoneId)?.actions.indexOf(a)}`));
+    const { progress, newEvidence, messages, removedEvidence, followUp } = applyEffects(
+      withZoneTargets(a.effects),
+      state.progress,
+      fxCtx(
+        `zone:${zoneId}#${state.caseFile?.locations
+          .flatMap((l) => l.zones)
+          .find((z) => z.id === zoneId)
+          ?.actions.indexOf(a)}`,
+      ),
+    );
     set({ progress });
     announce(newEvidence, messages, removedEvidence, followUp);
   } else world.travel({ to: a.to, spawn: a.spawn });
@@ -112,7 +121,11 @@ export const world = {
   releaseFollowers() {
     const ids = state.progress.followers;
     if (!ids.length) return;
-    const { progress } = applyEffects(ids.map((characterId) => ({ type: "returnHome" as const, characterId })), state.progress, fxCtx());
+    const { progress } = applyEffects(
+      ids.map((characterId) => ({ type: "returnHome" as const, characterId })),
+      state.progress,
+      fxCtx(),
+    );
     set({ progress });
   },
 
@@ -178,7 +191,12 @@ export const world = {
       set({
         progress,
         // окно осмотра — только у предмета с `interaction` (в действующем состоянии); без него эффекты срабатывают молча (или сообщением)
-        ...(view.interaction ? { overlay: { kind: "object" as const, objectId: obj.id, gained: newEvidence.filter((id) => objectEvidenceIds(obj).includes(id)) }, examined: s.examined.includes(obj.id) ? s.examined : [...s.examined, obj.id] } : {}),
+        ...(view.interaction
+          ? {
+              overlay: { kind: "object" as const, objectId: obj.id, gained: newEvidence.filter((id) => objectEvidenceIds(obj).includes(id)) },
+              examined: s.examined.includes(obj.id) ? s.examined : [...s.examined, obj.id],
+            }
+          : {}),
       });
       announce(newEvidence, messages, removedEvidence, followUp);
     }

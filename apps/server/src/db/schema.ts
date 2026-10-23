@@ -1,30 +1,12 @@
 import { sql } from "drizzle-orm";
-import {
-  type AnyPgColumn,
-  bigint,
-  boolean,
-  index,
-  integer,
-  jsonb,
-  pgEnum,
-  pgTable,
-  primaryKey,
-  text,
-  timestamp,
-  uniqueIndex,
-} from "drizzle-orm/pg-core";
+import { type AnyPgColumn, bigint, boolean, index, integer, jsonb, pgEnum, pgTable, primaryKey, text, timestamp, uniqueIndex } from "drizzle-orm/pg-core";
 
 /** Схема базы. Изменили — `pnpm db:generate` (миграция в apps/server/src/db/migrations), применяется при старте сервера. */
 
 export const role = pgEnum("role", ["admin", "teacher", "student"]);
-export const userStatus = pgEnum("user_status", [
-  "pending",
-  "active",
-  "blocked",
-]);
+export const userStatus = pgEnum("user_status", ["pending", "active", "blocked"]);
 
-const createdAt = () =>
-  timestamp("created_at", { withTimezone: true }).notNull().defaultNow();
+const createdAt = () => timestamp("created_at", { withTimezone: true }).notNull().defaultNow();
 
 export const groups = pgTable(
   "groups",
@@ -45,26 +27,18 @@ export const users = pgTable(
     fullName: text("full_name").notNull(),
     passwordHash: text("password_hash").notNull(),
     /** Пароль выдан преподавателем — при входе нужно сменить. */
-    mustChangePassword: boolean("must_change_password")
-      .notNull()
-      .default(false),
+    mustChangePassword: boolean("must_change_password").notNull().default(false),
     role: role("role").notNull().default("student"),
     status: userStatus("status").notNull().default("pending"),
     groupId: integer("group_id").references(() => groups.id, {
       onDelete: "set null",
     }),
-    joinLinkId: integer("join_link_id").references(
-      (): AnyPgColumn => joinLinks.id,
-      { onDelete: "set null" },
-    ),
+    joinLinkId: integer("join_link_id").references((): AnyPgColumn => joinLinks.id, { onDelete: "set null" }),
     consentVersion: text("consent_version"),
     consentAt: timestamp("consent_at", { withTimezone: true }),
     createdAt: createdAt(),
   },
-  (t) => [
-    index("users_group_idx").on(t.groupId),
-    index("users_status_idx").on(t.status),
-  ],
+  (t) => [index("users_group_idx").on(t.groupId), index("users_status_idx").on(t.status)],
 );
 
 /** Сессия: в cookie — случайный токен, в базе — его SHA-256. */
@@ -231,8 +205,12 @@ export const events = pgTable("events", {
 export const eventCases = pgTable(
   "event_cases",
   {
-    eventId: integer("event_id").notNull().references(() => events.id, { onDelete: "cascade" }),
-    caseId: text("case_id").notNull().references((): AnyPgColumn => cases.id, { onDelete: "cascade" }),
+    eventId: integer("event_id")
+      .notNull()
+      .references(() => events.id, { onDelete: "cascade" }),
+    caseId: text("case_id")
+      .notNull()
+      .references((): AnyPgColumn => cases.id, { onDelete: "cascade" }),
   },
   (t) => [primaryKey({ columns: [t.eventId, t.caseId] })],
 );
@@ -241,8 +219,12 @@ export const eventCases = pgTable(
 export const eventAccess = pgTable(
   "event_access",
   {
-    eventId: integer("event_id").notNull().references(() => events.id, { onDelete: "cascade" }),
-    groupId: integer("group_id").notNull().references(() => groups.id, { onDelete: "cascade" }),
+    eventId: integer("event_id")
+      .notNull()
+      .references(() => events.id, { onDelete: "cascade" }),
+    groupId: integer("group_id")
+      .notNull()
+      .references(() => groups.id, { onDelete: "cascade" }),
   },
   (t) => [primaryKey({ columns: [t.eventId, t.groupId] })],
 );

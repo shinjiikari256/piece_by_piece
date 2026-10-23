@@ -8,9 +8,7 @@ export { schema };
 const migrationsFolder = path.resolve(import.meta.dirname, "migrations");
 
 /** Боевая база: PostgreSQL по DATABASE_URL; миграции применяются сразу. */
-export async function connectPostgres(
-  url: string,
-): Promise<{ db: Db; close: () => Promise<void> }> {
+export async function connectPostgres(url: string): Promise<{ db: Db; close: () => Promise<void> }> {
   const { default: postgres } = await import("postgres");
   const { drizzle } = await import("drizzle-orm/postgres-js");
   const { migrate } = await import("drizzle-orm/postgres-js/migrator");

@@ -32,8 +32,7 @@ interface Options {
 /** Мышь на карте: рисование клеток и областей, расстановка предметов и людей, перетаскивание выбранного. Один мазок — один шаг отмены. */
 export function useMapPointer({ canvas, draft, loc, li, tool, setTool, sel, setSel, npcCharacter, hover, setHover, rect, setRect, hitAt }: Options) {
   const stroke = useRef<{ id: number; drag?: { dx: number; dy: number }; zone?: string; add?: boolean } | null>(null);
-  const updateLoc = (fn: (l: LocationT) => LocationT, merge?: string) =>
-    editor.update((d) => ({ ...d, locations: d.locations.map((l, i) => (i === li ? fn(l) : l)) }), merge);
+  const updateLoc = (fn: (l: LocationT) => LocationT, merge?: string) => editor.update((d) => ({ ...d, locations: d.locations.map((l, i) => (i === li ? fn(l) : l)) }), merge);
 
   const tileAt = (e: MouseEvent) => {
     const r = canvas.current!.getBoundingClientRect();
@@ -162,9 +161,7 @@ export function useMapPointer({ canvas, draft, loc, li, tool, setTool, sel, setS
       const ch = tool.ch;
       updateLoc((l) => ({
         ...l,
-        tiles: l.tiles.map((row, y) =>
-          y < r.y || y >= r.y + r.h ? row : row.slice(0, r.x) + ch.repeat(Math.min(r.w, row.length - r.x)) + row.slice(r.x + r.w),
-        ),
+        tiles: l.tiles.map((row, y) => (y < r.y || y >= r.y + r.h ? row : row.slice(0, r.x) + ch.repeat(Math.min(r.w, row.length - r.x)) + row.slice(r.x + r.w))),
       }));
     }
     setRect(null);

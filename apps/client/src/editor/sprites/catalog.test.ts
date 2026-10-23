@@ -4,7 +4,16 @@ import { SPRITE_GROUPS } from "../../game/art";
 import { copyOf, groupLabels, isBuiltin, spriteGroups, spriteView } from "./catalog";
 import { cellsOf, describeRules, frameLabel, moveFrame, resizeSprite, renameFrame, uniqueKey, withoutParam } from "./helpers";
 
-const mine = (over: Partial<CustomSprite> = {}): CustomSprite => ({ key: "lamp", name: "Лампа", w: 16, h: 16, footprint: { w: 1, h: 1 }, solid: true, frames: { default: [[0, 0, 1, 1, "#ffffff"]], on: [] }, ...over });
+const mine = (over: Partial<CustomSprite> = {}): CustomSprite => ({
+  key: "lamp",
+  name: "Лампа",
+  w: 16,
+  h: 16,
+  footprint: { w: 1, h: 1 },
+  solid: true,
+  frames: { default: [[0, 0, 1, 1, "#ffffff"]], on: [] },
+  ...over,
+});
 const draft = (sprites: CustomSprite[] = [mine()]) => ({ sprites, locations: [{ id: "l", objects: [{ id: "o", sprite: "lamp", states: [{ id: "s", frame: "on" }] }] }] }) as unknown as CaseFile;
 
 describe("каталог спрайтов", () => {

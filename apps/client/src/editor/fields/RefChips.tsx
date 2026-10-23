@@ -26,27 +26,13 @@ export function RefChip({ id, option, onRemove, title }: { id: string; option?: 
 }
 
 /** Ссылки на несколько элементов: строка «подпись + добавить», ниже — выбранные чипы. */
-export function RefMulti({
-  label,
-  options,
-  value,
-  onChange,
-  extra,
-}: {
-  label: ReactNode;
-  options: Option[];
-  value: string[];
-  onChange: (v: unknown) => void;
-  extra?: ReactNode;
-}) {
+export function RefMulti({ label, options, value, onChange, extra }: { label: ReactNode; options: Option[]; value: string[]; onChange: (v: unknown) => void; extra?: ReactNode }) {
   const rest = options.filter((o) => !value.includes(o.value));
   return (
     <div className="ef ef--refs">
       <div className="ef__refhead row row--wrap">
         {label}
-        {rest.length > 0 && (
-          <Select className="sel--add" value="" placeholder="+ добавить" options={rest} onChange={(v) => onChange([...value, v])} />
-        )}
+        {rest.length > 0 && <Select className="sel--add" value="" placeholder="+ добавить" options={rest} onChange={(v) => onChange([...value, v])} />}
         {extra}
       </div>
       {value.length > 0 && (

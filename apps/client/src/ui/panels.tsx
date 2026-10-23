@@ -162,15 +162,7 @@ interface ChoiceView {
   onPick: () => void;
 }
 
-export function DialogueWindow({
-  npcId,
-  dialogueId,
-  nodeId,
-}: {
-  npcId: string;
-  dialogueId: string;
-  nodeId: string;
-}) {
+export function DialogueWindow({ npcId, dialogueId, nodeId }: { npcId: string; dialogueId: string; nodeId: string }) {
   const caseFile = useCase();
   // подписка, чтобы список вариантов пересчитывался при изменении прогресса
   const progress = useGame((s) => s.progress);
@@ -197,15 +189,15 @@ export function DialogueWindow({
 
   // Заданные вопросы остаются на своих местах с отметкой — нумерация не прыгает
   const available: ChoiceView[] = node.choices
-        .filter((c) => actions.isChoiceVisible(c))
-        .map((c) => ({
-          id: c.id,
-          text: c.text,
-          // ✓ у уже заданных вопросов (не у «назад» и «до свидания»)
-          asked: c.next !== null && c.next !== dialogue.startNodeId && actions.isChoiceUsed(dialogueId, nodeId, c.id),
-          evidence: !!c.requires?.evidence,
-          onPick: () => actions.choose(c.id),
-        }));
+    .filter((c) => actions.isChoiceVisible(c))
+    .map((c) => ({
+      id: c.id,
+      text: c.text,
+      // ✓ у уже заданных вопросов (не у «назад» и «до свидания»)
+      asked: c.next !== null && c.next !== dialogue.startNodeId && actions.isChoiceUsed(dialogueId, nodeId, c.id),
+      evidence: !!c.requires?.evidence,
+      onPick: () => actions.choose(c.id),
+    }));
   // подходящих вариантов нет (все скрыты условиями): разговор не должен застревать — всегда есть выход
   const choices: ChoiceView[] = available.length ? available : [{ id: "__end", text: "Закончить разговор", asked: false, evidence: false, onPick: actions.close }];
 
@@ -237,83 +229,86 @@ export function DialogueWindow({
   return (
     <Backdrop align="end" key={npcId}>
       <div className="dialogue-folder">
-      <FolderTabs
-        tabs={[{ id: "talk", label: "Разговор", icon: "testimony" }]}
-        active="talk"
-        onClose={actions.close}
-        className="folder--tabbed tabbed-modal__tabs"
-      />
-      <section className="dialogue paper" role="dialog" aria-label={`Разговор: ${character.name}`}>
-        <div className="dialogue__speaker">
-          <Portrait look={resolveLook(character)} talking />
-          <div>
-            <div className="dialogue__name">{character.name}</div>
-            <div className="dialogue__position">{character.position}</div>
-            {MOOD[mood] && <div className="mood" data-tone={MOOD_TONE[mood]}>{MOOD[mood]}</div>}
+        <FolderTabs tabs={[{ id: "talk", label: "Разговор", icon: "testimony" }]} active="talk" onClose={actions.close} className="folder--tabbed tabbed-modal__tabs" />
+        <section className="dialogue paper" role="dialog" aria-label={`Разговор: ${character.name}`}>
+          <div className="dialogue__speaker">
+            <Portrait look={resolveLook(character)} talking />
+            <div>
+              <div className="dialogue__name">{character.name}</div>
+              <div className="dialogue__position">{character.position}</div>
+              {MOOD[mood] && (
+                <div className="mood" data-tone={MOOD_TONE[mood]}>
+                  {MOOD[mood]}
+                </div>
+              )}
+            </div>
           </div>
-        </div>
-        {history.length > 0 && (
-          <ol className="transcript">
-            {history.map((h) => (
-              <li key={h.key}>
-                <b>{h.speaker}:</b> {h.text}
+          {history.length > 0 && (
+            <ol className="transcript">
+              {history.map((h) => (
+                <li key={h.key}>
+                  <b>{h.speaker}:</b> {h.text}
+                </li>
+              ))}
+            </ol>
+          )}
+          <p className="dialogue__text" key={`text:${dialogueId}/${node.id}`}>
+            {text}
+          </p>
+          {presenting ? (
+            <ol className="dialogue__choices list-reset" ref={list} key={`present:${dialogueId}/${nodeId}`}>
+              {progress.collected.map((id, i) => {
+                const ev = caseFile.evidence.find((e) => e.id === id);
+                return ev ? (
+                  <li key={id}>
+                    <button className="choice" data-tone={ev.kind} onClick={() => actions.present(id)}>
+                      <span className="choice__num">{i + 1}</span>
+                      <span className="choice__tag">
+                        <Icon name={KIND_ICON[ev.kind]} size={14} /> {KIND_LABEL[ev.kind]}
+                      </span>
+                      <span className="choice__text">{ev.title}</span>
+                      {actions.isChoiceUsed(dialogueId, nodeId, `present:${id}`) && (
+                        <span className="choice__asked" aria-label="уже предъявляли">
+                          ✓
+                        </span>
+                      )}
+                    </button>
+                  </li>
+                ) : null;
+              })}
+              <li>
+                <button className="choice" onClick={() => setPresenting(false)}>
+                  <span className="choice__text">Назад к разговору</span>
+                </button>
               </li>
-            ))}
-          </ol>
-        )}
-        <p className="dialogue__text" key={`text:${dialogueId}/${node.id}`}>
-          {text}
-        </p>
-        {presenting ? (
-          <ol className="dialogue__choices list-reset" ref={list} key={`present:${dialogueId}/${nodeId}`}>
-            {progress.collected.map((id, i) => {
-              const ev = caseFile.evidence.find((e) => e.id === id);
-              return ev ? (
-                <li key={id}>
-                  <button className="choice" data-tone={ev.kind} onClick={() => actions.present(id)}>
+            </ol>
+          ) : (
+            <ol className="dialogue__choices list-reset" ref={list} key={`choices:${dialogueId}/${nodeId}`}>
+              {choices.map((c, i) => (
+                <li key={c.id}>
+                  <button className={`choice ${c.asked ? "is-asked" : ""}`} onClick={c.onPick} title={c.asked ? "Уже спрашивали — собеседнику придётся повторить" : undefined}>
                     <span className="choice__num">{i + 1}</span>
-                    <span className="choice__tag">
-                      <Icon name={KIND_ICON[ev.kind]} size={14} /> {KIND_LABEL[ev.kind]}
-                    </span>
-                    <span className="choice__text">{ev.title}</span>
-                    {actions.isChoiceUsed(dialogueId, nodeId, `present:${id}`) && <span className="choice__asked" aria-label="уже предъявляли">✓</span>}
+                    {c.evidence && <span className="choice__tag">по улике</span>}
+                    <span className="choice__text">{c.text}</span>
+                    {c.asked && (
+                      <span className="choice__asked" aria-label="уже спрашивали">
+                        ✓
+                      </span>
+                    )}
                   </button>
                 </li>
-              ) : null;
-            })}
-            <li>
-              <button className="choice" onClick={() => setPresenting(false)}>
-                <span className="choice__text">Назад к разговору</span>
-              </button>
-            </li>
-          </ol>
-        ) : (
-        <ol className="dialogue__choices list-reset" ref={list} key={`choices:${dialogueId}/${nodeId}`}>
-          {choices.map((c, i) => (
-            <li key={c.id}>
-              <button
-                className={`choice ${c.asked ? "is-asked" : ""}`}
-                onClick={c.onPick}
-                title={c.asked ? "Уже спрашивали — собеседнику придётся повторить" : undefined}
-              >
-                <span className="choice__num">{i + 1}</span>
-                {c.evidence && <span className="choice__tag">по улике</span>}
-                <span className="choice__text">{c.text}</span>
-                {c.asked && <span className="choice__asked" aria-label="уже спрашивали">✓</span>}
-              </button>
-            </li>
-          ))}
-          {canPresent && (
-            <li>
-              <button className="choice" onClick={() => setPresenting(true)}>
-                <span className="choice__tag">предъявить</span>
-                <span className="choice__text">Предъявить материал из журнала…</span>
-              </button>
-            </li>
+              ))}
+              {canPresent && (
+                <li>
+                  <button className="choice" onClick={() => setPresenting(true)}>
+                    <span className="choice__tag">предъявить</span>
+                    <span className="choice__text">Предъявить материал из журнала…</span>
+                  </button>
+                </li>
+              )}
+            </ol>
           )}
-        </ol>
-        )}
-      </section>
+        </section>
       </div>
     </Backdrop>
   );

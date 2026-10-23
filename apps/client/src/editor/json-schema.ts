@@ -11,7 +11,11 @@ export function formSchema(schema: z.ZodType): JS {
     if (node && typeof node === "object") {
       const obj = node as Record<string, unknown>;
       if (typeof obj.$ref === "string") return { type: "object", properties: {} };
-      return Object.fromEntries(Object.entries(obj).filter(([k]) => k !== "$defs").map(([k, v]) => [k, stub(v)]));
+      return Object.fromEntries(
+        Object.entries(obj)
+          .filter(([k]) => k !== "$defs")
+          .map(([k, v]) => [k, stub(v)]),
+      );
     }
     return node;
   };

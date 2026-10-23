@@ -1,11 +1,7 @@
 import { Link, setSearchParams, siteUrl, useSearchParam } from "../router";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { renderSVG } from "uqr";
-import {
-  type AdminGroup,
-  type AdminUser,
-  type JoinLink,
-} from "../../../../../shared/api";
+import { type AdminGroup, type AdminUser, type JoinLink } from "../../../../../shared/api";
 import { api } from "../../state/api";
 import { ask } from "../dialog";
 import { Field } from "../account";
@@ -62,7 +58,11 @@ export function GroupsSection({ groups, isAdmin, reload }: { groups: AdminGroup[
             <button className="group__head" onClick={() => setOpen(open === g.id ? null : g.id)} aria-expanded={open === g.id}>
               <b>{g.name}</b>
               <span className="muted">студентов: {g.students}</span>
-              {g.pending > 0 && <span className="status" data-tone="warn">ждут подтверждения: {g.pending}</span>}
+              {g.pending > 0 && (
+                <span className="status" data-tone="warn">
+                  ждут подтверждения: {g.pending}
+                </span>
+              )}
               <span className="group__chev">{open === g.id ? "▲" : "▼"}</span>
             </button>
             {open === g.id && <GroupDetail group={g} isAdmin={isAdmin} staff={staff} reload={reload} />}
@@ -111,11 +111,7 @@ function GroupDetail({ group, isAdmin, staff, reload }: { group: AdminGroup; isA
             {staff.map((t) => {
               const on = group.teacherIds.includes(t.id);
               return (
-                <button
-                  key={t.id}
-                  className="toggle-chip" aria-pressed={on}
-                  onClick={() => void save({ teacherIds: on ? group.teacherIds.filter((id) => id !== t.id) : [...group.teacherIds, t.id] })}
-                >
+                <button key={t.id} className="toggle-chip" aria-pressed={on} onClick={() => void save({ teacherIds: on ? group.teacherIds.filter((id) => id !== t.id) : [...group.teacherIds, t.id] })}>
                   {on ? "✓ " : ""}
                   {t.fullName}
                 </button>
@@ -134,9 +130,7 @@ function GroupDetail({ group, isAdmin, staff, reload }: { group: AdminGroup; isA
 
       <section className="group__section">
         <h3>Ссылки для регистрации</h3>
-        <p className="muted small">
-          Кто зарегистрируется по ссылке или QR-коду, сразу попадёт в группу «{group.name}» со статусом «не подтверждён».
-        </p>
+        <p className="muted small">Кто зарегистрируется по ссылке или QR-коду, сразу попадёт в группу «{group.name}» со статусом «не подтверждён».</p>
         <form
           className="link-new"
           onSubmit={(e) => {
@@ -240,7 +234,11 @@ function LinkCard({ link: l, group, act }: { link: JoinLink; group: AdminGroup; 
         <div className="link-card__meta">
           <span>{l.revokedAt ? `отозвана ${date(l.revokedAt)}` : l.expiresAt ? `действует до ${date(l.expiresAt)}` : "бессрочная"}</span>
           <span>зарегистрировались: {l.registered}</span>
-          {l.pending > 0 && <span className="status" data-tone="warn">ждут подтверждения: {l.pending}</span>}
+          {l.pending > 0 && (
+            <span className="status" data-tone="warn">
+              ждут подтверждения: {l.pending}
+            </span>
+          )}
         </div>
         <div className="link-card__actions row row--wrap">
           {l.pending > 0 && (

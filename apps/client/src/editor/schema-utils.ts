@@ -3,8 +3,7 @@ import { ENUM_LABELS } from "./labels";
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type JS = any;
 
-export const isNullable = (s: JS) =>
-  (Array.isArray(s.type) && s.type.includes("null")) || (Array.isArray(s.anyOf) && s.anyOf.some((x: JS) => x.type === "null"));
+export const isNullable = (s: JS) => (Array.isArray(s.type) && s.type.includes("null")) || (Array.isArray(s.anyOf) && s.anyOf.some((x: JS) => x.type === "null"));
 
 export const nonNull = (s: JS): JS => {
   if (Array.isArray(s.type)) return { ...s, type: s.type.find((t: string) => t !== "null") };
@@ -12,8 +11,7 @@ export const nonNull = (s: JS): JS => {
   return s;
 };
 
-export const discriminatorOf = (variants: JS[]) =>
-  Object.keys(variants[0]?.properties ?? {}).find((k) => variants.every((v: JS) => v.properties?.[k]?.const !== undefined));
+export const discriminatorOf = (variants: JS[]) => Object.keys(variants[0]?.properties ?? {}).find((k) => variants.every((v: JS) => v.properties?.[k]?.const !== undefined));
 
 /** Пустое значение необязательного поля: его не пишем в дело. */
 export function isBlank(v: unknown): boolean {

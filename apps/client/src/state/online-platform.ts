@@ -51,7 +51,10 @@ export function createOnlinePlatform(local: GamePlatform, signedIn: () => boolea
 
   const schedule = (caseId: string) => {
     cancel(caseId);
-    timers.set(caseId, setTimeout(() => void push(caseId), PUSH_DELAY_MS));
+    timers.set(
+      caseId,
+      setTimeout(() => void push(caseId), PUSH_DELAY_MS),
+    );
   };
 
   /** Серверная копия новее локальной — переносим её в локальное хранилище, чтобы дальше работать с ней. */

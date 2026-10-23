@@ -38,7 +38,10 @@ beforeEach(async () => {
   app = createApp(db, { secureCookies: false, trustProxy: false });
   await ensureAdmin(db, "admin", "adminpass1");
   await seedCases(db);
-  [{ id: groupA }, { id: groupB }] = await db.insert(schema.groups).values([{ name: "Группа А" }, { name: "Группа Б" }]).returning();
+  [{ id: groupA }, { id: groupB }] = await db
+    .insert(schema.groups)
+    .values([{ name: "Группа А" }, { name: "Группа Б" }])
+    .returning();
 });
 
 describe("видимость дела по группам", () => {

@@ -77,9 +77,7 @@ export function checkDeduction(c: CaseFile, deductionId: string, optionId: strin
   const d = c.deductions.find((x) => x.id === deductionId);
   const option = d?.options.find((x) => x.id === optionId);
   if (!d || !option) return null;
-  return option.correct
-    ? { correct: true, feedback: option.feedback, conclusion: d.conclusion }
-    : { correct: false, feedback: option.feedback };
+  return option.correct ? { correct: true, feedback: option.feedback, conclusion: d.conclusion } : { correct: false, feedback: option.feedback };
 }
 
 export function revealHint(c: CaseFile, level: number): RevealedHint | null {
@@ -89,9 +87,7 @@ export function revealHint(c: CaseFile, level: number): RevealedHint | null {
 
 export function revealed(c: CaseFile, deductionIds: string[], hintsUsed: number): Revealed {
   return {
-    conclusions: Object.fromEntries(
-      c.deductions.filter((d) => deductionIds.includes(d.id)).map((d) => [d.id, d.conclusion]),
-    ),
+    conclusions: Object.fromEntries(c.deductions.filter((d) => deductionIds.includes(d.id)).map((d) => [d.id, d.conclusion])),
     hints: c.hints
       .filter((h) => h.level <= hintsUsed)
       .sort((a, b) => a.level - b.level)

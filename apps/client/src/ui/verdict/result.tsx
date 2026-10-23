@@ -26,10 +26,7 @@ export function ResultScreen() {
   const solution = useGame((s) => s.debrief);
   const record = useGame((s) => s.record);
 
-  const names: Record<string, string> = Object.fromEntries([
-    ...caseFile.characters.map((c) => [c.id, c.name]),
-    ...caseFile.evidence.map((e) => [e.id, e.title]),
-  ]);
+  const names: Record<string, string> = Object.fromEntries([...caseFile.characters.map((c) => [c.id, c.name]), ...caseFile.evidence.map((e) => [e.id, e.title])]);
   const [tab, setTab] = useState<"case" | "result" | "debrief" | "downloads">("result");
   const grade = gradeOf(scorePercent(score.total, score.max, score.timeBonus?.max ?? 0));
 
@@ -82,13 +79,7 @@ export function ResultScreen() {
                 </li>
               ))}
               {score.timeBonus && (
-                <li
-                  className={
-                    score.timeBonus.points
-                      ? "breakdown__bonus"
-                      : "breakdown__penalty"
-                  }
-                >
+                <li className={score.timeBonus.points ? "breakdown__bonus" : "breakdown__penalty"}>
                   <span>Бонус за время</span>
                   <span className="muted">
                     {score.timeBonus.missed === null
@@ -121,27 +112,17 @@ export function ResultScreen() {
                       {r.points}/{r.question.maxPoints}
                     </b>
                   </div>
-                  {r.feedback.length === 0 && (
-                    <p className="muted">Нет ответа.</p>
-                  )}
+                  {r.feedback.length === 0 && <p className="muted">Нет ответа.</p>}
                   {r.feedback.map((f) => (
-                    <p
-                      key={f.optionId}
-                      className={f.points > 0 ? "good" : "bad"}
-                    >
-                      <b>{optionLabel(r.question, f.optionId, names)}</b> —{" "}
-                      {f.text}
+                    <p key={f.optionId} className={f.points > 0 ? "good" : "bad"}>
+                      <b>{optionLabel(r.question, f.optionId, names)}</b> — {f.text}
                     </p>
                   ))}
                 </div>
               ))}
             </section>
 
-            {wrongDeductions > 0 && (
-              <p className="muted">
-                Ошибочных выводов при сопоставлении: {wrongDeductions}.
-              </p>
-            )}
+            {wrongDeductions > 0 && <p className="muted">Ошибочных выводов при сопоставлении: {wrongDeductions}.</p>}
           </>
         )}
 
@@ -159,11 +140,7 @@ export function ResultScreen() {
                 const e = caseFile.evidence.find((x) => x.id === k.evidenceId)!;
                 return (
                   <li key={k.evidenceId}>
-                    <b>{e.title}</b>{" "}
-                    <span className="muted">
-                      (достоверность: {LEVEL[e.reliability]})
-                    </span>{" "}
-                    — {k.why}
+                    <b>{e.title}</b> <span className="muted">(достоверность: {LEVEL[e.reliability]})</span> — {k.why}
                   </li>
                 );
               })}
@@ -191,9 +168,7 @@ export function ResultScreen() {
               ))}
             </ul>
             <p className="disclaimer">
-              Учебный сценарий: юридические формулировки подготовлены для
-              обучения и проверяются преподавателем. Квалификация в игре —
-              возможная; вывод о виновности в преступлении может сделать только
+              Учебный сценарий: юридические формулировки подготовлены для обучения и проверяются преподавателем. Квалификация в игре — возможная; вывод о виновности в преступлении может сделать только
               суд.
             </p>
           </section>

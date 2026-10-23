@@ -14,12 +14,7 @@ const canonical = (v: unknown): string =>
 
 /** Автор дела — тот, кто записал его первую версию (посеянные из репозитория дела — ничьи, правит только админ). */
 async function ownerOf(db: AppEnv["Variables"]["db"], caseId: string): Promise<number | null | undefined> {
-  const [first] = await db
-    .select({ createdBy: caseVersions.createdBy })
-    .from(caseVersions)
-    .where(eq(caseVersions.caseId, caseId))
-    .orderBy(asc(caseVersions.id))
-    .limit(1);
+  const [first] = await db.select({ createdBy: caseVersions.createdBy }).from(caseVersions).where(eq(caseVersions.caseId, caseId)).orderBy(asc(caseVersions.id)).limit(1);
   return first ? first.createdBy : undefined;
 }
 
@@ -112,13 +107,8 @@ export const caseAdminRoutes = new Hono<AppEnv>()
     if (!parsed.success) throw new ApiError(400, "invalid", `Дело не прошло проверку: ${parsed.errors.slice(0, 5).join("; ")}`);
     if (parsed.data.id !== id) throw new ApiError(400, "invalid", "Ключ дела не совпадает с адресом");
     const owner = await ownerOf(db, id);
-    if (owner !== undefined && staff.role !== "admin" && owner !== staff.id)
-      throw new ApiError(403, "forbidden", "Это дело создал другой автор");
-    const [current] = await db
-      .select({ body: caseVersions.body })
-      .from(cases)
-      .innerJoin(caseVersions, eq(caseVersions.id, cases.currentVersionId))
-      .where(eq(cases.id, id));
+    if (owner !== undefined && staff.role !== "admin" && owner !== staff.id) throw new ApiError(403, "forbidden", "Это дело создал другой автор");
+    const [current] = await db.select({ body: caseVersions.body }).from(cases).innerJoin(caseVersions, eq(caseVersions.id, cases.currentVersionId)).where(eq(cases.id, id));
     if (current && canonical(current.body) === canonical(parsed.data)) return c.json({ result: "same" });
     const result = await saveCaseVersion(db, parsed.data, staff.id);
     await db.insert(auditLog).values({ userId: staff.id, action: "cases.save", payload: { id, result, rightsConfirmed: true } });

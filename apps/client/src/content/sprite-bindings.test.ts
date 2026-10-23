@@ -16,7 +16,10 @@ const stateOf = (c: CaseFile, patch: (p: ReturnType<typeof startProgress>) => vo
 
 describe("привязка переменных спрайта к переменным дела", () => {
   it("bindCondition заменяет id во всех строках и во вложенных условиях", () => {
-    const c = bindCondition({ flags: ["a"], notFlags: ["b"], counters: [{ counterId: "n", min: 1 }], enums: [{ enumId: "e", in: ["x"] }], anyOf: [{ flags: ["a"] }] }, { a: "A", b: "B", n: "N", e: "E" });
+    const c = bindCondition(
+      { flags: ["a"], notFlags: ["b"], counters: [{ counterId: "n", min: 1 }], enums: [{ enumId: "e", in: ["x"] }], anyOf: [{ flags: ["a"] }] },
+      { a: "A", b: "B", n: "N", e: "E" },
+    );
     expect(c).toEqual({ flags: ["A"], notFlags: ["B"], counters: [{ counterId: "N", min: 1 }], enums: [{ enumId: "E", in: ["x"] }], anyOf: [{ flags: ["A"] }] });
   });
 

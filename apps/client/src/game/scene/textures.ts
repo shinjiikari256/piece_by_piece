@@ -46,10 +46,7 @@ export function ensureCharacterTextures(textures: Textures, characters: PublicCa
     if (seenCharVersion.has(textures)) for (const k of textures.getTextureKeys()) if (k === "char_player" || k.startsWith("chr_")) textures.remove(k);
     seenCharVersion.set(textures, v);
   }
-  const looks: [string, Look][] = [
-    ["char_player", LOOKS.player],
-    ...characters.map((c): [string, Look] => [`chr_${c.id}`, resolveLook(c)]),
-  ];
+  const looks: [string, Look][] = [["char_player", LOOKS.player], ...characters.map((c): [string, Look] => [`chr_${c.id}`, resolveLook(c)])];
   for (const [tex, look] of looks) {
     if (textures.exists(tex)) continue;
     const canvas = textures.createCanvas(tex, CHAR_W * CHAR_FRAMES.length, CHAR_H)!;

@@ -103,19 +103,7 @@ export function TabbedModal({
   );
 }
 
-export function EvidenceCard({
-  evidence,
-  selected,
-  onClick,
-  compact,
-  mark,
-}: {
-  evidence: Evidence;
-  selected?: boolean;
-  onClick?: () => void;
-  compact?: boolean;
-  mark?: Mark;
-}) {
+export function EvidenceCard({ evidence, selected, onClick, compact, mark }: { evidence: Evidence; selected?: boolean; onClick?: () => void; compact?: boolean; mark?: Mark }) {
   const Tag = onClick ? "button" : "div";
   return (
     <Tag
@@ -140,19 +128,7 @@ export function EvidenceCard({
 }
 
 /** Результат сопоставления — такая же карточка, как улика. */
-export function FactCard({
-  deduction,
-  selected,
-  onClick,
-  compact,
-  mark,
-}: {
-  deduction: PublicDeduction;
-  selected?: boolean;
-  onClick?: () => void;
-  compact?: boolean;
-  mark?: Mark;
-}) {
+export function FactCard({ deduction, selected, onClick, compact, mark }: { deduction: PublicDeduction; selected?: boolean; onClick?: () => void; compact?: boolean; mark?: Mark }) {
   const Tag = onClick ? "button" : "div";
   const conclusion = useGame((s) => s.conclusions[deduction.id]);
   return (

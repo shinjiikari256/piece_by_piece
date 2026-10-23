@@ -1,13 +1,6 @@
 import { Hono } from "hono";
 import { SettingsBody, type Settings } from "../../../../../shared/api";
-import {
-  getSetting,
-  parseBody,
-  putSetting,
-  requireAdmin,
-  requireStaff,
-  type AppEnv,
-} from "../../http";
+import { getSetting, parseBody, putSetting, requireAdmin, requireStaff, type AppEnv } from "../../http";
 
 import { audit } from "./access";
 

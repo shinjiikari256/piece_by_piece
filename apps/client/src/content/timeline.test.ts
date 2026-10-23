@@ -133,7 +133,13 @@ describe("хронология: формат и миграция", () => {
     const m = migrateCase(old);
     expect(m.ok).toBe(true);
     const events = ((m.ok ? m.data : {}) as { events: CaseEvent[] }).events;
-    expect(events.map((e) => [e.at, e.until])).toEqual([["03-10", undefined], ["03-14T21:30", undefined], ["10-01", "10-05"], ["2026-03-14T09:05", undefined], ["вечером", undefined]]);
+    expect(events.map((e) => [e.at, e.until])).toEqual([
+      ["03-10", undefined],
+      ["03-14T21:30", undefined],
+      ["10-01", "10-05"],
+      ["2026-03-14T09:05", undefined],
+      ["вечером", undefined],
+    ]);
     expect(events.every((e) => !("time" in e))).toBe(true);
   });
 
@@ -156,7 +162,11 @@ describe("хронология: формат и миграция", () => {
 describe("хронология: валидатор и предупреждения", () => {
   it("ловит несуществующую дату, конец раньше начала и неизвестную ссылку в requires", () => {
     const c = base();
-    c.events.push({ id: "bad_date", title: "x", at: "02-30" }, { id: "bad_range", title: "x", at: "03-14T22:00", until: "03-14T21:00" }, { id: "bad_ref", title: "x", at: "03-14", requires: { evidence: ["нет_такой"], flags: ["f_нет"] } });
+    c.events.push(
+      { id: "bad_date", title: "x", at: "02-30" },
+      { id: "bad_range", title: "x", at: "03-14T22:00", until: "03-14T21:00" },
+      { id: "bad_ref", title: "x", at: "03-14", requires: { evidence: ["нет_такой"], flags: ["f_нет"] } },
+    );
     const text = errorsOf(c);
     expect(text).toContain("event bad_date: такой даты или времени нет");
     expect(text).toContain("event bad_range: конец");
@@ -191,7 +201,10 @@ describe("тестовое дело: хронология", () => {
   });
 
   it("события появляются по условиям", () => {
-    const ids = (p = emptyProgress()) => knownEvents(c, p).map((e) => e.id).filter((id) => id.startsWith("ev_test_"));
+    const ids = (p = emptyProgress()) =>
+      knownEvents(c, p)
+        .map((e) => e.id)
+        .filter((id) => id.startsWith("ev_test_"));
     expect(ids()).toEqual(["ev_test_open"]);
     expect(ids({ ...emptyProgress(), flags: ["zuev_admitted"] })).toContain("ev_test_range");
     expect(ids({ ...emptyProgress(), flags: ["timur_truth"] })).not.toContain("ev_test_clock");

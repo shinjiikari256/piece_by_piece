@@ -16,7 +16,9 @@ export const BASE = `http://localhost:${CLIENT_PORT}`;
 function chromiumPath(): string {
   if (process.env.PLAYWRIGHT_CHROMIUM) return process.env.PLAYWRIGHT_CHROMIUM;
   const cache = path.join(os.homedir(), ".cache/ms-playwright");
-  const dirs = readdirSync(cache).filter((d) => d.startsWith("chromium_headless_shell-")).sort();
+  const dirs = readdirSync(cache)
+    .filter((d) => d.startsWith("chromium_headless_shell-"))
+    .sort();
   const dir = dirs.at(-1);
   if (!dir) throw new Error(`нет chromium_headless_shell в ${cache}`);
   const sub = readdirSync(path.join(cache, dir)).find((d) => d.startsWith("chrome-headless-shell"))!;

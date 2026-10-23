@@ -30,7 +30,15 @@ export function EditorHome() {
   const savedVersion = storedDraft.ok ? storedDraft.caseFile : caseRepository.bundled().find((c) => c.id === draft.id);
   const discardChanges = async () => {
     if (!savedVersion) return;
-    if (!(await ask({ title: "Отменить изменения?", text: "Несохранённые правки в этом деле будут отброшены (вернуть их можно в редакторе сочетанием Ctrl+Z).", confirmLabel: "Отменить изменения", danger: true }))) return;
+    if (
+      !(await ask({
+        title: "Отменить изменения?",
+        text: "Несохранённые правки в этом деле будут отброшены (вернуть их можно в редакторе сочетанием Ctrl+Z).",
+        confirmLabel: "Отменить изменения",
+        danger: true,
+      }))
+    )
+      return;
     editor.load(savedVersion);
   };
   const row = (c: CaseFile, kind: "draft" | "bundled") => (
@@ -44,28 +52,26 @@ export function EditorHome() {
         </span>
       </span>
       <span className="eh__buttons">
-      <button className="btn btn--primary" onClick={() => confirmReplace(() => editor.open(structuredClone(c)))}>
-        Открыть
-      </button>
-      <button className="btn" onClick={() => downloadJson(c)} title="Скачать файл дела">
-        Экспорт
-      </button>
-      {kind === "draft" && (
-        <button
-          className="btn"
-          onClick={() => {
-            void ask({ title: `Удалить «${c.title}»?`, text: "Сохранённое дело удалится из конструктора. Встроенные дела не пострадают.", confirmLabel: "Удалить", danger: true }).then(
-              (ok) => {
+        <button className="btn btn--primary" onClick={() => confirmReplace(() => editor.open(structuredClone(c)))}>
+          Открыть
+        </button>
+        <button className="btn" onClick={() => downloadJson(c)} title="Скачать файл дела">
+          Экспорт
+        </button>
+        {kind === "draft" && (
+          <button
+            className="btn"
+            onClick={() => {
+              void ask({ title: `Удалить «${c.title}»?`, text: "Сохранённое дело удалится из конструктора. Встроенные дела не пострадают.", confirmLabel: "Удалить", danger: true }).then((ok) => {
                 if (!ok) return;
                 deleteDraft(c.id);
                 refresh((n) => n + 1);
-              },
-            );
-          }}
-        >
-          Удалить
-        </button>
-      )}
+              });
+            }}
+          >
+            Удалить
+          </button>
+        )}
       </span>
     </li>
   );
@@ -80,13 +86,7 @@ export function EditorHome() {
           <button className="btn" onClick={() => fileInput.current?.click()}>
             Импорт JSON…
           </button>
-          <input
-            ref={fileInput}
-            type="file"
-            accept="application/json,.json"
-            hidden
-            onChange={(e) => e.target.files?.[0] && confirmReplace(() => importJsonFile(e.target.files![0]))}
-          />
+          <input ref={fileInput} type="file" accept="application/json,.json" hidden onChange={(e) => e.target.files?.[0] && confirmReplace(() => importJsonFile(e.target.files![0]))} />
         </div>
       </header>
       {dirty && (

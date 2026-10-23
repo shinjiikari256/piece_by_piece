@@ -9,21 +9,10 @@ export function NotesWindow() {
   const notes = useGame((s) => s.playerNotes);
   if (!open) return null;
   return (
-    <TabbedModal
-      tabs={[{ id: "notes", label: "Заметки", icon: "notes" }]}
-      onClose={() => actions.toggleNotes(false)}
-      size="narrow"
-      className="notes-window"
-    >
+    <TabbedModal tabs={[{ id: "notes", label: "Заметки", icon: "notes" }]} onClose={() => actions.toggleNotes(false)} size="narrow" className="notes-window">
       <div className="notes-window__body col">
         <p className="muted notes-window__hint">Выделите текст в любом окне и нажмите «В заметки» — он допишется сюда.</p>
-        <textarea
-          className="notes-input notes-window__text"
-          value={notes}
-          autoFocus
-          placeholder="Ваши предположения и вопросы…"
-          onChange={(e) => actions.setNotes(e.target.value)}
-        />
+        <textarea className="notes-input notes-window__text" value={notes} autoFocus placeholder="Ваши предположения и вопросы…" onChange={(e) => actions.setNotes(e.target.value)} />
       </div>
     </TabbedModal>
   );

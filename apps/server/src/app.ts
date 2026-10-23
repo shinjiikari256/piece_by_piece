@@ -34,14 +34,11 @@ export function createApp(db: Db, config: AppConfig) {
   });
 
   app.onError((err, c) => {
-    if (err instanceof ApiError)
-      return c.json({ error: err.code, message: err.message }, err.status);
+    if (err instanceof ApiError) return c.json({ error: err.code, message: err.message }, err.status);
     console.error(err);
     return c.json({ error: "internal", message: "Ошибка сервера" }, 500);
   });
-  app.notFound((c) =>
-    c.json({ error: "not_found", message: "Не найдено" }, 404),
-  );
+  app.notFound((c) => c.json({ error: "not_found", message: "Не найдено" }, 404));
 
   app.get("/api/health", (c) => c.json({ ok: true }));
   app.route("/api", authRoutes());

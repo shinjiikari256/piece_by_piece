@@ -17,16 +17,10 @@ initTheme();
 initKeyboardScroll();
 
 // Офлайн-файл — только браузер. Онлайн-сборка подключает сервер отдельным куском (в офлайн-файл он не попадает).
-const platformReady = OFFLINE
-  ? Promise.resolve(setPlatform(createBrowserPlatform()))
-  : import("./state/online-platform").then(({ connectOnline }) => connectOnline(createBrowserPlatform()));
+const platformReady = OFFLINE ? Promise.resolve(setPlatform(createBrowserPlatform())) : import("./state/online-platform").then(({ connectOnline }) => connectOnline(createBrowserPlatform()));
 
 // Phaser рисует подписи на canvas — шрифт должен быть загружен до старта сцены.
-Promise.all([
-  document.fonts.load('13px "Rubik"'),
-  document.fonts.load('bold 12px "Rubik"'),
-  platformReady,
-]).finally(() => {
+Promise.all([document.fonts.load('13px "Rubik"'), document.fonts.load('bold 12px "Rubik"'), platformReady]).finally(() => {
   createRoot(document.getElementById("root")!).render(
     <StrictMode>
       <App />

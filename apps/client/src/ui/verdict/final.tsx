@@ -8,13 +8,8 @@ import type { IconName } from "../icons";
 import { Portrait } from "../panels";
 import { resolveLook } from "../../game/art";
 
-export function optionLabel(
-  q: Question,
-  optionId: string,
-  names: Record<string, string>,
-) {
-  if (q.source === "inline")
-    return q.options.find((o) => o.id === optionId)?.label ?? optionId;
+export function optionLabel(q: Question, optionId: string, names: Record<string, string>) {
+  if (q.source === "inline") return q.options.find((o) => o.id === optionId)?.label ?? optionId;
   return names[optionId] ?? optionId;
 }
 
@@ -41,29 +36,15 @@ export function FinalScreen() {
   const isReview = step === questions.length;
   const q = questions[step];
   const ready = questions.every((x) => (answers[x.id] ?? []).length > 0);
-  const names: Record<string, string> = Object.fromEntries([
-    ...caseFile.characters.map((c) => [c.id, c.name]),
-    ...caseFile.evidence.map((e) => [e.id, e.title]),
-  ]);
+  const names: Record<string, string> = Object.fromEntries([...caseFile.characters.map((c) => [c.id, c.name]), ...caseFile.evidence.map((e) => [e.id, e.title])]);
 
   /** Варианты текущего вопроса в том виде, в каком их показываем. */
-  const optionsOf = (x: Question): string[] =>
-    x.source === "characters"
-      ? caseFile.characters.map((c) => c.id)
-      : x.source === "evidence"
-        ? collected
-        : x.options.map((o) => o.id);
+  const optionsOf = (x: Question): string[] => (x.source === "characters" ? caseFile.characters.map((c) => c.id) : x.source === "evidence" ? collected : x.options.map((o) => o.id));
 
   const toggle = (x: Question, id: string) => {
     const selected = answers[x.id] ?? [];
     if (x.kind === "single") actions.setAnswer(x.id, [id]);
-    else
-      actions.setAnswer(
-        x.id,
-        selected.includes(id)
-          ? selected.filter((v) => v !== id)
-          : [...selected, id],
-      );
+    else actions.setAnswer(x.id, selected.includes(id) ? selected.filter((v) => v !== id) : [...selected, id]);
   };
 
   // после смены шага фокус не должен пропадать (кнопка шага исчезла) — переходим к заголовку вопроса
@@ -78,8 +59,7 @@ export function FinalScreen() {
 
   useArrowNav(main, OPTION); // вариантов может быть больше девяти, а карточки лежат рядами: по ним ходим вертикальными стрелками
   useWindowKey((e) => {
-    if (e.target instanceof Element && e.target.closest("input, textarea"))
-      return;
+    if (e.target instanceof Element && e.target.closest("input, textarea")) return;
     if (e.ctrlKey || e.metaKey || e.altKey) return;
     if (e.key === "Enter" && q && !e.repeat) {
       // Enter на выбранном стрелками варианте: один ответ — выбрать его и перейти дальше; несколько — только дальше (выбор — пробелом)
@@ -101,17 +81,18 @@ export function FinalScreen() {
     ...questions.map((x) => ({ id: x.id, label: STEP_TITLES[x.category], icon: (isDone(x) ? "check" : "circle") as IconName })),
     { id: DECISION_TAB, label: "Решение", icon: "scale" as IconName },
   ];
-  const goTab = (id: string) => setStep(id === DECISION_TAB ? questions.length : Math.max(0, questions.findIndex((x) => x.id === id)));
+  const goTab = (id: string) =>
+    setStep(
+      id === DECISION_TAB
+        ? questions.length
+        : Math.max(
+            0,
+            questions.findIndex((x) => x.id === id),
+          ),
+    );
 
   return (
-    <TabbedModal
-      tabs={tabs}
-      active={isReview ? DECISION_TAB : q.id}
-      onTab={goTab}
-      onClose={actions.backToInvestigation}
-      tone="blue"
-      className="final-window"
-    >
+    <TabbedModal tabs={tabs} active={isReview ? DECISION_TAB : q.id} onTab={goTab} onClose={actions.backToInvestigation} tone="blue" className="final-window">
       <div className="final2__main col" ref={main}>
         <p className="sr-only" aria-live="polite">
           {q ? `Вопрос ${step + 1} из ${questions.length}. ${q.prompt}` : "Решение: все ответы"}
@@ -122,7 +103,9 @@ export function FinalScreen() {
               Вопрос {step + 1} из {questions.length}
               {q.kind === "multi" && " · можно выбрать несколько"}
             </p>
-            <h2 className="final2__q" id="final-q" tabIndex={-1}>{q.prompt}</h2>
+            <h2 className="final2__q" id="final-q" tabIndex={-1}>
+              {q.prompt}
+            </h2>
 
             {q.source === "inline" && (
               <ol className="answers list-reset" aria-labelledby="final-q">
@@ -131,7 +114,9 @@ export function FinalScreen() {
                   return (
                     <li key={o.id}>
                       <button className="answer-opt" data-selected={on || undefined} aria-pressed={on} onClick={() => toggle(q, o.id)}>
-                        <span className="answer-opt__key" aria-hidden="true">{i < 9 ? i + 1 : ""}</span>
+                        <span className="answer-opt__key" aria-hidden="true">
+                          {i < 9 ? i + 1 : ""}
+                        </span>
                         <span className="answer-opt__text">
                           {o.label}
                           {o.mark && <small>{o.mark}</small>}
@@ -150,7 +135,9 @@ export function FinalScreen() {
                   const on = (answers[q.id] ?? []).includes(c.id);
                   return (
                     <button key={c.id} className="option suspect" data-selected={on || undefined} aria-pressed={on} onClick={() => toggle(q, c.id)}>
-                      <span className="suspect__key" aria-hidden="true">{i < 9 ? i + 1 : ""}</span>
+                      <span className="suspect__key" aria-hidden="true">
+                        {i < 9 ? i + 1 : ""}
+                      </span>
                       <Portrait look={resolveLook(c)} />
                       <strong>{c.name}</strong>
                       <span className="muted">{c.position}</span>
@@ -170,12 +157,7 @@ export function FinalScreen() {
                   </p>
                   <div className="card-grid" role="group" aria-labelledby="final-q">
                     {collected.map((id) => (
-                      <EvidenceCard
-                        key={id}
-                        evidence={caseFile.evidence.find((e) => e.id === id)!}
-                        selected={(answers[q.id] ?? []).includes(id)}
-                        onClick={() => toggle(q, id)}
-                      />
+                      <EvidenceCard key={id} evidence={caseFile.evidence.find((e) => e.id === id)!} selected={(answers[q.id] ?? []).includes(id)} onClick={() => toggle(q, id)} />
                     ))}
                   </div>
                 </>
@@ -195,7 +177,9 @@ export function FinalScreen() {
         {isReview && (
           <>
             <p className="final2__kicker">Все ответы</p>
-            <h2 className="final2__q" tabIndex={-1}>Решение</h2>
+            <h2 className="final2__q" tabIndex={-1}>
+              Решение
+            </h2>
             <dl className="review-list">
               {questions.map((x, i) => (
                 <div key={x.id} className={isDone(x) ? "" : "is-missing"}>
@@ -206,7 +190,13 @@ export function FinalScreen() {
                     </button>
                   </dt>
                   <dd>
-                    {isDone(x) ? (answers[x.id] ?? []).map((id) => <span key={id} className="review-chip">{optionLabel(x, id, names)}</span>) : "Нет ответа"}
+                    {isDone(x)
+                      ? (answers[x.id] ?? []).map((id) => (
+                          <span key={id} className="review-chip">
+                            {optionLabel(x, id, names)}
+                          </span>
+                        ))
+                      : "Нет ответа"}
                   </dd>
                 </div>
               ))}

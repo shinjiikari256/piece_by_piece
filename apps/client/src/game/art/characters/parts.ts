@@ -30,8 +30,18 @@ interface PartFile {
 /** Роли цвета, которые части берут у внешности. */
 export const PART_ROLES = ["$skin", "$skinShade", "$hair", "$top", "$topShade", "$accent", "$legs", "$legsShade", "$legsDark", "$shoes", "$eyes", "$glassesColor"] as const;
 export const ROLE_NAMES: Record<string, string> = {
-  $skin: "кожа", $skinShade: "кожа в тени", $hair: "волосы", $top: "верх", $topShade: "верх в тени", $accent: "деталь",
-  $legs: "низ", $legsShade: "низ в тени", $legsDark: "низ, складка", $shoes: "обувь", $eyes: "глаза", $glassesColor: "оправа",
+  $skin: "кожа",
+  $skinShade: "кожа в тени",
+  $hair: "волосы",
+  $top: "верх",
+  $topShade: "верх в тени",
+  $accent: "деталь",
+  $legs: "низ",
+  $legsShade: "низ в тени",
+  $legsDark: "низ, складка",
+  $shoes: "обувь",
+  $eyes: "глаза",
+  $glassesColor: "оправа",
 };
 
 const FILES = [hair, accent, face, bottom] as unknown as PartFile[];

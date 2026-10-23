@@ -11,7 +11,7 @@ import { firstFloorCell } from "../../content/case-utils";
 /** Куда класть игрока в локации по умолчанию: её старт или первая клетка пола. */
 const spawnOf = (d: CaseFile, locationId: string) => {
   const l = d.locations.find((x) => x.id === locationId);
-  return l ? l.playerStart ?? firstFloorCell(l) : { x: 0, y: 0 };
+  return l ? (l.playerStart ?? firstFloorCell(l)) : { x: 0, y: 0 };
 };
 
 const KIND_LABEL: Record<ZoneAction["kind"], string> = { dialogue: "Диалог", object: "Предмет", effects: "Эффекты", exit: "Выход" };
@@ -58,12 +58,7 @@ export function ZoneActions({ zone, draft, onChange, onFallback }: { zone: Zone;
           {a.kind === "effects" && <EffectsEditor value={a.effects} ctx={{ draft }} onChange={(v) => set(i, { ...a, effects: v as Effect[] })} />}
           {a.kind === "exit" && (
             <>
-              <Select
-                value={a.to}
-                placeholder="куда"
-                options={locations}
-                onChange={(v) => set(i, { ...a, to: v, spawn: spawnOf(draft, v) })}
-              />
+              <Select value={a.to} placeholder="куда" options={locations} onChange={(v) => set(i, { ...a, to: v, spawn: spawnOf(draft, v) })} />
               <div className="row">
                 <button className="btn btn--sm" onClick={() => setPicking(i)}>
                   Где появится игрок…
@@ -122,7 +117,12 @@ export function ZoneActions({ zone, draft, onChange, onFallback }: { zone: Zone;
               ×
             </button>
           </div>
-          <input className="input" value={zone.fallback.text ?? ""} placeholder="Что сказать игроку (необязательно)" onChange={(ev) => onFallback({ ...zone.fallback!, text: ev.target.value || undefined })} />
+          <input
+            className="input"
+            value={zone.fallback.text ?? ""}
+            placeholder="Что сказать игроку (необязательно)"
+            onChange={(ev) => onFallback({ ...zone.fallback!, text: ev.target.value || undefined })}
+          />
           <EffectsEditor value={zone.fallback.effects} ctx={{ draft }} onChange={(v) => onFallback({ ...zone.fallback!, effects: v as Effect[] })} />
         </div>
       ) : (

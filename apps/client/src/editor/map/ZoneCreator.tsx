@@ -38,7 +38,7 @@ export function ZoneCreator({
 }) {
   const art = useSpriteCanvases();
   const canvas = useRef<HTMLCanvasElement>(null);
-  const [locId, setLocId] = useState(defaultLocationId && draft.locations.some((l) => l.id === defaultLocationId) ? defaultLocationId : draft.locations[0]?.id ?? "");
+  const [locId, setLocId] = useState(defaultLocationId && draft.locations.some((l) => l.id === defaultLocationId) ? defaultLocationId : (draft.locations[0]?.id ?? ""));
   const [name, setName] = useState("");
   const [cells, setCells] = useState<{ x: number; y: number }[]>([]);
   const stroke = useRef<{ add: boolean; from: { x: number; y: number }; rect: boolean } | null>(null);

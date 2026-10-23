@@ -17,9 +17,7 @@ import { useCase } from "./index";
 
 // ---------- Материалы ----------
 
-type Item =
-  | { key: string; kind: MaterialKind; evidence: Evidence; deduction?: undefined }
-  | { key: string; kind: "fact"; deduction: Deduction; evidence?: undefined };
+type Item = { key: string; kind: MaterialKind; evidence: Evidence; deduction?: undefined } | { key: string; kind: "fact"; deduction: Deduction; evidence?: undefined };
 
 const MARK_ORDER: Record<"important" | "none" | "unimportant", number> = { important: 0, none: 1, unimportant: 2 };
 
@@ -119,10 +117,7 @@ export function MaterialsTab({ match, focus }: { match: boolean; focus?: string 
           highlight={reliability !== "all"}
           value={reliability}
           onChange={(v) => setReliability(v as Evidence["reliability"] | "all")}
-          options={[
-            { value: "all", label: "любая" },
-            ...(["high", "medium", "low"] as const).map((r) => ({ value: r, label: LEVEL[r] })),
-          ]}
+          options={[{ value: "all", label: "любая" }, ...(["high", "medium", "low"] as const).map((r) => ({ value: r, label: LEVEL[r] }))]}
         />
         <Select
           variant="filter"
@@ -130,10 +125,7 @@ export function MaterialsTab({ match, focus }: { match: boolean; focus?: string 
           highlight={person !== "all"}
           value={person}
           onChange={setPerson}
-          options={[
-            { value: "all", label: "все" },
-            ...people.map((c) => ({ value: c.id, label: c.name, art: <Portrait look={resolveLook(c)} /> })),
-          ]}
+          options={[{ value: "all", label: "все" }, ...people.map((c) => ({ value: c.id, label: c.name, art: <Portrait look={resolveLook(c)} /> }))]}
         />
         {(kind !== "all" || reliability !== "all" || person !== "all") && (
           <button
@@ -151,10 +143,7 @@ export function MaterialsTab({ match, focus }: { match: boolean; focus?: string 
           <Icon name="evidence" size={15} /> {collected.length}/{caseFile.evidence.length}
           <Icon name="fact" size={15} /> {solved.length}/{caseFile.deductions.length}
         </span>
-        <button
-          className={`btn materials__match ${match ? "btn--primary" : ""}`}
-          onClick={toggleMatch}
-        >
+        <button className={`btn materials__match ${match ? "btn--primary" : ""}`} onClick={toggleMatch}>
           <Icon name={match ? "evidence" : "link"} size={16} /> {match ? "Изучить" : "Сопоставить"} <kbd>C</kbd>
         </button>
       </div>
@@ -273,12 +262,7 @@ export function EvidenceDetail({ evidence: e, mark, hideMarks }: { evidence: Evi
         <div className="detail__people row row--wrap">
           <span className="detail__label">Связанные люди:</span>
           {people.map((c) => (
-            <button
-              key={c.id}
-              className="person-chip"
-              title={`${c.position} — открыть карточку`}
-              onClick={() => actions.open({ kind: "journal", tab: "characters", focus: c.id })}
-            >
+            <button key={c.id} className="person-chip" title={`${c.position} — открыть карточку`} onClick={() => actions.open({ kind: "journal", tab: "characters", focus: c.id })}>
               <Portrait look={resolveLook(c)} />
               {c.name}
             </button>

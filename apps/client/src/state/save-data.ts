@@ -36,9 +36,7 @@ export function isSaveOutdated(save: SaveData, c: PublicCase): boolean {
 export function formatSaveDate(iso: string | undefined): string {
   if (!iso) return "неизвестно когда";
   const d = new Date(iso);
-  return Number.isNaN(d.getTime())
-    ? iso
-    : formatDateStyle(d, true);
+  return Number.isNaN(d.getTime()) ? iso : formatDateStyle(d, true);
 }
 
 /** Дело могли отредактировать после сохранения — выбрасываем ссылки на исчезнувшее. */
@@ -54,9 +52,7 @@ export function sanitizeSave(save: SaveData, c: PublicCase): SaveData {
       ...save.progress,
       collected: save.progress.collected.filter((id) => evidence.has(id)),
       deductions: save.progress.deductions.filter((id) => deductions.has(id)),
-      characterNotes: Object.fromEntries(
-        Object.entries(save.progress.characterNotes).filter(([id]) => characters.has(id)),
-      ),
+      characterNotes: Object.fromEntries(Object.entries(save.progress.characterNotes).filter(([id]) => characters.has(id))),
       counters: Object.fromEntries(Object.entries(save.progress.counters ?? {}).filter(([id]) => (c.counters ?? []).some((x) => x.id === id))),
       // значения перечислений: сохранённые, если значение ещё есть в деле; иначе начальное
       enums: Object.fromEntries(
@@ -68,9 +64,7 @@ export function sanitizeSave(save: SaveData, c: PublicCase): SaveData {
       chosen: save.progress.chosen ?? save.usedChoices ?? [],
       followers: (save.progress.followers ?? []).filter((id) => characters.has(id)),
       fired: (save.progress.fired ?? []).filter((key) => c.locations.some((l) => key.startsWith("once:") || l.zones.some((z) => key.startsWith(`${z.id}:`)))),
-      npcPlaces: Object.fromEntries(
-        Object.entries(save.progress.npcPlaces ?? {}).filter(([id, p]) => characters.has(id) && locations.has(p.locationId)),
-      ),
+      npcPlaces: Object.fromEntries(Object.entries(save.progress.npcPlaces ?? {}).filter(([id, p]) => characters.has(id) && locations.has(p.locationId))),
     },
     examined: save.examined.filter((id) => objects.has(id)),
   };

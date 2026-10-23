@@ -19,5 +19,14 @@ export function mixColors(a: string, b: string, t: number): string {
     return m ? [Number(m[1]), Number(m[2]), Number(m[3])] : [0, 0, 0];
   };
   const [ra, rb] = [rgb(a), rgb(b)];
-  return "#" + ra.map((v, i) => Math.round(v + (rb[i] - v) * t).toString(16).padStart(2, "0")).join("");
+  return (
+    "#" +
+    ra
+      .map((v, i) =>
+        Math.round(v + (rb[i] - v) * t)
+          .toString(16)
+          .padStart(2, "0"),
+      )
+      .join("")
+  );
 }

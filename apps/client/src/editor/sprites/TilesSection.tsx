@@ -11,7 +11,24 @@ import { editor, editorStore, useEditor } from "../state";
 import { useUrlParam } from "../url";
 import { withAlpha } from "./helpers";
 import { TOOLS, type Tool } from "./SpriteCanvas";
-import { charsOf, copyTile, describeWhen, isBuiltinTile, newTile, patchLayer, patchTile, removeTile, setLayerOps, setTileChar, tileGroups, tileUses, tileView, topRectAt, type TileLayer, type TileOp } from "./tile-helpers";
+import {
+  charsOf,
+  copyTile,
+  describeWhen,
+  isBuiltinTile,
+  newTile,
+  patchLayer,
+  patchTile,
+  removeTile,
+  setLayerOps,
+  setTileChar,
+  tileGroups,
+  tileUses,
+  tileView,
+  topRectAt,
+  type TileLayer,
+  type TileOp,
+} from "./tile-helpers";
 import { cellAt as cellAtCanvas } from "../../util/geometry";
 import { blurOnEnter } from "../../util/keys";
 
@@ -45,10 +62,33 @@ const PREVIEWS: { label: string; ctx: Ctx }[] = [
   { label: "У края карты", ctx: { ...FLAT, below: "edge" } },
 ];
 
-const rectOf = (d: { x0: number; y0: number; x1: number; y1: number }): [number, number, number, number] => [Math.min(d.x0, d.x1), Math.min(d.y0, d.y1), Math.abs(d.x1 - d.x0) + 1, Math.abs(d.y1 - d.y0) + 1];
+const rectOf = (d: { x0: number; y0: number; x1: number; y1: number }): [number, number, number, number] => [
+  Math.min(d.x0, d.x1),
+  Math.min(d.y0, d.y1),
+  Math.abs(d.x1 - d.x0) + 1,
+  Math.abs(d.y1 - d.y0) + 1,
+];
 
 /** Холст тайла: показан целиком (с выбранными соседями), рисование идёт в выбранный слой. */
-function TileCanvas({ tile, layer, ctx, tool, color, alpha, readOnly, onPick }: { tile: CustomTile; layer: number; ctx: Ctx; tool: Tool; color: string; alpha: number; readOnly: boolean; onPick: (c: string, a: number) => void }) {
+function TileCanvas({
+  tile,
+  layer,
+  ctx,
+  tool,
+  color,
+  alpha,
+  readOnly,
+  onPick,
+}: {
+  tile: CustomTile;
+  layer: number;
+  ctx: Ctx;
+  tool: Tool;
+  color: string;
+  alpha: number;
+  readOnly: boolean;
+  onPick: (c: string, a: number) => void;
+}) {
   const canvas = useRef<HTMLCanvasElement>(null);
   const stroke = useRef({ id: 0, last: "" });
   const [drag, setDrag] = useState<{ x0: number; y0: number; x1: number; y1: number } | null>(null);
@@ -129,7 +169,16 @@ function TilePreview({ tile }: { tile: CustomTile }) {
     c.clearRect(0, 0, canvas.current!.width, canvas.current!.height);
     PREVIEWS.forEach((p, i) => drawTileKey(c, tile.key, i * T, 0, neighbors(p.ctx)));
   }, [tile]);
-  return <canvas ref={canvas} className="sprite-stage__canvas" width={T * PREVIEWS.length} height={T} style={{ width: T * PREVIEWS.length * 3, height: T * 3 }} title={PREVIEWS.map((p) => p.label).join(" · ")} />;
+  return (
+    <canvas
+      ref={canvas}
+      className="sprite-stage__canvas"
+      width={T * PREVIEWS.length}
+      height={T}
+      style={{ width: T * PREVIEWS.length * 3, height: T * 3 }}
+      title={PREVIEWS.map((p) => p.label).join(" · ")}
+    />
+  );
 }
 
 const neighborValue = (v: string | string[] | undefined): string => (typeof v === "string" ? v : v ? "__many" : "");
@@ -146,7 +195,12 @@ function LayerRules({ layer, readOnly, onChange }: { layer: TileLayer; readOnly:
       {SIDES.map((s) => {
         const raw = layer.when?.[s.id];
         const value = neighborValue(raw);
-        const options = value === "__many" ? [...CLASS_OPTIONS, { value: "__many", label: `несколько (${[raw].flat().join(", ")})` }] : value && !CLASS_OPTIONS.some((o) => o.value === value) ? [...CLASS_OPTIONS, { value, label: TILE_NAMES[value] ?? TILES[value]?.name ?? value }] : CLASS_OPTIONS;
+        const options =
+          value === "__many"
+            ? [...CLASS_OPTIONS, { value: "__many", label: `несколько (${[raw].flat().join(", ")})` }]
+            : value && !CLASS_OPTIONS.some((o) => o.value === value)
+              ? [...CLASS_OPTIONS, { value, label: TILE_NAMES[value] ?? TILES[value]?.name ?? value }]
+              : CLASS_OPTIONS;
         return (
           <label key={s.id} className="ef">
             <span className="ef__label">{s.label}</span>
@@ -190,7 +244,13 @@ export function TilesSection() {
     setCtx(next);
   }, [tile?.key, layer, whenKey]);
   const chars = tile ? charsOf(draft, tile.key) : [];
-  const baseOptions = [{ value: "", label: "нет" }, ...groups.flatMap((g) => g.keys).filter((k) => k !== tile?.key).map((k) => ({ value: k, label: tileView(draft, k)?.name ?? k }))];
+  const baseOptions = [
+    { value: "", label: "нет" },
+    ...groups
+      .flatMap((g) => g.keys)
+      .filter((k) => k !== tile?.key)
+      .map((k) => ({ value: k, label: tileView(draft, k)?.name ?? k })),
+  ];
 
   const choose = (k: string) => (setSelected(k), setLayerIdx(0), setCharDraft(null));
   const created = (r: { tile: CustomTile; draft: typeof draft } | null) => {
@@ -234,7 +294,12 @@ export function TilesSection() {
                       <button className="sprite-row__main" title={v.name} onClick={() => choose(k)}>
                         <span className="sprite-row__name ellipsis">{v.name}</span>
                       </button>
-                      <button className="btn btn--icon btn--sm" title="Копировать: свой тайл, который можно править" aria-label="Копировать" onClick={() => created(copyTile(editorStore.get().draft, v))}>
+                      <button
+                        className="btn btn--icon btn--sm"
+                        title="Копировать: свой тайл, который можно править"
+                        aria-label="Копировать"
+                        onClick={() => created(copyTile(editorStore.get().draft, v))}
+                      >
                         <Icon name="copy" size={14} />
                       </button>
                       {own ? (
@@ -258,7 +323,13 @@ export function TilesSection() {
       <div className="lm__main">
         {tile ? (
           <>
-            <Tabs variant="bar" className="lm__tabs" tabs={tile.layers.map((l, i) => ({ id: String(i), label: `Слой ${i + 1}: ${describeWhen(l.when)}` }))} active={String(layer)} onChange={(id) => setLayerIdx(Number(id))} />
+            <Tabs
+              variant="bar"
+              className="lm__tabs"
+              tabs={tile.layers.map((l, i) => ({ id: String(i), label: `Слой ${i + 1}: ${describeWhen(l.when)}` }))}
+              active={String(layer)}
+              onChange={(id) => setLayerIdx(Number(id))}
+            />
             <div className="lm__center">
               <div className="lm__stage">
                 <TileCanvas tile={tile} layer={layer} ctx={ctx} tool={tool} color={color} alpha={alpha} readOnly={builtin} onPick={(c, a) => (setColor(c), setAlpha(a))} />
@@ -266,7 +337,9 @@ export function TilesSection() {
               <div className="lm__status">
                 <span className="lm__hint">
                   {builtin ? "Встроенный тайл нельзя изменить — сделайте копию и правьте её" : (TOOLS.find((t) => t.id === tool)?.hint ?? "")}
-                  <span className="sprite-status__size">{T}×{T} пикс. · рисунок идёт в выбранный слой, окружение для показа задаётся справа</span>
+                  <span className="sprite-status__size">
+                    {T}×{T} пикс. · рисунок идёт в выбранный слой, окружение для показа задаётся справа
+                  </span>
                 </span>
               </div>
             </div>
@@ -303,10 +376,22 @@ export function TilesSection() {
                 </button>
               ))}
               <span className="sprite-toolbar__gap" />
-              <button className="btn btn--icon btn--sm" disabled={builtin || !tile.layers[layer]?.ops.length} title="Отменить последний мазок слоя" aria-label="Отменить последнее" onClick={() => editor.update((d) => setLayerOps(d, tile.key, layer, tile.layers[layer].ops.slice(0, -1)))}>
+              <button
+                className="btn btn--icon btn--sm"
+                disabled={builtin || !tile.layers[layer]?.ops.length}
+                title="Отменить последний мазок слоя"
+                aria-label="Отменить последнее"
+                onClick={() => editor.update((d) => setLayerOps(d, tile.key, layer, tile.layers[layer].ops.slice(0, -1)))}
+              >
                 <Icon name="undo" size={16} />
               </button>
-              <button className="btn btn--icon btn--sm" disabled={builtin || !tile.layers[layer]?.ops.length} title="Очистить слой" aria-label="Очистить слой" onClick={() => editor.update((d) => setLayerOps(d, tile.key, layer, []))}>
+              <button
+                className="btn btn--icon btn--sm"
+                disabled={builtin || !tile.layers[layer]?.ops.length}
+                title="Очистить слой"
+                aria-label="Очистить слой"
+                onClick={() => editor.update((d) => setLayerOps(d, tile.key, layer, []))}
+              >
                 <Icon name="trash" size={16} />
               </button>
             </div>
@@ -331,7 +416,8 @@ export function TilesSection() {
               </label>
               {tile.base && (
                 <label className="row">
-                  <input type="checkbox" checked={tile.baseFrom === "below"} onChange={(e) => patch({ baseFrom: e.target.checked ? "below" : undefined })} /> Вместо основы — пол клетки снизу (проём берёт пол коридора)
+                  <input type="checkbox" checked={tile.baseFrom === "below"} onChange={(e) => patch({ baseFrom: e.target.checked ? "below" : undefined })} /> Вместо основы — пол клетки снизу (проём
+                  берёт пол коридора)
                 </label>
               )}
             </fieldset>
@@ -361,9 +447,7 @@ export function TilesSection() {
                   </button>
                 )}
               </div>
-              {tile.layers[layer].ops.some((o) => !Array.isArray(o)) && (
-                <p className="muted">В слое есть узоры (шум, доски…): они остаются при копировании, но здесь не рисуются.</p>
-              )}
+              {tile.layers[layer].ops.some((o) => !Array.isArray(o)) && <p className="muted">В слое есть узоры (шум, доски…): они остаются при копировании, но здесь не рисуются.</p>}
             </fieldset>
           </div>
         )}

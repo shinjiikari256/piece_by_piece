@@ -21,15 +21,35 @@ export function SpriteToolbar({ sprite, frame, tool, setTool, readOnly }: { spri
   return (
     <div className="sprite-toolbar" role="toolbar" aria-label="Инструменты">
       {TOOLS.map((t) => (
-        <button key={t.id} className="btn btn--icon btn--sm" aria-pressed={tool === t.id} disabled={readOnly && t.id !== "foot"} title={`${t.label}. ${t.hint}`} aria-label={t.label} onClick={() => setTool(t.id)}>
+        <button
+          key={t.id}
+          className="btn btn--icon btn--sm"
+          aria-pressed={tool === t.id}
+          disabled={readOnly && t.id !== "foot"}
+          title={`${t.label}. ${t.hint}`}
+          aria-label={t.label}
+          onClick={() => setTool(t.id)}
+        >
           <Icon name={t.icon} size={16} />
         </button>
       ))}
       <span className="sprite-toolbar__gap" />
-      <button className="btn btn--icon btn--sm" disabled={readOnly || !ops.length} title="Отменить последний мазок или фигуру" aria-label="Отменить последнее" onClick={() => editor.update((d) => setFrameOps(d, sprite.key, frame, ops.slice(0, -1)))}>
+      <button
+        className="btn btn--icon btn--sm"
+        disabled={readOnly || !ops.length}
+        title="Отменить последний мазок или фигуру"
+        aria-label="Отменить последнее"
+        onClick={() => editor.update((d) => setFrameOps(d, sprite.key, frame, ops.slice(0, -1)))}
+      >
         <Icon name="undo" size={16} />
       </button>
-      <button className="btn btn--icon btn--sm" disabled={readOnly || !ops.length} title="Очистить кадр" aria-label="Очистить кадр" onClick={() => editor.update((d) => setFrameOps(d, sprite.key, frame, []))}>
+      <button
+        className="btn btn--icon btn--sm"
+        disabled={readOnly || !ops.length}
+        title="Очистить кадр"
+        aria-label="Очистить кадр"
+        onClick={() => editor.update((d) => setFrameOps(d, sprite.key, frame, []))}
+      >
         <Icon name="trash" size={16} />
       </button>
     </div>
@@ -75,8 +95,7 @@ export function SpriteCanvas({
   }, [sprite, current, drag, tool, color, alpha]);
 
   const cellAt = (e: React.PointerEvent) => cellAtCanvas(canvas.current!, e, sprite.w, sprite.h);
-  const addOp = (op: Op, merge: string) =>
-    editor.update((d) => setFrameOps(d, sprite.key, current, [...(d.sprites?.find((s) => s.key === sprite.key)?.frames[current] ?? []), op]), merge);
+  const addOp = (op: Op, merge: string) => editor.update((d) => setFrameOps(d, sprite.key, current, [...(d.sprites?.find((s) => s.key === sprite.key)?.frames[current] ?? []), op]), merge);
   const paint = (x: number, y: number) => {
     const id = `${x},${y}`;
     if (stroke.current.last === id) return;

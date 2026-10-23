@@ -22,9 +22,7 @@ export function FlagsSection() {
   const [dialog, setDialog] = useState<"new" | null>(null);
   const usage = flagUsage(draft);
   const nameOf = (id: string) => draft.flags?.find((f) => f.id === id)?.name ?? "";
-  const flagIds = [...new Set([...(draft.flags ?? []).map((f) => f.id), ...usage.keys()])].sort((a, b) =>
-    (nameOf(a) || "я").localeCompare(nameOf(b) || "я", "ru"),
-  );
+  const flagIds = [...new Set([...(draft.flags ?? []).map((f) => f.id), ...usage.keys()])].sort((a, b) => (nameOf(a) || "я").localeCompare(nameOf(b) || "я", "ru"));
   const counters = [...(draft.counters ?? [])].sort((a, b) => (a.name || "я").localeCompare(b.name || "я", "ru"));
   const enums = [...(draft.enums ?? [])].sort((a, b) => (a.name || "я").localeCompare(b.name || "я", "ru"));
   const entries: Entry[] = [
@@ -52,17 +50,23 @@ export function FlagsSection() {
         renderItem={(e) =>
           e.kind === "flag" ? (
             <>
-              <span className="ed__item-kind" title="Флаг"><Icon name="flag" size={16} /></span>
+              <span className="ed__item-kind" title="Флаг">
+                <Icon name="flag" size={16} />
+              </span>
               <ItemText title={nameOf(e.id) || "без названия"} id={e.id} warn={!nameOf(e.id)} />
             </>
           ) : e.kind === "enum" ? (
             <>
-              <span className="ed__item-kind" title="Перечисление"><Icon name="list" size={16} /></span>
+              <span className="ed__item-kind" title="Перечисление">
+                <Icon name="list" size={16} />
+              </span>
               <ItemText title={enums.find((x) => x.id === e.id)?.name || "без названия"} id={e.id} warn={!enums.find((x) => x.id === e.id)?.name} />
             </>
           ) : (
             <>
-              <span className="ed__item-kind" title="Счётчик"><Icon name="counter" size={16} /></span>
+              <span className="ed__item-kind" title="Счётчик">
+                <Icon name="counter" size={16} />
+              </span>
               <ItemText title={counters.find((c) => c.id === e.id)?.name || "без названия"} id={e.id} warn={!counters.find((c) => c.id === e.id)?.name} />
             </>
           )
@@ -77,7 +81,8 @@ export function FlagsSection() {
           <CounterEditor key={current.id} counter={counters.find((c) => c.id === current.id)!} uses={usage.get(current.id) ?? []} onRenamed={setSelected} />
         ) : (
           <p className="muted">
-            Флаг — пометка «это уже произошло»: его ставят эффекты, а проверяют условия. Счётчик — число (очки доверия, попытки): эффекты прибавляют или задают его, условия проверяют границы. Перечисление — одно значение из списка (сейф: закрыт / открыт / сломан): эффекты выбирают значение, условия проверяют его.
+            Флаг — пометка «это уже произошло»: его ставят эффекты, а проверяют условия. Счётчик — число (очки доверия, попытки): эффекты прибавляют или задают его, условия проверяют границы.
+            Перечисление — одно значение из списка (сейф: закрыт / открыт / сломан): эффекты выбирают значение, условия проверяют его.
           </p>
         )}
       </div>
@@ -95,8 +100,7 @@ export function FlagsSection() {
 
 function FlagEditor({ id, name, uses, onRenamed }: { id: string; name: string; uses: FlagUse[]; onRenamed: (id: string) => void }) {
   const draft = useEditor((s) => s.draft);
-  const setName = (v: string) =>
-    editor.update((d) => ({ ...d, flags: [...(d.flags ?? []).filter((f) => f.id !== id), { ...(d.flags ?? []).find((f) => f.id === id), id, name: v }] }), `flag:${id}`);
+  const setName = (v: string) => editor.update((d) => ({ ...d, flags: [...(d.flags ?? []).filter((f) => f.id !== id), { ...(d.flags ?? []).find((f) => f.id === id), id, name: v }] }), `flag:${id}`);
   const commitKey = async (next: string) => {
     if (flagUsage(draft).has(next) || draft.flags?.some((f) => f.id === next) || draft.counters?.some((c) => c.id === next) || draft.enums?.some((e) => e.id === next)) {
       await tell({ title: "Такой флаг уже есть", text: `Ключ «${next}» занят — выберите другой.` });
@@ -143,9 +147,7 @@ function FlagEditor({ id, name, uses, onRenamed }: { id: string; name: string; u
         <input
           type="checkbox"
           checked={!!draft.flags?.find((f) => f.id === id)?.initial}
-          onChange={(e) =>
-            editor.update((d) => ({ ...d, flags: [...(d.flags ?? []).filter((f) => f.id !== id), { id, name, ...(e.target.checked ? { initial: true } : {}) }] }))
-          }
+          onChange={(e) => editor.update((d) => ({ ...d, flags: [...(d.flags ?? []).filter((f) => f.id !== id), { id, name, ...(e.target.checked ? { initial: true } : {}) }] }))}
         />
         Стоит с начала расследования
       </label>
