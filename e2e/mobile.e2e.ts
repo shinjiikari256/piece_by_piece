@@ -129,7 +129,16 @@ describe("касание: перетаскивание карточки в яч�
             actions.open({ kind: "journal", tab: "materials", match: true });
           });
           await page.waitForTimeout(300);
-          const box = (sel: string) => page.locator(sel).first().boundingBox({ timeout: 1000 }).catch(() => null);
+          // первая отрисованная (с ненулевым размером) карточка и ячейка, прокрученные в область видимости
+          const box = (sel: string) =>
+            page.evaluate((selector) => {
+              for (const el of document.querySelectorAll<HTMLElement>(selector)) {
+                el.scrollIntoView({ block: "center" });
+                const r = el.getBoundingClientRect();
+                if (r.width > 0 && r.height > 0) return { x: r.x, y: r.y, width: r.width, height: r.height };
+              }
+              return null;
+            }, sel);
           const [from, to] = [await box("[data-mark-key]"), await box("[data-slot]")];
           boxes = from && to ? { from, to } : null;
           return boxes !== null;
