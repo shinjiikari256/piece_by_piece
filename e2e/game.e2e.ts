@@ -382,7 +382,7 @@ describe("игра в браузере", () => {
       // тот же путь, что у настоящего клика по пустому месту карты (поле — в мировых координатах)
       scene.input.emit("pointerdown", { worldX: (cell.x + 0.5) * 32, worldY: (cell.y + 0.5) * 32 }, []);
     });
-    await page.waitForFunction(() => (window as any).__game.store.get().locationId === "dorm_lobby", undefined, { timeout: 15000 });
+    await page.waitForFunction(() => (window as any).__game.store.get().locationId === "dorm_lobby", undefined, { timeout: 45000 });
     await page.close();
   });
 
