@@ -1,5 +1,5 @@
 import { editor } from "../state";
-import { Icon } from "../../ui/icons";
+import { Icon } from "../../ui/kit/icons";
 import type { FlagUse } from "./variables";
 
 /** «Где используется (N)»: список мест с переходом по клику. */

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import type { CaseFile, LocationObject, Zone } from "../../../../../shared/case";
-import { Select } from "../../ui/Select";
+import { Select } from "../../ui/kit/Select";
 import { ENUM_LABELS } from "../labels";
 import { editor } from "../state";
 import { ZoneCreator } from "./ZoneCreator";

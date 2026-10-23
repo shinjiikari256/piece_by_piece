@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { CustomPart, PartSlot } from "../../../../../shared/case";
 import { CHAR_FRAMES, CHAR_H, CHAR_W, LOOKS, PART_NAMES, PART_ROLES, PART_SLOTS, PART_SLOT_LABELS, ROLE_NAMES, drawCharacter, lookRoles, type Look } from "../../game/art";
-import { ask, tell } from "../../ui/dialog";
-import { Icon } from "../../ui/icons";
+import { ask, tell } from "../../ui/kit/dialog";
+import { Icon } from "../../ui/kit/icons";
 import { PaletteGroup } from "../map/panels";
 import { ColorPicker } from "../fields/ColorPicker";
 import { Tabs } from "../Tabs";

@@ -1,7 +1,7 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import type { CSSProperties, PointerEvent as ReactPointerEvent } from "react";
 import { createPortal } from "react-dom";
-import { useDismiss } from "../../ui/hooks";
+import { useDismiss } from "../../ui/lib/hooks";
 import { readJson, writeJson } from "../../state/storage";
 import { FORMATS, formatColor, hexToHsv, hexToRgb, hsvToHex, parseColor, pushRecent, type ColorFormat, type Hsv } from "./color-math";
 import { blurOnEnter } from "../../util/keys";

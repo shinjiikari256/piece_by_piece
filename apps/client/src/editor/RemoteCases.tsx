@@ -4,7 +4,7 @@ import { validateCase } from "../content/validate";
 import { editor } from "./state";
 import { isStaff, useAccount } from "../state/account";
 import { ApiFailure, api } from "../state/api";
-import { tell } from "../ui/dialog";
+import { tell } from "../ui/kit/dialog";
 import { confirmReplace } from "./actions";
 
 /** Дела конструктора, записанные на сервер: список и открытие на редактирование. Только онлайн-сборка. */

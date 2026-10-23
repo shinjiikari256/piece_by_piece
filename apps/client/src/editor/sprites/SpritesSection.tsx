@@ -1,8 +1,8 @@
 import { useState } from "react";
 import type { CustomSprite } from "../../../../../shared/case";
 import { SPRITES } from "../../game/art";
-import { ask, tell } from "../../ui/dialog";
-import { Icon } from "../../ui/icons";
+import { ask, tell } from "../../ui/kit/dialog";
+import { Icon } from "../../ui/kit/icons";
 import { ArtThumb } from "../Pickers";
 import { PaletteGroup } from "../map/panels";
 import { Tabs } from "../Tabs";

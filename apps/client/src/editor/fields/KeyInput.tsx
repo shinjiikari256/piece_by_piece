@@ -1,4 +1,4 @@
-import { Icon } from "../../ui/icons";
+import { Icon } from "../../ui/kit/icons";
 import { useDraftField } from "./useDraftField";
 
 /** Допустимые в ключе символы: всё лишнее становится «_». */

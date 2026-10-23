@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { isInteractive, type CaseFile, type Condition, type Effect, type Zone, type ZoneAction } from "../../../../../shared/case";
 import { EffectsEditor } from "../fields/Effects";
-import { Select } from "../../ui/Select";
+import { Select } from "../../ui/kit/Select";
 import { ENUM_LABELS } from "../labels";
 import { moveItem } from "../../util/lists";
 import { ConditionEditor } from "../fields/Conditions";

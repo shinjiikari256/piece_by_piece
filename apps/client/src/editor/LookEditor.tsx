@@ -3,7 +3,7 @@ import { CHAR_H, CHAR_W, LOOK_NAMES, BUILTIN_PARTS, PART_NAMES, customFromLook, 
 import type { Appearance, Character, CustomLook, PartSlot } from "../../../../shared/case";
 import { ArtThumb } from "./Pickers";
 import { Tabs } from "./Tabs";
-import { Alert } from "../ui/alert";
+import { Alert } from "../ui/kit/alert";
 
 /**
  * Редактор внешности персонажа: образец как отправная точка + свои

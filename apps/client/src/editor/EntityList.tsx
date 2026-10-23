@@ -1,6 +1,6 @@
 import { useRef, type ReactNode } from "react";
-import { Icon } from "../ui/icons";
-import { useArrowNav } from "../ui/hooks";
+import { Icon } from "../ui/kit/icons";
+import { useArrowNav } from "../ui/lib/hooks";
 
 /** Название и ключ (id) пункта списка в две строки; `warn` — название выделено как проблемное. */
 export function ItemText({ title, id, warn, note }: { title: ReactNode; id?: string; warn?: boolean; note?: ReactNode }) {

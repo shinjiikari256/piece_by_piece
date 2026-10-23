@@ -1,14 +1,14 @@
 import { Suspense, lazy, useEffect, useRef, useState } from "react";
-import { useArrowNav, useWindowKey } from "../ui/hooks";
+import { useArrowNav, useWindowKey } from "../ui/lib/hooks";
 import { useEditorUrl } from "./url";
 import { CaseFile } from "../../../../shared/case";
 import { editor, editorStore, useEditor, type SectionId } from "./state";
 import { MapEditor } from "./MapEditor";
 import { DialogueEditor } from "./DialogueGraph";
-import { Icon } from "../ui/icons";
+import { Icon } from "../ui/kit/icons";
 import { refTarget } from "./refs";
 
-import { ContextMenu, copyText, type MenuContext, type MenuItem } from "../ui/contextmenu";
+import { ContextMenu, copyText, type MenuContext, type MenuItem } from "../ui/kit/contextmenu";
 import { GeneralSection } from "./sections/General";
 import { SettingsSection } from "./sections/Settings";
 import { AuthorshipSection } from "./sections/Authorship";

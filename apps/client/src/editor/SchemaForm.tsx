@@ -1,7 +1,7 @@
 import { ENUM_LABELS, HINTS, LONG_TEXT, labelOf } from "./labels";
 import { useState, type ReactNode } from "react";
 import { caseKey, toKey } from "./keys";
-import { Select } from "../ui/Select";
+import { Select } from "../ui/kit/Select";
 import { ItemTools } from "./ItemTools";
 import { moveItem } from "../util/lists";
 import { TilePicker } from "./Pickers";

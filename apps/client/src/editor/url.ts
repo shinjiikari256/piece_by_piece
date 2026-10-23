@@ -3,8 +3,8 @@ import type { CaseFile } from "../../../../shared/case";
 import { caseRepository } from "../content/repository";
 import { readDraft } from "../content/drafts";
 import { validateCase } from "../content/validate";
-import { ask } from "../ui/dialog";
-import { navigate, routeHref, setSearchParams, useRoute, useSearchParam } from "../ui/router";
+import { ask } from "../ui/kit/dialog";
+import { navigate, routeHref, setSearchParams, useRoute, useSearchParam } from "../ui/lib/router";
 import { editor, editorStore, useEditor, type SectionId } from "./state";
 
 /** Дело для конструктора по id: сохранённый черновик, иначе встроенное (как на стартовой странице). */

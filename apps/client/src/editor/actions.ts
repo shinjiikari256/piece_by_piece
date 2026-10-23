@@ -1,7 +1,7 @@
 import { CaseFile } from "../../../../shared/case";
 import { parseCase } from "../../../../shared/migrate";
 import { editor, editorStore } from "./state";
-import { ask, tell } from "../ui/dialog";
+import { ask, tell } from "../ui/kit/dialog";
 import { OFFLINE_EDITOR } from "../env";
 
 /** Тестовый запуск в этой же вкладке; черновик в конструкторе никуда не денется. */

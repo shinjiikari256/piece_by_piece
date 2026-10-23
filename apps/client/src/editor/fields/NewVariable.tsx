@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { Dialog } from "../../ui/window";
-import { Icon } from "../../ui/icons";
+import { Dialog } from "../../ui/kit/window";
+import { Icon } from "../../ui/kit/icons";
 import { CounterDialog } from "../sections/Counters";
 import { EnumDialog } from "../sections/Enums";
 import { FlagDialog } from "./FlagDialog";

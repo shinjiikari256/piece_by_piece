@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import type { CaseFile, Zone, ZoneAction } from "../../../../../shared/case";
-import { Dialog } from "../../ui/window";
-import { Select } from "../../ui/Select";
+import { Dialog } from "../../ui/kit/window";
+import { Select } from "../../ui/kit/Select";
 import { toKey } from "../keys";
 import { T, useSpriteCanvases } from "./canvases";
 import { rectCells, zoneCells } from "./helpers";

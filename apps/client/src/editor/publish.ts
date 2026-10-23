@@ -1,5 +1,5 @@
 import { editor, editorStore } from "./state";
-import { ask, tell } from "../ui/dialog";
+import { ask, tell } from "../ui/kit/dialog";
 import { ApiFailure, api } from "../state/api";
 
 /** Записать дело на сервер новой версией: вошедшие игроки увидят её сразу (если дело показывается в списке). Только онлайн-сборка. */

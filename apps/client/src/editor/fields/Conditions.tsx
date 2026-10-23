@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState, type ReactNode } from "react";
-import { Select } from "../../ui/Select";
+import { Select } from "../../ui/kit/Select";
 import type { Condition } from "../../../../../shared/case";
 import {
   ARRAY_KEYS,
@@ -15,7 +15,7 @@ import {
   type ConditionModel,
   type ListKey,
 } from "../../../../../shared/condition-formula";
-import { Icon } from "../../ui/icons";
+import { Icon } from "../../ui/kit/icons";
 import { FormCtx, Option, charOption } from "../SchemaForm";
 import { RefMulti } from "./RefChips";
 import { FlagDialog } from "./FlagDialog";

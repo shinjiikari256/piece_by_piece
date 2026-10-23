@@ -1,6 +1,6 @@
 import type { CaseFile } from "../../../../../shared/case";
 import { KeyInput } from "./KeyInput";
-import { ask, tell } from "../../ui/dialog";
+import { ask, tell } from "../../ui/kit/dialog";
 import { editor, useEditor } from "../state";
 import { countRefs, isEntityKey, renameKey } from "../keys";
 

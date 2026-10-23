@@ -1,7 +1,7 @@
 import { editorPathOfPlaytest } from "../content/drafts";
 import { RESULT_FORMAT_VERSION, type CaseAuthority, type FinishInput } from "../../../../shared/judge";
 import { FROM_EDITOR, GAME_VERSION } from "../env";
-import { currentRoute, navigate } from "../ui/router";
+import { currentRoute, navigate } from "../ui/lib/router";
 import { startProgress } from "../../../../shared/conditions";
 import { registerCaseArt } from "../game/art";
 import { startLocation } from "../content/case-utils";

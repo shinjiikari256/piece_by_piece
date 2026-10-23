@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import type { CaseFile, Location } from "../../../../../shared/case";
-import { Dialog } from "../../ui/window";
+import { Dialog } from "../../ui/kit/window";
 import { T, useSpriteCanvases } from "./canvases";
 import { cellFree } from "./helpers";
 import { firstFloorCell } from "../../content/case-utils";

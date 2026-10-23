@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Select } from "../../ui/Select";
+import { Select } from "../../ui/kit/Select";
 import { CellPicker } from "../map/CellPicker";
 import type { Effect } from "../../../../../shared/case";
 import { ENUM_LABELS } from "../labels";

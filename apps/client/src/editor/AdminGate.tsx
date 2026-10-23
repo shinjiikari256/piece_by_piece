@@ -1,10 +1,10 @@
-import { Link } from "../ui/router";
+import { Link } from "../ui/lib/router";
 import { Suspense, lazy, type ReactNode } from "react";
 import { isStaff, useAccount } from "../state/account";
 import { DEV_EDITOR, OFFLINE } from "../env";
 
 /** Смена временного пароля — онлайн-часть; в офлайн-файле её нет вовсе. */
-const ForcePasswordChange = OFFLINE ? null : lazy(() => import("../ui/online").then((m) => ({ default: m.ForcePasswordChange })));
+const ForcePasswordChange = OFFLINE ? null : lazy(() => import("../ui/pages/online").then((m) => ({ default: m.ForcePasswordChange })));
 
 /**
  * Конструктор — только преподавателю и администратору (учётная запись на сервере).

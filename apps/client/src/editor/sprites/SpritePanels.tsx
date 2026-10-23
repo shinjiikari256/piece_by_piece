@@ -1,9 +1,9 @@
 import { useMemo, useState, type ReactNode } from "react";
 import type { CustomSprite } from "../../../../../shared/case";
-import { Icon } from "../../ui/icons";
-import { Select } from "../../ui/Select";
-import { Dialog } from "../../ui/window";
-import { ask } from "../../ui/dialog";
+import { Icon } from "../../ui/kit/icons";
+import { Select } from "../../ui/kit/Select";
+import { Dialog } from "../../ui/kit/window";
+import { ask } from "../../ui/kit/dialog";
 import { ColorPicker } from "../fields/ColorPicker";
 import { editor, editorStore } from "../state";
 import { DEFAULT_GROUP, groupLabels } from "./catalog";

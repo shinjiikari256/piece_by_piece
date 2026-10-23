@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from "react";
-import { useWindowKey } from "../ui/hooks";
+import { useWindowKey } from "../ui/lib/hooks";
 import { type Location as LocationT } from "../../../../shared/case";
 import { editor, editorStore, useEditor } from "./state";
 import { ObjectFields } from "./SchemaForm";
-import { ask } from "../ui/dialog";
+import { ask } from "../ui/kit/dialog";
 import { MapPalette } from "./map/Palette";
 import { renderMap } from "./map/render";
 import { addLocation, resize, selectionBox } from "./map/helpers";
@@ -21,7 +21,7 @@ import { PanelGrip, PanelRail, panelVars, usePanel } from "./panels";
 import { useUrlParam, useWriteDefaultParam } from "./url";
 import { useFocusJump } from "./useFocusJump";
 import { GAME_ZOOM_MAX } from "../game/bridge";
-import { stepZoom, ZoomControl } from "../ui/zoom-control";
+import { stepZoom, ZoomControl } from "../ui/components/zoom-control";
 
 /** Нижняя граница масштаба карты: можно отдалить сильнее 100%, чтобы увидеть большую карту целиком. */
 const MIN_ZOOM = 0.3;

@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import type { CustomSprite } from "../../../../../shared/case";
 import { drawSprite, specOf } from "../../game/art";
-import { Icon } from "../../ui/icons";
+import { Icon } from "../../ui/kit/icons";
 import { editor } from "../state";
 import { CELL, cellSolid, setFrameOps, spriteMaxScale, toggleCell, withAlpha, type Op, patchSprite } from "./helpers";
 import { cellAt as cellAtCanvas } from "../../util/geometry";

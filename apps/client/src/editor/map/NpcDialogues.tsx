@@ -1,5 +1,5 @@
 import type { CaseFile, Condition, NpcDialogue } from "../../../../../shared/case";
-import { Select } from "../../ui/Select";
+import { Select } from "../../ui/kit/Select";
 import { moveItem } from "../../util/lists";
 import { ConditionEditor } from "../fields/Conditions";
 

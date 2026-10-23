@@ -6,8 +6,8 @@ import { deleteDraft, listDraftIds, readDraft } from "../content/drafts";
 import { validateCase } from "../content/validate";
 import { editor, useEditor } from "./state";
 import { blankCase } from "./template";
-import { Icon } from "../ui/icons";
-import { ask } from "../ui/dialog";
+import { Icon } from "../ui/kit/icons";
+import { ask } from "../ui/kit/dialog";
 import { confirmReplace, downloadJson, importJsonFile } from "./actions";
 import { OFFLINE } from "../env";
 

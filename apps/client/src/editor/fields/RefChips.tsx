@@ -1,7 +1,7 @@
 import { type ReactNode } from "react";
 import { editor, useEditor } from "../state";
 import { refTarget } from "../refs";
-import { Select } from "../../ui/Select";
+import { Select } from "../../ui/kit/Select";
 import { Option } from "../SchemaForm";
 
 /** Чип-ссылка на элемент дела: двойной клик — перейти к нему, ПКМ — «Перейти» / «Убрать». */

@@ -1,5 +1,5 @@
 import { parseEventTime, type EventMoment } from "../../../../../shared/events";
-import { Select } from "../../ui/Select";
+import { Select } from "../../ui/kit/Select";
 import "./EventTime.css";
 
 const MONTHS = ["января", "февраля", "марта", "апреля", "мая", "июня", "июля", "августа", "сентября", "октября", "ноября", "декабря"];

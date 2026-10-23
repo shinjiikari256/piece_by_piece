@@ -1,6 +1,6 @@
 import { frameLabel } from "../sprites/helpers";
-import { Icon } from "../../ui/icons";
-import { Select } from "../../ui/Select";
+import { Icon } from "../../ui/kit/icons";
+import { Select } from "../../ui/kit/Select";
 import type { ClipStep } from "../../../../../shared/case";
 
 /** Клип: список шагов «кадр спрайта + сколько миллисекунд показывать». */

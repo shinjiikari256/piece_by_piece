@@ -5,8 +5,8 @@ import { App } from "./App";
 import { actions, store } from "./state/store";
 import { createBrowserPlatform } from "./state/browser-platform";
 import { setPlatform } from "./state/platform";
-import { initTheme } from "./ui/theme";
-import { initKeyboardScroll } from "./ui/keyboard";
+import { initTheme } from "./ui/lib/theme";
+import { initKeyboardScroll } from "./ui/lib/keyboard";
 import { OFFLINE } from "./env";
 
 // Отладка в консоли браузера: __game.store.get(), __game.actions.*

@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { setMapDock, useMapDock } from "./layout";
 import { editor, useEditor, type SectionId } from "./state";
-import { Alert } from "../ui/alert";
-import { Icon } from "../ui/icons";
+import { Alert } from "../ui/kit/alert";
+import { Icon } from "../ui/kit/icons";
 import { OFFLINE, OFFLINE_EDITOR } from "../env";
 import { startPlaytest } from "./actions";
 import { isStaff, useAccount } from "../state/account";

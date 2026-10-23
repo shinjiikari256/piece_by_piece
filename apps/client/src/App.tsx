@@ -1,27 +1,27 @@
 import { Suspense, lazy, useEffect, useRef, type ReactNode } from "react";
-import { useFocusTrap, useWindowKey } from "./ui/hooks";
+import { useFocusTrap, useWindowKey } from "./ui/lib/hooks";
 import { actions, store, useGame } from "./state/store";
 import { editorPathOfPlaytest, readPlaytest } from "./content/drafts";
 import { validateCase } from "./content/validate";
 import { LocalAuthority } from "./content/local-authority";
-import { Icon } from "./ui/icons";
+import { Icon } from "./ui/kit/icons";
 import { FROM_EDITOR, OFFLINE, OFFLINE_EDITOR } from "./env";
 
 // запоминаем до того, как адрес очистится
 const PARAMS = new URLSearchParams(location.search);
 const PLAY_ID = OFFLINE && !OFFLINE_EDITOR ? null : PARAMS.get("play");
 if (FROM_EDITOR) document.body.classList.add("is-playtest");
-import { GameView, runTool } from "./ui/GameView";
-import { ContextMenu, copyText, type MenuContext, type MenuItem } from "./ui/contextmenu";
-import { Intro } from "./ui/screens";
-import { Site } from "./ui/site";
-import { Link, useRoute } from "./ui/router";
-import { useGameRoute } from "./ui/game-route";
-import { FinalScreen, ResultScreen } from "./ui/verdict";
-import { DialogHost, tell } from "./ui/dialog";
+import { GameView, runTool } from "./ui/components/GameView";
+import { ContextMenu, copyText, type MenuContext, type MenuItem } from "./ui/kit/contextmenu";
+import { Intro } from "./ui/pages/screens";
+import { Site } from "./ui/pages/site";
+import { Link, useRoute } from "./ui/lib/router";
+import { useGameRoute } from "./ui/lib/game-route";
+import { FinalScreen, ResultScreen } from "./ui/components/verdict";
+import { DialogHost, tell } from "./ui/kit/dialog";
 
 /** Смена временного пароля — онлайн-часть; в офлайн-файле её нет вовсе. */
-const ForcePasswordChange = OFFLINE ? null : lazy(() => import("./ui/online").then((m) => ({ default: m.ForcePasswordChange })));
+const ForcePasswordChange = OFFLINE ? null : lazy(() => import("./ui/pages/online").then((m) => ({ default: m.ForcePasswordChange })));
 
 /** Команды правой кнопки: для выделенного текста, карточки материала и общие для расследования. */
 function gameMenu({ target, selection }: MenuContext): MenuItem[] {

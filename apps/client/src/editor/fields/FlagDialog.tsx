@@ -2,8 +2,8 @@ import type { CaseFile } from "../../../../../shared/case";
 import { useState } from "react";
 import { editor, useEditor } from "../state";
 import { countRefs, renameKey, toKey } from "../keys";
-import { Dialog } from "../../ui/window";
-import { ask } from "../../ui/dialog";
+import { Dialog } from "../../ui/kit/window";
+import { ask } from "../../ui/kit/dialog";
 import { isVariableKeyTaken } from "./variables";
 
 /** Окно создания или правки флага: русское название и ключ (собирается из названия). */

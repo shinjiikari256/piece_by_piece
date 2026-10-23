@@ -1,5 +1,5 @@
 import type { CaseFile, LocationObject } from "../../../../../shared/case";
-import { Select } from "../../ui/Select";
+import { Select } from "../../ui/kit/Select";
 
 const KIND = { flag: "флаг", counter: "счётчик", enum: "перечисление" } as const;
 

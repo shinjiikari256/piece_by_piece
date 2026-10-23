@@ -1,5 +1,5 @@
 import { editor, useEditor } from "../state";
-import { Alert } from "../../ui/alert";
+import { Alert } from "../../ui/kit/alert";
 import { humanizeMessage, locateError } from "../errors";
 
 export function ErrorsSection() {

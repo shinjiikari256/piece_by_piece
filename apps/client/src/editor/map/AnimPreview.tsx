@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Select } from "../../ui/Select";
+import { Select } from "../../ui/kit/Select";
 import { SPRITES, drawSprite } from "../../game/art";
 import { clipFrameAt, loopFrameAt } from "../../../../../shared/object-anim";
 import type { ClipStep, LocationObject } from "../../../../../shared/case";

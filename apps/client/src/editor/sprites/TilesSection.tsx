@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { CustomTile } from "../../../../../shared/case";
 import { BASE_TILE, TILES, TILE_NAMES, drawTileKey } from "../../game/art";
-import { ask, tell } from "../../ui/dialog";
-import { Icon } from "../../ui/icons";
-import { Select } from "../../ui/Select";
+import { ask, tell } from "../../ui/kit/dialog";
+import { Icon } from "../../ui/kit/icons";
+import { Select } from "../../ui/kit/Select";
 import { PaletteGroup } from "../map/panels";
 import { ColorPicker } from "../fields/ColorPicker";
 import { Tabs } from "../Tabs";

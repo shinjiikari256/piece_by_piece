@@ -22,10 +22,10 @@ export default tseslint.config(
       "jsx-a11y/label-has-associated-control": ["error", { controlComponents: ["Select", "KeyInput"], depth: 3, assert: "either" }],
       "react-hooks/rules-of-hooks": "error",
       "react-hooks/exhaustive-deps": "warn",
-      // Нативный <select> не открывается во встроенном браузере VS Code — только src/ui/Select.tsx.
+      // Нативный <select> не открывается во встроенном браузере VS Code — только src/ui/kit/Select.tsx.
       "no-restricted-syntax": [
         "error",
-        { selector: "JSXOpeningElement[name.name='select']", message: "Нативный <select> запрещён: используйте src/ui/Select.tsx." },
+        { selector: "JSXOpeningElement[name.name='select']", message: "Нативный <select> запрещён: используйте src/ui/kit/Select.tsx." },
       ],
     },
   },

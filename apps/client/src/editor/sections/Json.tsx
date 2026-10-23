@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { parseCase } from "../../../../../shared/migrate";
 import { editor, editorStore, useEditor } from "../state";
-import { Alert } from "../../ui/alert";
+import { Alert } from "../../ui/kit/alert";
 
 export function JsonSection() {
   const draft = useEditor((s) => s.draft);

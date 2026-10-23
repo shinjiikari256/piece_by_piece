@@ -2,7 +2,7 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 import type { CaseFile, Dialogue, DialogueNode } from "../../../../shared/case";
 import { ENUM_LABELS } from "./labels";
 import { effectLabel } from "./fields/effect-label";
-import { MOOD_TONE } from "../ui/tone";
+import { MOOD_TONE } from "../ui/lib/tone";
 import { NODE_W, type Pos } from "./dialogue-layout";
 
 const MOOD_LEGEND: DialogueNode["mood"][] = ["neutral", "friendly", "nervous", "angry", "sad"];

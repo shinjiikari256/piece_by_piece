@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import { CustomSprite as CustomSpriteSchema, type CustomSprite, type SpriteParam } from "../../../../../shared/case";
 import { drawSprite, specOf } from "../../game/art";
-import { Icon, type IconName } from "../../ui/icons";
-import { Select } from "../../ui/Select";
-import { ask } from "../../ui/dialog";
+import { Icon, type IconName } from "../../ui/kit/icons";
+import { Select } from "../../ui/kit/Select";
+import { ask } from "../../ui/kit/dialog";
 import { ClipEditor } from "../fields/ClipEditor";
 import { ObjectFields } from "../SchemaForm";
 import { formSchema } from "../json-schema";

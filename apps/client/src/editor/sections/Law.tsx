@@ -1,6 +1,6 @@
 import "./Law.css";
 import { editor, useEditor } from "../state";
-import { Icon } from "../../ui/icons";
+import { Icon } from "../../ui/kit/icons";
 import { Tabs } from "../Tabs";
 import { useUrlParam } from "../url";
 import { ItemTools } from "../ItemTools";
