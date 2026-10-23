@@ -6,5 +6,6 @@ import pkg from "./package.json" with { type: "json" };
 export default defineConfig({
   plugins: [react()],
   define: { __GAME_VERSION__: JSON.stringify(pkg.version) },
-  test: { include: ["apps/**/*.test.ts"] },
+  // PGlite (PostgreSQL в памяти) при параллельном прогоне поднимается дольше 5 с
+  test: { include: ["apps/**/*.test.ts"], testTimeout: 30_000, hookTimeout: 30_000 },
 });
