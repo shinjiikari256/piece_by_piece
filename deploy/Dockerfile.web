@@ -9,4 +9,4 @@ RUN pnpm build
 
 FROM caddy:2-alpine
 COPY deploy/Caddyfile /etc/caddy/Caddyfile
-COPY --from=build /app/dist /srv
+COPY --from=build /app/apps/client/dist /srv
