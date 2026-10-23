@@ -9,3 +9,7 @@
   border-radius: 8px;
   background: var(--scrim);
 }
+/* то же переключатель в шапке: виден только в альбомной ориентации телефона (правила — styles/app/mobile.css) */
+.game-zoom--bar {
+  display: none;
+}

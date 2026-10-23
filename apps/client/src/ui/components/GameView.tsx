@@ -98,6 +98,7 @@ function TopBar() {
         <button className="icon-btn topbar__help" onMouseDown={keepFocus} onClick={() => runTool("howto")} title="Как играть (I)" aria-label="Как играть">
           <Icon name="help" size={20} />
         </button>
+        <GameZoom placement="bar" />
       </div>
     </header>
   );

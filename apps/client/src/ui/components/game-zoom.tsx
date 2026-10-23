@@ -9,12 +9,12 @@ export function stepGameZoom(dir: 1 | -1) {
   gameZoom.set(stepZoom(value, dir, min, GAME_ZOOM_MAX));
 }
 
-/** Масштаб поля: полоска внизу области просмотра. */
-export function GameZoom() {
+/** Масштаб поля: полоска внизу области просмотра; `bar` — тот же переключатель в шапке (показывается на телефоне в альбомной ориентации). */
+export function GameZoom({ placement = "stage" }: { placement?: "stage" | "bar" }) {
   const mode = useSyncExternalStore(gameZoom.subscribe, gameZoom.get);
   const { value, min } = useSyncExternalStore(gameZoom.subscribeShown, gameZoom.shown);
   return (
-    <div className="game-zoom">
+    <div className={`game-zoom game-zoom--${placement}`}>
       <ZoomControl
         label="Масштаб поля"
         value={value}

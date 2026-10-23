@@ -265,3 +265,96 @@ body {
 .breakdown__bonus {
   color: var(--good);
 }
+
+/* ---------- Телефон в альбомной ориентации: высоты мало, ширины много ----------
+   Шапка — одна тонкая строка (дело, таймер, прогресс, заметки, справка, масштаб), кнопки панели плавают внизу
+   по центру поверх поля: поле получает всю остальную высоту. */
+@media (max-height: 500px) and (orientation: landscape) {
+  .game {
+    grid-template-rows: auto minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .topbar {
+    grid-row: 1;
+    min-height: 0;
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    gap: 0.4rem 0.7rem;
+    padding: 0.15rem max(0.6rem, env(safe-area-inset-right)) 0.15rem max(0.6rem, env(safe-area-inset-left));
+    border-bottom-width: 2px;
+  }
+  .stage,
+  .bottombar {
+    grid-row: 2;
+    grid-column: 1;
+  }
+  /* поле тянется до края экрана: всё, что выступает за него, не должно прокручивать страницу */
+  .stage {
+    overflow: hidden;
+  }
+  .bottombar {
+    z-index: 5;
+    align-self: end;
+    justify-self: center;
+    margin-bottom: 0.4rem;
+    padding: 0.3rem 0.4rem;
+    gap: 0.35rem;
+    flex-wrap: nowrap;
+    border: 2px solid var(--border-chrome);
+    border-radius: 12px;
+    opacity: 0.94;
+  }
+  .bottombar .tool {
+    padding: 0.3em 0.6em;
+  }
+  .topbar::after,
+  .topbar__title,
+  .topbar__label,
+  .topbar__notes-text,
+  .game-zoom--stage {
+    display: none;
+  }
+  .topbar__case {
+    flex: none;
+  }
+  .topbar__help {
+    order: 6;
+  }
+  /* масштаб — справа в шапке */
+  .topbar .game-zoom--bar {
+    display: block;
+    position: static;
+    translate: none;
+    order: 7;
+    margin-left: auto;
+    background: transparent;
+    color: var(--text-on-chrome);
+  }
+  .topbar .game-zoom--bar .zoom-control,
+  .topbar .game-zoom--bar .zoom-control .btn {
+    color: var(--text-on-chrome);
+  }
+  /* таймер компактный: только время и бонус, без иконки и слова «бонус» */
+  .topbar .timer {
+    padding: 0.1em 0.45em;
+    font-size: var(--fs-md);
+  }
+  .topbar .timer svg,
+  .topbar .timer__bonus::before {
+    display: none;
+  }
+  .topbar .topbar__progress {
+    width: 2rem;
+    height: 2rem;
+  }
+  .topbar .topbar__progress b {
+    width: 1.55rem;
+    height: 1.55rem;
+  }
+}
+/* на узких телефонах (до 700 px шириной) номер дела не нужен: он есть в журнале */
+@media (max-height: 500px) and (orientation: landscape) and (max-width: 700px) {
+  .topbar__number {
+    display: none;
+  }
+}
