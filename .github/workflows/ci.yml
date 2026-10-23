@@ -1,8 +1,7 @@
 name: CI
 
+# На push в master CI идёт внутри deploy.yml (workflow_call), отдельно его не запускаем.
 on:
-  push:
-    branches: [master]
   pull_request:
   workflow_call:
 
