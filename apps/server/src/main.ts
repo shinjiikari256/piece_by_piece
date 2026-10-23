@@ -1,3 +1,4 @@
+import path from "node:path";
 import { serve } from "@hono/node-server";
 import { sweepRateHits } from "./rate-limit";
 import { createApp } from "./app";
@@ -12,6 +13,7 @@ import { connectPostgres } from "./db";
  *   ADMIN_LOGIN / ADMIN_PASSWORD   первый администратор, если в базе его ещё нет
  *   SECURE_COOKIES   1 — cookie только по HTTPS (прод)
  *   TRUST_PROXY      1 — за Caddy: IP клиента из X-Forwarded-For
+ *   OFFLINE_DIR      папка с шаблонами game.html / editor.html; вне production — offline/server (`pnpm offline:templates`)
  */
 const env = process.env;
 const { db, close } = await connectPostgres(
@@ -33,7 +35,7 @@ for (const f of seeded.failed) console.error(`Дело пропущено — ${
 const app = createApp(db, {
   secureCookies: env.SECURE_COOKIES === "1",
   trustProxy: env.TRUST_PROXY === "1",
-  offlineDir: env.OFFLINE_DIR,
+  offlineDir: env.OFFLINE_DIR ?? (env.NODE_ENV === "production" ? undefined : path.resolve(import.meta.dirname, "../../../offline/server")),
 });
 void sweepRateHits(db);
 setInterval(() => void sweepRateHits(db), 3_600_000).unref();
