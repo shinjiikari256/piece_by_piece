@@ -96,7 +96,9 @@ describe("касание: перетаскивание карточки в яч�
     await page.locator("button.case-file").first().click();
     await page.getByRole("button", { name: "Приступить к расследованию" }).click();
     await page.waitForFunction(() => (window as any).__game.store.get().screen === "play");
-    // на медленном раннере игра дорисовывается уже после входа и может закрыть журнал — открываем его, пока не встанут ячейка и карточки
+    // на медленном раннере игра дорисовывается уже после входа и может закрыть журнал — открываем его заново и замеряем
+    // карточку и ячейку в том же шаге, пока они на месте
+    let boxes: { from: { x: number; y: number }; to: { x: number; y: number; width: number; height: number } } | null = null;
     await expect
       .poll(
         async () => {
@@ -113,14 +115,16 @@ describe("касание: перетаскивание карточки в яч�
             actions.open({ kind: "journal", tab: "materials", match: true });
           });
           await page.waitForTimeout(300);
-          return (await page.locator("[data-slot]").count()) > 0 && (await page.locator("[data-mark-key]").count()) > 0;
+          const box = (sel: string) => page.locator(sel).first().boundingBox({ timeout: 1000 }).catch(() => null);
+          const [from, to] = [await box("[data-mark-key]"), await box("[data-slot]")];
+          boxes = from && to ? { from, to } : null;
+          return boxes !== null;
         },
-        { timeout: 20000 },
+        { timeout: 25000 },
       )
       .toBe(true);
+    const { from, to } = boxes!;
     const before = await page.evaluate(() => document.querySelector("[data-slot]")?.textContent?.trim() ?? "");
-    const from = (await page.locator("[data-mark-key]").first().boundingBox())!;
-    const to = (await page.locator("[data-slot]").first().boundingBox())!;
     const cdp = await ctx.newCDPSession(page);
     const pt = (x: number, y: number) => [{ x, y }];
     await cdp.send("Input.dispatchTouchEvent", { type: "touchStart", touchPoints: pt(from.x + 20, from.y + 20) });
