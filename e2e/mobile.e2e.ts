@@ -51,6 +51,17 @@ describe.each(SIZES)("$name: нет горизонтального перепо�
     await page.waitForSelector(".tabbed-modal", { state: "detached" });
   });
 
+  it("окно-папка занимает всю высоту без полосы снизу", async () => {
+    const page = await open("/cases");
+    await page.locator("button.case-file").first().click();
+    await page.getByRole("button", { name: "Приступить к расследованию" }).click();
+    await page.waitForFunction(() => (window as any).__game.store.get().screen === "play");
+    await page.evaluate(() => (window as any).__game.actions.open({ kind: "journal", tab: "materials" }));
+    await page.waitForSelector(".tabbed-modal");
+    const box = await page.locator(".tabbed-modal").boundingBox();
+    if (width <= 640) expect(Math.round(box!.y + box!.height)).toBe(height);
+  });
+
   /** Игра с двумя собранными уликами (store мутируется на месте — как делают прочие тесты). */
   const playWithEvidence = async () => {
     const page = await open("/cases");

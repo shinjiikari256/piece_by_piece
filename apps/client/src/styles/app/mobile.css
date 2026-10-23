@@ -187,6 +187,10 @@ body {
   .backdrop[data-align="end"] {
     padding: 0;
   }
+  /* подложка без полей — окно-папка во всю высоту, без полосы 2rem снизу (её даёт max-height для широких экранов) */
+  .backdrop[data-layer="window"]:not([data-align]) .tabbed-modal {
+    max-height: 100dvh;
+  }
   .dialogue-folder {
     margin: 0;
     max-height: 80vh;
