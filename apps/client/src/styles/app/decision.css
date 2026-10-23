@@ -2,6 +2,8 @@
 
 .topbar__home {
   display: inline-flex; /* в тестовом запуске это ссылка, а не кнопка */
+  align-items: center;
+  justify-content: center;
   text-decoration: none;
   font-size: var(--fs-xl);
   color: var(--text);
