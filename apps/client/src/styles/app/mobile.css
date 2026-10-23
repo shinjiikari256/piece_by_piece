@@ -71,6 +71,22 @@ body {
   .icon-btn {
     min-width: 44px;
   }
+  /* компактные элементы остаются мелкими на вид, а область касания — 44px: невидимое поле вокруг */
+  .user-menu__button,
+  .logo,
+  .topbar__notes,
+  .zoom-control .btn {
+    position: relative;
+    z-index: 1;
+  }
+  .user-menu__button::after,
+  .logo::after,
+  .topbar__notes::after,
+  .zoom-control .btn::after {
+    content: "";
+    position: absolute;
+    inset: -0.55rem -0.25rem;
+  }
   /* при размере меньше 16px iOS масштабирует страницу при фокусе на поле */
   :where(input, textarea, select) {
     font-size: max(1em, 16px);
@@ -120,8 +136,18 @@ body {
   .topbar__notes kbd {
     display: none;
   }
-  .topbar__notes-text {
-    display: none;
+  /* на касании подсказок по наведению нет — подписи видны прямо в шапке */
+  .topbar__label {
+    display: block;
+    order: 4;
+    font-size: var(--fs-sm);
+    color: var(--text-on-chrome);
+    margin-left: -0.3rem;
+  }
+  .timer__bonus::before {
+    content: "бонус ";
+    font-weight: 400;
+    font-size: var(--fs-sm);
   }
   .topbar__stats {
     display: contents;

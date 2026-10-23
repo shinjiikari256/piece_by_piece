@@ -84,12 +84,13 @@ function TopBar() {
           />
         )}
         {/* сколько найдено и установлено — в «Материалах»; здесь только общий процент */}
-        <span className="topbar__progress" style={{ "--pct": progress } as React.CSSProperties} title={`Прогресс расследования: ${progress}% — подробно в материалах дела`}>
+        <span className="topbar__progress" style={{ "--pct": progress } as React.CSSProperties} title={`Прогресс расследования: ${progress}% — подробно в материалах дела`} role="img" aria-label={`Прогресс расследования: ${progress}%`}>
           <span className="progress">
             <span className="progress__bar" style={{ width: `${progress}%` }} />
           </span>
           <b>{progress}%</b>
         </span>
+        <span className="topbar__label">Прогресс</span>
         <button
           className="topbar__notes" aria-pressed={notesOpen}
           onMouseDown={keepFocus}
