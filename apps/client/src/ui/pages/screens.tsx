@@ -102,13 +102,19 @@ export function CaseList({ cases }: { cases: CaseSummary[] | null }) {
   const [saveList] = usePlatformValue(() => platform().saves.list(), [] as SaveData[]);
   const [results] = usePlatformValue(() => platform().results.list(), [] as ResultRecord[]);
   const saves = new Map(saveList.map((s) => [s.caseId, s]));
+  const online = useAccount((a) => a.server === "online");
+  const signedIn = useAccount((a) => !!a.me);
   return (
     <>
       {!cases && <Loader label="Загружаем дела…" />}
       {cases?.length === 0 && (
         <p>
           {!platform().capabilities.offline
-            ? "Нет ни одного корректного сценария. Проверьте src/content/cases."
+            ? online
+              ? signedIn
+                ? "Пока для вас нет доступных дел. Обратитесь к преподавателю."
+                : "Без входа доступных дел нет. Войдите в учётную запись — откроются дела вашей группы."
+              : "Нет ни одного корректного сценария. Проверьте src/content/cases."
             : embeddedCases()
               ? "В этом файле нет ни одного корректного дела. Соберите файл заново командой pnpm export:offline."
               : "Это шаблон офлайн-версии, в нём нет дел. Готовый файл с делами собирается командой pnpm export:offline — откройте его."}
