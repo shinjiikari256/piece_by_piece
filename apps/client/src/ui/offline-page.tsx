@@ -90,8 +90,10 @@ export function OfflinePage() {
           {OFFLINE_VARIANTS.map((v) => (
             <label key={v} className="form__check">
               <input type="radio" name="variant" checked={variant === v} disabled={!available?.includes(v)} onChange={() => setVariant(v)} />
-              <b>{OFFLINE_VARIANT_LABEL[v]}</b>
-              <span className="muted small">— {available && !available.includes(v) ? "не подготовлен на сервере" : VARIANT_HINT[v]}</span>
+              <span className="stack">
+                <b>{OFFLINE_VARIANT_LABEL[v]}</b>
+                <span className="muted small">{available && !available.includes(v) ? "не подготовлен на сервере" : VARIANT_HINT[v]}</span>
+              </span>
             </label>
           ))}
         </fieldset>

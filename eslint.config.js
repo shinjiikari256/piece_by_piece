@@ -19,7 +19,7 @@ export default tseslint.config(
       // составные виджеты: карточка узла графа (group), фокусируемый разделитель панели (separator)
       "jsx-a11y/no-noninteractive-tabindex": ["error", { roles: ["tabpanel", "group", "separator"] }],
       // наши Select и подобные — кнопки внутри <label>
-      "jsx-a11y/label-has-associated-control": ["error", { controlComponents: ["Select", "KeyInput"], assert: "either" }],
+      "jsx-a11y/label-has-associated-control": ["error", { controlComponents: ["Select", "KeyInput"], depth: 3, assert: "either" }],
       "react-hooks/rules-of-hooks": "error",
       "react-hooks/exhaustive-deps": "warn",
       // Нативный <select> не открывается во встроенном браузере VS Code — только src/ui/Select.tsx.
