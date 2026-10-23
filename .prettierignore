@@ -1,0 +1,9 @@
+dist
+offline
+node_modules
+pnpm-lock.yaml
+*.json
+*.css
+*.md
+*.html
+apps/server/drizzle
