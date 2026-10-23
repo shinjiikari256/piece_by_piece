@@ -34,14 +34,7 @@ export function OfflinePage() {
         <fieldset className="stack">
           <legend className="muted small">Вариант</legend>
           {OFFLINE_VARIANTS.map((v) => (
-            <VariantOption
-              key={v}
-              variant={v}
-              checked={build.variant === v}
-              ready={!!build.available?.includes(v)}
-              missing={!!build.available && !build.available.includes(v)}
-              onSelect={() => build.setVariant(v)}
-            />
+            <VariantOption key={v} variant={v} checked={build.variant === v} status={build.variantStatus(v)} onSelect={() => build.setVariant(v)} />
           ))}
         </fieldset>
         <fieldset className="stack">
