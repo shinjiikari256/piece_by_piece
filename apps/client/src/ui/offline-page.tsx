@@ -1,42 +1,14 @@
-import { useEffect, useState } from "react";
-import { OFFLINE_VARIANTS, OFFLINE_VARIANT_LABEL, type OfflineVariant } from "../../../../shared/api";
+import { OFFLINE_VARIANTS } from "../../../../shared/api";
 import { isStaff, useAccount } from "../state/account";
-import { api } from "../state/api";
-import { tell } from "./dialog";
-
-interface CaseRow {
-  id: string;
-  number: string;
-  title: string;
-}
-
-const VARIANT_HINT: Record<OfflineVariant, string> = {
-  game: "Как у студентов: дела можно проходить, результат сохраняется файлом. Без входа, личного кабинета и конструктора.",
-  editor: "Игра и конструктор: дела можно править, черновики хранятся в браузере. Кнопка «Запустить» открывает дело в игре.",
-};
+import { CaseOption, VariantOption } from "./offline/options";
+import { useOfflineBuild } from "./offline/use-offline-build";
 
 /** Скачать офлайн-файл: вариант, дела (список с флагом «Все дела») и сборка файла на сервере. */
 export function OfflinePage() {
   const me = useAccount((s) => s.me);
   const server = useAccount((s) => s.server);
   const staff = server === "online" && isStaff(me);
-  const [available, setAvailable] = useState<OfflineVariant[] | null>(null);
-  const [cases, setCases] = useState<CaseRow[]>([]);
-  const [variant, setVariant] = useState<OfflineVariant>("game");
-  const [picked, setPicked] = useState<string[]>([]);
-  const [busy, setBusy] = useState(false);
-
-  useEffect(() => {
-    if (!staff) return;
-    api<{ variants: OfflineVariant[] }>("GET", "/admin/offline").then(
-      (r) => {
-        setAvailable(r.variants);
-        if (r.variants.length && !r.variants.includes("game")) setVariant(r.variants[0]);
-      },
-      () => setAvailable([]),
-    );
-    api<CaseRow[]>("GET", "/admin/cases").then(setCases, () => setCases([]));
-  }, [staff]);
+  const build = useOfflineBuild(staff);
 
   if (!staff)
     return (
@@ -45,35 +17,6 @@ export function OfflinePage() {
         <p className="muted">Раздел доступен преподавателям и администратору.</p>
       </div>
     );
-
-  const all = cases.length > 0 && cases.every((c) => picked.includes(c.id));
-  const toggle = (id: string) => setPicked((p) => (p.includes(id) ? p.filter((x) => x !== id) : [...p, id]));
-
-  const download = async () => {
-    setBusy(true);
-    try {
-      const res = await fetch("/api/admin/offline", {
-        method: "POST",
-        credentials: "same-origin",
-        headers: { "content-type": "application/json" },
-        // порядок — как в списке дел, а не как кликали
-        body: JSON.stringify({ variant, caseIds: cases.filter((c) => picked.includes(c.id)).map((c) => c.id) }),
-      });
-      if (!res.ok) {
-        const json = await res.json().catch(() => null);
-        throw new Error(json?.message ?? "Не удалось собрать файл");
-      }
-      const a = document.createElement("a");
-      a.href = URL.createObjectURL(await res.blob());
-      a.download = variant === "editor" ? "delo-editor.html" : "delo.html";
-      a.click();
-      URL.revokeObjectURL(a.href);
-    } catch (e) {
-      void tell({ title: "Офлайн-версия", text: e instanceof Error ? e.message : "Не удалось собрать файл" });
-    } finally {
-      setBusy(false);
-    }
-  };
 
   return (
     <div className="page page--narrow">
@@ -85,40 +28,36 @@ export function OfflinePage() {
         className="card stack"
         onSubmit={(e) => {
           e.preventDefault();
-          void download();
+          void build.download();
         }}
       >
         <fieldset className="stack">
           <legend className="muted small">Вариант</legend>
           {OFFLINE_VARIANTS.map((v) => (
-            <label key={v} className="form__check">
-              <input type="radio" name="variant" checked={variant === v} disabled={!available?.includes(v)} onChange={() => setVariant(v)} />
-              <span className="stack">
-                <b>{OFFLINE_VARIANT_LABEL[v]}</b>
-                <span className="muted small">{available && !available.includes(v) ? "не подготовлен на сервере" : VARIANT_HINT[v]}</span>
-              </span>
-            </label>
+            <VariantOption
+              key={v}
+              variant={v}
+              checked={build.variant === v}
+              ready={!!build.available?.includes(v)}
+              missing={!!build.available && !build.available.includes(v)}
+              onSelect={() => build.setVariant(v)}
+            />
           ))}
         </fieldset>
         <fieldset className="stack">
           <legend className="muted small">Дела</legend>
           <label className="form__check">
-            <input type="checkbox" checked={all} onChange={(e) => setPicked(e.target.checked ? cases.map((c) => c.id) : [])} />
+            <input type="checkbox" checked={build.allPicked} onChange={(e) => build.toggleAll(e.target.checked)} />
             <b>Все дела</b>
           </label>
-          {cases.map((c) => (
-            <label key={c.id} className="form__check">
-              <input type="checkbox" checked={picked.includes(c.id)} onChange={() => toggle(c.id)} />
-              <span>
-                №{c.number} «{c.title}»
-              </span>
-            </label>
+          {build.cases.map((c) => (
+            <CaseOption key={c.id} row={c} checked={build.picked.includes(c.id)} onToggle={() => build.toggle(c.id)} />
           ))}
         </fieldset>
         <p className="muted small">Ответы лежат в самом файле: проверка идёт в браузере, поэтому файл подходит для самостоятельной подготовки, а не для зачёта.</p>
         <div className="row">
-          <button className="btn btn--primary" type="submit" disabled={busy || !picked.length || !available?.includes(variant)}>
-            {busy ? "Собираем…" : "Скачать"}
+          <button className="btn btn--primary" type="submit" disabled={!build.canDownload}>
+            {build.busy ? "Собираем…" : "Скачать"}
           </button>
         </div>
       </form>
