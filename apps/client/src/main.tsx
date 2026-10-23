@@ -6,6 +6,7 @@ import { actions, store } from "./state/store";
 import { createBrowserPlatform } from "./state/browser-platform";
 import { setPlatform } from "./state/platform";
 import { initTheme } from "./ui/theme";
+import { initKeyboardScroll } from "./ui/keyboard";
 import { OFFLINE } from "./env";
 
 // Отладка в консоли браузера: __game.store.get(), __game.actions.*
@@ -13,6 +14,7 @@ if (import.meta.env.MODE === "development") Object.assign(window, { __game: { ac
 
 // тема оформления: `?theme=salad` включает и запоминает (стили — styles/themes/)
 initTheme();
+initKeyboardScroll();
 
 // Офлайн-файл — только браузер. Онлайн-сборка подключает сервер отдельным куском (в офлайн-файл он не попадает).
 const platformReady = OFFLINE

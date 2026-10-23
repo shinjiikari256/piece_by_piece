@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any -- код внутри page.evaluate работает с window.__game */
-import type { Page } from "playwright-core";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
-import { BASE, start, type Harness } from "./harness";
+import { BASE, overflow, start, type Harness } from "./harness";
 
 let h: Harness;
 beforeAll(async () => {
@@ -13,28 +12,6 @@ const SIZES = [
   { name: "телефон", width: 390, height: 844 },
   { name: "планшет", width: 768, height: 1024 },
 ];
-
-/** Элементы, вылезающие за ширину окна (кроме тех, что прокручиваются своим контейнером). */
-async function overflow(page: Page) {
-  return page.evaluate(() => {
-    const doc = document.documentElement;
-    const w = doc.clientWidth;
-    const scrolls = (el: Element | null) => {
-      for (let e = el?.parentElement; e && e !== doc; e = e.parentElement) {
-        if (/auto|scroll|hidden/.test(getComputedStyle(e).overflowX)) return true;
-      }
-      return false;
-    };
-    const wide = [...document.querySelectorAll("body *")]
-      .filter((el) => {
-        const r = el.getBoundingClientRect();
-        return r.width > 0 && (r.right > w + 1 || r.left < -1) && !scrolls(el);
-      })
-      .slice(0, 5)
-      .map((el) => `${el.tagName.toLowerCase()}.${String(el.className).slice(0, 40)}`);
-    return { page: doc.scrollWidth - w, wide };
-  });
-}
 
 describe.each(SIZES)("$name: нет горизонтального переполнения", ({ width, height }) => {
   const open = async (path: string) => {

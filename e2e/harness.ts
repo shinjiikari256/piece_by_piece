@@ -65,3 +65,25 @@ export async function start(opts: { api?: boolean } = {}): Promise<Harness> {
     },
   };
 }
+
+/** Элементы, вылезающие за ширину окна (кроме тех, что прокручиваются своим контейнером). */
+export async function overflow(page: Page) {
+  return page.evaluate(() => {
+    const doc = document.documentElement;
+    const w = doc.clientWidth;
+    const scrolls = (el: Element | null) => {
+      for (let e = el?.parentElement; e && e !== doc; e = e.parentElement) {
+        if (/auto|scroll|hidden/.test(getComputedStyle(e).overflowX)) return true;
+      }
+      return false;
+    };
+    const wide = [...document.querySelectorAll("body *")]
+      .filter((el) => {
+        const r = el.getBoundingClientRect();
+        return r.width > 0 && (r.right > w + 1 || r.left < -1) && !scrolls(el);
+      })
+      .slice(0, 5)
+      .map((el) => `${el.tagName.toLowerCase()}.${String(el.className).slice(0, 40)}`);
+    return { page: doc.scrollWidth - w, wide };
+  });
+}
