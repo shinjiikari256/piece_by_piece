@@ -362,6 +362,72 @@ body {
     height: 1.55rem;
   }
 }
+/* окна в альбомной: меньше воздуха по высоте, диалог — две колонки (реплика слева, варианты справа) */
+@media (max-height: 500px) and (orientation: landscape) {
+  .folder__tabs:has(> .folder__step) {
+    padding-block: 0.1rem;
+  }
+  .tabbed-modal .modal__body {
+    padding: 0.5rem max(0.8rem, env(safe-area-inset-right)) 0.6rem max(0.8rem, env(safe-area-inset-left));
+  }
+  .tabbed-modal .modal,
+  .modal {
+    border-top-width: 4px;
+  }
+  .dialogue-folder {
+    max-height: 100dvh;
+  }
+  .dialogue {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+    column-gap: 1rem;
+    align-content: start;
+    overflow: hidden;
+    border-top-width: 4px;
+    padding: 0.6rem max(0.9rem, env(safe-area-inset-right)) 0.7rem max(0.9rem, env(safe-area-inset-left));
+  }
+  .dialogue__choices {
+    grid-column: 2;
+    grid-row: 1 / span 4;
+    align-content: start;
+    max-height: calc(100dvh - 5.5rem);
+    overflow: auto;
+  }
+  .dialogue__text {
+    margin: 0.5rem 0 0;
+    max-height: calc(100dvh - 11rem);
+    overflow: auto;
+  }
+}
+/* решение в альбомной: ответы в две колонки, кнопки «Назад/Далее» всегда на виду */
+@media (max-height: 500px) and (orientation: landscape) {
+  .final2__kicker {
+    margin-top: 0;
+  }
+  .final2__q {
+    font-size: var(--fs-lg);
+    margin-bottom: 0.4rem;
+  }
+  .answers {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.35rem;
+  }
+  .answer-opt {
+    padding: 0.4rem 0.7rem;
+    font-size: var(--fs-md);
+    gap: 0.6rem;
+  }
+  .suspects {
+    grid-template-columns: repeat(auto-fill, minmax(8rem, 1fr));
+  }
+  .final2__nav {
+    position: sticky;
+    bottom: -0.6rem;
+    z-index: 1;
+    padding: 0.4rem 0;
+    background: var(--bg-paper);
+  }
+}
 /* на узких телефонах (до 700 px шириной) номер дела не нужен: он есть в журнале */
 @media (max-height: 500px) and (orientation: landscape) and (max-width: 520px) {
   .topbar__number {
