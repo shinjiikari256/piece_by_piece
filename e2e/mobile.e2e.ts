@@ -96,7 +96,7 @@ describe("касание: перетаскивание карточки в яч�
     await page.locator("button.case-file").first().click();
     await page.getByRole("button", { name: "Приступить к расследованию" }).click();
     await page.waitForFunction(() => (window as any).__game.store.get().screen === "play");
-    // на медленном раннере игра дорисовывается уже после входа и может закрыть журнал — открываем его, пока ячейка не встанет
+    // на медленном раннере игра дорисовывается уже после входа и может закрыть журнал — открываем его, пока не встанут ячейка и карточки
     await expect
       .poll(
         async () => {
@@ -113,11 +113,11 @@ describe("касание: перетаскивание карточки в яч�
             actions.open({ kind: "journal", tab: "materials", match: true });
           });
           await page.waitForTimeout(300);
-          return page.locator("[data-slot]").count();
+          return (await page.locator("[data-slot]").count()) > 0 && (await page.locator("[data-mark-key]").count()) > 0;
         },
         { timeout: 20000 },
       )
-      .toBeGreaterThan(0);
+      .toBe(true);
     const before = await page.evaluate(() => document.querySelector("[data-slot]")?.textContent?.trim() ?? "");
     const from = (await page.locator("[data-mark-key]").first().boundingBox())!;
     const to = (await page.locator("[data-slot]").first().boundingBox())!;
