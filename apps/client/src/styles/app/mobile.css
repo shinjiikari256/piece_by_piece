@@ -314,25 +314,29 @@ body {
   .game-zoom--stage {
     display: none;
   }
+  /* номер дела сжимается с многоточием и мельче: им жертвуем первыми, остальное не перекрывается */
   .topbar__case {
-    flex: none;
+    flex: 0 1 auto;
+  }
+  .topbar__number {
+    min-width: 0;
+    font-size: var(--fs-md);
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
   .topbar__help {
     order: 6;
   }
-  /* масштаб — по центру шапки, таймер и остальное — справа */
-  .topbar {
-    position: relative;
-  }
-  .topbar .timer {
+  /* масштаб — в середине свободного места между делом и таймером, таймер и остальное — справа */
+  .topbar .timer,
+  .topbar .game-zoom--bar {
     margin-left: auto;
   }
   .topbar .game-zoom--bar {
     display: block;
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    translate: -50% -50%;
+    position: static;
+    translate: none;
+    order: 2;
     background: transparent;
     color: var(--text-on-chrome);
   }
@@ -359,7 +363,7 @@ body {
   }
 }
 /* на узких телефонах (до 700 px шириной) номер дела не нужен: он есть в журнале */
-@media (max-height: 500px) and (orientation: landscape) and (max-width: 700px) {
+@media (max-height: 500px) and (orientation: landscape) and (max-width: 520px) {
   .topbar__number {
     display: none;
   }
