@@ -370,10 +370,6 @@ body {
   .tabbed-modal .modal__body {
     padding: 0.5rem max(0.8rem, env(safe-area-inset-right)) 0.6rem max(0.8rem, env(safe-area-inset-left));
   }
-  .tabbed-modal .modal,
-  .modal {
-    border-top-width: 4px;
-  }
   .dialogue-folder {
     max-height: 100dvh;
   }
@@ -383,7 +379,6 @@ body {
     column-gap: 1rem;
     align-content: start;
     overflow: hidden;
-    border-top-width: 4px;
     padding: 0.6rem max(0.9rem, env(safe-area-inset-right)) 0.7rem max(0.9rem, env(safe-area-inset-left));
   }
   .dialogue__choices {
