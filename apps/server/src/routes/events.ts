@@ -38,6 +38,7 @@ async function describe(db: Db, rows: EventRow[], userId?: number): Promise<Serv
   return rows.map((r) => ({
     id: r.id,
     title: r.title,
+    description: r.description,
     opensAt: r.opensAt?.toISOString() ?? null,
     closesAt: r.closesAt?.toISOString() ?? null,
     debriefPolicy: r.debriefPolicy,
@@ -183,6 +184,7 @@ export const eventRoutes = new Hono<AppEnv>()
 
 const fields = (b: EventBody) => ({
   title: b.title,
+  description: b.description,
   opensAt: b.opensAt ? new Date(b.opensAt) : null,
   closesAt: b.closesAt ? new Date(b.closesAt) : null,
   debriefPolicy: b.debriefPolicy,

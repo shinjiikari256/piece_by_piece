@@ -308,3 +308,9 @@
   flex: 1 1 16rem;
   min-width: 0;
 }
+
+/* описание мероприятия: абзацы сохраняются */
+.event-description {
+  margin: 0;
+  white-space: pre-line;
+}

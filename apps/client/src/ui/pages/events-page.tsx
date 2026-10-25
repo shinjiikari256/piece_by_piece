@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
-import { DEBRIEF_POLICY_LABEL, type ServerCaseSummary, type ServerEvent } from "../../../../../shared/api";
+import { DEBRIEF_POLICY_LABEL, type ServerEvent } from "../../../../../shared/api";
 import { useAccount } from "../../state/account";
 import { api, setReturnTo } from "../../state/api";
 import { formatDate } from "../../util/format";
-import { scorePercent, scoreTone } from "../components/common";
+import { scoreTone } from "../components/common";
 import { Link, navigate } from "../lib/router";
-import { openCase } from "./screens";
+import { CaseFileCard, openCase, useCaseList } from "./screens";
 import "./events-page.css";
 
 type Phase = "soon" | "open" | "closed";
@@ -24,7 +24,7 @@ export function EventsPage({ eventId }: { eventId?: number }) {
   const server = useAccount((s) => s.server);
   const me = useAccount((s) => s.me);
   const [events, setEvents] = useState<ServerEvent[] | null>(null);
-  const [cases, setCases] = useState<ServerCaseSummary[]>([]);
+  const cases = useCaseList() ?? [];
 
   // не вошли — на вход, потом обратно сюда
   useEffect(() => {
@@ -36,7 +36,6 @@ export function EventsPage({ eventId }: { eventId?: number }) {
   useEffect(() => {
     if (server !== "online" || !me) return;
     api<ServerEvent[]>("GET", "/events").then(setEvents, () => setEvents([]));
-    api<ServerCaseSummary[]>("GET", "/cases").then(setCases, () => setCases([]));
   }, [server, me]);
 
   if (server === "unknown" || !me) return null;
@@ -44,10 +43,16 @@ export function EventsPage({ eventId }: { eventId?: number }) {
   const student = me.role === "student";
   const shown = (events ?? []).filter((e) => eventId === undefined || e.id === eventId);
 
+  const one = eventId === undefined ? undefined : shown[0];
   return (
     <div className="page page--narrow">
       <header className="page__head">
-        <h1>{eventId === undefined ? "Мероприятия" : (shown[0]?.title ?? "Мероприятие")}</h1>
+        <h1>{eventId === undefined ? "Мероприятия" : (one?.title ?? "Мероприятие")}</h1>
+        {one && (
+          <span className="status" data-tone={PHASE[phaseOf(one)].tone}>
+            {PHASE[phaseOf(one)].label}
+          </span>
+        )}
         {eventId !== undefined && (
           <Link className="btn btn--sm" to="/events">
             Все мероприятия
@@ -55,56 +60,82 @@ export function EventsPage({ eventId }: { eventId?: number }) {
         )}
       </header>
       {events && shown.length === 0 && <p className="muted">{eventId === undefined ? "Для вашей группы мероприятий пока нет." : "Это мероприятие недоступно: оно не открыто вашей группе или не существует."}</p>}
-      <ul className="list-reset stack">
-        {shown.map((e) => (
-          <li key={e.id} className="card event-card" data-tone={PHASE[phaseOf(e)].tone}>
-            <div className="event-card__head">
-              <h2>{e.title}</h2>
-              <span className="status" data-tone={PHASE[phaseOf(e)].tone}>
-                {PHASE[phaseOf(e)].label}
-              </span>
-            </div>
+      {eventId === undefined ? (
+        <ul className="list-reset stack">
+          {shown.map((e) => {
+            const doneCases = e.caseIds.filter((id) => (e.doneByCase?.[id] ?? 0) > 0).length;
+            return (
+              <li key={e.id} className="card event-card" data-tone={PHASE[phaseOf(e)].tone}>
+                <div className="event-card__head">
+                  <h2>
+                    <Link to={`/events/${e.id}`}>{e.title}</Link>
+                  </h2>
+                  <span className="status" data-tone={PHASE[phaseOf(e)].tone}>
+                    {PHASE[phaseOf(e)].label}
+                  </span>
+                </div>
+                {e.description && <p className="event-description">{e.description}</p>}
+                <p className="muted small">
+                  {period(e)} · дел: {e.caseIds.length}
+                  {student && ` · пройдено: ${doneCases}`}
+                </p>
+                <div className="row">
+                  <Link className="btn btn--sm btn--primary" to={`/events/${e.id}`}>
+                    Открыть
+                  </Link>
+                  {!student && (
+                    <Link className="btn btn--sm" to={`/admin/events/${e.id}/results`}>
+                      Результаты
+                    </Link>
+                  )}
+                </div>
+              </li>
+            );
+          })}
+        </ul>
+      ) : (
+        one && (
+          <>
+            {one.description && <p className="event-description">{one.description}</p>}
             <p className="muted small">
-              {period(e)} · разбор: {DEBRIEF_POLICY_LABEL[e.debriefPolicy]} · зачётных попыток: {e.maxScoredAttempts ?? "без ограничения"}
+              {period(one)} · разбор: {DEBRIEF_POLICY_LABEL[one.debriefPolicy]} · зачётных попыток: {one.maxScoredAttempts ?? "без ограничения"}
             </p>
             {!student && (
-              <Link className="btn btn--sm" to={`/admin/events/${e.id}/results`}>
-                Результаты мероприятия
-              </Link>
+              <div className="row">
+                <Link className="btn btn--sm" to={`/admin/events/${one.id}/results`}>
+                  Результаты мероприятия
+                </Link>
+              </div>
             )}
-            <ul className="list-reset event-cases">
-              {e.caseIds.map((id) => {
+            <ul className="case-files">
+              {one.caseIds.map((id) => {
                 const c = cases.find((x) => x.id === id);
-                const done = e.doneByCase?.[id] ?? 0;
-                const best = e.bestByCase?.[id];
-                const left = e.maxScoredAttempts == null ? null : Math.max(0, e.maxScoredAttempts - done);
-                const canPlay = student && e.open && left !== 0;
+                if (!c) return null;
+                const done = one.doneByCase?.[id] ?? 0;
+                const best = one.bestByCase?.[id];
+                const left = one.maxScoredAttempts == null ? null : Math.max(0, one.maxScoredAttempts - done);
+                const note = `${done > 0 ? "Пройдено" : "Не пройдено"}${left === null ? (done > 0 ? ` · сдач: ${done}` : "") : ` · осталось попыток: ${left}`}`;
                 return (
-                  <li key={id} className="event-case" data-tone={done > 0 ? "good" : undefined}>
-                    <div className="event-case__body">
-                      <b>{c ? `№${c.number} ${c.title}` : id}</b>
-                      <span className="muted small">
-                        {done > 0 ? "пройдено" : "не пройдено"}
-                        {left === null ? (done > 0 ? ` · сдач: ${done}` : "") : ` · осталось попыток: ${left}`}
-                      </span>
-                    </div>
+                  <li key={id} className={`case-files__item has-stamps-${best ? 1 : 0}`}>
+                    <CaseFileCard c={c} note={note} disabled={!student || !one.open || left === 0} onClick={() => void openCase(id, one.id).catch(() => undefined)} />
                     {best && (
-                      <span className="score-pill" data-tone={scoreTone(best.total, best.max)} title={`${best.total} из ${best.max}`}>
-                        {Math.round(scorePercent(best.total, best.max))}%
+                      <span className="case-stamps">
+                        <span className="case-stamp" data-tone={scoreTone(best.total, best.max)} title="Лучший результат в мероприятии">
+                          <span className="case-stamp__label">Лучший</span>
+                          <span>
+                            <span className="case-stamp__total">{best.total}</span>
+                            <span className="case-stamp__max">/{best.max}</span>
+                          </span>
+                        </span>
                       </span>
-                    )}
-                    {student && (
-                      <button className="btn btn--sm btn--primary" disabled={!canPlay} onClick={() => void openCase(id, e.id).catch(() => undefined)}>
-                        {done > 0 ? "Пройти ещё раз" : "Начать"}
-                      </button>
                     )}
                   </li>
                 );
               })}
             </ul>
-          </li>
-        ))}
-      </ul>
+          </>
+        )
+      )}
     </div>
   );
 }

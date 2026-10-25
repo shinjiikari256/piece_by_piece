@@ -63,7 +63,8 @@ const play = async (eventId: number, finish = true) => {
 
 describe("мероприятия", () => {
   it("студент видит только мероприятия своей группы; создаёт и правит персонал", async () => {
-    const ev = await makeEvent({ debriefPolicy: "never", maxScoredAttempts: 2 });
+    const ev = await makeEvent({ debriefPolicy: "never", maxScoredAttempts: 2, description: "  Как сдавать  " });
+    expect(ev.description).toBe("Как сдавать");
     expect(ev).toMatchObject({ title: "Зачёт", caseIds: ["case-001"], groupIds: [groupId], open: true, debriefPolicy: "never", maxScoredAttempts: 2 });
     const mine = await call("GET", "/events");
     expect(mine.json).toHaveLength(1);

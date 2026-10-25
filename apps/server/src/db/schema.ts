@@ -222,6 +222,8 @@ export type DebriefPolicy = "immediate" | "after_close" | "never";
 export const events = pgTable("events", {
   id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
   title: text("title").notNull(),
+  /** Описание для участников: что за мероприятие и что нужно сделать. */
+  description: text("description").notNull().default(""),
   opensAt: timestamp("opens_at", { withTimezone: true }),
   closesAt: timestamp("closes_at", { withTimezone: true }),
   debriefPolicy: text("debrief_policy").$type<DebriefPolicy>().notNull().default("immediate"),

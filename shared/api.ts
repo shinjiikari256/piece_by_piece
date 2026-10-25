@@ -332,6 +332,7 @@ export const DEBRIEF_POLICY_LABEL: Record<DebriefPolicy, string> = {
 const DateTime = z.iso.datetime({ offset: true });
 export const EventBody = z.object({
   title: z.string().trim().min(1, "Нужно название").max(200),
+  description: z.string().trim().max(5000).default(""),
   opensAt: DateTime.nullable().default(null),
   closesAt: DateTime.nullable().default(null),
   debriefPolicy: DebriefPolicy.default("immediate"),
@@ -344,6 +345,7 @@ export type EventBody = z.infer<typeof EventBody>;
 export interface ServerEvent {
   id: number;
   title: string;
+  description: string;
   opensAt: string | null;
   closesAt: string | null;
   debriefPolicy: DebriefPolicy;

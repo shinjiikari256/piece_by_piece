@@ -13,6 +13,7 @@ const POLICIES = (Object.keys(DEBRIEF_POLICY_LABEL) as DebriefPolicy[]).map((val
 
 interface Draft {
   title: string;
+  description: string;
   opensAt: string | null;
   closesAt: string | null;
   debriefPolicy: DebriefPolicy;
@@ -20,9 +21,10 @@ interface Draft {
   caseIds: string[];
   groupIds: number[];
 }
-const blank = (): Draft => ({ title: "", opensAt: null, closesAt: null, debriefPolicy: "immediate", maxScoredAttempts: "", caseIds: [], groupIds: [] });
+const blank = (): Draft => ({ title: "", description: "", opensAt: null, closesAt: null, debriefPolicy: "immediate", maxScoredAttempts: "", caseIds: [], groupIds: [] });
 const draftOf = (e: ServerEvent): Draft => ({
   title: e.title,
+  description: e.description,
   opensAt: e.opensAt,
   closesAt: e.closesAt,
   debriefPolicy: e.debriefPolicy,
@@ -55,6 +57,7 @@ export function EventPage({ id, groups }: { id: number | "new"; groups: AdminGro
     const attempts = draft.maxScoredAttempts.trim();
     const body: EventBody = {
       title: draft.title,
+      description: draft.description,
       opensAt: draft.opensAt,
       closesAt: draft.closesAt,
       debriefPolicy: draft.debriefPolicy,
@@ -86,6 +89,7 @@ export function EventPage({ id, groups }: { id: number | "new"; groups: AdminGro
         }}
       >
         <input className="input" value={draft.title} onChange={(e) => patch({ title: e.target.value })} placeholder="Название, например «Зачёт по ГК РФ»" />
+        <textarea className="input" rows={3} value={draft.description} onChange={(e) => patch({ description: e.target.value })} placeholder="Описание для студентов: что за мероприятие, что нужно сделать (необязательно)" />
         <div className="stack">
           <span className="muted small">Открывается</span>
           <DateTimePicker label="Открывается" value={draft.opensAt} emptyLabel="сразу" onChange={(v) => patch({ opensAt: v })} />

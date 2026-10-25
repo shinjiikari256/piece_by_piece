@@ -43,6 +43,7 @@ export function EventResults({ id }: { id: number }) {
           Изменить
         </Link>
       </header>
+      {event.description && <p className="event-description">{event.description}</p>}
       <div className="card event-share">
         <QrCode text={link} />
         <div className="stack">

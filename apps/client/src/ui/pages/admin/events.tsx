@@ -51,6 +51,7 @@ export function EventsSection({ groups }: { groups: AdminGroup[] }) {
                 {e.open ? "идёт" : "закрыто"}
               </span>
             </div>
+            {e.description && <span className="event-description">{e.description}</span>}
             <span className="muted small">{period(e)}</span>
             <span className="small">Дела: {e.caseIds.map(caseName).join(", ")}</span>
             <span className="small">Группы: {e.groupIds.length ? e.groupIds.map(groupName).join(", ") : "—"}</span>

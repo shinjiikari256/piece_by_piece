@@ -38,6 +38,9 @@
   line-height: 1.1;
   cursor: pointer;
 }
+span.case-stamp {
+  cursor: default;
+}
 button.case-stamp:hover {
   background: var(--bg-surface);
   box-shadow: var(--elev-2);

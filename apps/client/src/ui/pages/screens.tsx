@@ -98,6 +98,26 @@ export function Folder({
   );
 }
 
+/** Карточка-папка дела: номер на закладке, название, описание, сложность. `note` — своя строка внизу (например, попытки в мероприятии). */
+export function CaseFileCard({ c, onClick, disabled, note }: { c: CaseSummary; onClick: () => void; disabled?: boolean; note?: string }) {
+  return (
+    <button className="case-file" onClick={onClick} disabled={disabled}>
+      <span className="case-file__tab">№{c.number}</span>
+      <span className="case-file__body">
+        <span className="case-file__title">{c.title}</span>
+        <span className="case-file__tagline">{c.tagline}</span>
+        {creditText(c.meta) && <span className="case-file__meta">{creditText(c.meta)}</span>}
+        <span className="case-file__meta">
+          Сложность: {DIFFICULTY[c.difficulty]}
+          {c.timeBonus && ` · бонус за ${c.timeBonus.minutes} мин`}
+          {c.isDraft && <span className="review review--draft"> · черновик конструктора</span>}
+        </span>
+        {note && <span className="case-file__meta">{note}</span>}
+      </span>
+    </button>
+  );
+}
+
 export function CaseList({ cases }: { cases: CaseSummary[] | null }) {
   const [saveList] = usePlatformValue(() => platform().saves.list(), [] as SaveData[]);
   const [results] = usePlatformValue(() => platform().results.list(), [] as ResultRecord[]);
@@ -125,19 +145,7 @@ export function CaseList({ cases }: { cases: CaseSummary[] | null }) {
           const last = save ? undefined : lastResultOf(results, c.id);
           return (
             <li key={c.id} className={`case-files__item has-stamps-${(save ? 1 : 0) + (last ? 1 : 0)}`}>
-              <button className="case-file" onClick={() => openCase(c.id)}>
-                <span className="case-file__tab">№{c.number}</span>
-                <span className="case-file__body">
-                  <span className="case-file__title">{c.title}</span>
-                  <span className="case-file__tagline">{c.tagline}</span>
-                  {creditText(c.meta) && <span className="case-file__meta">{creditText(c.meta)}</span>}
-                  <span className="case-file__meta">
-                    Сложность: {DIFFICULTY[c.difficulty]}
-                    {c.timeBonus && ` · бонус за ${c.timeBonus.minutes} мин`}
-                    {c.isDraft && <span className="review review--draft"> · черновик конструктора</span>}
-                  </span>
-                </span>
-              </button>
+              <CaseFileCard c={c} onClick={() => openCase(c.id)} />
               {(save || last) && (
                 <span className="case-stamps">
                   {save && (
