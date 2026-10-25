@@ -78,6 +78,8 @@ export const joinLinks = pgTable("join_links", {
   token: text("token").notNull().unique(),
   expiresAt: timestamp("expires_at", { withTimezone: true }),
   revokedAt: timestamp("revoked_at", { withTimezone: true }),
+  /** Регистрирующиеся по ссылке сразу активны (иначе ждут подтверждения). */
+  autoApprove: boolean("auto_approve").notNull().default(true),
   createdBy: integer("created_by").references((): AnyPgColumn => users.id, {
     onDelete: "set null",
   }),

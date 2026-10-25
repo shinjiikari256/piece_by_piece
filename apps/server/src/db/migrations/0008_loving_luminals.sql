@@ -1,0 +1,1 @@
+ALTER TABLE "join_links" ADD COLUMN "auto_approve" boolean DEFAULT true NOT NULL;

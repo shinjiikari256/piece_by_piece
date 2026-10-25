@@ -127,6 +127,7 @@ export const groupsRoutes = new Hono<AppEnv>()
         groupId,
         token: randomToken(12),
         expiresAt,
+        autoApprove: body.autoApprove ?? true,
         createdBy: staff.id,
       })
       .returning();

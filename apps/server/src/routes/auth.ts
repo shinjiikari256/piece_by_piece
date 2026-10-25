@@ -42,7 +42,7 @@ export function authRoutes() {
             fullName: body.fullName,
             passwordHash: await hashPassword(body.password),
             role: "student",
-            status: "pending",
+            status: link?.link.autoApprove ? "active" : "pending",
             groupId: link?.group.id ?? null,
             joinLinkId: link?.link.id ?? null,
             consentVersion: CONSENT_VERSION,

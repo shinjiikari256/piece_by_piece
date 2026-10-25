@@ -54,6 +54,7 @@ export const toLink = (l: typeof joinLinks.$inferSelect, registered = 0, pending
   expiresAt: l.expiresAt?.toISOString() ?? null,
   revokedAt: l.revokedAt?.toISOString() ?? null,
   createdAt: l.createdAt.toISOString(),
+  autoApprove: l.autoApprove,
   registered,
   pending,
 });

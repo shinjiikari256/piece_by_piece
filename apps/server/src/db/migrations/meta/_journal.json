@@ -57,6 +57,20 @@
       "when": 1792593439175,
       "tag": "0007_broad_firebird",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1792956467078,
+      "tag": "0008_loving_luminals",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1792956467493,
+      "tag": "0009_drop_admin_group_teachers",
+      "breakpoints": true
     }
   ]
 }

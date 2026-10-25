@@ -139,7 +139,11 @@ describe("группы, ссылки, права преподавателя", ()
 
   it("регистрация по ссылке ставит группу, статус — не подтверждён; «подтвердить всех из ссылки»", async () => {
     const { g1, teacher } = await setup();
-    const { json: link } = (await teacher.post(`/admin/groups/${g1.id}/links`)) as { json: JoinLink };
+    const { json: auto } = (await teacher.post(`/admin/groups/${g1.id}/links`)) as { json: JoinLink };
+    expect(auto.autoApprove, "по умолчанию подтверждает сразу").toBe(true);
+    expect((await client(app).post("/auth/register", reg("sidorov", { joinToken: auto.token }))).json).toMatchObject({ status: "active", group: { id: g1.id } });
+
+    const { json: link } = (await teacher.post(`/admin/groups/${g1.id}/links`, { autoApprove: false })) as { json: JoinLink };
     expect(link.expiresAt, "без даты — бессрочная").toBeNull();
     expect((await client(app).get(`/join/${link.token}`)).json.group.name).toBe("ЮР-201");
 
@@ -149,7 +153,7 @@ describe("группы, ссылки, права преподавателя", ()
     await client(app).post("/auth/register", reg("lomov", { joinToken: link.token }));
 
     const links = (await teacher.get(`/admin/groups/${g1.id}/links`)).json as JoinLink[];
-    expect(links[0]).toMatchObject({ registered: 2, pending: 2 });
+    expect(links.find((l) => l.id === link.id)).toMatchObject({ registered: 2, pending: 2, autoApprove: false });
     expect((await teacher.post(`/admin/links/${link.id}/confirm`)).json.confirmed).toBe(2);
     expect((await s.get("/me")).json.status).toBe("active");
 

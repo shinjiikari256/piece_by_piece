@@ -74,6 +74,7 @@ export function GroupsSection({ groups, isAdmin, reload }: { groups: AdminGroup[
 function GroupDetail({ group, isAdmin, staff, reload }: { group: AdminGroup; isAdmin: boolean; staff: AdminUser[]; reload: () => void }) {
   const [links, setLinks] = useState<JoinLink[]>([]);
   const [expires, setExpires] = useState("");
+  const [auto, setAuto] = useState(true);
   const [rename, setRename] = useState<string | null>(null);
   const loadLinks = useCallback(() => api<JoinLink[]>("GET", `/admin/groups/${group.id}/links`).then(setLinks, fail), [group.id]);
   useEffect(() => void loadLinks(), [loadLinks]);
@@ -128,17 +129,21 @@ function GroupDetail({ group, isAdmin, staff, reload }: { group: AdminGroup; isA
 
       <section className="group__section">
         <h3>Ссылки для регистрации</h3>
-        <p className="muted small">Кто зарегистрируется по ссылке или QR-коду, сразу попадёт в группу «{group.name}» со статусом «не подтверждён».</p>
+        <p className="muted small">Кто зарегистрируется по ссылке или QR-коду, попадёт в группу «{group.name}»: сразу подтверждённым или со статусом «не подтверждён» — как выбрано при создании ссылки.</p>
         <form
           className="link-new"
           onSubmit={(e) => {
             e.preventDefault();
-            void act(() => api("POST", `/admin/groups/${group.id}/links`, expires ? { expiresAt: new Date(`${expires}T23:59:59`).toISOString() } : {})).then(() => setExpires(""));
+            void act(() => api("POST", `/admin/groups/${group.id}/links`, { autoApprove: auto, ...(expires ? { expiresAt: new Date(`${expires}T23:59:59`).toISOString() } : {}) })).then(() => setExpires(""));
           }}
         >
           <Field label="Действует до" hint="Без даты — без ограничения, пока не отозвана">
             <input className="input" type="date" value={expires} onChange={(e) => setExpires(e.target.value)} />
           </Field>
+          <label className="form__check">
+            <input type="checkbox" checked={auto} onChange={(e) => setAuto(e.target.checked)} />
+            <span>Подтверждать сразу</span>
+          </label>
           <button className="btn btn--primary" type="submit">
             Создать ссылку
           </button>
@@ -231,6 +236,7 @@ function LinkCard({ link: l, group, act }: { link: JoinLink; group: AdminGroup; 
         </div>
         <div className="link-card__meta">
           <span>{l.revokedAt ? `отозвана ${date(l.revokedAt)}` : l.expiresAt ? `действует до ${date(l.expiresAt)}` : "бессрочная"}</span>
+          <span>{l.autoApprove ? "подтверждение сразу" : "нужно подтверждение"}</span>
           <span>зарегистрировались: {l.registered}</span>
           {l.pending > 0 && (
             <span className="status" data-tone="warn">

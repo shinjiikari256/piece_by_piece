@@ -163,6 +163,8 @@ export interface JoinLink {
   expiresAt: string | null;
   revokedAt: string | null;
   createdAt: string;
+  /** Регистрирующиеся по ссылке сразу активны. */
+  autoApprove: boolean;
   /** Сколько зарегистрировалось и сколько из них ждёт подтверждения. */
   registered: number;
   pending: number;
@@ -170,6 +172,8 @@ export interface JoinLink {
 
 export const LinkBody = z.object({
   expiresAt: z.iso.datetime().nullable().optional(),
+  /** По умолчанию — подтверждать сразу. */
+  autoApprove: z.boolean().optional(),
 });
 
 export interface Settings {
