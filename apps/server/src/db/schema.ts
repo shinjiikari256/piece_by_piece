@@ -224,8 +224,13 @@ export const events = pgTable("events", {
   title: text("title").notNull(),
   /** Описание для участников: что за мероприятие и что нужно сделать. */
   description: text("description").notNull().default(""),
+  /** С какого момента мероприятие видно студентам (до этого его для них нет); нет — сразу. */
+  publishAt: timestamp("publish_at", { withTimezone: true }),
+  /** Начало: с этого момента можно сдавать дела и видеть их список. */
   opensAt: timestamp("opens_at", { withTimezone: true }),
   closesAt: timestamp("closes_at", { withTimezone: true }),
+  /** Сколько дел достаточно сдать для успеха (берутся лучшие по процентам); нет — все. */
+  requiredCases: integer("required_cases"),
   debriefPolicy: text("debrief_policy").$type<DebriefPolicy>().notNull().default("immediate"),
   /** Сколько раз можно сдать дело в мероприятии; нет — без ограничения. */
   maxScoredAttempts: integer("max_scored_attempts"),

@@ -120,7 +120,7 @@ function UserMenu({ route }: { route: Route }) {
           </div>
           {item("/account", "Личный кабинет")}
           {isStaff(me) && item("/admin/groups", me.role === "admin" ? "Группы" : "Мои группы")}
-          {isStaff(me) && item("/admin/events", "Мероприятия")}
+          {isStaff(me) && item("/editor", "Конструктор дел")}
           {isStaff(me) && item("/offline", "Скачать офлайн-версию")}
           {me.role === "admin" && item("/admin/settings", "Настройки")}
           <hr />

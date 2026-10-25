@@ -38,8 +38,8 @@ export const Login = z
   .trim()
   .toLowerCase()
   .min(3, "Логин — от 3 символов")
-  .max(32, "Логин — до 32 символов")
-  .regex(/^[a-z0-9._-]+$/, "В логине — латинские буквы, цифры, точка, дефис, подчёркивание");
+  .max(64, "Логин — до 64 символов")
+  .regex(/^[a-z0-9._+@-]+$/, "В логине — латинские буквы, цифры и символы . _ - + @ (подходит адрес почты)");
 
 export const Password = z.string().min(8, "Пароль — от 8 символов").max(128, "Пароль — до 128 символов");
 
@@ -333,8 +333,10 @@ const DateTime = z.iso.datetime({ offset: true });
 export const EventBody = z.object({
   title: z.string().trim().min(1, "Нужно название").max(200),
   description: z.string().trim().max(5000).default(""),
+  publishAt: DateTime.nullable().default(null),
   opensAt: DateTime.nullable().default(null),
   closesAt: DateTime.nullable().default(null),
+  requiredCases: z.number().int().min(1).max(1000).nullable().default(null),
   debriefPolicy: DebriefPolicy.default("immediate"),
   maxScoredAttempts: z.number().int().min(1).max(100).nullable().default(null),
   caseIds: z.array(z.string()).min(1, "Выберите хотя бы одно дело"),
@@ -346,14 +348,26 @@ export interface ServerEvent {
   id: number;
   title: string;
   description: string;
+  /** Видно студентам с этого момента (нет — сразу). */
+  publishAt: string | null;
   opensAt: string | null;
   closesAt: string | null;
+  /** Настройка: сколько дел достаточно сдать (нет — все). */
+  requiredCases: number | null;
+  /** Сколько дел нужно сдать на деле: настройка, не больше числа дел. */
+  required: number;
+  /** Число дел в мероприятии (у студента до начала список дел скрыт, а число — нет). */
+  caseCount: number;
   debriefPolicy: DebriefPolicy;
   maxScoredAttempts: number | null;
+  /** Дела; студенту до начала мероприятия — пусто. */
   caseIds: string[];
   groupIds: number[];
   /** Идёт ли сейчас окно времени. */
   open: boolean;
+  /** Для персонала: студентов в группах мероприятия и сколько из них сдали нужное число дел (с любым результатом). */
+  participants?: number;
+  passed?: number;
   /** Сколько раз игрок уже сдал каждое дело в мероприятии (только для студента). */
   doneByCase?: Record<string, number>;
   /** Лучший результат игрока по каждому делу мероприятия (только для студента). */

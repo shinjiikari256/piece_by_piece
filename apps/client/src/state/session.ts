@@ -171,6 +171,7 @@ export const session = {
         caseConfigVersion: result.caseConfigVersion,
         gameVersion: GAME_VERSION,
         resultFormatVersion: RESULT_FORMAT_VERSION,
+        eventId: getAuthority()?.eventId,
       };
       // запись выполняется сразу (локально); дошёл ли результат до сервера, платформа сообщит позже
       const delivery = platform().results.record(record);

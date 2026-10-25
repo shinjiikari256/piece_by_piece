@@ -56,24 +56,26 @@ export function ServerResults({ staff, eventId }: { staff: boolean; eventId?: nu
     <div className={eventId === undefined ? "page page--wide" : "stack"}>
       <header className="page__head">
         {eventId === undefined ? <h1>{staff ? "Результаты" : "Мои результаты"}</h1> : <h2>Прохождения</h2>}
-        <button className="btn" onClick={() => setStats(true)} disabled={!data?.total}>
-          <Icon name="scale" size={16} /> Статистика
-        </button>
-        {staff && (
-          <a className="btn" href={`/api/results/export.csv?${query(filters)}`} download="results.csv">
-            Выгрузить CSV
-          </a>
-        )}
-        {staff && selected.size > 0 && (
-          <button className="btn btn--danger" onClick={() => void remove()}>
-            Удалить выбранные ({selected.size})
+        <div className="row page__tools">
+          <button className="btn" onClick={() => setStats(true)} disabled={!data?.total}>
+            <Icon name="scale" size={16} /> Статистика
           </button>
-        )}
-        {staff && (
-          <button className="btn" aria-pressed={importing} onClick={() => setImporting((v) => !v)}>
-            Импорт файлов
-          </button>
-        )}
+          {staff && (
+            <a className="btn" href={`/api/results/export.csv?${query(filters)}`} download="results.csv">
+              Выгрузить CSV
+            </a>
+          )}
+          {staff && selected.size > 0 && (
+            <button className="btn btn--danger" onClick={() => void remove()}>
+              Удалить выбранные ({selected.size})
+            </button>
+          )}
+          {staff && (
+            <button className="btn" aria-pressed={importing} onClick={() => setImporting((v) => !v)}>
+              Импорт файлов
+            </button>
+          )}
+        </div>
       </header>
       {staff && importing && (
         <ResultsImport students={(options?.users ?? []).map((u) => ({ id: u.id, label: `${u.fullName}${u.group ? ` · ${u.group}` : ""}` }))} onDone={() => setReload((n) => n + 1)} />

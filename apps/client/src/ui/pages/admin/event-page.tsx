@@ -14,19 +14,23 @@ const POLICIES = (Object.keys(DEBRIEF_POLICY_LABEL) as DebriefPolicy[]).map((val
 interface Draft {
   title: string;
   description: string;
+  publishAt: string | null;
   opensAt: string | null;
   closesAt: string | null;
+  requiredCases: string;
   debriefPolicy: DebriefPolicy;
   maxScoredAttempts: string;
   caseIds: string[];
   groupIds: number[];
 }
-const blank = (): Draft => ({ title: "", description: "", opensAt: null, closesAt: null, debriefPolicy: "immediate", maxScoredAttempts: "", caseIds: [], groupIds: [] });
+const blank = (): Draft => ({ title: "", description: "", publishAt: null, opensAt: null, closesAt: null, requiredCases: "", debriefPolicy: "immediate", maxScoredAttempts: "", caseIds: [], groupIds: [] });
 const draftOf = (e: ServerEvent): Draft => ({
   title: e.title,
   description: e.description,
+  publishAt: e.publishAt,
   opensAt: e.opensAt,
   closesAt: e.closesAt,
+  requiredCases: e.requiredCases == null ? "" : String(e.requiredCases),
   debriefPolicy: e.debriefPolicy,
   maxScoredAttempts: e.maxScoredAttempts == null ? "" : String(e.maxScoredAttempts),
   caseIds: e.caseIds,
@@ -44,7 +48,7 @@ export function EventPage({ id, groups }: { id: number | "new"; groups: AdminGro
     api<ServerEvent[]>("GET", "/events").then((list) => {
       const found = list.find((e) => e.id === id);
       if (found) setDraft(draftOf(found));
-      else navigate("/admin/events");
+      else navigate("/events");
     }, fail);
   }, [id]);
 
@@ -52,14 +56,19 @@ export function EventPage({ id, groups }: { id: number | "new"; groups: AdminGro
   const patch = (p: Partial<Draft>) => setDraft({ ...draft, ...p });
   const allCases = cases.length > 0 && cases.every((c) => draft.caseIds.includes(c.id));
   const badRange = !!draft.opensAt && !!draft.closesAt && draft.closesAt <= draft.opensAt;
+  const badPublish = !!draft.publishAt && !!draft.opensAt && draft.publishAt > draft.opensAt;
+  const required = Number(draft.requiredCases);
+  const badRequired = draft.requiredCases.trim() !== "" && (required < 1 || required > draft.caseIds.length);
 
   const save = async () => {
     const attempts = draft.maxScoredAttempts.trim();
     const body: EventBody = {
       title: draft.title,
       description: draft.description,
+      publishAt: draft.publishAt,
       opensAt: draft.opensAt,
       closesAt: draft.closesAt,
+      requiredCases: draft.requiredCases.trim() ? Number(draft.requiredCases) : null,
       debriefPolicy: draft.debriefPolicy,
       maxScoredAttempts: attempts ? Number(attempts) : null,
       caseIds: draft.caseIds,
@@ -67,7 +76,7 @@ export function EventPage({ id, groups }: { id: number | "new"; groups: AdminGro
     };
     try {
       await (id === "new" ? api("POST", "/admin/events", body) : api("PUT", `/admin/events/${id}`, body));
-      navigate("/admin/events");
+      navigate("/events");
     } catch (e) {
       fail(e);
     }
@@ -76,51 +85,75 @@ export function EventPage({ id, groups }: { id: number | "new"; groups: AdminGro
   return (
     <section>
       <header className="page__head page__head--back">
-        <Link className="btn btn--icon" to="/admin/events" title="К списку мероприятий" aria-label="К списку мероприятий">
+        <Link className="btn btn--icon" to="/events" title="К списку мероприятий" aria-label="К списку мероприятий">
           <Icon name="back" />
         </Link>
         <h1>{id === "new" ? "Новое мероприятие" : "Мероприятие"}</h1>
       </header>
       <form
-        className="card stack"
+        className="stack"
         onSubmit={(e) => {
           e.preventDefault();
           void save();
         }}
       >
-        <input className="input" value={draft.title} onChange={(e) => patch({ title: e.target.value })} placeholder="Название, например «Зачёт по ГК РФ»" />
-        <textarea className="input" rows={3} value={draft.description} onChange={(e) => patch({ description: e.target.value })} placeholder="Описание для студентов: что за мероприятие, что нужно сделать (необязательно)" />
-        <div className="stack">
-          <span className="muted small">Открывается</span>
-          <DateTimePicker label="Открывается" value={draft.opensAt} emptyLabel="сразу" onChange={(v) => patch({ opensAt: v })} />
-        </div>
-        <div className="stack">
-          <span className="muted small">Закрывается</span>
-          <DateTimePicker label="Закрывается" value={draft.closesAt} emptyLabel="не закрывается" onChange={(v) => patch({ closesAt: v })} />
-          {badRange && (
-            <span className="small" data-tone="bad">
-              Закрытие должно быть позже открытия.
-            </span>
-          )}
-        </div>
-        <div className="pair">
+        <section className="card stack">
+          <h2>Основное</h2>
+          <input className="input" value={draft.title} onChange={(e) => patch({ title: e.target.value })} placeholder="Название, например «Зачёт по ГК РФ»" />
+          <textarea className="input" rows={3} value={draft.description} onChange={(e) => patch({ description: e.target.value })} placeholder="Описание для студентов: что за мероприятие, что нужно сделать (необязательно)" />
+        </section>
+        <section className="card stack">
+          <h2>Сроки</h2>
+          <div className="stack">
+            <span className="muted small">Видно студентам с</span>
+            <DateTimePicker label="Видно студентам с" value={draft.publishAt} emptyLabel="сразу" onChange={(v) => patch({ publishAt: v })} />
+            <span className="muted small">До этого момента мероприятия для студентов нет. Не позже начала.</span>
+            {badPublish && (
+              <span className="small" data-tone="bad">
+                Открытие для студентов должно быть не позже начала.
+              </span>
+            )}
+          </div>
+          <div className="stack">
+            <span className="muted small">Начало</span>
+            <DateTimePicker label="Начало" value={draft.opensAt} emptyLabel="сразу" onChange={(v) => patch({ opensAt: v })} />
+            <span className="muted small">До начала студенты видят мероприятие, но не список дел.</span>
+          </div>
+          <div className="stack">
+            <span className="muted small">Окончание</span>
+            <DateTimePicker label="Окончание" value={draft.closesAt} emptyLabel="не заканчивается" onChange={(v) => patch({ closesAt: v })} />
+            {badRange && (
+              <span className="small" data-tone="bad">
+                Закрытие должно быть позже открытия.
+              </span>
+            )}
+          </div>
+        </section>
+        <section className="card stack">
+          <h2>Правила прохождения</h2>
+          <div className="pair">
+            <label className="stack">
+              <span className="muted small">Разбор дела студентам</span>
+              <Select value={draft.debriefPolicy} options={POLICIES} onChange={(v) => patch({ debriefPolicy: v as DebriefPolicy })} />
+            </label>
+            <label className="stack">
+              <span className="muted small">Зачётных попыток на дело</span>
+              <input className="input" inputMode="numeric" value={draft.maxScoredAttempts} onChange={(e) => patch({ maxScoredAttempts: e.target.value.replace(/\D/g, "") })} placeholder="без ограничения" />
+            </label>
+          </div>
           <label className="stack">
-            <span className="muted small">Разбор дела студентам</span>
-            <Select value={draft.debriefPolicy} options={POLICIES} onChange={(v) => patch({ debriefPolicy: v as DebriefPolicy })} />
+            <span className="muted small">Сколько дел достаточно сдать для успеха</span>
+            <input className="input" inputMode="numeric" value={draft.requiredCases} onChange={(e) => patch({ requiredCases: e.target.value.replace(/\D/g, "") })} placeholder="все дела" />
+            <span className="muted small">Берутся лучшие по проценту результаты. Не заполнено — нужны все дела.</span>
+            {badRequired && (
+              <span className="small" data-tone="bad">
+                От 1 до числа выбранных дел ({draft.caseIds.length}).
+              </span>
+            )}
           </label>
-          <label className="stack">
-            <span className="muted small">Зачётных попыток на дело</span>
-            <input
-              className="input"
-              inputMode="numeric"
-              value={draft.maxScoredAttempts}
-              onChange={(e) => patch({ maxScoredAttempts: e.target.value.replace(/\D/g, "") })}
-              placeholder="без ограничения"
-            />
-          </label>
-        </div>
-        <fieldset className="stack">
-          <legend className="muted small">Дела</legend>
+        </section>
+        <section className="card stack">
+          <h2>Дела</h2>
           <label className="form__check">
             <input type="checkbox" checked={allCases} onChange={(e) => patch({ caseIds: e.target.checked ? cases.map((c) => c.id) : [] })} />
             <b>Все дела</b>
@@ -131,9 +164,9 @@ export function EventPage({ id, groups }: { id: number | "new"; groups: AdminGro
               <span>{c.title}</span>
             </label>
           ))}
-        </fieldset>
-        <fieldset className="stack">
-          <legend className="muted small">Группы</legend>
+        </section>
+        <section className="card stack">
+          <h2>Группы</h2>
           {groups.length === 0 && <span className="muted small">Групп пока нет.</span>}
           {groups.map((g) => (
             <label key={g.id} className="form__check">
@@ -141,12 +174,12 @@ export function EventPage({ id, groups }: { id: number | "new"; groups: AdminGro
               <span>{g.name}</span>
             </label>
           ))}
-        </fieldset>
+        </section>
         <div className="row">
-          <button className="btn btn--primary" type="submit" disabled={!draft.title.trim() || draft.caseIds.length === 0 || badRange}>
+          <button className="btn btn--primary" type="submit" disabled={!draft.title.trim() || draft.caseIds.length === 0 || badRange || badPublish || badRequired}>
             Сохранить
           </button>
-          <Link className="btn" to="/admin/events">
+          <Link className="btn" to="/events">
             Отмена
           </Link>
         </div>

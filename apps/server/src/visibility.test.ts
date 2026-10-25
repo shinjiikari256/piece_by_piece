@@ -113,7 +113,10 @@ describe("видимость дела по группам", () => {
     await call("PUT", "/admin/cases/case-001/visibility", { mode: "groups", groupIds: [groupB] });
     expect((await call("POST", "/admin/events", { title: "Зачёт", caseIds: ["case-001"], groupIds: [groupA] })).status).toBe(201);
     await login("ann", "password123");
-    expect((await call("GET", "/cases")).json.map((c: { id: string }) => c.id)).toContain("case-001");
+    // в общий список дело мероприятия не попадает, но своё мероприятие его показывает и даёт играть
+    expect((await call("GET", "/cases")).json.map((c: { id: string }) => c.id)).not.toContain("case-001");
+    const eventId = (await call("GET", "/events")).json[0].id;
+    expect((await call("GET", `/cases?event=${eventId}`)).json.map((c: { id: string }) => c.id)).toEqual(["case-001"]);
     expect((await call("GET", "/cases/case-001")).status).toBe(200);
   });
 

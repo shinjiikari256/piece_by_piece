@@ -5,13 +5,12 @@ import { ApiFailure, api } from "../../../state/api";
 import { tell } from "../../kit/dialog";
 import { formatDate } from "../../../util/format";
 import { STATUS_TONE } from "../../lib/tone";
-import { type Route } from "../../lib/router";
+import { navigate, type Route } from "../../lib/router";
 import { UsersSection } from "./users";
 import { UserPage } from "./user-page";
 import { GroupsSection } from "./groups";
 import { EventPage } from "./event-page";
 import { EventResults } from "./event-results";
-import { EventsSection } from "./events";
 import { SettingsSection } from "./settings";
 /** Раздел «Пользователи»: пользователи, карточка пользователя, группы и ссылки, настройки. */
 
@@ -36,6 +35,11 @@ export function AdminPage({ route }: { route: AdminRoute }) {
   useEffect(() => {
     if (staff) void loadGroups();
   }, [staff, loadGroups]);
+  // список мероприятий — общая страница /events
+  const toList = route.section === "events" && route.eventId === undefined;
+  useEffect(() => {
+    if (toList) navigate("/events", { replace: true });
+  }, [toList]);
 
   if (server === "unknown") return null;
   if (!staff)
@@ -51,7 +55,7 @@ export function AdminPage({ route }: { route: AdminRoute }) {
       {route.section === "users" && route.userId && <UserPage id={route.userId} groups={groups} isAdmin={isAdmin} />}
       {route.section === "users" && !route.userId && <UsersSection groups={groups} isAdmin={isAdmin} onChanged={loadGroups} />}
       {route.section === "groups" && <GroupsSection groups={groups} isAdmin={isAdmin} reload={loadGroups} />}
-      {route.section === "events" && route.eventId === undefined && <EventsSection groups={groups} />}
+      {route.section === "events" && route.eventId === undefined && null}
       {route.section === "events" && route.eventId !== undefined && !route.eventResults && <EventPage id={route.eventId} groups={groups} />}
       {route.section === "events" && typeof route.eventId === "number" && route.eventResults && <EventResults id={route.eventId} />}
       {route.section === "settings" && (isAdmin ? <SettingsSection /> : <p className="muted">Настройки доступны только администратору.</p>)}

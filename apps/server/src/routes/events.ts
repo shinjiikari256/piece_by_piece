@@ -1,5 +1,5 @@
 import { Hono } from "hono";
-import { and, asc, count, eq, inArray, or } from "drizzle-orm";
+import { and, asc, count, countDistinct, eq, inArray, isNull, lte, or, type SQL } from "drizzle-orm";
 import { EventBody, ParticipantsQuery, type EventParticipant, type EventParticipants, type ParticipantStatus, type ServerEvent } from "../../../../shared/api";
 import type { CaseFile } from "../../../../shared/case";
 import type { Db } from "../db";
@@ -11,7 +11,17 @@ type EventRow = typeof events.$inferSelect;
 
 export const isOpen = (e: Pick<EventRow, "opensAt" | "closesAt">, now = new Date()) => (!e.opensAt || e.opensAt <= now) && (!e.closesAt || now < e.closesAt);
 
-async function describe(db: Db, rows: EventRow[], userId?: number): Promise<ServerEvent[]> {
+/** Как смотрят на мероприятие: студент (свои попытки, список дел после начала) или персонал (число прошедших). */
+interface Viewer {
+  studentId?: number;
+  /** Условие видимых персоналу пользователей (`visibleUsers`) — для подсчёта прошедших. */
+  staffUsers?: SQL | undefined;
+  staff?: boolean;
+}
+
+async function describe(db: Db, rows: EventRow[], viewer: Viewer | number = {}): Promise<ServerEvent[]> {
+  const v: Viewer = typeof viewer === "number" ? { studentId: viewer } : viewer;
+  const userId = v.studentId;
   if (!rows.length) return [];
   const ids = rows.map((r) => r.id);
   const cs = await db.select().from(eventCases).where(inArray(eventCases.eventId, ids));
@@ -35,23 +45,61 @@ async function describe(db: Db, rows: EventRow[], userId?: number): Promise<Serv
     }
     return out;
   };
+  const effective = (r: EventRow) => {
+    const total = cs.filter((x) => x.eventId === r.id).length;
+    return { total, required: Math.max(1, Math.min(r.requiredCases ?? total, total)) };
+  };
+  // персонал: сколько студентов групп мероприятия сдали нужное число дел
+  const passedBy = new Map<number, { participants: number; passed: number }>();
+  if (v.staff) {
+    const groupIds = [...new Set(gs.map((g) => g.groupId))];
+    const students = groupIds.length
+      ? await db
+          .select({ id: users.id, groupId: users.groupId })
+          .from(users)
+          .where(and(eq(users.role, "student"), inArray(users.groupId, groupIds), v.staffUsers))
+      : [];
+    const sIds = students.map((u) => u.id);
+    const fin = sIds.length
+      ? await db
+          .select({ eventId: attempts.eventId, userId: attempts.userId, n: countDistinct(attempts.caseId) })
+          .from(attempts)
+          .where(and(eq(attempts.status, "finished"), inArray(attempts.eventId, ids), inArray(attempts.userId, sIds)))
+          .groupBy(attempts.eventId, attempts.userId)
+      : [];
+    for (const r of rows) {
+      const own = new Set(gs.filter((g) => g.eventId === r.id).map((g) => g.groupId));
+      const mine = students.filter((u) => u.groupId !== null && own.has(u.groupId));
+      const need = effective(r).required;
+      passedBy.set(r.id, { participants: mine.length, passed: mine.filter((u) => (fin.find((f) => f.eventId === r.id && f.userId === u.id)?.n ?? 0) >= need).length });
+    }
+  }
   return rows.map((r) => ({
     id: r.id,
     title: r.title,
     description: r.description,
+    publishAt: r.publishAt?.toISOString() ?? null,
     opensAt: r.opensAt?.toISOString() ?? null,
     closesAt: r.closesAt?.toISOString() ?? null,
+    requiredCases: r.requiredCases,
+    required: effective(r).required,
+    caseCount: effective(r).total,
     debriefPolicy: r.debriefPolicy,
     maxScoredAttempts: r.maxScoredAttempts,
-    caseIds: cs
-      .filter((x) => x.eventId === r.id)
-      .map((x) => x.caseId)
-      .sort(),
+    // студент не узнаёт список дел до начала мероприятия
+    caseIds:
+      userId && r.opensAt && r.opensAt > new Date()
+        ? []
+        : cs
+            .filter((x) => x.eventId === r.id)
+            .map((x) => x.caseId)
+            .sort(),
     groupIds: gs
       .filter((x) => x.eventId === r.id)
       .map((x) => x.groupId)
       .sort((a, b) => a - b),
     open: isOpen(r),
+    ...passedBy.get(r.id),
     ...(userId ? { doneByCase: Object.fromEntries(done.filter((d) => d.eventId === r.id).map((d) => [d.caseId, d.n])), bestByCase: best(r.id) } : {}),
   }));
 }
@@ -74,10 +122,11 @@ export const eventRoutes = new Hono<AppEnv>()
     } else {
       if (!user.groupId) return c.json([]);
       const ids = (await db.select({ id: eventAccess.eventId }).from(eventAccess).where(eq(eventAccess.groupId, user.groupId))).map((x) => x.id);
-      rows = ids.length ? await db.select().from(events).where(inArray(events.id, ids)) : [];
+      // неопубликованные мероприятия студентам не видны
+      rows = ids.length ? await db.select().from(events).where(and(inArray(events.id, ids), or(isNull(events.publishAt), lte(events.publishAt, new Date())))) : [];
     }
     rows.sort((a, b) => b.id - a.id);
-    return c.json(await describe(db, rows, user.role === "student" ? user.id : undefined));
+    return c.json(await describe(db, rows, user.role === "student" ? { studentId: user.id } : { staff: true, staffUsers: await visibleUsers(db, user) }));
   })
   /** Участники мероприятия и их прохождение дел (только персонал; преподаватель видит студентов своих групп и без группы). */
   .get("/admin/events/:id/participants", async (c) => {
@@ -185,6 +234,8 @@ export const eventRoutes = new Hono<AppEnv>()
 const fields = (b: EventBody) => ({
   title: b.title,
   description: b.description,
+  publishAt: b.publishAt ? new Date(b.publishAt) : null,
+  requiredCases: b.requiredCases,
   opensAt: b.opensAt ? new Date(b.opensAt) : null,
   closesAt: b.closesAt ? new Date(b.closesAt) : null,
   debriefPolicy: b.debriefPolicy,
@@ -201,6 +252,8 @@ async function editable(db: Db, staff: { id: number; role: string }, id: number)
 
 async function checkRefs(db: Db, staff: { id: number; role: string }, b: EventBody) {
   if (b.opensAt && b.closesAt && new Date(b.closesAt) <= new Date(b.opensAt)) throw new ApiError(400, "invalid", "Закрытие должно быть позже открытия");
+  if (b.publishAt && b.opensAt && new Date(b.publishAt) > new Date(b.opensAt)) throw new ApiError(400, "invalid", "Мероприятие должно открыться для студентов не позже начала");
+  if (b.requiredCases !== null && b.requiredCases > new Set(b.caseIds).size) throw new ApiError(400, "invalid", "Нужных дел больше, чем дел в мероприятии");
   const found = await db.select({ id: cases.id }).from(cases).where(inArray(cases.id, b.caseIds));
   if (found.length !== new Set(b.caseIds).size) throw new ApiError(400, "invalid", "Есть неизвестное дело");
   if (b.groupIds.length) {

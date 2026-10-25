@@ -62,6 +62,24 @@ const play = async (eventId: number, finish = true) => {
 };
 
 describe("мероприятия", () => {
+  it("публикация, скрытый список дел до начала, нужное число дел и прошедшие", async () => {
+    const hidden = await makeEvent({ publishAt: iso(day), opensAt: iso(2 * day) });
+    expect((await call("GET", "/events")).json).toEqual([]);
+    const published = await makeEvent({ opensAt: iso(day) });
+    const seen = (await call("GET", "/events")).json.find((e: { id: number }) => e.id === published.id);
+    expect(seen).toMatchObject({ caseIds: [], caseCount: 1, required: 1 });
+    await asAdmin();
+    expect((await call("POST", "/admin/events", { title: "x", caseIds: ["case-001"], publishAt: iso(2 * day), opensAt: iso(day) })).status).toBe(400);
+    expect((await call("POST", "/admin/events", { title: "x", caseIds: ["case-001"], requiredCases: 2 })).status).toBe(400);
+    const staffView = (await call("GET", "/events")).json.find((e: { id: number }) => e.id === hidden.id);
+    expect(staffView).toMatchObject({ participants: 1, passed: 0 });
+
+    const ev = await makeEvent();
+    await play(ev.id);
+    await asAdmin();
+    expect((await call("GET", "/events")).json.find((e: { id: number }) => e.id === ev.id)).toMatchObject({ participants: 1, passed: 1 });
+  });
+
   it("студент видит только мероприятия своей группы; создаёт и правит персонал", async () => {
     const ev = await makeEvent({ debriefPolicy: "never", maxScoredAttempts: 2, description: "  Как сдавать  " });
     expect(ev.description).toBe("Как сдавать");

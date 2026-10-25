@@ -3,10 +3,20 @@
 }
 .event-card__head {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
+  align-items: flex-start;
   gap: 0.8rem;
-  flex-wrap: wrap;
+}
+.event-card__head h2 {
+  flex: 1;
+  min-width: 0;
+}
+/* статус и длительность — один блок у правого края, строки внутри прижаты вправо */
+.event-status {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.25rem;
+  text-align: right;
 }
 .event-card__head h2 {
   margin: 0;
@@ -18,4 +28,32 @@
 .case-files__item:has(.case-file:disabled):hover .case-file__body {
   transform: none;
   box-shadow: none;
+}
+.event-actions {
+  margin-left: auto;
+}
+.event-create {
+  margin-left: auto;
+}
+.event-card[data-link] {
+  cursor: pointer;
+}
+.event-progress {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex: 1;
+  min-width: 12rem;
+}
+.event-progress .progress {
+  flex: 1;
+  width: auto;
+  max-width: 16rem;
+  height: 0.8rem;
+}
+.event-progress__text {
+  display: flex;
+  align-items: baseline;
+  gap: 0.4rem;
+  flex-wrap: wrap;
 }

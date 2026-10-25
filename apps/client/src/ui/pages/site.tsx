@@ -7,7 +7,7 @@ import { useDismiss, useMenuKeys } from "../lib/hooks";
 import { Icon } from "../kit/icons";
 import { Logo, LogoArt } from "../kit/logo";
 import { Link, useRoute, type Route } from "../lib/router";
-import { PhoneMenu, useSiteLinks } from "../components/site-nav";
+import { NavCount, PhoneMenu, useSiteLinks } from "../components/site-nav";
 import { CaseList, HowToContent, HowToWindow, useCaseList } from "./screens";
 import { ResultsPage } from "./results-page";
 
@@ -79,6 +79,7 @@ function SiteHeader({ route }: { route: Route }) {
           {links.map((l) => (
             <Link key={l.to} to={l.to} className="site-nav__link" aria-current={l.active ? "page" : undefined}>
               {l.label}
+              <NavCount n={l.count} />
             </Link>
           ))}
         </nav>

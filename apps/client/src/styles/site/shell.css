@@ -127,6 +127,42 @@
   border-radius: 7px;
   white-space: nowrap;
 }
+/* счётчик у пункта меню: в шапке — маленький кружок над правым верхним углом названия */
+.nav-count {
+  display: inline-grid;
+  place-items: center;
+  min-width: 1rem;
+  height: 1rem;
+  padding: 0 0.25rem;
+  border-radius: 999px;
+  background: var(--accent);
+  color: var(--text-on-dark) !important;
+  font-size: 0.65rem;
+  font-weight: 700;
+  line-height: 1;
+}
+.site-nav__link {
+  position: relative;
+}
+.site-nav__link .nav-count {
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+/* в выпадающем меню — того же размера, что текст пункта, у правого края строки */
+.user-menu__popup a:has(.nav-count) {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.user-menu__popup .nav-count {
+  position: static;
+  margin-left: auto;
+  min-width: 1.4em;
+  height: 1.4em;
+  font-size: inherit;
+  font-weight: 500;
+}
 .site-nav__link:hover {
   color: var(--text) !important;
   background: var(--overlay-dark-1);

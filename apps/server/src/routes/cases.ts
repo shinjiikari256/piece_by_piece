@@ -4,7 +4,7 @@ import type { ServerCaseSummary, ServerPublicCase } from "../../../../shared/api
 import type { CaseFile } from "../../../../shared/case";
 import { toPublicCase } from "../../../../shared/public-case";
 import { bindSprites } from "../../../../shared/sprite-bindings";
-import { studentCaseIds, studentSeesCase } from "../case-access";
+import { eventCaseIds, studentCaseIds, studentSeesCase } from "../case-access";
 import { caseVersions, cases, events, results } from "../db/schema";
 import { ApiError, requireUser, type AppEnv, type Ctx } from "../http";
 import { debriefAllowed } from "./attempts";
@@ -59,10 +59,12 @@ export const caseRoutes = new Hono<AppEnv>()
   .get("/cases", async (c) => {
     const user = requireUser(c);
     const rows = await c.var.db.select({ body: caseVersions.body, visibility: cases.visibility }).from(cases).innerJoin(caseVersions, eq(caseVersions.id, cases.currentVersionId));
-    const opened = user.role === "student" ? await studentCaseIds(c.var.db, user.groupId) : null;
+    const eventId = Number(c.req.query("event")) || undefined;
+    // `?event=<id>` — дела одного мероприятия (страница мероприятия); общий список их не содержит
+    const opened = user.role === "student" ? (eventId ? await eventCaseIds(c.var.db, user.groupId, eventId) : await studentCaseIds(c.var.db, user.groupId)) : null;
     return c.json(
       rows
-        .filter((r) => !opened || r.visibility === "public" || r.visibility === "all" || opened.has((r.body as CaseFile).id))
+        .filter((r) => !opened || (eventId ? opened.has((r.body as CaseFile).id) : r.visibility === "public" || r.visibility === "all" || opened.has((r.body as CaseFile).id)))
         .map((r) => r.body as CaseFile)
         .filter((x) => x.published)
         .map(summarize)

@@ -20,7 +20,9 @@ export interface ResultRecord {
   caseConfigVersion?: string | null;
   gameVersion?: string;
   resultFormatVersion?: number;
+  /** Прохождение в рамках мероприятия: в общем списке дел такие результаты не показываются. */
+  eventId?: number;
 }
 
 /** Последний результат по делу, который можно открыть (из списка, свежие сверху). */
-export const lastResultOf = (results: ResultRecord[], caseId: string) => results.find((r) => r.caseId === caseId && r.score);
+export const lastResultOf = (results: ResultRecord[], caseId: string) => results.find((r) => r.caseId === caseId && r.score && r.eventId === undefined);
