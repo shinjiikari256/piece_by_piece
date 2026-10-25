@@ -1,11 +1,30 @@
-import { Hono } from "hono";
+import { Hono, type Context } from "hono";
 import { and, asc, count, desc, eq, inArray, isNull, or, type SQL } from "drizzle-orm";
-import { ResultsQuery, type ResultListItem, type ResultsFilters, type ResultsPage, type ServerResult, type UserStats } from "../../../../shared/api";
+import { DeleteResultsBody, ResultsQuery, type ResultListItem, type ResultsFilters, type ResultsPage, type ServerResult, type UserStats } from "../../../../shared/api";
 import type { Db } from "../db";
-import { events, groups, results, users } from "../db/schema";
-import { requireStaff, requireUser, type AppEnv, type UserRow } from "../http";
+import { attempts, auditLog, events, groups, results, users } from "../db/schema";
+import { ApiError, parseBody, requireStaff, requireUser, type AppEnv, type UserRow } from "../http";
 import { ownGroupIds, visibleUsers } from "./admin";
 import { queryResultsStats } from "../results-stats-sql";
+
+/** Удалить результаты вместе с их попытками (зачётная попытка мероприятия освобождается). Админ — любые; преподаватель — студентов своих групп и без группы. */
+async function deleteResults(c: Context<AppEnv>, ids: number[]) {
+  const db = c.var.db;
+  const staff = requireStaff(c);
+  const unique = [...new Set(ids)];
+  const visible = staff.role === "admin" ? undefined : await visibleUsers(db, staff);
+  const rows = await db
+    .select({ id: results.id, attemptId: results.attemptId })
+    .from(results)
+    .innerJoin(users, eq(users.id, results.userId))
+    .where(and(inArray(results.id, unique), visible ? or(eq(results.userId, staff.id), visible) : undefined));
+  if (rows.length !== unique.length) throw new ApiError(403, "forbidden", "Часть результатов не найдена или принадлежит студентам не из ваших групп");
+  const attemptIds = rows.flatMap((r) => (r.attemptId ? [r.attemptId] : []));
+  await db.delete(results).where(inArray(results.id, unique));
+  if (attemptIds.length) await db.delete(attempts).where(inArray(attempts.id, attemptIds));
+  await db.insert(auditLog).values({ userId: staff.id, action: "results.delete", payload: { ids: unique } });
+  return c.json({ deleted: unique.length });
+}
 
 type ResultRow = typeof results.$inferSelect;
 
@@ -169,4 +188,7 @@ export const resultRoutes = new Hono<AppEnv>()
       .orderBy(asc(users.fullName))
       .limit(5000);
     return c.json({ cases, groups: groupList, users: userList } satisfies ResultsFilters);
-  });
+  })
+  /** Удаление результатов (персонал): пачкой или одного. */
+  .post("/results/delete", async (c) => deleteResults(c, (await parseBody(c, DeleteResultsBody)).ids))
+  .delete("/results/:id", async (c) => deleteResults(c, [Number(c.req.param("id"))]));

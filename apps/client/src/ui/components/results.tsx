@@ -75,7 +75,14 @@ const minutes = (ms: number | null) => (ms == null ? "—" : `${Math.max(1, Math
 const when = (at: number) => formatDate(at, true);
 const percent = (r: ResultRow) => Math.round(scorePercent(r.total, r.max));
 
-export function ResultsTable({ rows, onOpen, showUser }: { rows: ResultRow[]; onOpen: (row: ResultRow) => void; showUser?: boolean }) {
+/** Выбор строк для удаления: ключи выбранных строк и их переключение (`all` — все строки страницы). */
+export interface RowSelection {
+  selected: ReadonlySet<string>;
+  toggle: (key: string) => void;
+  toggleAll: (on: boolean) => void;
+}
+
+export function ResultsTable({ rows, onOpen, showUser, selection }: { rows: ResultRow[]; onOpen: (row: ResultRow) => void; showUser?: boolean; selection?: RowSelection }) {
   const table = useRef<HTMLTableElement>(null);
   useArrowNav(table, ROW, { within: true });
   const firstOpen = rows.findIndex((r) => r.record);
@@ -83,6 +90,11 @@ export function ResultsTable({ rows, onOpen, showUser }: { rows: ResultRow[]; on
     <table className="table" ref={table}>
       <thead>
         <tr>
+          {selection && (
+            <th scope="col">
+              <input type="checkbox" aria-label="Выбрать все" checked={rows.length > 0 && rows.every((r) => selection.selected.has(r.key))} onChange={(e) => selection.toggleAll(e.target.checked)} />
+            </th>
+          )}
           {showUser && <th scope="col">Кто</th>}
           <th scope="col">Дело</th>
           <th scope="col" className="num">
@@ -109,6 +121,11 @@ export function ResultsTable({ rows, onOpen, showUser }: { rows: ResultRow[]; on
             title={r.record ? "Открыть результат и разбор" : undefined}
             {...(r.record ? rowKeys(i === firstOpen, () => onOpen(r)) : {})}
           >
+            {selection && (
+              <td onClick={(e) => e.stopPropagation()}>
+                <input type="checkbox" aria-label="Выбрать строку" checked={selection.selected.has(r.key)} onChange={() => selection.toggle(r.key)} />
+              </td>
+            )}
             {showUser && (
               <td>
                 {r.user ? (

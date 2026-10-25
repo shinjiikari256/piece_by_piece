@@ -187,6 +187,8 @@ export interface ApiTokenInfo {
   revokedAt: string | null;
 }
 
+export const DeleteResultsBody = z.object({ ids: z.array(z.number().int()).min(1).max(500) });
+
 export interface Settings {
   registrationOpen: boolean;
 }

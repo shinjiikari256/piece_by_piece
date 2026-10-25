@@ -262,6 +262,37 @@ describe("результаты", () => {
   /** Результат в базе напрямую: записывает их судья (`/cases/:id/finish`), в тестах статистики нужны готовые строки. */
   const addResult = (userId: number, r: ReturnType<typeof result>) => db.insert(schema.results).values({ ...r, userId, finishedAt: new Date(r.finishedAt), source: "client" });
 
+  it("удаление результатов: админ — любые, преподаватель — только своих групп, студент нельзя", async () => {
+    const g1 = (await admin.post("/admin/groups", { name: "ЮР-1" })).json;
+    const g2 = (await admin.post("/admin/groups", { name: "ЮР-2" })).json;
+    const teacher = client(app);
+    const t = (await teacher.post("/auth/register", reg("teach"))).json as Me;
+    await admin.patch("/admin/users", { ids: [t.id], set: { role: "teacher", status: "active" } });
+    await admin.patch(`/admin/groups/${g1.id}`, { name: "ЮР-1", teacherIds: [t.id] });
+    const mk = async (login: string, groupId: number) => {
+      const me = (await client(app).post("/auth/register", reg(login))).json as Me;
+      await admin.patch("/admin/users", { ids: [me.id], set: { groupId, status: "active" } });
+      await addResult(me.id, result(80));
+      await addResult(me.id, result(90));
+      return me;
+    };
+    const mine = await mk("own1", g1.id);
+    const foreign = await mk("own2", g2.id);
+    const ids = async (uid: number) => (await db.select().from(schema.results)).filter((r) => r.userId === uid).map((r) => r.id);
+    const [a1, a2] = await ids(mine.id);
+    const [b1, b2] = await ids(foreign.id);
+    expect((await teacher.post("/results/delete", { ids: [a1, b1] })).status).toBe(403);
+    expect((await ids(mine.id)).length).toBe(2);
+    expect((await teacher.post("/results/delete", { ids: [a1] })).json.deleted).toBe(1);
+    expect((await teacher.del(`/results/${a2}`)).status).toBe(200);
+    expect((await teacher.del(`/results/${b2}`)).status).toBe(403);
+    const stud = client(app);
+    await stud.post("/auth/login", { login: "own2", password: "password123" });
+    expect((await stud.del(`/results/${b2}`)).status).toBe(403);
+    expect((await admin.post("/results/delete", { ids: [b1, b2] })).json.deleted).toBe(2);
+    expect((await db.select().from(schema.results)).length).toBe(0);
+  });
+
   it("свои результаты видны; карточка пользователя считает сводку; гостю — нельзя", async () => {
     expect((await client(app).get("/me/results")).status).toBe(401);
     const s = client(app);

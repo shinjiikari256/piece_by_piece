@@ -3,7 +3,8 @@ import type { ResultsFilters, ResultsPage as ResultsPageData, ResultsStats } fro
 import { api } from "../../state/api";
 import { Select } from "../kit/Select";
 import { Icon } from "../kit/icons";
-import { Pager, ResultsTable, fromServer } from "./results";
+import { ask, tell } from "../kit/dialog";
+import { Pager, ResultsTable, fromServer, type RowSelection } from "./results";
 import { ResultsImport } from "./results-import";
 import { EmptyResults, NO_FILTERS, PAGE_SIZE, StatsModal, open, query, type Filters } from "../pages/results-page";
 
@@ -16,11 +17,31 @@ export function ServerResults({ staff }: { staff: boolean }) {
   const [stats, setStats] = useState(false);
   const [importing, setImporting] = useState(false);
   const [reload, setReload] = useState(0);
+  const [selected, setSelected] = useState<ReadonlySet<string>>(new Set());
 
   useEffect(() => void api<ResultsFilters>("GET", "/results/filters").then(setOptions, () => setOptions(null)), []);
   useEffect(() => {
     api<ResultsPageData>("GET", `/results?${query(filters, { page, pageSize: PAGE_SIZE })}`).then(setData, () => setData(null));
   }, [filters, page, reload]);
+
+  // выбор живёт в пределах страницы и фильтра
+  useEffect(() => setSelected(new Set()), [filters, page, reload]);
+
+  const selection: RowSelection = {
+    selected,
+    toggle: (key) => setSelected((s) => (s.has(key) ? new Set([...s].filter((k) => k !== key)) : new Set([...s, key]))),
+    toggleAll: (on) => setSelected(on ? new Set(data?.items.map((r) => `server:${r.id}`)) : new Set()),
+  };
+  const remove = async () => {
+    const ids = [...selected].map((k) => Number(k.slice("server:".length)));
+    if (!(await ask({ title: `Удалить результаты (${ids.length})?`, text: "Прохождения исчезнут из списков и статистики, а зачётная попытка мероприятия освободится. Отменить нельзя.", confirmLabel: "Удалить", danger: true }))) return;
+    try {
+      await api("POST", "/results/delete", { ids });
+      setReload((n) => n + 1);
+    } catch (e) {
+      void tell({ title: "Не удалось удалить", text: e instanceof Error ? e.message : "Ошибка" });
+    }
+  };
 
   const set = (patch: Partial<Filters>) => {
     setFilters((f) => ({ ...f, ...patch }));
@@ -40,6 +61,11 @@ export function ServerResults({ staff }: { staff: boolean }) {
           <a className="btn" href={`/api/results/export.csv?${query(filters)}`} download="results.csv">
             Выгрузить CSV
           </a>
+        )}
+        {staff && selected.size > 0 && (
+          <button className="btn btn--danger" onClick={() => void remove()}>
+            Удалить выбранные ({selected.size})
+          </button>
         )}
         {staff && (
           <button className="btn" aria-pressed={importing} onClick={() => setImporting((v) => !v)}>
@@ -87,7 +113,7 @@ export function ServerResults({ staff }: { staff: boolean }) {
         <EmptyResults filtered={filtered} />
       ) : (
         <div className="card card--flush">
-          <ResultsTable rows={rows} onOpen={open} showUser={staff} />
+          <ResultsTable rows={rows} onOpen={open} showUser={staff} selection={staff ? selection : undefined} />
         </div>
       )}
       {data && <Pager page={data.page} pageSize={data.pageSize} total={data.total} onPage={setPage} />}
