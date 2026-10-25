@@ -23,7 +23,18 @@ interface Draft {
   caseIds: string[];
   groupIds: number[];
 }
-const blank = (): Draft => ({ title: "", description: "", publishAt: null, opensAt: null, closesAt: null, requiredCases: "", debriefPolicy: "immediate", maxScoredAttempts: "", caseIds: [], groupIds: [] });
+const blank = (): Draft => ({
+  title: "",
+  description: "",
+  publishAt: null,
+  opensAt: null,
+  closesAt: null,
+  requiredCases: "",
+  debriefPolicy: "immediate",
+  maxScoredAttempts: "",
+  caseIds: [],
+  groupIds: [],
+});
 const draftOf = (e: ServerEvent): Draft => ({
   title: e.title,
   description: e.description,
@@ -91,7 +102,7 @@ export function EventPage({ id, groups }: { id: number | "new"; groups: AdminGro
         <h1>{id === "new" ? "Новое мероприятие" : "Мероприятие"}</h1>
       </header>
       <form
-        className="stack"
+        className="stack event-form"
         onSubmit={(e) => {
           e.preventDefault();
           void save();
@@ -100,57 +111,71 @@ export function EventPage({ id, groups }: { id: number | "new"; groups: AdminGro
         <section className="card stack">
           <h2>Основное</h2>
           <input className="input" value={draft.title} onChange={(e) => patch({ title: e.target.value })} placeholder="Название, например «Зачёт по ГК РФ»" />
-          <textarea className="input" rows={3} value={draft.description} onChange={(e) => patch({ description: e.target.value })} placeholder="Описание для студентов: что за мероприятие, что нужно сделать (необязательно)" />
+          <textarea
+            className="input"
+            rows={3}
+            value={draft.description}
+            onChange={(e) => patch({ description: e.target.value })}
+            placeholder="Описание для студентов: что за мероприятие, что нужно сделать (необязательно)"
+          />
         </section>
         <section className="card stack">
           <h2>Сроки</h2>
-          <div className="stack">
-            <span className="muted small">Видно студентам с</span>
-            <DateTimePicker label="Видно студентам с" value={draft.publishAt} emptyLabel="сразу" onChange={(v) => patch({ publishAt: v })} />
-            <span className="muted small">До этого момента мероприятия для студентов нет. Не позже начала.</span>
-            {badPublish && (
-              <span className="small" data-tone="bad">
-                Открытие для студентов должно быть не позже начала.
-              </span>
-            )}
-          </div>
-          <div className="stack">
-            <span className="muted small">Начало</span>
-            <DateTimePicker label="Начало" value={draft.opensAt} emptyLabel="сразу" onChange={(v) => patch({ opensAt: v })} />
-            <span className="muted small">До начала студенты видят мероприятие, но не список дел.</span>
-          </div>
-          <div className="stack">
-            <span className="muted small">Окончание</span>
-            <DateTimePicker label="Окончание" value={draft.closesAt} emptyLabel="не заканчивается" onChange={(v) => patch({ closesAt: v })} />
-            {badRange && (
-              <span className="small" data-tone="bad">
-                Закрытие должно быть позже открытия.
-              </span>
-            )}
+          <div className="cols-3">
+            <div className="stack">
+              <span className="muted small">Видно студентам с</span>
+              <DateTimePicker label="Видно студентам с" value={draft.publishAt} emptyLabel="сразу" onChange={(v) => patch({ publishAt: v })} />
+              <span className="muted small">До этого момента мероприятия для студентов нет. Не позже начала.</span>
+              {badPublish && (
+                <span className="small" data-tone="bad">
+                  Открытие для студентов должно быть не позже начала.
+                </span>
+              )}
+            </div>
+            <div className="stack">
+              <span className="muted small">Начало</span>
+              <DateTimePicker label="Начало" value={draft.opensAt} emptyLabel="сразу" onChange={(v) => patch({ opensAt: v })} />
+              <span className="muted small">До начала студенты видят мероприятие, но не список дел.</span>
+            </div>
+            <div className="stack">
+              <span className="muted small">Окончание</span>
+              <DateTimePicker label="Окончание" value={draft.closesAt} emptyLabel="не заканчивается" onChange={(v) => patch({ closesAt: v })} />
+              {badRange && (
+                <span className="small" data-tone="bad">
+                  Закрытие должно быть позже открытия.
+                </span>
+              )}
+            </div>
           </div>
         </section>
         <section className="card stack">
           <h2>Правила прохождения</h2>
-          <div className="pair">
+          <div className="cols-3">
             <label className="stack">
               <span className="muted small">Разбор дела студентам</span>
               <Select value={draft.debriefPolicy} options={POLICIES} onChange={(v) => patch({ debriefPolicy: v as DebriefPolicy })} />
             </label>
             <label className="stack">
               <span className="muted small">Зачётных попыток на дело</span>
-              <input className="input" inputMode="numeric" value={draft.maxScoredAttempts} onChange={(e) => patch({ maxScoredAttempts: e.target.value.replace(/\D/g, "") })} placeholder="без ограничения" />
+              <input
+                className="input"
+                inputMode="numeric"
+                value={draft.maxScoredAttempts}
+                onChange={(e) => patch({ maxScoredAttempts: e.target.value.replace(/\D/g, "") })}
+                placeholder="без ограничения"
+              />
+            </label>
+            <label className="stack">
+              <span className="muted small">Сколько дел достаточно сдать для успеха</span>
+              <input className="input" inputMode="numeric" value={draft.requiredCases} onChange={(e) => patch({ requiredCases: e.target.value.replace(/\D/g, "") })} placeholder="все дела" />
+              <span className="muted small">Берутся лучшие по проценту результаты. Не заполнено — нужны все дела.</span>
+              {badRequired && (
+                <span className="small" data-tone="bad">
+                  От 1 до числа выбранных дел ({draft.caseIds.length}).
+                </span>
+              )}
             </label>
           </div>
-          <label className="stack">
-            <span className="muted small">Сколько дел достаточно сдать для успеха</span>
-            <input className="input" inputMode="numeric" value={draft.requiredCases} onChange={(e) => patch({ requiredCases: e.target.value.replace(/\D/g, "") })} placeholder="все дела" />
-            <span className="muted small">Берутся лучшие по проценту результаты. Не заполнено — нужны все дела.</span>
-            {badRequired && (
-              <span className="small" data-tone="bad">
-                От 1 до числа выбранных дел ({draft.caseIds.length}).
-              </span>
-            )}
-          </label>
         </section>
         <section className="card stack">
           <h2>Дела</h2>
@@ -175,7 +200,7 @@ export function EventPage({ id, groups }: { id: number | "new"; groups: AdminGro
             </label>
           ))}
         </section>
-        <div className="row">
+        <div className="row event-form__actions">
           <button className="btn btn--primary" type="submit" disabled={!draft.title.trim() || draft.caseIds.length === 0 || badRange || badPublish || badRequired}>
             Сохранить
           </button>

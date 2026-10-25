@@ -114,3 +114,26 @@
 .linkbtn--danger {
   color: var(--bad);
 }
+
+/* форма мероприятия: расстояние между карточками и до кнопок одинаковое (общий .card + .card не нужен) */
+.event-form {
+  gap: 1rem;
+}
+.event-form > .card + .card {
+  margin-top: 0;
+}
+.event-form__actions {
+  justify-content: flex-end;
+}
+/* блоки настроек в три колонки, на узком экране — в одну */
+.cols-3 {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+  align-items: start;
+}
+@media (max-width: 760px) {
+  .cols-3 {
+    grid-template-columns: 1fr;
+  }
+}

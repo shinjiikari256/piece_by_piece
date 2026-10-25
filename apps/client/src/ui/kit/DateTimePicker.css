@@ -1,4 +1,4 @@
-/* дата и время: галочка и поля в одну строку, на узком экране переносятся */
+/* дата и время: галочка на своей строке, под ней поля, на узком экране переносятся */
 .dtp {
   display: flex;
   align-items: center;
@@ -11,7 +11,7 @@
   align-items: center;
   gap: 0.3rem;
   white-space: nowrap;
-  margin-right: 0.4rem;
+  flex: 0 0 100%;
 }
 .dtp input[type="number"] {
   flex: none;
@@ -26,15 +26,15 @@
   margin: 0;
 }
 .dtp .dtp__year {
-  width: 4.6rem;
+  width: 5rem;
 }
 .dtp__month {
   flex: 0 1 8rem;
-  min-width: 6.5rem;
+  min-width: 5.2rem;
 }
-.dtp__clock {
+/* дата и время — отдельные блоки: переносятся целиком, без лишнего отступа слева */
+.dtp__part {
   display: flex;
   align-items: center;
-  gap: 0.25rem;
-  margin-left: 0.4rem;
+  gap: 0.4rem;
 }
