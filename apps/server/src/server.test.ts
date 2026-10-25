@@ -180,12 +180,19 @@ describe("группы, ссылки, права преподавателя", ()
     expect((await teacher.patch("/admin/users", { ids: [other.id], set: { status: "active" } })).json.error).toBe("forbidden");
     expect((await teacher.patch("/admin/users", { ids: [free.id], set: { role: "teacher" } })).json.error).toBe("forbidden");
     expect((await teacher.post(`/admin/users/${other.id}/reset-password`)).status).toBe(404);
-    expect((await teacher.post("/admin/groups", { name: "Своя" })).status).toBe(403);
+    const own = await teacher.post("/admin/groups", { name: "ЮР-301" });
+    expect(own.status, "преподаватель создаёт группу и становится её преподавателем").toBe(201);
     expect((await teacher.get(`/admin/groups/${g2.id}/links`)).status).toBe(403);
 
     const groups = (await teacher.get("/admin/groups")).json as AdminGroup[];
-    expect(groups.map((g) => g.name)).toEqual(["ЮР-201"]);
+    expect(groups.map((g) => g.name)).toEqual(["ЮР-201", "ЮР-301"]);
     expect(groups[0]).toMatchObject({ students: 1, pending: 0, teacherIds: [t.id] });
+    expect(groups[1].teacherIds).toEqual([t.id]);
+
+    const adminId = ((await admin.get("/me")).json as Me).id;
+    expect((await admin.patch(`/admin/groups/${g1.id}`, { name: "ЮР-201", teacherIds: [t.id, adminId] })).status).toBe(200);
+    const after = (await admin.get("/admin/groups")).json as AdminGroup[];
+    expect(after.find((g) => g.id === g1.id)?.teacherIds, "админа в списки доступа не записывают").toEqual([t.id]);
   });
 
   it("фильтры и поиск; админ не может снять роль с себя; студенту админка закрыта", async () => {

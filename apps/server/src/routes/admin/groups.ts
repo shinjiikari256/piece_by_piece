@@ -7,6 +7,10 @@ import { ApiError, parseBody, requireAdmin, requireStaff, type AppEnv } from "..
 
 import { assertGroupAccess, audit, loadLinkFor, ownGroupIds, toLink } from "./access";
 
+/** В списки доступа попадают только преподаватели: админ и так имеет доступ ко всему. */
+const onlyTeachers = async (db: AppEnv["Variables"]["db"], ids: number[]) =>
+  ids.length ? (await db.select({ id: users.id }).from(users).where(and(inArray(users.id, ids), eq(users.role, "teacher")))).map((u) => u.id) : [];
+
 export const groupsRoutes = new Hono<AppEnv>()
   .get("/groups", async (c) => {
     const db = c.var.db;
@@ -31,12 +35,14 @@ export const groupsRoutes = new Hono<AppEnv>()
 
   .post("/groups", async (c) => {
     const db = c.var.db;
-    const admin = requireAdmin(c);
+    const staff = requireStaff(c);
     const body = await parseBody(c, GroupBody);
     const [g] = await db.insert(groups).values({ name: body.name }).onConflictDoNothing().returning();
     if (!g) throw new ApiError(409, "group_exists", "Группа с таким названием уже есть");
-    if (body.teacherIds?.length) await db.insert(groupTeachers).values(body.teacherIds.map((userId) => ({ groupId: g.id, userId })));
-    await audit(db, admin.id, "groups.create", { id: g.id, ...body });
+    // преподаватель, создавший группу, становится её преподавателем; назначать других может только админ
+    const teacherIds = staff.role === "admin" ? await onlyTeachers(db, body.teacherIds ?? []) : [staff.id];
+    if (teacherIds.length) await db.insert(groupTeachers).values(teacherIds.map((userId) => ({ groupId: g.id, userId })));
+    await audit(db, staff.id, "groups.create", { id: g.id, ...body, teacherIds });
     return c.json({ id: g.id, name: g.name }, 201);
   })
 
@@ -55,8 +61,9 @@ export const groupsRoutes = new Hono<AppEnv>()
       });
     if (!g) throw new ApiError(404, "not_found", "Группа не найдена");
     if (body.teacherIds) {
+      const teacherIds = await onlyTeachers(db, body.teacherIds);
       await db.delete(groupTeachers).where(eq(groupTeachers.groupId, id));
-      if (body.teacherIds.length) await db.insert(groupTeachers).values(body.teacherIds.map((userId) => ({ groupId: id, userId })));
+      if (teacherIds.length) await db.insert(groupTeachers).values(teacherIds.map((userId) => ({ groupId: id, userId })));
     }
     await audit(db, admin.id, "groups.update", { id, ...body });
     return c.json({ id: g.id, name: g.name });

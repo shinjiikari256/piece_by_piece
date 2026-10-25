@@ -3,6 +3,7 @@ import { CONSENT_TEXT, type JoinInfo } from "../../../../../shared/api";
 import { useAccount } from "../../state/account";
 import { ApiFailure, account, api, clearJoinToken, pendingJoinToken } from "../../state/api";
 import { Alert } from "../kit/alert";
+import { PasswordInput } from "../kit/password-input";
 import { Dialog } from "../kit/window";
 import { Link, navigate, useRoute } from "../lib/router";
 import { Folder } from "./screens";
@@ -98,7 +99,7 @@ function LoginForm() {
         <input className="input" value={login} onChange={(e) => setLogin(e.target.value)} autoComplete="username" autoFocus required />
       </Field>
       <Field label="Пароль">
-        <input className="input" type="password" value={password} onChange={(e) => setPassword(e.target.value)} autoComplete="current-password" required />
+        <PasswordInput value={password} onChange={(e) => setPassword(e.target.value)} autoComplete="current-password" required />
       </Field>
       {error && <Alert>{error}</Alert>}
       <button className="btn btn--primary btn--block" type="submit" disabled={busy}>
@@ -147,10 +148,10 @@ function RegisterForm() {
         <input className="input" value={form.login} onChange={(e) => edit({ login: e.target.value })} autoComplete="username" required />
       </Field>
       <Field label="Пароль" hint="Не меньше 8 символов">
-        <input className="input" type="password" value={form.password} onChange={(e) => edit({ password: e.target.value })} autoComplete="new-password" required />
+        <PasswordInput value={form.password} onChange={(e) => edit({ password: e.target.value })} autoComplete="new-password" required />
       </Field>
       <Field label="Повторите пароль">
-        <input className="input" type="password" value={form.repeat} onChange={(e) => edit({ repeat: e.target.value })} autoComplete="new-password" required />
+        <PasswordInput value={form.repeat} onChange={(e) => edit({ repeat: e.target.value })} autoComplete="new-password" required />
       </Field>
       <label className="form__check">
         <input type="checkbox" checked={form.consent} onChange={(e) => edit({ consent: e.target.checked })} />
@@ -221,15 +222,15 @@ export function PasswordForm({ temporary, onDone }: { temporary?: boolean; onDon
     <form className="form" onSubmit={submit}>
       {!temporary && (
         <Field label="Текущий пароль">
-          <input className="input" type="password" value={oldPassword} onChange={(e) => setOld(e.target.value)} autoComplete="current-password" required />
+          <PasswordInput value={oldPassword} onChange={(e) => setOld(e.target.value)} autoComplete="current-password" required />
         </Field>
       )}
       <div className="pair">
         <Field label="Новый пароль" hint="Не меньше 8 символов">
-          <input className="input" type="password" value={newPassword} onChange={(e) => setNew(e.target.value)} autoComplete="new-password" required />
+          <PasswordInput value={newPassword} onChange={(e) => setNew(e.target.value)} autoComplete="new-password" required />
         </Field>
         <Field label="Повторите пароль">
-          <input className="input" type="password" value={repeat} onChange={(e) => setRepeat(e.target.value)} autoComplete="new-password" required />
+          <PasswordInput value={repeat} onChange={(e) => setRepeat(e.target.value)} autoComplete="new-password" required />
         </Field>
       </div>
       {error && <Alert>{error}</Alert>}

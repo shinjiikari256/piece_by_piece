@@ -18,7 +18,7 @@ export function GroupsSection({ groups, isAdmin, reload }: { groups: AdminGroup[
   const [staff, setStaff] = useState<AdminUser[]>([]);
   useEffect(() => {
     if (!isAdmin) return;
-    Promise.all([api<AdminUser[]>("GET", "/admin/users?role=teacher"), api<AdminUser[]>("GET", "/admin/users?role=admin")]).then(([t, a]) => setStaff([...t, ...a]), fail);
+    api<AdminUser[]>("GET", "/admin/users?role=teacher").then(setStaff, fail);
   }, [isAdmin]);
 
   const create = async () => {
@@ -37,21 +37,19 @@ export function GroupsSection({ groups, isAdmin, reload }: { groups: AdminGroup[
       <header className="page__head">
         <h1>{isAdmin ? "Группы" : "Мои группы"}</h1>
       </header>
-      {isAdmin && (
-        <form
-          className="toolbar"
-          onSubmit={(e) => {
-            e.preventDefault();
-            void create();
-          }}
-        >
-          <input className="input toolbar__search" value={name} onChange={(e) => setName(e.target.value)} placeholder="Название новой группы, например ЮР-201" />
-          <button className="btn btn--primary" type="submit" disabled={!name.trim()}>
-            Добавить группу
-          </button>
-        </form>
-      )}
-      {groups.length === 0 && <p className="muted">{isAdmin ? "Групп пока нет." : "Вас пока не назначили ни в одну группу — обратитесь к администратору."}</p>}
+      <form
+        className="toolbar"
+        onSubmit={(e) => {
+          e.preventDefault();
+          void create();
+        }}
+      >
+        <input className="input toolbar__search" value={name} onChange={(e) => setName(e.target.value)} placeholder="Название новой группы, например ЮР-201" />
+        <button className="btn btn--primary" type="submit" disabled={!name.trim()}>
+          Добавить группу
+        </button>
+      </form>
+      {groups.length === 0 && <p className="muted">{isAdmin ? "Групп пока нет." : "У вас пока нет групп — создайте первую выше."}</p>}
       <ul className="groups">
         {groups.map((g) => (
           <li key={g.id} className="card group">
