@@ -182,3 +182,34 @@ describe("соавторы и проверка версии", () => {
     expect((await call("GET", "/admin/cases")).json.find((x: { id: string }) => x.id === "coauth")).toMatchObject({ canEdit: false, canManage: false });
   });
 });
+
+describe("API-токены", () => {
+  it("токен читает и обновляет дело по ключу; остальное закрыто; отозванный — 401", async () => {
+    await addUser("stud", "student", null);
+    await login("stud", "password123");
+    expect((await call("POST", "/admin/tokens", { name: "x" })).status).toBe(403);
+    await asAdmin();
+    const made = await call("POST", "/admin/tokens", { name: "Ассистент" });
+    expect(made.status).toBe(201);
+    const { id, token } = made.json;
+    expect((await call("GET", "/admin/tokens")).json[0]).toMatchObject({ id, name: "Ассистент", revokedAt: null });
+    cookie = "";
+    const bearer = async (method: string, path: string, body?: unknown, t = token) => {
+      const res = await app.request(`/api${path}`, { method, headers: { "content-type": "application/json", authorization: `Bearer ${t}` }, body: body === undefined ? undefined : JSON.stringify(body) });
+      return { status: res.status, json: await res.json().catch(() => null) };
+    };
+    const cur = (await bearer("GET", "/admin/cases/case-001")).json;
+    expect(cur.caseFile.id).toBe("case-001");
+    const put = await bearer("PUT", `/admin/cases/case-001?rights=1&base=${cur.versionId}`, { ...cur.caseFile, title: "Из токена" });
+    expect(put.json.result).toBe("created");
+    expect((await bearer("GET", "/admin/cases")).status).toBe(403);
+    expect((await bearer("GET", "/admin/users")).status).toBe(403);
+    expect((await bearer("POST", "/admin/tokens", { name: "y" })).status).toBe(403);
+    expect((await bearer("GET", "/admin/cases/case-001", undefined, "wrong")).status).toBe(401);
+    await asAdmin();
+    expect((await call("DELETE", `/admin/tokens/${id}`)).status).toBe(200);
+    expect((await bearer("GET", "/admin/cases/case-001")).status).toBe(401);
+    const log = await db.select().from(schema.auditLog).where(eq(schema.auditLog.action, "cases.save"));
+    expect(log.some((l) => (l.payload as { viaToken?: boolean }).viaToken)).toBe(true);
+  });
+});

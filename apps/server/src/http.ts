@@ -24,6 +24,8 @@ export type AppEnv = {
     config: AppConfig;
     user: UserRow | null;
     sessionId: string | null;
+    /** Запрос авторизован API-токеном, а не сессией: доступны только дела по ключу. */
+    viaToken: boolean;
   };
 };
 export type Ctx = Context<AppEnv>;

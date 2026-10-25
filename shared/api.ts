@@ -178,6 +178,15 @@ export const LinkBody = z.object({
 
 export const CaseEditorsBody = z.object({ userIds: z.array(z.number().int()).max(100) });
 
+export const ApiTokenBody = z.object({ name: z.string().trim().min(1, "Назовите токен").max(60) });
+export interface ApiTokenInfo {
+  id: number;
+  name: string;
+  createdAt: string;
+  lastUsedAt: string | null;
+  revokedAt: string | null;
+}
+
 export interface Settings {
   registrationOpen: boolean;
 }

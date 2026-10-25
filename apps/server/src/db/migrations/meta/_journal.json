@@ -78,6 +78,13 @@
       "when": 1792956784536,
       "tag": "0010_harsh_tombstone",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1792959913856,
+      "tag": "0011_old_wild_pack",
+      "breakpoints": true
     }
   ]
 }

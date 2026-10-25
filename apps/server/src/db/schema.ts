@@ -197,6 +197,19 @@ export const caseEditors = pgTable(
   (t) => [primaryKey({ columns: [t.caseId, t.userId] })],
 );
 
+/** API-токены: доступ скриптов и ассистентов к делам по ключу (`GET/PUT /api/admin/cases/:id`) от имени создателя. В базе только хэш. */
+export const apiTokens = pgTable("api_tokens", {
+  id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+  name: text("name").notNull(),
+  tokenHash: text("token_hash").notNull().unique(),
+  userId: integer("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  createdAt: createdAt(),
+  lastUsedAt: timestamp("last_used_at", { withTimezone: true }),
+  revokedAt: timestamp("revoked_at", { withTimezone: true }),
+});
+
 export type AttemptStatus = "active" | "finished" | "reset" | "abandoned";
 
 /**

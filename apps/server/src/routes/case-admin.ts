@@ -167,6 +167,6 @@ export const caseAdminRoutes = new Hono<AppEnv>()
     if (current && canonical(current.body) === canonical(parsed.data)) return c.json({ result: "same", versionId: current.versionId });
     const result = await saveCaseVersion(db, parsed.data, staff.id, true);
     const [now] = await db.select({ versionId: cases.currentVersionId }).from(cases).where(eq(cases.id, id));
-    await db.insert(auditLog).values({ userId: staff.id, action: "cases.save", payload: { id, result, rightsConfirmed: true } });
+    await db.insert(auditLog).values({ userId: staff.id, action: "cases.save", payload: { id, result, rightsConfirmed: true, ...(c.var.viaToken ? { viaToken: true } : {}) } });
     return c.json({ result, versionId: now?.versionId ?? null });
   });
