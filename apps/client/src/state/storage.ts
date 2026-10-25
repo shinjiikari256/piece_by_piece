@@ -7,6 +7,21 @@ import { storageKey } from "../env";
  * Ключи — `storageKey(name)`: в офлайн-файле у них свой префикс.
  */
 
+/**
+ * Данные игрока (сохранения, результаты, профиль) лежат отдельно для каждой учётной записи: у вошедшего ключи
+ * получают префикс `u<id>.`, у гостя — прежние. Так на общем компьютере чужие сохранения не видны.
+ * Остальное (черновики конструктора, тема, масштаб) относится к устройству и не меняется.
+ */
+const PER_USER = /^(save:|results$|profile$)/;
+let userScope: number | null = null;
+
+/** Чьи данные сейчас читаем: id вошедшего или null (гость). Вызывает только `account.ts`. */
+export function setStorageScope(userId: number | null) {
+  userScope = userId;
+}
+
+const scoped = (name: string, scope = userScope) => (scope !== null && PER_USER.test(name) ? `u${scope}.${name}` : name);
+
 export function safeStorage(): Storage | null {
   try {
     return typeof localStorage === "undefined" ? null : localStorage;
@@ -25,7 +40,7 @@ export function onWriteFailed(listener: (key: string) => void): () => void {
 
 export function readRaw(name: string): string | null {
   try {
-    return safeStorage()?.getItem(storageKey(name)) ?? null;
+    return safeStorage()?.getItem(storageKey(scoped(name))) ?? null;
   } catch {
     return null;
   }
@@ -36,7 +51,7 @@ export function writeRaw(name: string, value: string): boolean {
   try {
     const s = safeStorage();
     if (!s) return false;
-    s.setItem(storageKey(name), value);
+    s.setItem(storageKey(scoped(name)), value);
     return true;
   } catch {
     failListeners.forEach((l) => l(name));
@@ -57,7 +72,7 @@ export const writeJson = (name: string, value: unknown): boolean => writeRaw(nam
 
 export function removeKey(name: string) {
   try {
-    safeStorage()?.removeItem(storageKey(name));
+    safeStorage()?.removeItem(storageKey(scoped(name)));
   } catch {
     /* ничего */
   }
@@ -67,7 +82,7 @@ export function removeKey(name: string) {
 export function listKeys(prefix: string): string[] {
   const s = safeStorage();
   if (!s) return [];
-  const full = storageKey(prefix);
+  const full = storageKey(scoped(prefix));
   const names: string[] = [];
   try {
     for (let i = 0; i < s.length; i++) {
@@ -79,3 +94,39 @@ export function listKeys(prefix: string): string[] {
   }
   return names;
 }
+
+const guestNames = (): string[] => {
+  const s = safeStorage();
+  if (!s) return [];
+  const base = storageKey("");
+  const names: string[] = [];
+  try {
+    for (let i = 0; i < s.length; i++) {
+      const key = s.key(i);
+      if (key?.startsWith(base) && PER_USER.test(key.slice(base.length))) names.push(key.slice(base.length));
+    }
+  } catch {
+    /* см. выше */
+  }
+  return names;
+};
+
+/** Есть ли у гостя на этом устройстве сохранения или результаты, которые можно передать вошедшему. */
+export const hasGuestData = (): boolean => guestNames().some((n) => n !== "profile");
+
+/** Перенести данные гостя вошедшему (его собственные записи не затираются) и убрать их из гостевой области. */
+export function moveGuestDataToUser(userId: number) {
+  const s = safeStorage();
+  if (!s) return;
+  for (const name of guestNames()) {
+    const from = storageKey(name);
+    const to = storageKey(scoped(name, userId));
+    try {
+      if (s.getItem(to) === null) s.setItem(to, s.getItem(from) ?? "");
+      s.removeItem(from);
+    } catch {
+      /* переполнение — оставляем у гостя */
+    }
+  }
+}
+

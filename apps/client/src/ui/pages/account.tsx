@@ -1,6 +1,6 @@
 import { useEffect, useState, type FormEvent, type ReactNode } from "react";
 import { CONSENT_TEXT, type JoinInfo } from "../../../../../shared/api";
-import { useAccount } from "../../state/account";
+import { accountStore, useAccount } from "../../state/account";
 import { ApiFailure, account, api, clearJoinToken, pendingJoinToken } from "../../state/api";
 import { Alert } from "../kit/alert";
 import { PasswordInput } from "../kit/password-input";
@@ -8,7 +8,16 @@ import { Dialog } from "../kit/window";
 import { Link, navigate, useRoute } from "../lib/router";
 import { Folder } from "./screens";
 import { EMPTY_PROFILE, platform } from "../../state/platform";
+import { hasGuestData, moveGuestDataToUser } from "../../state/storage";
+import { ask } from "../kit/dialog";
 import { usePlatformValue } from "../../state/platform-hooks";
+
+/** После входа или регистрации: если гость играл на этом устройстве, предложить забрать его сохранения и результаты в аккаунт. */
+async function offerGuestData() {
+  const me = accountStore.get().me;
+  if (!me || !hasGuestData()) return;
+  if (await ask({ title: "Забрать данные гостя?", text: "На этом устройстве есть сохранения и результаты, полученные без входа. Перенести их в вашу учётную запись? Иначе они останутся только у гостя.", confirmLabel: "Перенести", cancelLabel: "Оставить гостю" })) moveGuestDataToUser(me.id);
+}
 
 const message = (e: unknown) => (e instanceof ApiFailure ? e.message : "Что-то пошло не так. Попробуйте ещё раз.");
 
@@ -90,6 +99,7 @@ function LoginForm() {
   const [password, setPassword] = useState("");
   const { busy, error, submit } = useSubmit(async () => {
     await account.login({ login, password });
+    await offerGuestData();
     navigate("/");
   });
   return (
@@ -130,6 +140,7 @@ function RegisterForm() {
       joinToken: join ? (token ?? undefined) : undefined,
     });
     clearJoinToken();
+    await offerGuestData();
     navigate("/account");
   });
   return (

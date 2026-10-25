@@ -1,6 +1,7 @@
 import { useSyncExternalStore } from "react";
 import type { Me } from "../../../../shared/api";
 import { OFFLINE } from "../env";
+import { setStorageScope } from "./storage";
 
 /**
  * Что известно о учётной записи в этой сборке: есть ли сервер и кто вошёл.
@@ -20,6 +21,7 @@ const listeners = new Set<() => void>();
 /** Меняет состояние; вызывает его только онлайн-код (`api.ts`). */
 export const setAccount = (patch: Partial<AccountState>) => {
   state = { ...state, ...patch };
+  setStorageScope(state.me ? state.me.id : null);
   listeners.forEach((l) => l());
 };
 
