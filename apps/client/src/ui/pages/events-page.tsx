@@ -132,7 +132,11 @@ export function EventsPage({ eventId }: { eventId?: number }) {
           </Link>
         )}
       </header>
-      {events && shown.length === 0 && <p className="muted">{eventId === undefined ? (student ? "Для вашей группы мероприятий пока нет." : "Мероприятий пока нет.") : "Это мероприятие недоступно: оно не открыто вашей группе или не существует."}</p>}
+      {events && shown.length === 0 && (
+        <p className="muted">
+          {eventId === undefined ? (student ? "Для вашей группы мероприятий пока нет." : "Мероприятий пока нет.") : "Это мероприятие недоступно: оно не открыто вашей группе или не существует."}
+        </p>
+      )}
       {eventId === undefined ? (
         <ul className="list-reset stack">
           {shown.map((e) => {
@@ -156,11 +160,6 @@ export function EventsPage({ eventId }: { eventId?: number }) {
                   <StatusLine e={e} now={now} staff={!student} />
                 </div>
                 {e.description && <p className="event-description">{e.description}</p>}
-                {!student && (
-                  <p className="muted small">
-                    справились: {e.passed ?? 0} из {e.participants ?? 0} студентов
-                  </p>
-                )}
                 <div className="row event-card__foot">
                   {to && (
                     <Link className="btn btn--sm btn--primary" to={to}>
@@ -169,14 +168,21 @@ export function EventsPage({ eventId }: { eventId?: number }) {
                   )}
                   {student && phase !== "soon" && (
                     <div className="event-progress">
-                      <span className="progress" role="progressbar" aria-label="Сдано дел" aria-valuemin={0} aria-valuemax={e.required} aria-valuenow={done}>
-                        <span className="progress__bar" style={{ width: `${(done / e.required) * 100}%` }} />
-                      </span>
                       <span className="event-progress__text">
                         <b>
                           {done} из {e.required}
                         </b>
                         <span className="muted small">{e.required < e.caseCount ? `дел сдано (в мероприятии ${e.caseCount})` : "дел сдано"}</span>
+                      </span>
+                    </div>
+                  )}
+                  {!student && (
+                    <div className="event-progress">
+                      <span className="event-progress__text">
+                        <b>
+                          {e.passed ?? 0} из {e.participants ?? 0}
+                        </b>
+                        <span className="muted small">студентов справились</span>
                       </span>
                     </div>
                   )}

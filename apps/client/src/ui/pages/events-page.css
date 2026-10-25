@@ -1,5 +1,11 @@
 .event-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
   border-left: 4px solid var(--tone-line, var(--border));
+}
+.event-card > * {
+  margin: 0;
 }
 .event-card__head {
   display: flex;
@@ -44,12 +50,6 @@
   gap: 0.6rem;
   flex: 1;
   min-width: 12rem;
-}
-.event-progress .progress {
-  flex: 1;
-  width: auto;
-  max-width: 16rem;
-  height: 0.8rem;
 }
 .event-progress__text {
   display: flex;
