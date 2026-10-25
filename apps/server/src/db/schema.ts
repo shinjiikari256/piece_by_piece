@@ -134,7 +134,7 @@ export const results = pgTable(
     finishedAt: timestamp("finished_at", { withTimezone: true }).notNull(),
     createdAt: createdAt(),
   },
-  (t) => [index("results_user_idx").on(t.userId), index("results_case_idx").on(t.caseId)],
+  (t) => [index("results_user_idx").on(t.userId), index("results_case_idx").on(t.caseId), index("results_event_idx").on(t.eventId)],
 );
 
 export type CaseVisibility = "public" | "all" | "groups" | "none";

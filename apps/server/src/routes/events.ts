@@ -1,10 +1,11 @@
 import { Hono } from "hono";
-import { and, count, eq, inArray, or } from "drizzle-orm";
-import { EventBody, type ServerEvent } from "../../../../shared/api";
+import { and, asc, count, eq, inArray, or } from "drizzle-orm";
+import { EventBody, ParticipantsQuery, type EventParticipant, type EventParticipants, type ParticipantStatus, type ServerEvent } from "../../../../shared/api";
+import type { CaseFile } from "../../../../shared/case";
 import type { Db } from "../db";
-import { attempts, cases, eventAccess, eventCases, events, groups } from "../db/schema";
+import { attempts, caseVersions, cases, eventAccess, eventCases, events, groups, results, users } from "../db/schema";
 import { ApiError, parseBody, requireStaff, requireUser, type AppEnv } from "../http";
-import { ownGroupIds } from "./admin";
+import { ownGroupIds, visibleUsers } from "./admin";
 
 type EventRow = typeof events.$inferSelect;
 
@@ -22,6 +23,18 @@ async function describe(db: Db, rows: EventRow[], userId?: number): Promise<Serv
         .where(and(eq(attempts.userId, userId), eq(attempts.status, "finished"), inArray(attempts.eventId, ids)))
         .groupBy(attempts.eventId, attempts.caseId)
     : [];
+  const bestRows = userId
+    ? await db.select({ eventId: results.eventId, caseId: results.caseId, total: results.total, max: results.max }).from(results).where(and(eq(results.userId, userId), inArray(results.eventId, ids)))
+    : [];
+  const best = (eventId: number) => {
+    const out: Record<string, { total: number; max: number }> = {};
+    for (const b of bestRows) {
+      if (b.eventId !== eventId) continue;
+      const cur = out[b.caseId];
+      if (!cur || b.total > cur.total) out[b.caseId] = { total: b.total, max: b.max };
+    }
+    return out;
+  };
   return rows.map((r) => ({
     id: r.id,
     title: r.title,
@@ -38,7 +51,7 @@ async function describe(db: Db, rows: EventRow[], userId?: number): Promise<Serv
       .map((x) => x.groupId)
       .sort((a, b) => a - b),
     open: isOpen(r),
-    ...(userId ? { doneByCase: Object.fromEntries(done.filter((d) => d.eventId === r.id).map((d) => [d.caseId, d.n])) } : {}),
+    ...(userId ? { doneByCase: Object.fromEntries(done.filter((d) => d.eventId === r.id).map((d) => [d.caseId, d.n])), bestByCase: best(r.id) } : {}),
   }));
 }
 
@@ -64,6 +77,82 @@ export const eventRoutes = new Hono<AppEnv>()
     }
     rows.sort((a, b) => b.id - a.id);
     return c.json(await describe(db, rows, user.role === "student" ? user.id : undefined));
+  })
+  /** Участники мероприятия и их прохождение дел (только персонал; преподаватель видит студентов своих групп и без группы). */
+  .get("/admin/events/:id/participants", async (c) => {
+    const staff = requireStaff(c);
+    const db = c.var.db;
+    const id = Number(c.req.param("id"));
+    const [row] = Number.isInteger(id) ? await db.select().from(events).where(eq(events.id, id)) : [];
+    if (!row) throw new ApiError(404, "not_found", "Мероприятие не найдено");
+    const [event] = await describe(db, [row]);
+    if (staff.role !== "admin") {
+      const own = await ownGroupIds(db, staff.id);
+      if (row.createdBy !== staff.id && !event.groupIds.some((g) => own.includes(g))) throw new ApiError(403, "forbidden", "Это не ваше мероприятие");
+    }
+    const q = ParticipantsQuery.parse(c.req.query());
+    const caseBodies = event.caseIds.length
+      ? await db
+          .select({ id: cases.id, body: caseVersions.body })
+          .from(cases)
+          .innerJoin(caseVersions, eq(caseVersions.id, cases.currentVersionId))
+          .where(inArray(cases.id, event.caseIds))
+      : [];
+    const caseRows = caseBodies
+      .map(({ id: caseId, body }) => ({ id: caseId, number: String((body as CaseFile).number), title: (body as CaseFile).title }))
+      .sort((a, b) => a.number.localeCompare(b.number, "ru", { numeric: true }));
+    const groupRows = event.groupIds.length ? await db.select({ id: groups.id, name: groups.name }).from(groups).where(inArray(groups.id, event.groupIds)).orderBy(asc(groups.name)) : [];
+    const visible = await visibleUsers(db, staff);
+    const students = event.groupIds.length
+      ? await db
+          .select({ id: users.id, fullName: users.fullName, login: users.login, groupId: users.groupId })
+          .from(users)
+          .where(and(eq(users.role, "student"), inArray(users.groupId, event.groupIds), visible))
+          .orderBy(asc(users.fullName))
+      : [];
+    const ids = students.map((u) => u.id);
+    const att = ids.length
+      ? await db
+          .select({ userId: attempts.userId, caseId: attempts.caseId, status: attempts.status, n: count() })
+          .from(attempts)
+          .where(and(eq(attempts.eventId, id), inArray(attempts.userId, ids), inArray(attempts.status, ["active", "finished"])))
+          .groupBy(attempts.userId, attempts.caseId, attempts.status)
+      : [];
+    const res = ids.length
+      ? await db
+          .select({ userId: results.userId, caseId: results.caseId, total: results.total, max: results.max, elapsedMs: results.elapsedMs })
+          .from(results)
+          .where(and(eq(results.eventId, id), inArray(results.userId, ids)))
+      : [];
+    const items: EventParticipant[] = students.map((u) => {
+      const cs: EventParticipant["cases"] = {};
+      for (const caseId of event.caseIds) {
+        const done = att.find((a) => a.userId === u.id && a.caseId === caseId && a.status === "finished")?.n ?? 0;
+        const active = att.some((a) => a.userId === u.id && a.caseId === caseId && a.status === "active");
+        let best: EventParticipant["cases"][string]["best"] = null;
+        let elapsedMs: number | null = null;
+        for (const r of res) {
+          if (r.userId !== u.id || r.caseId !== caseId) continue;
+          if (!best || r.total > best.total) {
+            best = { total: r.total, max: r.max };
+            elapsedMs = r.elapsedMs;
+          }
+        }
+        cs[caseId] = { status: done > 0 ? "done" : active ? "active" : "none", done, best, elapsedMs };
+      }
+      const all = Object.values(cs);
+      const status: ParticipantStatus = all.length && all.every((x) => x.status === "done") ? "done" : all.every((x) => x.status === "none") ? "none" : "active";
+      const g = groupRows.find((x) => x.id === u.groupId);
+      return { user: { id: u.id, fullName: u.fullName, login: u.login, group: g ?? null }, status, cases: cs };
+    });
+    const needle = q.q?.toLowerCase();
+    const filtered = items.filter((p) => {
+      if (q.group !== undefined && p.user.group?.id !== q.group) return false;
+      if (needle && !p.user.fullName.toLowerCase().includes(needle) && !p.user.login.toLowerCase().includes(needle)) return false;
+      if (q.status && (q.case ? (p.cases[q.case]?.status ?? "none") : p.status) !== q.status) return false;
+      return true;
+    });
+    return c.json({ event, cases: caseRows, groups: groupRows, items: filtered } satisfies EventParticipants);
   })
   .post("/admin/events", async (c) => {
     const staff = requireStaff(c);

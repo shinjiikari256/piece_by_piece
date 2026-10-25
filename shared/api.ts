@@ -250,6 +250,7 @@ export const ResultsQuery = z.object({
   case: z.string().max(100).optional(),
   group: z.union([z.coerce.number().int(), z.literal("none")]).optional(),
   user: z.union([z.coerce.number().int(), z.literal("me")]).optional(),
+  event: z.union([z.coerce.number().int(), z.literal("none")]).optional(),
   page: z.coerce.number().int().min(1).default(1),
   pageSize: z.coerce.number().int().min(5).max(100).default(20),
 });
@@ -257,6 +258,8 @@ export type ResultsQuery = z.input<typeof ResultsQuery>;
 
 export interface ResultListItem extends ServerResult {
   user: { id: number; fullName: string; login: string; group: GroupRef | null };
+  /** Мероприятие, в рамках которого пройдено дело (нет — свободная игра). */
+  event: { id: number; title: string } | null;
 }
 
 export interface ResultsPage {
@@ -270,6 +273,7 @@ export interface ResultsFilters {
   cases: { id: string; number: string; title: string }[];
   groups: GroupRef[];
   users: { id: number; fullName: string; group: string | null }[];
+  events: { id: number; title: string }[];
 }
 
 export interface ResultsStats {
@@ -350,6 +354,32 @@ export interface ServerEvent {
   open: boolean;
   /** Сколько раз игрок уже сдал каждое дело в мероприятии (только для студента). */
   doneByCase?: Record<string, number>;
+  /** Лучший результат игрока по каждому делу мероприятия (только для студента). */
+  bestByCase?: Record<string, { total: number; max: number }>;
+}
+
+export type ParticipantStatus = "none" | "active" | "done";
+
+export const ParticipantsQuery = z.object({
+  case: z.string().max(100).optional(),
+  group: z.coerce.number().int().optional(),
+  status: z.enum(["none", "active", "done"]).optional(),
+  q: z.string().trim().max(100).optional(),
+});
+export type ParticipantsQuery = z.input<typeof ParticipantsQuery>;
+
+/** Участник мероприятия: студент групп мероприятия и его прохождение каждого дела. */
+export interface EventParticipant {
+  user: { id: number; fullName: string; login: string; group: GroupRef | null };
+  status: ParticipantStatus;
+  cases: Record<string, { status: ParticipantStatus; done: number; best: { total: number; max: number } | null; elapsedMs: number | null }>;
+}
+
+export interface EventParticipants {
+  event: ServerEvent;
+  cases: { id: string; number: string; title: string }[];
+  groups: GroupRef[];
+  items: EventParticipant[];
 }
 
 /** Файл результата офлайн-игрока (`state/result-file.ts`); баллы в нём «для глаз», портал считает сам. */

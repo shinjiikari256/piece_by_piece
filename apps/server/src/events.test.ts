@@ -125,6 +125,42 @@ describe("мероприятия", () => {
   });
 });
 
+describe("результаты мероприятия", () => {
+  it("участники со статусами, фильтр event, метка и лучший балл студента", async () => {
+    const ev = await makeEvent();
+    await call("POST", "/auth/register", { login: "petrov", fullName: "Петров", password: "password123", consent: true });
+    await db.update(schema.users).set({ groupId, status: "active" }).where(eq(schema.users.login, "petrov"));
+    await asStudent();
+    expect((await call("GET", `/admin/events/${ev.id}/participants`)).status).toBe(403);
+    expect((await play(ev.id)).status).toBe(201);
+    const mine = (await call("GET", "/events")).json.find((e: { id: number }) => e.id === ev.id);
+    expect(mine.bestByCase["case-001"].max).toBeGreaterThan(0);
+    // свободная игра — без метки
+    const free = await call("POST", "/cases/case-001/attempts", {});
+    await call("POST", `/attempts/${free.json.attemptId}/start`, {});
+    await call("POST", `/attempts/${free.json.attemptId}/finish`, { answers: answersOf(), importantEvidence: [] });
+
+    await asAdmin();
+    const all = (await call("GET", `/admin/events/${ev.id}/participants`)).json;
+    expect(all.cases.map((x: { id: string }) => x.id)).toEqual(["case-001"]);
+    const byName = Object.fromEntries(all.items.map((p: { user: { login: string }; status: string }) => [p.user.login, p.status]));
+    expect(byName).toEqual({ ivanova: "done", petrov: "none" });
+    const done = (await call("GET", `/admin/events/${ev.id}/participants?status=none`)).json;
+    expect(done.items.map((p: { user: { login: string } }) => p.user.login)).toEqual(["petrov"]);
+    expect((await call("GET", `/admin/events/${ev.id}/participants?q=ИВАН`)).json.items).toHaveLength(1);
+    expect((await call("GET", `/admin/events/${ev.id}/participants?q=zzz`)).json.items).toHaveLength(0);
+
+    const list = (await call("GET", `/results?event=${ev.id}`)).json;
+    expect(list.total).toBe(1);
+    expect(list.items[0].event).toEqual({ id: ev.id, title: "Зачёт" });
+    const none = (await call("GET", "/results?event=none")).json;
+    expect(none.total).toBe(1);
+    expect(none.items[0].event).toBeNull();
+    expect((await call("GET", "/results/filters")).json.events).toEqual([{ id: ev.id, title: "Зачёт" }]);
+    expect((await call("GET", `/results/stats?event=${ev.id}`)).json.attempts).toBe(1);
+  });
+});
+
 describe("выгрузка CSV", () => {
   it("персоналу — с фильтрами, студенту нельзя, формулы экранируются", async () => {
     const ev = await makeEvent({ title: "=HYPERLINK(1)" });

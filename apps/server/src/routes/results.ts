@@ -79,13 +79,15 @@ export const userResults = (db: AppEnv["Variables"]["db"], userId: number) => db
  */
 async function resultsWhere(db: Db, viewer: UserRow, q: ReturnType<typeof ResultsQuery.parse>): Promise<SQL | undefined> {
   const byCase = q.case ? eq(results.caseId, q.case) : undefined;
-  if (viewer.role === "student") return and(eq(results.userId, viewer.id), byCase);
+  const byEvent = q.event === "none" ? isNull(results.eventId) : q.event !== undefined ? eq(results.eventId, q.event) : undefined;
+  if (viewer.role === "student") return and(eq(results.userId, viewer.id), byCase, byEvent);
   const visible = await visibleUsers(db, viewer);
   return and(
     visible ? or(eq(results.userId, viewer.id), visible) : undefined,
     byCase,
     q.group === "none" ? isNull(users.groupId) : q.group !== undefined ? eq(users.groupId, q.group) : undefined,
     q.user === "me" ? eq(results.userId, viewer.id) : q.user !== undefined ? eq(results.userId, q.user) : undefined,
+    byEvent,
   );
 }
 
@@ -104,15 +106,16 @@ export const resultRoutes = new Hono<AppEnv>()
     const where = await resultsWhere(db, viewer, q);
     const [{ n }] = await db.select({ n: count() }).from(results).innerJoin(users, eq(users.id, results.userId)).where(where);
     const rows = await db
-      .select({ r: results, u: { id: users.id, fullName: users.fullName, login: users.login }, g: { id: groups.id, name: groups.name } })
+      .select({ r: results, u: { id: users.id, fullName: users.fullName, login: users.login }, g: { id: groups.id, name: groups.name }, e: { id: events.id, title: events.title } })
       .from(results)
       .innerJoin(users, eq(users.id, results.userId))
       .leftJoin(groups, eq(groups.id, users.groupId))
+      .leftJoin(events, eq(events.id, results.eventId))
       .where(where)
       .orderBy(desc(results.finishedAt))
       .limit(q.pageSize)
       .offset((q.page - 1) * q.pageSize);
-    const items: ResultListItem[] = rows.map(({ r, u, g }) => ({ ...toServerResult(r), user: { ...u, group: g?.id ? g : null } }));
+    const items: ResultListItem[] = rows.map(({ r, u, g, e }) => ({ ...toServerResult(r), user: { ...u, group: g?.id ? g : null }, event: e?.id ? e : null }));
     return c.json({ items, total: n, page: q.page, pageSize: q.pageSize } satisfies ResultsPage);
   })
 
@@ -172,7 +175,14 @@ export const resultRoutes = new Hono<AppEnv>()
       .innerJoin(users, eq(users.id, results.userId))
       .where(where)
       .orderBy(asc(results.caseNumber));
-    if (viewer.role === "student") return c.json({ cases, groups: [], users: [] } satisfies ResultsFilters);
+    const eventList = await db
+      .selectDistinct({ id: events.id, title: events.title })
+      .from(results)
+      .innerJoin(users, eq(users.id, results.userId))
+      .innerJoin(events, eq(events.id, results.eventId))
+      .where(where)
+      .orderBy(desc(events.id));
+    if (viewer.role === "student") return c.json({ cases, groups: [], users: [], events: eventList } satisfies ResultsFilters);
     const own = viewer.role === "admin" ? null : await ownGroupIds(db, viewer.id);
     const groupList = await db
       .select({ id: groups.id, name: groups.name })
@@ -187,7 +197,7 @@ export const resultRoutes = new Hono<AppEnv>()
       .where(and(visible, eq(users.role, "student")))
       .orderBy(asc(users.fullName))
       .limit(5000);
-    return c.json({ cases, groups: groupList, users: userList } satisfies ResultsFilters);
+    return c.json({ cases, groups: groupList, users: userList, events: eventList } satisfies ResultsFilters);
   })
   /** Удаление результатов (персонал): пачкой или одного. */
   .post("/results/delete", async (c) => deleteResults(c, (await parseBody(c, DeleteResultsBody)).ids))
