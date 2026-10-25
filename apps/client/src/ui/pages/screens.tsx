@@ -153,7 +153,7 @@ export function CaseList({ cases }: { cases: CaseSummary[] | null }) {
                   {last && (
                     <button
                       className="case-stamp"
-                      data-tone={scoreTone(last.total, last.max, last.score?.timeBonus?.max)}
+                      data-tone={scoreTone(last.total, last.max)}
                       onClick={() => openResult(c.id, last)}
                       title="Открыть результат последнего прохождения"
                     >

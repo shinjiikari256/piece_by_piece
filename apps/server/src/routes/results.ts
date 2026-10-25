@@ -30,7 +30,7 @@ export const toServerResult = (r: ResultRow): ServerResult => ({
 const avg = (xs: number[]) => (xs.length ? Math.round((xs.reduce((s, x) => s + x, 0) / xs.length) * 10) / 10 : null);
 
 export function userStats(rows: ResultRow[]): UserStats {
-  const percents = rows.filter((r) => r.max > 0).map((r) => (r.total / r.max) * 100);
+  const percents = rows.filter((r) => r.max > 0).map((r) => Math.min(100, (r.total / r.max) * 100));
   return {
     attempts: rows.length,
     cases: new Set(rows.map((r) => r.caseId)).size,

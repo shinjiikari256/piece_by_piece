@@ -29,8 +29,7 @@ interface ScoreJson {
 
 /** Аналитика по выборке прохождений. */
 export function resultsStats(rows: StatsRow[]): ResultsStats {
-  const base = (r: StatsRow) => r.max - ((r.score as ScoreJson)?.timeBonus?.max ?? 0);
-  const percents = rows.filter((r) => base(r) > 0).map((r) => (r.total / base(r)) * 100);
+  const percents = rows.filter((r) => r.max > 0).map((r) => Math.min(100, (r.total / r.max) * 100));
   const withBonus = rows.filter((r) => (r.score as ScoreJson)?.timeBonus);
   const bucket = (lo: number, hi: number) => percents.filter((p) => p >= lo && p < hi).length;
   const sections = new Map<string, { sum: number; n: number }>();

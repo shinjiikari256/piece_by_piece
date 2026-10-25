@@ -91,6 +91,7 @@ export function scoreCase(c: CaseFile, answers: Answers, hintsUsed: number, elap
       elapsedMin: Number.isFinite(elapsedMs) ? Math.ceil(elapsedMs / 60_000) : 0,
     };
   }
-  const total = main + (timeBonus?.points ?? 0);
-  return { total, max: base + (timeBonus?.max ?? 0), groups, hintPenalty: penalty, questions, timeBonus };
+  // бонус возмещает потерянные баллы (подсказки, ложные улики), но выше суммы баллов дела итог не поднимается
+  const total = Math.min(base, main + (timeBonus?.points ?? 0));
+  return { total, max: base, groups, hintPenalty: penalty, questions, timeBonus };
 }

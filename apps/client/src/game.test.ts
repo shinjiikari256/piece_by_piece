@@ -148,7 +148,7 @@ describe("прохождение дела №001", () => {
     actions.setAnswer("q_evidence", ["mail_log", "krylov_admission", "printout", "teacher_testimony", "alina_testimony", "key_log", "mail_policy"]);
     await actions.submit();
     expect(store.get().screen).toBe("result");
-    expect(store.get().score?.total).toBe(110);
+    expect(store.get().score?.total).toBe(100);
   });
 
   it("давление без доказательств закрывает собеседника, но факты его открывают", async () => {
@@ -199,7 +199,7 @@ describe("прохождение дела №001", () => {
     expect(actions.findDeduction(["key_log", "complaint_copy"])).toBeUndefined();
   });
 
-  it("бонус за время: уложился — сверх 100, опоздал — без бонуса", async () => {
+  it("бонус за время: уложился — не выше 100, опоздал — без бонуса", async () => {
     const withBonus = { ...caseFile, timeBonus: { minutes: 15, points: 10 } };
     const perfect = {
       q_right: ["correspondence_secrecy"],
@@ -208,9 +208,14 @@ describe("прохождение дела №001", () => {
       q_responsible: ["krylov"],
       q_evidence: ["mail_log", "krylov_admission", "printout", "teacher_testimony", "alina_testimony", "key_log", "mail_policy"],
     };
-    expect(scoreCase(withBonus, perfect, 0, 10 * 60_000).total).toBe(110);
-    expect(scoreCase(withBonus, perfect, 0, 20 * 60_000).total).toBe(100);
-    expect(scoreCase(withBonus, perfect, 0, 10 * 60_000).max).toBe(110);
+    expect(scoreCase(withBonus, perfect, 0, 10 * 60_000).total).toBe(100);
+    expect(scoreCase(withBonus, perfect, 0, 10 * 60_000).timeBonus?.points).toBe(10);
+    expect(scoreCase(withBonus, perfect, 0, 20 * 60_000).timeBonus?.points).toBe(0);
+    // бонус возмещает штраф за подсказку, но выше суммы баллов дела итог не поднимается
+    const hinted = scoreCase(withBonus, perfect, 1, 10 * 60_000);
+    expect(hinted.total).toBeLessThanOrEqual(hinted.max);
+    expect(hinted.total).toBeGreaterThan(scoreCase(withBonus, perfect, 1, 20 * 60_000).total);
+    expect(scoreCase(withBonus, perfect, 0, 10 * 60_000).max).toBe(100);
   });
 
   it("баллов в деле может быть сколько угодно: проценты не зависят от суммы", async () => {
@@ -309,7 +314,7 @@ describe("прохождение дела №002", () => {
     actions.setAnswer("q_responsible", ["zuev"]);
     actions.setAnswer("q_evidence", ["vakhta_log", "inspection_act", "denis_testimony", "zuev_admission", "repair_log", "timur_testimony", "dorm_rules"]);
     await actions.submit();
-    expect(store.get().score?.total).toBe(110);
+    expect(store.get().score?.total).toBe(100);
   });
 
   it("признание можно получить и через акт и распоряжение", async () => {

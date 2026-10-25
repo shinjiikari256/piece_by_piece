@@ -13,10 +13,7 @@ const num = (e: SQL) => e.mapWith(Number);
 const round1 = (e: SQL) => sql`round((${e})::numeric, 1)`;
 
 export async function queryResultsStats(db: Db, where: SQL | undefined): Promise<ResultsStats> {
-  // база для процентов — максимум без бонуса за время
-  const bonusMax = sql`coalesce((${results.score} -> 'timeBonus' ->> 'max')::numeric, 0)`;
-  const base = sql`(${results.max} - ${bonusMax})`;
-  const pct = sql`(${results.total}::numeric / nullif(${base}, 0) * 100)`;
+  const pct = sql`least(100, ${results.total}::numeric / nullif(${results.max}, 0) * 100)`;
   const hasBonus = sql`jsonb_typeof(${results.score} -> 'timeBonus') = 'object'`;
   const bucket = (lo: number | null, hi: number | null) =>
     num(sql`count(*) filter (where ${pct} is not null${lo === null ? sql`` : sql` and ${pct} >= ${lo}`}${hi === null ? sql`` : sql` and ${pct} < ${hi}`})`);

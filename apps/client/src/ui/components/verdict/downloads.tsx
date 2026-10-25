@@ -29,7 +29,7 @@ export function Downloads({ record, grade, names }: { record: ResultRecord | nul
   const score = useGame((s) => s.score)!;
   // чужое прохождение (преподаватель открыл результат студента) — документы на имя владельца
   const owner = record?.owner && !(signedIn && record.owner.id === me!.id) ? record.owner : null;
-  const tone = scoreTone(score.total, score.max, score.timeBonus?.max);
+  const tone = scoreTone(score.total, score.max);
   const good = tone === "good";
   const cert: CertificateData = {
     name: owner ? owner.fullName : signedIn ? me!.fullName : profile.name,

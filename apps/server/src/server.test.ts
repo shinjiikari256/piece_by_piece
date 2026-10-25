@@ -246,11 +246,11 @@ describe("результаты", () => {
     caseNumber: "001",
     caseTitle: "Чужие письма",
     total,
-    max: 110,
+    max: 100,
     hintsUsed: 1,
     wrongDeductions: 2,
     elapsedMs: 600_000,
-    score: { total, max: 110, groups: [] },
+    score: { total, max: 100, groups: [] },
     input: { answers: {} },
     caseConfigVersion: "2026-10-12T23:07:52Z",
     gameVersion: "0.1.0",
@@ -275,8 +275,8 @@ describe("результаты", () => {
     const detail = (await admin.get(`/admin/users/${me.id}`)).json;
     expect(detail.user.login).toBe("ershova");
     expect(detail.results).toHaveLength(2);
-    expect(detail.stats).toMatchObject({ attempts: 2, cases: 2, bestPercent: 90, avgHints: 2, avgMinutes: 10 });
-    expect(detail.stats.avgPercent).toBeCloseTo(70, 0);
+    expect(detail.stats).toMatchObject({ attempts: 2, cases: 2, bestPercent: 99, avgHints: 2, avgMinutes: 10 });
+    expect(detail.stats.avgPercent).toBeCloseTo(77, 0);
 
     // чужой студент преподавателю не виден
     const g = (await admin.post("/admin/groups", { name: "Чужая" })).json;
@@ -295,8 +295,8 @@ describe("результаты", () => {
     const ub = (await b.post("/auth/register", reg("bbb"))).json as Me;
     await admin.patch("/admin/users", { ids: [ua.id], set: { groupId: g.id } });
     const withBonus = (total: number, extra = {}) =>
-      result(total, { score: { total, max: 110, timeBonus: { max: 10, points: total >= 75 ? 10 : 0 }, groups: [{ label: "Определение права", points: 30, max: 30 }] }, ...extra });
-    for (let i = 0; i < 7; i++) await addResult(ua.id, withBonus(50 + i * 10));
+      result(total, { score: { total, max: 100, timeBonus: { max: 10, points: total >= 75 ? 10 : 0 }, groups: [{ label: "Определение права", points: 30, max: 30 }] }, ...extra });
+    for (let i = 0; i < 7; i++) await addResult(ua.id, withBonus(Math.min(100, 50 + i * 10)));
     await addResult(ub.id, withBonus(20, { caseId: "case-002", caseNumber: "002", caseTitle: "Комната 412" }));
 
     const page1 = (await admin.get("/results?pageSize=5")).json;
@@ -317,8 +317,8 @@ describe("результаты", () => {
 
     const stats = (await admin.get(`/results/stats?group=${g.id}`)).json;
     expect(stats).toMatchObject({ attempts: 7, users: 1, cases: 1 });
-    // 50..110 из базы 100
-    expect(stats.avgPercent).toBe(80);
+    // 50..100 из 100 (бонус выше потолка не поднимает)
+    expect(stats.avgPercent).toBe(78.6);
     expect(stats.buckets.map((x: { count: number }) => x.count)).toEqual([0, 2, 2, 1, 2]);
     expect(stats.bonusShare).toBe(Math.round((4 / 7) * 100));
     expect(stats.sections).toEqual([{ label: "Определение права", percent: 100 }]);

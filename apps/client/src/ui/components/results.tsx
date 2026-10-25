@@ -73,8 +73,7 @@ export function fromServer(r: ServerResult | ResultListItem, owner?: { id?: numb
 
 const minutes = (ms: number | null) => (ms == null ? "—" : `${Math.max(1, Math.round(ms / 60_000))} мин`);
 const when = (at: number) => formatDate(at, true);
-const bonusMax = (r: ResultRow) => r.record?.score?.timeBonus?.max ?? 0;
-const percent = (r: ResultRow) => Math.round(scorePercent(r.total, r.max, bonusMax(r)));
+const percent = (r: ResultRow) => Math.round(scorePercent(r.total, r.max));
 
 export function ResultsTable({ rows, onOpen, showUser }: { rows: ResultRow[]; onOpen: (row: ResultRow) => void; showUser?: boolean }) {
   const table = useRef<HTMLTableElement>(null);
@@ -131,7 +130,7 @@ export function ResultsTable({ rows, onOpen, showUser }: { rows: ResultRow[]; on
               <b>{r.total}</b> / {r.max}
             </td>
             <td className="num">
-              <span className="score-pill" data-tone={scoreTone(r.total, r.max, bonusMax(r))}>
+              <span className="score-pill" data-tone={scoreTone(r.total, r.max)}>
                 {percent(r)}%
               </span>
             </td>

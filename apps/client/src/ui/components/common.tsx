@@ -8,10 +8,9 @@ import { useEscape, useScrollKeys, useWindowKey } from "../lib/hooks";
 import { Backdrop } from "../kit/window";
 import { RELIABILITY_TONE } from "../lib/tone";
 
-/** Результат в процентах от суммы баллов за вопросы (без бонуса за время; с бонусом может быть больше 100). */
-export function scorePercent(total: number, max: number, bonusMax = 0): number {
-  const base = max - bonusMax;
-  return base > 0 ? (total / base) * 100 : 0;
+/** Результат в процентах от суммы баллов дела (бонус за время выше 100 % не поднимает). */
+export function scorePercent(total: number, max: number): number {
+  return max > 0 ? Math.min(100, (total / max) * 100) : 0;
 }
 
 /** Оценка словами по проценту: баллов в деле может быть сколько угодно, поэтому пороги — в процентах. */
@@ -23,8 +22,8 @@ export function gradeOf(pct: number): string {
  * Цвет оценки: хорошо — зелёный, средне — жёлтый, плохо — красный. Пороги — как у заголовка результата
  * («Хорошая работа» от 65 %, «Есть пробелы» от 40 %).
  */
-export function scoreTone(total: number, max: number, bonusMax = 0): "good" | "warn" | "bad" {
-  const pct = scorePercent(total, max, bonusMax);
+export function scoreTone(total: number, max: number): "good" | "warn" | "bad" {
+  const pct = scorePercent(total, max);
   return pct >= 65 ? "good" : pct >= 40 ? "warn" : "bad";
 }
 

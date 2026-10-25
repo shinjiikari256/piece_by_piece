@@ -28,7 +28,7 @@ export function ResultScreen() {
 
   const names: Record<string, string> = Object.fromEntries([...caseFile.characters.map((c) => [c.id, c.name]), ...caseFile.evidence.map((e) => [e.id, e.title])]);
   const [tab, setTab] = useState<"case" | "result" | "debrief" | "downloads">("result");
-  const grade = gradeOf(scorePercent(score.total, score.max, score.timeBonus?.max ?? 0));
+  const grade = gradeOf(scorePercent(score.total, score.max));
 
   return (
     <Folder
@@ -60,7 +60,7 @@ export function ResultScreen() {
               <div>
                 <h1>{grade}</h1>
               </div>
-              <div className="score" data-tone={scoreTone(score.total, score.max, score.timeBonus?.max)}>
+              <div className="score" data-tone={scoreTone(score.total, score.max)}>
                 <span className="score__total">{score.total}</span>
                 <span className="score__max">/{score.max}</span>
               </div>
