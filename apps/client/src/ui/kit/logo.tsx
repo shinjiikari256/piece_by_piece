@@ -1,3 +1,4 @@
+import { useEffect, useRef } from "react";
 import artSvg from "../../assets/logo-detailed.svg?raw";
 
 /**
@@ -36,5 +37,19 @@ export function Logo({ size = 38 }: { size?: number }) {
  * карточки окрашиваются, штамп проявляется; стили зашиты внутри, без transform на hover).
  */
 export function LogoArt() {
-  return <div className="logo-art" aria-hidden dangerouslySetInnerHTML={{ __html: artSvg }} />;
+  const ref = useRef<HTMLDivElement>(null);
+  // без наведения (сенсорные экраны) «наведение» имитируем: состояние is-on включается и выключается по кругу
+  useEffect(() => {
+    const art = ref.current?.querySelector("svg");
+    if (!art || !matchMedia("(hover: none)").matches || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    let on = false;
+    const toggle = () => art.classList.toggle("is-on", (on = !on));
+    const first = setTimeout(toggle, 1200);
+    const id = setInterval(toggle, 3800);
+    return () => {
+      clearTimeout(first);
+      clearInterval(id);
+    };
+  }, []);
+  return <div ref={ref} className="logo-art" aria-hidden dangerouslySetInnerHTML={{ __html: artSvg }} />;
 }

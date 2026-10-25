@@ -24,11 +24,23 @@
   .user-menu__name {
     display: none;
   }
+  /* узкий экран: иллюстрация уходит под карточки «Осмотрите…» (hero «растворяется», порядок задаёт order) */
+  .landing {
+    display: flex;
+    flex-direction: column;
+  }
   .hero {
-    grid-template-columns: 1fr;
+    display: contents;
+  }
+  .hero__text {
+    padding: 1.5rem 0 2.5rem;
+  }
+  .features {
+    order: 1;
   }
   .hero__art {
-    display: none;
+    order: 2;
+    padding: 2.5rem 0 1rem;
   }
   .features {
     grid-template-columns: 1fr 1fr;

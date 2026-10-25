@@ -43,26 +43,26 @@
     .lg-thread { stroke-dasharray: 100; stroke-dashoffset: 0; }
     .lg-card, .lg-photo, .lg-print, .lg-pin, .lg-band, .lg-glow { transition: fill 0.35s, stroke 0.35s, opacity 0.35s; }
     .lg-stamp { opacity: 0.88; transition: opacity 0.3s 0.5s; }
-    .lg-art:hover .lg-stamp { opacity: 0; transition: opacity 0.15s 0s; }
+    .lg-art:hover .lg-stamp, .lg-art.is-on .lg-stamp { opacity: 0; transition: opacity 0.15s 0s; }
     .lg-glow { opacity: 0; }
     .lg-cover { d: path("M10 63Q10 52 21 52L218 42Q229 42 229 53L229 273Q229 284 218 284L21 274Q10 274 10 263Z"); transition: d 0.7s cubic-bezier(0.3, 0.7, 0.2, 1); }
-    .lg-art:hover .lg-cover { d: path("M10 63Q10 52 21 52L58 39Q69 39 69 50L69 276Q69 287 58 287L21 274Q10 274 10 263Z"); }
-    .lg-art:hover .lg-thread { animation: lg-draw 0.9s ease-out 0.3s backwards; }
-    .lg-art:hover .lg-card--a { fill: var(--lg-hover-card-a); }
-    .lg-art:hover .lg-card--b { fill: var(--lg-hover-card-b); }
-    .lg-art:hover .lg-card--c { fill: var(--lg-hover-card-c); }
-    .lg-art:hover .lg-band--a { fill: var(--lg-gold); }
-    .lg-art:hover .lg-band--b { fill: var(--lg-red); }
-    .lg-art:hover .lg-band--c { fill: var(--lg-blue); }
-    .lg-art:hover .lg-pin--a { fill: var(--lg-gold); }
-    .lg-art:hover .lg-pin--b { fill: var(--lg-red); }
-    .lg-art:hover .lg-pin--c { fill: var(--lg-blue); }
-    .lg-art:hover .lg-photo { fill: var(--lg-hover-photo); }
-    .lg-art:hover .lg-print { stroke: var(--lg-blue); }
-        .lg-art:hover .lg-glow { opacity: 0.35; }
+    .lg-art:hover .lg-cover, .lg-art.is-on .lg-cover { d: path("M10 63Q10 52 21 52L58 39Q69 39 69 50L69 276Q69 287 58 287L21 274Q10 274 10 263Z"); }
+    .lg-art:hover .lg-thread, .lg-art.is-on .lg-thread { animation: lg-draw 0.9s ease-out 0.3s backwards; }
+    .lg-art:hover .lg-card--a, .lg-art.is-on .lg-card--a { fill: var(--lg-hover-card-a); }
+    .lg-art:hover .lg-card--b, .lg-art.is-on .lg-card--b { fill: var(--lg-hover-card-b); }
+    .lg-art:hover .lg-card--c, .lg-art.is-on .lg-card--c { fill: var(--lg-hover-card-c); }
+    .lg-art:hover .lg-band--a, .lg-art.is-on .lg-band--a { fill: var(--lg-gold); }
+    .lg-art:hover .lg-band--b, .lg-art.is-on .lg-band--b { fill: var(--lg-red); }
+    .lg-art:hover .lg-band--c, .lg-art.is-on .lg-band--c { fill: var(--lg-blue); }
+    .lg-art:hover .lg-pin--a, .lg-art.is-on .lg-pin--a { fill: var(--lg-gold); }
+    .lg-art:hover .lg-pin--b, .lg-art.is-on .lg-pin--b { fill: var(--lg-red); }
+    .lg-art:hover .lg-pin--c, .lg-art.is-on .lg-pin--c { fill: var(--lg-blue); }
+    .lg-art:hover .lg-photo, .lg-art.is-on .lg-photo { fill: var(--lg-hover-photo); }
+    .lg-art:hover .lg-print, .lg-art.is-on .lg-print { stroke: var(--lg-blue); }
+        .lg-art:hover .lg-glow, .lg-art.is-on .lg-glow { opacity: 0.35; }
     @keyframes lg-draw { from { stroke-dashoffset: 100; } to { stroke-dashoffset: 0; } }
     @media (prefers-reduced-motion: reduce) {
-      .lg-art:hover .lg-thread { animation: none; }
+      .lg-art:hover .lg-thread, .lg-art.is-on .lg-thread { animation: none; }
       .lg-cover { transition: none; }
       .lg-card, .lg-photo, .lg-print, .lg-pin, .lg-band, .lg-glow, .lg-stamp { transition: none !important; }
     }
