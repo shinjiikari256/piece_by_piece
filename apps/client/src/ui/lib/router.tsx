@@ -20,10 +20,11 @@ export type Route =
   | { page: "play"; caseId: string }
   | { page: "playtest" }
   | { page: "editor"; caseId?: string; section?: string }
-  | { page: "admin"; section: "users" | "groups" | "events" | "settings"; userId?: number; eventId?: number | "new" };
+  | { page: "events"; eventId?: number }
+  | { page: "admin"; section: "users" | "groups" | "events" | "settings"; userId?: number; eventId?: number | "new"; eventResults?: boolean };
 
 /** Адреса, которых в офлайн-файле нет: вход, личный кабинет, админка, выгрузка офлайн-версии (всё — с сервером). */
-const ONLINE_PAGES = new Set(["login", "guest", "register", "account", "admin", "offline"]);
+const ONLINE_PAGES = new Set(["login", "guest", "register", "account", "admin", "offline", "events"]);
 
 /** Разобрать путь (`/admin/users/12`, без query). */
 export function parseRoute(path: string): Route {
@@ -39,6 +40,10 @@ export function parseRoute(path: string): Route {
     case "account":
     case "offline":
       return { page: parts[0] };
+    case "events": {
+      const eventId = Number(parts[1]);
+      return Number.isInteger(eventId) && eventId > 0 ? { page: "events", eventId } : { page: "events" };
+    }
     case "play":
       return parts[1] ? { page: "play", caseId: decodeURIComponent(parts[1]) } : { page: "cases" };
     case "playtest":
@@ -54,6 +59,7 @@ export function parseRoute(path: string): Route {
         section,
         userId: Number.isFinite(userId) ? userId : undefined,
         ...(eventId === "new" || Number.isFinite(eventId) ? { eventId } : {}),
+        ...(typeof eventId === "number" && parts[3] === "results" ? { eventResults: true } : {}),
       };
     }
     default:
@@ -65,7 +71,8 @@ export function parseRoute(path: string): Route {
 export function routeHref(r: Route): string {
   if (r.page === "home") return "/";
   if (r.page === "play") return `/play/${encodeURIComponent(r.caseId)}`;
-  if (r.page === "admin") return `/admin/${r.section}${r.userId ? `/${r.userId}` : r.eventId ? `/${r.eventId}` : ""}`;
+  if (r.page === "events") return r.eventId ? `/events/${r.eventId}` : "/events";
+  if (r.page === "admin") return `/admin/${r.section}${r.userId ? `/${r.userId}` : r.eventId ? `/${r.eventId}${r.eventResults ? "/results" : ""}` : ""}`;
   if (r.page === "editor") return r.caseId ? `/editor/${encodeURIComponent(r.caseId)}${r.section ? `/${r.section}` : ""}` : "/editor";
   return `/${r.page}`;
 }

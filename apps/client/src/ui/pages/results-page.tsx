@@ -29,14 +29,17 @@ export interface Filters {
   case: string;
   group: string;
   user: string;
+  /** Id мероприятия или `none` (свободная игра). */
+  event: string;
 }
-export const NO_FILTERS: Filters = { case: "", group: "", user: "" };
+export const NO_FILTERS: Filters = { case: "", group: "", user: "", event: "" };
 
 export const query = (f: Filters, extra: Record<string, string | number> = {}) => {
   const p = new URLSearchParams();
   if (f.case) p.set("case", f.case);
   if (f.group) p.set("group", f.group);
   if (f.user) p.set("user", f.user);
+  if (f.event) p.set("event", f.event);
   for (const [k, v] of Object.entries(extra)) p.set(k, String(v));
   return p.toString();
 };

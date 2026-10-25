@@ -19,6 +19,9 @@ describe("маршруты сайта", () => {
     ["/admin/users/12", { page: "admin", section: "users", userId: 12 }],
     ["/admin/events/new", { page: "admin", section: "events", eventId: "new" }],
     ["/admin/events/5", { page: "admin", section: "events", eventId: 5 }],
+    ["/admin/events/5/results", { page: "admin", section: "events", eventId: 5, eventResults: true }],
+    ["/events", { page: "events" }],
+    ["/events/7", { page: "events", eventId: 7 }],
     ["/admin/groups", { page: "admin", section: "groups" }],
     ["/admin/settings", { page: "admin", section: "settings" }],
   ];

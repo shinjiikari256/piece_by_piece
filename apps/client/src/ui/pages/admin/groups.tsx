@@ -1,9 +1,9 @@
 import { Link, setSearchParams, siteUrl, useSearchParam } from "../../lib/router";
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { renderSVG } from "uqr";
+import { useCallback, useEffect, useState } from "react";
 import { type AdminGroup, type AdminUser, type JoinLink } from "../../../../../../shared/api";
 import { api } from "../../../state/api";
 import { ask } from "../../kit/dialog";
+import { QrCode, downloadQr } from "../../components/qr";
 import { Field } from "../account";
 import { date, fail } from "./index";
 
@@ -271,33 +271,4 @@ function LinkCard({ link: l, group, act }: { link: JoinLink; group: AdminGroup; 
       </div>
     </li>
   );
-}
-
-function QrCode({ text }: { text: string }) {
-  const svg = useMemo(() => renderSVG(text), [text]);
-  return <div className="qr" dangerouslySetInnerHTML={{ __html: svg }} />;
-}
-
-/** QR-код картинкой PNG (для печати и слайдов). */
-/** QR всегда чёрный на белом: цвета темы не используем, иначе код перестанет читаться сканером. */
-const QR_BACKGROUND = "#ffffff";
-
-async function downloadQr(text: string, name: string) {
-  const svg = renderSVG(text, { border: 2 });
-  const img = new Image();
-  img.src = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
-  await img.decode();
-  const size = 1024;
-  const canvas = document.createElement("canvas");
-  canvas.width = size;
-  canvas.height = size;
-  const ctx = canvas.getContext("2d")!;
-  ctx.imageSmoothingEnabled = false;
-  ctx.fillStyle = QR_BACKGROUND;
-  ctx.fillRect(0, 0, size, size);
-  ctx.drawImage(img, 0, 0, size, size);
-  const a = document.createElement("a");
-  a.href = canvas.toDataURL("image/png");
-  a.download = `${name.replace(/[^\p{L}\p{N}_-]+/gu, "-")}.png`;
-  a.click();
 }

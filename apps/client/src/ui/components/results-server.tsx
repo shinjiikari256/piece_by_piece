@@ -9,8 +9,10 @@ import { ResultsImport } from "./results-import";
 import { EmptyResults, NO_FILTERS, PAGE_SIZE, StatsModal, open, query, type Filters } from "../pages/results-page";
 
 /** «Результаты» с сервера: вошедший видит свои (студент) или все с фильтрами (преподаватель, админ). Только онлайн-сборка. */
-export function ServerResults({ staff }: { staff: boolean }) {
-  const [filters, setFilters] = useState<Filters>(NO_FILTERS);
+export function ServerResults({ staff, eventId }: { staff: boolean; eventId?: number }) {
+  // внутри мероприятия оно зафиксировано: фильтр не показывается и не сбрасывается
+  const base: Filters = eventId === undefined ? NO_FILTERS : { ...NO_FILTERS, event: String(eventId) };
+  const [filters, setFilters] = useState<Filters>(base);
   const [page, setPage] = useState(1);
   const [data, setData] = useState<ResultsPageData | null>(null);
   const [options, setOptions] = useState<ResultsFilters | null>(null);
@@ -47,13 +49,13 @@ export function ServerResults({ staff }: { staff: boolean }) {
     setFilters((f) => ({ ...f, ...patch }));
     setPage(1);
   };
-  const filtered = Object.values(filters).some(Boolean);
+  const filtered = Object.entries(filters).some(([k, v]) => v && !(eventId !== undefined && k === "event"));
   const rows = data?.items.map((r) => fromServer(r)) ?? [];
 
   return (
-    <div className="page page--wide">
+    <div className={eventId === undefined ? "page page--wide" : "stack"}>
       <header className="page__head">
-        <h1>{staff ? "Результаты" : "Мои результаты"}</h1>
+        {eventId === undefined ? <h1>{staff ? "Результаты" : "Мои результаты"}</h1> : <h2>Прохождения</h2>}
         <button className="btn" onClick={() => setStats(true)} disabled={!data?.total}>
           <Icon name="scale" size={16} /> Статистика
         </button>
@@ -83,6 +85,14 @@ export function ServerResults({ staff }: { staff: boolean }) {
           onChange={(v) => set({ case: v })}
           options={[{ value: "", label: "Все дела" }, ...(options?.cases ?? []).map((c) => ({ value: c.id, label: `№${c.number} «${c.title}»` }))]}
         />
+        {eventId === undefined && (options?.events.length ?? 0) > 0 && (
+          <Select
+            value={filters.event}
+            placeholder="Все мероприятия"
+            onChange={(v) => set({ event: v })}
+            options={[{ value: "", label: "Все мероприятия" }, { value: "none", label: "Без мероприятия" }, ...(options?.events ?? []).map((e) => ({ value: String(e.id), label: e.title }))]}
+          />
+        )}
         {staff && (
           <>
             <Select
@@ -104,7 +114,7 @@ export function ServerResults({ staff }: { staff: boolean }) {
           </>
         )}
         {filtered && (
-          <button className="linkbtn" onClick={() => set(NO_FILTERS)}>
+          <button className="linkbtn" onClick={() => set(base)}>
             Сбросить фильтры
           </button>
         )}

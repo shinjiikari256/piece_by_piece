@@ -58,6 +58,9 @@ export function EventsSection({ groups }: { groups: AdminGroup[] }) {
               Разбор: {DEBRIEF_POLICY_LABEL[e.debriefPolicy]} · попыток: {e.maxScoredAttempts ?? "без ограничения"}
             </span>
             <div className="row">
+              <Link className="btn btn--sm btn--primary" to={`/admin/events/${e.id}/results`}>
+                Результаты
+              </Link>
               <Link className="btn btn--sm" to={`/admin/events/${e.id}`}>
                 Изменить
               </Link>

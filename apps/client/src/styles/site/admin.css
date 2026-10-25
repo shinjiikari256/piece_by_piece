@@ -292,3 +292,19 @@
     min-width: 6.5em;
   }
 }
+
+/* QR и ссылка на странице мероприятия */
+.event-share {
+  display: flex;
+  gap: 1.4rem;
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+.event-share .qr {
+  flex: none;
+  width: 9rem;
+}
+.event-share .stack {
+  flex: 1 1 16rem;
+  min-width: 0;
+}

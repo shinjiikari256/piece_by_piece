@@ -90,3 +90,17 @@ export const pendingJoinToken = () => joinToken;
 export const clearJoinToken = () => {
   joinToken = null;
 };
+
+// ---------- Куда вернуться после входа (QR мероприятия и т. п.) ----------
+
+let returnTo: string | null = null;
+/** Запомнить страницу, на которую вернуть пользователя после входа или регистрации. */
+export const setReturnTo = (path: string) => {
+  returnTo = path;
+};
+/** Забрать запомненную страницу (один раз). */
+export const takeReturnTo = () => {
+  const path = returnTo;
+  returnTo = null;
+  return path;
+};

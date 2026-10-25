@@ -23,6 +23,8 @@ export interface ResultRow {
   record: ResultRecord | null;
   /** Чьё прохождение — в таблице преподавателя. */
   user?: { id: number; fullName: string; group: string | null };
+  /** Мероприятие, в рамках которого пройдено дело. */
+  event?: { id: number; title: string };
 }
 
 export const fromLocal = (r: ResultRecord): ResultRow => ({
@@ -55,6 +57,7 @@ export function fromServer(r: ServerResult | ResultListItem, owner?: { id?: numb
     elapsedMs: r.elapsedMs,
     at,
     user: "user" in r ? { id: r.user.id, fullName: r.user.fullName, group: r.user.group?.name ?? null } : undefined,
+    event: "event" in r && r.event ? r.event : undefined,
     record: {
       caseId: r.caseId,
       number: r.caseNumber,
@@ -142,6 +145,19 @@ export function ResultsTable({ rows, onOpen, showUser, selection }: { rows: Resu
             )}
             <td>
               <span className="muted">№{r.number}</span> {r.title}
+              {r.event && (
+                <div>
+                  {showUser ? (
+                    <Link className="status" data-tone="accent" to={`/admin/events/${r.event.id}/results`} onClick={(e) => e.stopPropagation()}>
+                      {r.event.title}
+                    </Link>
+                  ) : (
+                    <span className="status" data-tone="accent">
+                      {r.event.title}
+                    </span>
+                  )}
+                </div>
+              )}
             </td>
             <td className="num">
               <b>{r.total}</b> / {r.max}

@@ -6,6 +6,7 @@ import { useAccount, isStaff } from "../../state/account";
 import { account, api, pendingJoinToken } from "../../state/api";
 import { AuthPage, Field, PasswordForm } from "./account";
 import { AdminPage, StatusChip } from "./admin";
+import { EventsPage } from "./events-page";
 import { OfflinePage } from "./offline-page";
 import { useDismiss, useMenuKeys } from "../lib/hooks";
 import { initials, shortName } from "../../util/names";
@@ -26,6 +27,7 @@ export function OnlinePage({ route }: { route: Route }) {
   if (route.page === "login" || route.page === "register" || route.page === "guest") return <AuthPage tab={route.page} />;
   if (route.page === "account") return <AccountPage />;
   if (route.page === "admin") return <AdminPage route={route} />;
+  if (route.page === "events") return <EventsPage eventId={route.eventId} />;
   if (route.page === "offline") return <OfflinePage />;
   return null;
 }

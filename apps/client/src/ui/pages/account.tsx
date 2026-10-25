@@ -1,7 +1,7 @@
 import { useEffect, useState, type FormEvent, type ReactNode } from "react";
 import { CONSENT_TEXT, type JoinInfo } from "../../../../../shared/api";
 import { accountStore, useAccount } from "../../state/account";
-import { ApiFailure, account, api, clearJoinToken, pendingJoinToken } from "../../state/api";
+import { ApiFailure, account, api, clearJoinToken, pendingJoinToken, takeReturnTo } from "../../state/api";
 import { Alert } from "../kit/alert";
 import { PasswordInput } from "../kit/password-input";
 import { Dialog } from "../kit/window";
@@ -100,7 +100,7 @@ function LoginForm() {
   const { busy, error, submit } = useSubmit(async () => {
     await account.login({ login, password });
     await offerGuestData();
-    navigate("/");
+    navigate(takeReturnTo() ?? "/");
   });
   return (
     <form className="form auth-pane" onSubmit={submit}>
@@ -141,7 +141,7 @@ function RegisterForm() {
     });
     clearJoinToken();
     await offerGuestData();
-    navigate("/account");
+    navigate(takeReturnTo() ?? "/account");
   });
   return (
     <form className="form auth-pane" onSubmit={submit}>

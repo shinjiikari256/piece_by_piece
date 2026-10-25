@@ -18,6 +18,7 @@ export function useSiteLinks(route: Route): SiteLink[] {
   const staff = server === "online" && isStaff(me);
   return [
     { to: "/cases", label: "Дела", active: route.page === "cases" },
+    ...(server === "online" && me?.role === "student" ? [{ to: "/events", label: "Мероприятия", active: route.page === "events" }] : []),
     { to: "/results", label: "Результаты", active: route.page === "results" },
     ...(staff ? [{ to: "/admin/users", label: "Пользователи", active: route.page === "admin" && route.section === "users" }] : []),
     ...(staff || (server === "none" && DEV_EDITOR) ? [{ to: "/editor", label: "Конструктор дел", active: route.page === "editor" }] : []),
