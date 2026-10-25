@@ -8,6 +8,8 @@ import { ask, tell } from "../ui/kit/dialog";
 import { confirmReplace, downloadJson } from "./actions";
 import { filterCases, sortCases, type CaseSort } from "./case-sort";
 import { CaseIconButton } from "./CaseIconButton";
+import { rememberServerVersion } from "./publish";
+import { EditorsDialog } from "./EditorsDialog";
 import { VisibilityDialog } from "./VisibilityDialog";
 
 interface RemoteCase {
@@ -17,6 +19,11 @@ interface RemoteCase {
   published: boolean;
   updatedAt?: string;
   createdAt?: string;
+  versionId: number;
+  /** Можно записывать версии (автор, соавтор, админ). */
+  canEdit: boolean;
+  /** Можно удалять дело и менять соавторов и видимость (автор, админ). */
+  canManage: boolean;
 }
 
 /** Дела конструктора, записанные на сервер: открыть, экспортировать, удалить, настроить видимость. Только онлайн-сборка. */
@@ -24,6 +31,7 @@ export function RemoteCases({ sort, query, reloadKey }: { sort: CaseSort; query:
   const online = useAccount((a) => a.server === "online" && isStaff(a.me));
   const [remote, setRemote] = useState<RemoteCase[]>([]);
   const [visibilityOf, setVisibilityOf] = useState<RemoteCase | null>(null);
+  const [editorsOf, setEditorsOf] = useState<RemoteCase | null>(null);
   const reload = useCallback(() => api<RemoteCase[]>("GET", "/admin/cases").then(setRemote, () => setRemote([])), []);
   useEffect(() => {
     if (online) void reload();
@@ -32,7 +40,8 @@ export function RemoteCases({ sort, query, reloadKey }: { sort: CaseSort; query:
   /** Полное дело с сервера; при ошибке показывает окно и возвращает undefined. */
   const fetchCase = async (id: string) => {
     try {
-      const { caseFile } = await api<{ caseFile: unknown }>("GET", `/admin/cases/${encodeURIComponent(id)}`);
+      const { caseFile, versionId } = await api<{ caseFile: unknown; versionId: number }>("GET", `/admin/cases/${encodeURIComponent(id)}`);
+      rememberServerVersion(id, versionId);
       const checked = validateCase(caseFile);
       if (!checked.ok) return void tell({ title: "Дело на сервере не проходит проверку", text: checked.errors.slice(0, 8).join("\n") });
       return checked.caseFile;
@@ -81,14 +90,16 @@ export function RemoteCases({ sort, query, reloadKey }: { sort: CaseSort; query:
               </span>
             </span>
             <span className="eh__buttons">
-              <CaseIconButton icon="eye" label="Видимость" onClick={() => setVisibilityOf(c)} />
-              <CaseIconButton icon="pen" label="Редактировать" primary onClick={() => confirmReplace(() => void edit(c.id))} />
+              {c.canManage && <CaseIconButton icon="eye" label="Видимость" onClick={() => setVisibilityOf(c)} />}
+              {c.canManage && <CaseIconButton icon="user" label="Соавторы" onClick={() => setEditorsOf(c)} />}
+              {c.canEdit && <CaseIconButton icon="pen" label="Редактировать" primary onClick={() => confirmReplace(() => void edit(c.id))} />}
               <CaseIconButton icon="download" label="Экспорт в файл" onClick={() => void exportCase(c.id)} />
-              <CaseIconButton icon="trash" label="Удалить с сервера" danger onClick={() => void remove(c)} />
+              {c.canManage && <CaseIconButton icon="trash" label="Удалить с сервера" danger onClick={() => void remove(c)} />}
             </span>
           </li>
         ))}
       </ul>
+      {editorsOf && <EditorsDialog caseId={editorsOf.id} number={editorsOf.number} title={editorsOf.title} onClose={() => setEditorsOf(null)} />}
       {visibilityOf && <VisibilityDialog caseId={visibilityOf.id} number={visibilityOf.number} title={visibilityOf.title} published={visibilityOf.published} onClose={() => setVisibilityOf(null)} />}
     </>
   );

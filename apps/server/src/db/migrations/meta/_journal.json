@@ -71,6 +71,13 @@
       "when": 1792956467493,
       "tag": "0009_drop_admin_group_teachers",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1792956784536,
+      "tag": "0010_harsh_tombstone",
+      "breakpoints": true
     }
   ]
 }

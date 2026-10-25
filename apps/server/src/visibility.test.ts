@@ -141,3 +141,44 @@ describe("видимость дела по группам", () => {
     expect((await call("PUT", "/admin/cases/case-001/visibility", { mode: "all", groupIds: [] })).status).toBe(403);
   });
 });
+
+describe("соавторы и проверка версии", () => {
+  it("соавтор правит дело автора; чужой — нет; устаревшая версия — 409; админ в соавторах не хранится", async () => {
+    const author = await addUser("author", "teacher", null);
+    const coId = await addUser("coed", "teacher", null);
+    await addUser("other", "teacher", null);
+    await asAdmin();
+    const base = (await call("GET", "/admin/cases/case-001")).json.caseFile;
+    const adminId = (await db.select().from(schema.users).where(eq(schema.users.login, "admin")))[0].id;
+    await login("author", "password123");
+    const mine = { ...base, id: "coauth", number: "77", title: "Совместное" };
+    const first = await call("PUT", "/admin/cases/coauth?rights=1", mine);
+    expect(first.json.result).toBe("created");
+    const v1 = first.json.versionId;
+    const row = (await call("GET", "/admin/cases")).json.find((x: { id: string }) => x.id === "coauth");
+    expect(row).toMatchObject({ canEdit: true, canManage: true });
+    // админа и автора в соавторы не пишем
+    expect((await call("PUT", "/admin/cases/coauth/editors", { userIds: [coId, adminId, author] })).json.editorIds).toEqual([coId]);
+    // соавтор: правит, но не управляет
+    await login("coed", "password123");
+    const co = (await call("GET", "/admin/cases")).json.find((x: { id: string }) => x.id === "coauth");
+    expect(co).toMatchObject({ canEdit: true, canManage: false });
+    expect((await call("PUT", "/admin/cases/coauth/editors", { userIds: [] })).status).toBe(403);
+    expect((await call("DELETE", "/admin/cases/coauth")).status).toBe(403);
+    const edited = { ...mine, title: "Правка соавтора" };
+    const second = await call("PUT", `/admin/cases/coauth?rights=1&base=${v1}`, edited);
+    expect(second.json.result).toBe("created");
+    // автор правил со старой версии — отказ
+    await login("author", "password123");
+    expect((await call("PUT", `/admin/cases/coauth?rights=1&base=${v1}`, { ...mine, title: "Моя" })).status).toBe(409);
+    expect((await call("PUT", `/admin/cases/coauth?rights=1&base=${second.json.versionId}`, { ...mine, title: "Моя" })).json.result).toBe("created");
+    // откат к прежнему содержимому делает его действующим
+    const back = await call("PUT", "/admin/cases/coauth?rights=1", mine);
+    expect(back.json.result).toBe("created");
+    expect((await call("GET", "/admin/cases/coauth")).json.caseFile.title).toBe("Совместное");
+    // посторонний преподаватель
+    await login("other", "password123");
+    expect((await call("PUT", "/admin/cases/coauth?rights=1", edited)).status).toBe(403);
+    expect((await call("GET", "/admin/cases")).json.find((x: { id: string }) => x.id === "coauth")).toMatchObject({ canEdit: false, canManage: false });
+  });
+});

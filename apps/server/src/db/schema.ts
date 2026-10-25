@@ -183,6 +183,20 @@ export const caseVersions = pgTable(
   (t) => [uniqueIndex("case_versions_hash_idx").on(t.caseId, t.contentHash)],
 );
 
+/** Соавторы дела: кроме автора (первая версия) и админа, дело правят и они. Админов сюда не вносят. */
+export const caseEditors = pgTable(
+  "case_editors",
+  {
+    caseId: text("case_id")
+      .notNull()
+      .references((): AnyPgColumn => cases.id, { onDelete: "cascade" }),
+    userId: integer("user_id")
+      .notNull()
+      .references((): AnyPgColumn => users.id, { onDelete: "cascade" }),
+  },
+  (t) => [primaryKey({ columns: [t.caseId, t.userId] })],
+);
+
 export type AttemptStatus = "active" | "finished" | "reset" | "abandoned";
 
 /**

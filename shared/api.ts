@@ -176,6 +176,8 @@ export const LinkBody = z.object({
   autoApprove: z.boolean().optional(),
 });
 
+export const CaseEditorsBody = z.object({ userIds: z.array(z.number().int()).max(100) });
+
 export interface Settings {
   registrationOpen: boolean;
 }
