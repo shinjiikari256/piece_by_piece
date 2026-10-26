@@ -1,4 +1,9 @@
 import { z } from "zod";
+import { Condition, Effect } from "./case-logic";
+import { CustomPart, CustomSprite, CustomTile, LocationObject } from "./case-objects";
+
+export * from "./case-logic";
+export * from "./case-objects";
 
 /**
  * Формат файла дела. Схема — единый источник правды:
@@ -35,110 +40,6 @@ export const Appearance = z.enum([
   "sport_m",
 ]);
 
-const conditionRows = {
-  evidence: z.array(z.string()).optional().describe("Все эти улики должны быть в журнале"),
-  flags: z.array(z.string()).optional().describe("Все эти флаги должны быть установлены"),
-  notFlags: z.array(z.string()).optional().describe("Ни один из этих флагов не должен быть установлен"),
-  notEvidence: z.array(z.string()).optional().describe("Ни одной из этих улик не должно быть в журнале"),
-  deductions: z.array(z.string()).optional().describe("Все эти сопоставления должны быть решены"),
-  notDeductions: z.array(z.string()).optional().describe("Ни одно из этих сопоставлений не должно быть решено"),
-  following: z.array(z.string()).optional().describe("Эти персонажи идут за игроком"),
-  notFollowing: z.array(z.string()).optional().describe("Эти персонажи не идут за игроком"),
-  inLocation: z.array(z.string()).optional().describe("Игрок сейчас в одной из этих локаций"),
-  notInLocation: z.array(z.string()).optional().describe("Игрок сейчас ни в одной из этих локаций"),
-  chosen: z
-    .array(z.object({ dialogueId: z.string(), nodeId: z.string(), choiceId: z.string(), not: z.boolean().optional().describe("Вариант ещё не выбирался") }))
-    .optional()
-    .describe("Варианты ответа, которые игрок уже выбирал (или, с «not», ещё не выбирал)"),
-  counters: z
-    .array(
-      z.object({
-        counterId: z.string(),
-        min: z.number().int().optional().describe("Значение не меньше"),
-        max: z.number().int().optional().describe("Значение не больше"),
-      }),
-    )
-    .optional()
-    .describe("Значения счётчиков в заданных границах"),
-  enums: z
-    .array(
-      z.object({
-        enumId: z.string(),
-        in: z.array(z.string()).optional().describe("Значение — одно из этих"),
-        notIn: z.array(z.string()).optional().describe("Значение — не одно из этих"),
-      }),
-    )
-    .optional()
-    .describe("Значения перечислений: одно из / не одно из"),
-};
-
-/**
- * Условие: строки (все сразу) ∧ каждое из `allOf` ∧ хотя бы одно из `anyOf`. Вложенные условия — тоже условия, глубина не ограничена.
- * Автор собирает его формулой над пронумерованными строками (`1 && (2 || 3)`, см. `shared/condition-formula.ts`).
- */
-export type Condition = z.infer<z.ZodObject<typeof conditionRows>> & { anyOf?: Condition[]; allOf?: Condition[] };
-export const Condition: z.ZodType<Condition> = z.object({
-  ...conditionRows,
-  get anyOf() {
-    return z.array(Condition).optional().describe("«Или»: должно выполняться хотя бы одно из этих условий; остальные строки условия тоже должны выполняться");
-  },
-  get allOf() {
-    return z.array(Condition).optional().describe("«И»: должны выполняться все эти условия (нужно, когда в «и» стоят несколько групп «или»)");
-  },
-});
-
-/** Необязательное условие эффекта: проверяется в момент применения, по состоянию после предыдущих эффектов списка. */
-const effectWhen = {
-  requires: Condition.optional().describe("Применять, только если условие выполнено (проверяется в момент применения)"),
-  once: z.boolean().optional().describe("Только один раз за прохождение: после первого срабатывания эффект больше не применяется"),
-};
-
-/** Шаг клипа: кадр спрайта и сколько миллисекунд его держать. */
-export const ClipStep = z.object({
-  frame: z.string().describe("Кадр спрайта"),
-  ms: z.number().int().min(10).max(10000).default(100).describe("Сколько миллисекунд показывать кадр"),
-});
-export type ClipStep = z.infer<typeof ClipStep>;
-
-export const Effect = z.discriminatedUnion("type", [
-  z.object({ type: z.literal("addEvidence"), evidenceId: z.string(), ...effectWhen }),
-  z
-    .object({
-      type: z.literal("changeVariable"),
-      variableId: z.string(),
-      action: z.enum(["on", "off", "toggle", "add", "subtract", "set", "assign"]),
-      value: z.number().int().optional().describe("Число для счётчика (прибавить, отнять, задать); для флага и перечисления не нужно"),
-      valueId: z.string().optional().describe("Для перечисления (действие «выбрать значение»): id значения"),
-      ...effectWhen,
-    })
-    .describe("Изменить переменную: флаг — поставить, снять или переключить; счётчик — прибавить, отнять или задать значение (в границах счётчика); перечисление — выбрать значение"),
-  z.object({ type: z.literal("removeEvidence"), evidenceId: z.string(), ...effectWhen }).describe("Убрать улику из дела (отдал ключ, расход предмета)"),
-  z
-    .object({ type: z.literal("playAnimation"), objectId: z.string(), clip: z.array(ClipStep).min(1), ...effectWhen })
-    .describe("Проиграть анимацию предмета один раз, не меняя его состояния (диалог заставил дверь постучать); только вид, на условия не влияет"),
-  z.object({ type: z.literal("startDialogue"), dialogueId: z.string(), ...effectWhen }).describe("Запустить диалог (после остальных эффектов списка)"),
-  z.object({ type: z.literal("travel"), locationId: z.string(), x: z.number().int(), y: z.number().int(), ...effectWhen }).describe("Перенести игрока в локацию, на клетку x, y"),
-  z
-    .object({ type: z.literal("failCase"), text: z.string().optional().describe("Что увидит игрок в окне «Дело провалено»"), ...effectWhen })
-    .describe("Неудачное завершение дела: игрок видит окно и начинает заново; результат не записывается"),
-  z.object({ type: z.literal("message"), text: z.string(), ...effectWhen }).describe("Показать игроку короткое сообщение (без диалога)"),
-  z.object({ type: z.literal("addCharacterNote"), characterId: z.string(), text: z.string(), ...effectWhen }),
-  z.object({ type: z.literal("follow"), characterId: z.string(), ...effectWhen }).describe("Персонаж идёт за игроком"),
-  z.object({ type: z.literal("stay"), characterId: z.string(), ...effectWhen }).describe("Перестаёт идти следом и остаётся, где стоит"),
-  z.object({ type: z.literal("returnHome"), characterId: z.string(), ...effectWhen }).describe("Возвращается на своё исходное место"),
-  z
-    .object({
-      type: z.literal("moveTo"),
-      characterId: z.string(),
-      locationId: z.string(),
-      x: z.number().int(),
-      y: z.number().int(),
-      zoneId: z.string().optional().describe("Область цели: персонаж встанет на свободную клетку внутри неё (клетка x, y — запасная)"),
-      failText: z.string().optional().describe("Что скажет персонаж, если не сможет дойти"),
-      ...effectWhen,
-    })
-    .describe("Персонаж идёт на клетку карты и остаётся там; за игроком не следует"),
-]);
 
 /** Приложение к улике: файл или ссылка. Для ссылки `src` — адрес (http/https), `caption` — текст, который увидит игрок. */
 export const Attachment = z.object({
@@ -150,8 +51,6 @@ export const Attachment = z.object({
 /** Ключи частей персонажа: встроенных (`short`, `tie`…) или частей дела (`CaseFile.parts`); существование проверяет валидатор. */
 export const HairStyle = z.string().describe("Ключ причёски (часть слота «hair»)");
 export const AccentStyle = z.string().describe("Ключ детали одежды (часть слота «accent»)");
-/** Слоты частей персонажа. */
-export const PartSlot = z.enum(["hair", "accent", "face", "bottom"]);
 
 /** Своя внешность персонажа (цвета — #rrggbb). */
 export const CustomLook = z.object({
@@ -209,262 +108,6 @@ export const Evidence = z.object({
   onCollect: z.array(Effect).default([]).describe("Эффекты в момент, когда улика попала в дело (один раз)"),
 });
 
-/** Окно осмотра предмета: что видит игрок. Улики и прочие эффекты осмотра — отдельно, `LocationObject.onInteract` (эффект «добавить улику в дело»). */
-export const ObjectInteraction = z.object({
-  title: z.string(),
-  description: z.string().describe("Что видно при осмотре"),
-});
-
-export const SpriteKey = z.enum([
-  "desk",
-  "computer_desk",
-  "board",
-  "cabinet",
-  "door",
-  "guard_post",
-  "printer",
-  "chair",
-  "plant",
-  "bench",
-  "bookshelf",
-  "window",
-  "water_cooler",
-  "trash_bin",
-  "bed",
-  "fridge",
-  "sofa",
-  "vending",
-  "clock",
-  "poster",
-  "coat_rack",
-  "stove",
-  "rug",
-  "floor_lamp",
-  "lockers",
-  "server_rack",
-  "cctv_desk",
-  "whiteboard",
-  "fire_extinguisher",
-  "sink",
-  "kitchen_counter",
-  "round_table",
-  "armchair",
-  "boxes",
-  "safe",
-  "coffee_machine",
-  "air_conditioner",
-  "judge_bench",
-  "witness_stand",
-  "justice_statue",
-  "flag",
-  "holding_cell",
-  "shop_shelf",
-  "cash_register",
-  "bar_counter",
-  "cafe_table",
-  "atm",
-  "hospital_bed",
-  "iv_stand",
-  "street_lamp",
-  "tree",
-  "car",
-  "police_car",
-  "bus_stop",
-  "mailbox",
-  "desk_papers",
-  "desk_corner",
-  "conference_table_3",
-  "conference_table_4",
-  "coffee_table",
-  "dining_table",
-  "kitchen_table",
-  "school_desk",
-  "lab_table",
-  "nightstand",
-  "operating_table",
-  "crate",
-  "blood_pool",
-  "blood_splatter",
-  "blood_drops",
-  "body_floor",
-  "body_wall",
-  "body_covered",
-  "chalk_outline",
-  "evidence_tag",
-  "key",
-  "flashlight",
-  "documents",
-  "folder",
-  "door_h",
-  "door_v",
-]);
-
-/** Цикл состояния: клип идёт по кругу, пока состояние действует. */
-export const ObjectLoop = z.object({
-  clip: z.array(ClipStep).min(1),
-  pauseMs: z.number().int().min(0).max(60000).optional().describe("Пауза между повторами (в это время виден кадр состояния)"),
-});
-
-/** Переход между состояниями: клип проигрывается один раз при живой смене `from → to`. */
-export const ObjectTransition = z.object({
-  from: z.string().describe("Состояние «из» (id), `default` — вид по умолчанию, `*` — любое"),
-  to: z.string().describe("Состояние «в» (id), `default` — вид по умолчанию, `*` — любое"),
-  clip: z.array(ClipStep).min(1),
-});
-
-/** Разовая анимация на событие предмета, без смены состояния (ящик дрогнул при осмотре). */
-export const ObjectAction = z.object({
-  on: z.enum(["interact"]).default("interact").describe("Событие: осмотр предмета"),
-  state: z.string().optional().describe("Только в этом состоянии (id или `default`); без значения — в любом"),
-  clip: z.array(ClipStep).min(1),
-});
-
-/** Таймерная анимация: раз в `everyMs` (плюс случайная добавка) проигрывается клип поверх состояния. */
-export const ObjectTimer = z.object({
-  everyMs: z.number().int().min(200).max(600000).describe("Период, мс"),
-  jitterMs: z.number().int().min(0).max(600000).optional().describe("Случайная добавка к периоду, мс (от 0 до значения)"),
-  state: z.string().optional().describe("Только в этом состоянии (id или `default`); без значения — в любом"),
-  clip: z.array(ClipStep).min(1),
-});
-
-/** Вид и поведение предмета при условии. Состояние — производная переменных дела: сменить его можно только сменив переменную обычным эффектом. */
-export const ObjectState = z.object({
-  id: z.string(),
-  when: Condition.optional().meta({ always: true }).describe("Когда состояние действует; без условия — подходит всегда (ставьте последним)"),
-  frame: z.string().optional().describe("Кадр спрайта; без значения — кадр по умолчанию"),
-  solid: z.boolean().optional().describe("Мешает ли проходу в этом состоянии; без значения — как у спрайта"),
-  interaction: ObjectInteraction.nullable().optional().describe("Окно осмотра в этом состоянии; без значения — как у предмета, null — без окна"),
-  label: z.string().optional().describe("Подпись над предметом в этом состоянии; без значения — как у предмета"),
-  onInteract: z.array(Effect).optional().describe("Эффекты осмотра в этом состоянии вместо эффектов предмета (например, сообщение «Заперто»)"),
-  onEnter: z.array(Effect).optional().describe("Эффекты в момент, когда предмет перешёл в это состояние (только при смене во время игры, не при загрузке сохранения)"),
-  onExit: z.array(Effect).optional().describe("Эффекты в момент, когда предмет вышел из этого состояния"),
-  loop: ObjectLoop.optional().describe("Анимация по кругу, пока состояние действует (мигающая лампа)"),
-});
-
-/** Своя переменная спрайта: флаг, число или перечисление; условия состояний спрайта ссылаются на неё по `id`. */
-export const SpriteParam = z.object({
-  id: z.string().regex(/^[a-z][a-z0-9_]*$/),
-  name: z.string().describe("Название для автора"),
-  kind: z.enum(["flag", "counter", "enum"]).describe("Флаг, число или перечисление"),
-  values: z
-    .array(z.object({ id: z.string(), name: z.string() }))
-    .optional()
-    .describe("Значения перечисления"),
-});
-
-/** Состояние спрайта: только вид (кадр, проходимость, цикл); условие — над переменными спрайта (`flags`, `notFlags`, `counters`, `enums`, `allOf`, `anyOf`). */
-export const SpriteState = ObjectState.pick({ id: true, when: true, frame: true, solid: true, loop: true }).extend({
-  name: z.string().optional().describe("Название для автора; без него показывается ключ"),
-});
-
-const SpriteOp = z.union([
-  z.tuple([z.number().int(), z.number().int(), z.number().int().min(1), z.number().int().min(1), z.string().regex(/^#[0-9a-f]{6}([0-9a-f]{2})?$/i)]),
-  z.tuple([z.number().int(), z.number().int(), z.number().int().min(1), z.number().int().min(1)]),
-]);
-
-/** Спрайт, нарисованный автором дела (встроенные хранятся только ключом): те же поля, что у встроенного, плюс название и группа. */
-export const CustomSprite = z.object({
-  key: z
-    .string()
-    .regex(/^[a-z][a-z0-9_]*$/)
-    .describe("Ключ: латиница, цифры, _; не совпадает со встроенным"),
-  name: z.string().describe("Название в палитре"),
-  group: z.string().optional().describe("Группа палитры; без значения — «Свои»"),
-  w: z.number().int().min(1).max(256).describe("Ширина в пикселях (16 px = тайл)"),
-  h: z.number().int().min(1).max(256).describe("Высота в пикселях"),
-  footprint: z.object({ w: z.number().int().min(1).max(16), h: z.number().int().min(1).max(16) }).describe("Опора в клетках: вправо и вверх от точки предмета"),
-  solid: z.boolean().describe("Мешает ли проходу"),
-  cells: z
-    .array(z.object({ dx: z.number().int(), dy: z.number().int(), solid: z.boolean() }))
-    .optional()
-    .describe("Исключения из solid по клеткам опоры"),
-  flat: z.boolean().optional(),
-  mount: z.number().int().optional(),
-  opensNear: z.boolean().optional(),
-  mirrorRight: z.boolean().optional(),
-  params: z.array(SpriteParam).optional().describe("Свои переменные спрайта: состояния зависят от них, а предмет на карте привязывает их к переменным дела"),
-  states: z.array(SpriteState).optional().describe("Состояния по переменным спрайта: действует первое подходящее"),
-  transitions: z.array(ObjectTransition).optional().describe("Анимации перехода между состояниями спрайта"),
-  actions: z.array(ObjectAction).optional().describe("Анимации на осмотр"),
-  timers: z.array(ObjectTimer).optional().describe("Анимации по таймеру"),
-  frames: z.record(z.string(), z.array(SpriteOp)).refine((f) => Array.isArray(f.default), "нужен кадр default"),
-});
-
-const PartOp = z.union([
-  z.tuple([z.number().int(), z.number().int(), z.number().int().min(1), z.number().int().min(1), z.string().regex(/^(#[0-9a-f]{6}([0-9a-f]{2})?|\$[A-Za-z]+)$/)]),
-  z.tuple([z.number().int(), z.number().int(), z.number().int().min(1), z.number().int().min(1)]),
-]);
-
-/** Часть персонажа, нарисованная автором (причёска, деталь одежды…): рисунок 16×24, цвета — `#rrggbb[aa]` или роли внешности (`$hair`, `$top`…). */
-export const CustomPart = z.object({
-  key: z
-    .string()
-    .regex(/^[a-z][a-z0-9_]*$/)
-    .describe("Ключ: латиница, цифры, _; не совпадает со встроенным в том же слоте"),
-  name: z.string().describe("Название в списке частей"),
-  slot: PartSlot.describe("Слот: причёска, деталь одежды, лицо, низ"),
-  bob: z.boolean().optional().describe("На позе «вдох» сдвигается на пиксель вниз вместе с телом"),
-  legs: z.string().optional().describe("Цвет ног под частью (роль или #цвет), например у юбки"),
-  frames: z.record(z.string(), z.array(PartOp)).refine((f) => Array.isArray(f.default), "нужен кадр default"),
-});
-
-const TileColor = z.string().regex(/^#[0-9a-f]{6}([0-9a-f]{2})?$/);
-const TileRectOp = z.tuple([z.number().int(), z.number().int(), z.number().int().min(1), z.number().int().min(1), TileColor]);
-const TileOp = z.union([
-  TileRectOp,
-  z.object({ checker: z.tuple([TileColor, TileColor]) }),
-  z.object({
-    noise: z.object({
-      step: z.number().int().min(1),
-      rules: z.array(z.object({ gt: z.number().optional(), lt: z.number().optional(), size: z.tuple([z.number().int().min(1), z.number().int().min(1)]), color: TileColor })),
-    }),
-  }),
-  z.object({ chance: z.object({ gt: z.number(), ops: z.array(TileRectOp) }) }),
-  z.object({ planks: z.object({ line: TileColor, step: z.number().int().min(1), shiftOdd: z.number().int() }) }),
-]);
-const TileNeighbor = z.union([z.string(), z.array(z.string())]);
-
-/** Тайл клетки карты, нарисованный автором: рисунок 16×16 слоями (слой может зависеть от соседних клеток). */
-export const CustomTile = z.object({
-  key: z
-    .string()
-    .regex(/^[a-z][a-z0-9_]*$/)
-    .describe("Ключ: латиница, цифры, _; не совпадает со встроенным"),
-  name: z.string().describe("Название в палитре карты"),
-  solid: z.boolean().describe("Непроходимая клетка (стена, забор)"),
-  base: z.string().optional().describe("Тайл, рисуемый под этим (ключ)"),
-  baseFrom: z.literal("below").optional().describe("Под тайлом рисуется пол соседа снизу"),
-  layers: z.array(
-    z.object({
-      when: z.object({ above: TileNeighbor.optional(), below: TileNeighbor.optional(), left: TileNeighbor.optional(), right: TileNeighbor.optional() }).optional(),
-      ops: z.array(TileOp),
-    }),
-  ),
-});
-
-export const LocationObject = z.object({
-  id: z.string(),
-  sprite: z.string().describe("Ключ спрайта: встроенный или из спрайтов дела"),
-  x: z.number().int().describe("Колонка тайла"),
-  y: z.number().int().describe("Строка тайла"),
-  label: z.string().describe("Подпись над объектом"),
-  interaction: ObjectInteraction.nullable().describe("Окно осмотра; null — без окна (декорация или предмет только с эффектами)"),
-  transitions: z.array(ObjectTransition).optional().describe("Анимации перехода между состояниями (открытие двери); нет подходящей — кадр меняется сразу"),
-  actions: z.array(ObjectAction).optional().describe("Разовые анимации на осмотр предмета (без смены состояния)"),
-  timers: z.array(ObjectTimer).optional().describe("Анимации по таймеру: раз в период проигрывается клип (кот повернул голову)"),
-  states: z.array(ObjectState).optional().describe("Состояния по условиям: действует первое подходящее по порядку; нет подходящего — вид по умолчанию"),
-  bindings: z.record(z.string(), z.string()).optional().describe("Привязка переменных спрайта к переменным дела: переменная спрайта → переменная дела; действует, если у предмета нет своих состояний"),
-  onInteract: z.array(Effect).default([]).meta({ always: true }).describe("Эффекты осмотра предмета (при каждом осмотре; «только один раз» — у самого эффекта); выдача улики — в окне осмотра"),
-});
-
-/** Улики, которые может выдать осмотр предмета (эффекты «добавить улику в дело» в `onInteract`, независимо от условий). */
-export const objectEvidenceIds = (o: { onInteract?: { type: string; evidenceId?: string }[]; states?: { onInteract?: { type: string; evidenceId?: string }[] }[] }): string[] => [
-  ...new Set([...(o.onInteract ?? []), ...(o.states ?? []).flatMap((st) => st.onInteract ?? [])].flatMap((e) => (e.type === "addEvidence" && e.evidenceId ? [e.evidenceId] : []))),
-];
-
-/** Предмет, с которым можно взаимодействовать: есть окно осмотра или эффекты. */
-export const isInteractive = (o: { interaction?: unknown; onInteract?: unknown[]; states?: { interaction?: unknown; onInteract?: unknown[] }[] }): boolean =>
-  !!o.interaction || !!o.onInteract?.length || !!o.states?.some((st) => st.interaction || st.onInteract?.length);
 
 /** Диалог персонажа, доступный при условии (например, очная ставка: другой персонаж идёт за игроком). */
 export const NpcDialogue = z.object({
@@ -780,23 +423,14 @@ export type CaseEvent = z.infer<typeof CaseEvent>;
 export type Dialogue = z.infer<typeof Dialogue>;
 export type DialogueNode = z.infer<typeof DialogueNode>;
 export type DialogueChoice = z.infer<typeof DialogueChoice>;
-export type Effect = z.infer<typeof Effect>;
 export type Deduction = z.infer<typeof Deduction>;
 export type Question = z.infer<typeof Question>;
 export type QuestionCategory = z.infer<typeof QuestionCategory>;
-export type LocationObject = z.infer<typeof LocationObject>;
-export type ObjectState = z.infer<typeof ObjectState>;
 export type NpcPlacement = z.infer<typeof NpcPlacement>;
 export type Location = z.infer<typeof Location>;
 export type Zone = z.infer<typeof Zone>;
 export type ZoneAction = z.infer<typeof ZoneAction>;
 export type NpcDialogue = z.infer<typeof NpcDialogue>;
-export type SpriteKey = z.infer<typeof SpriteKey>;
-export type SpriteParam = z.infer<typeof SpriteParam>;
-export type CustomSprite = z.infer<typeof CustomSprite>;
-export type CustomPart = z.infer<typeof CustomPart>;
-export type CustomTile = z.infer<typeof CustomTile>;
-export type PartSlot = z.infer<typeof PartSlot>;
 export type Appearance = z.infer<typeof Appearance>;
 export type CustomLook = z.infer<typeof CustomLook>;
 export type HairStyle = z.infer<typeof HairStyle>;
