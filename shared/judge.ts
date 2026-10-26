@@ -57,6 +57,8 @@ export interface CaseAuthority {
   readonly caseFile: PublicCase;
   /** Мероприятие, в рамках которого идёт прохождение (только серверный судья). */
   readonly eventId?: number;
+  /** Прохождение на сервере: сохранение, сделанное в другом, к этому судье не относится. */
+  readonly attemptId?: string;
   checkDeduction(deductionId: string, optionId: string): Promise<DeductionVerdict>;
   /** Открыть подсказку следующего уровня; штраф учитывает судья. */
   revealHint(level: number): Promise<RevealedHint>;

@@ -72,7 +72,8 @@ export const session = {
     registerCaseArt(caseFile);
     const raw = await platform().saves.read(caseFile.id);
     // устаревшее сохранение не загружаем — экран дела покажет предупреждение
-    if (!raw || isSaveOutdated(raw, caseFile)) return session.openCase(judge);
+    // сохранение другого прохождения (свободная игра ↔ мероприятие, закрытая попытка) тоже не берём
+    if (!raw || isSaveOutdated(raw, caseFile) || (raw.attemptId && judge.attemptId && raw.attemptId !== judge.attemptId)) return session.openCase(judge);
     const save = sanitizeSave(raw, caseFile);
     setAuthority(judge);
     const known = await ask((a) => a.restore(save.progress.deductions, save.hintsUsed));

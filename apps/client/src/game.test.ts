@@ -457,6 +457,24 @@ describe("сохранение расследования", () => {
     expect(readSave("case-001")).not.toBeNull();
   });
 
+  it("сохранение другого прохождения (attemptId) не берётся; без attemptId — берётся", async () => {
+    const judge = (attemptId: string) => Object.assign(new LocalAuthority(caseFile), { attemptId });
+    actions.interact("obj_computer");
+    actions.addObjectToJournal("obj_computer");
+    actions.close();
+    actions.exitToMenu(true);
+    // локальное сохранение без attemptId подходит любому судье
+    await actions.resume(judge("a1"));
+    expect(store.get().screen).toBe("play");
+    actions.setNotes("x");
+    actions.exitToMenu(true);
+
+    // сохранение, записанное под попыткой a1, не подходит попытке a2
+    expect(readSave("case-001")?.attemptId).toBe("a1");
+    await actions.resume(judge("a2"));
+    expect(store.get().screen).toBe("intro");
+  });
+
   it("при продолжении судья возвращает выводы установленных фактов и открытые подсказки", async () => {
     await actions.answerDeduction("d_access", "b");
     await actions.revealHint();

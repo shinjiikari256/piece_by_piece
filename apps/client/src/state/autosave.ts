@@ -1,4 +1,5 @@
 import type { GameState } from "./store";
+import { getAuthority } from "./core";
 import { platform } from "./platform";
 
 /** Поля, из которых состоит сохранение. Тосты, окна и прочее на сохранение не влияют. */
@@ -36,6 +37,7 @@ export function createAutosave(get: () => GameState, onFail: () => void) {
         answers: s.answers,
         locationId: s.locationId,
         caseUpdatedAt: s.caseFile.updatedAt,
+        attemptId: getAuthority()?.attemptId,
       })
       .then((ok) => ok || onFail());
   };

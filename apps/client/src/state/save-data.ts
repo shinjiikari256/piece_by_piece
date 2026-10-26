@@ -23,6 +23,8 @@ export interface SaveData {
   locationId: string;
   /** Версия дела (его updatedAt), на которой сделано сохранение. */
   caseUpdatedAt?: string;
+  /** Прохождение на сервере, в котором сделано сохранение (нет — сохранение локальное). */
+  attemptId?: string;
   player?: { x: number; y: number; locationId: string };
   /** Когда игрок вышел из дела: время отсутствия не идёт в зачёт таймера. */
   pausedAt?: number;

@@ -18,7 +18,7 @@ export const publicCases = () => api<ServerCaseSummary[]>("GET", "/public/cases"
 export class ApiAuthority implements CaseAuthority {
   private constructor(
     readonly caseFile: PublicCase,
-    private attemptId: string,
+    private id: string,
     private started: boolean,
     readonly eventId?: number,
   ) {}
@@ -29,8 +29,12 @@ export class ApiAuthority implements CaseAuthority {
     return new ApiAuthority(a.caseFile, a.attemptId, a.started, eventId);
   }
 
+  get attemptId() {
+    return this.id;
+  }
+
   private path(suffix: string) {
-    return `/attempts/${this.attemptId}${suffix}`;
+    return `/attempts/${this.id}${suffix}`;
   }
 
   checkDeduction(deductionId: string, optionId: string) {
@@ -60,7 +64,7 @@ export class ApiAuthority implements CaseAuthority {
   async discard() {
     if (!this.started) return;
     const a = await api<ServerAttempt>("POST", `/cases/${encodeURIComponent(this.caseFile.id)}/attempts`, { fresh: true, eventId: this.eventId });
-    this.attemptId = a.attemptId;
+    this.id = a.attemptId;
     this.started = false;
   }
 
