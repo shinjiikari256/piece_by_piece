@@ -4,6 +4,7 @@ import { editor, useEditor } from "../state";
 import { countRefs, renameKey, toKey } from "../keys";
 import { ask, tell } from "../../ui/kit/dialog";
 import { Dialog } from "../../ui/kit/window";
+import { deleteVariable } from "../fields/variable-walk";
 import { isVariableKeyTaken, type FlagUse } from "../fields/variables";
 import { UsageList } from "../fields/UsageList";
 import { KeyInput, keyChars } from "../fields/KeyInput";
@@ -11,33 +12,7 @@ import { KeyInput, keyChars } from "../fields/KeyInput";
 type Counter = NonNullable<CaseFile["counters"]>[number];
 
 /** Убрать счётчик из дела: сам счётчик, эффекты «изменить переменную» по нему и строки условий по нему (пустые условия исчезают). */
-export function deleteCounter(d: CaseFile, id: string): CaseFile {
-  const clean = (node: unknown): unknown => {
-    if (Array.isArray(node)) {
-      return node
-        .filter((x) => !(x && typeof x === "object" && (x as { type?: string; variableId?: string }).type === "changeVariable" && (x as { variableId?: string }).variableId === id))
-        .map(clean);
-    }
-    if (node && typeof node === "object") {
-      const out: Record<string, unknown> = {};
-      for (const [k, v] of Object.entries(node)) {
-        if (k === "counters" && Array.isArray(v) && v.every((r) => r && typeof r === "object" && "counterId" in r)) {
-          const rest = v.filter((r) => (r as { counterId: string }).counterId !== id);
-          if (rest.length) out[k] = rest;
-          continue;
-        }
-        const next = clean(v);
-        // условие, из которого убрали всё, исчезает целиком
-        if (k === "requires" && next && typeof next === "object" && !Object.keys(next).length) continue;
-        out[k] = next;
-      }
-      return out;
-    }
-    return node;
-  };
-  const { counters, ...rest } = d;
-  return { ...(clean(rest) as Omit<CaseFile, "counters">), counters: (counters ?? []).filter((x) => x.id !== id) } as CaseFile;
-}
+export const deleteCounter = deleteVariable;
 
 /** Окно нового счётчика: название и ключ (собирается из названия, пока его не правили руками). */
 export function CounterDialog({ onDone }: { onDone: (id: string | null) => void }) {

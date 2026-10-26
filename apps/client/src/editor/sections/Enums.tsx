@@ -5,78 +5,34 @@ import { countRefs, renameKey, toKey } from "../keys";
 import { Select } from "../../ui/kit/Select";
 import { ask, tell } from "../../ui/kit/dialog";
 import { Dialog } from "../../ui/kit/window";
+import { deleteVariable, walkVariables, type EnumRow } from "../fields/variable-walk";
 import { isVariableKeyTaken, type FlagUse } from "../fields/variables";
 import { UsageList } from "../fields/UsageList";
 import { KeyInput, keyChars } from "../fields/KeyInput";
 import { blurOnEnter } from "../../util/keys";
 
 type EnumDef = NonNullable<CaseFile["enums"]>[number];
-type Row = { enumId: string; in?: string[]; notIn?: string[] };
 
-/**
- * Обход дела с правкой эффектов «изменить переменную» и строк условий по перечислениям.
- * `effect` возвращает новый эффект или `null` (убрать); `row` — то же для строки условия.
- */
-function walk(node: unknown, hooks: { effect?: (e: Record<string, unknown>) => Record<string, unknown> | null; row?: (r: Row) => Row | null }): unknown {
-  if (Array.isArray(node)) {
-    const isRows = node.length > 0 && node.every((r) => r && typeof r === "object" && "enumId" in r);
-    return node
-      .map((x) => {
-        if (isRows && hooks.row) return hooks.row(x as Row);
-        if (x && typeof x === "object" && (x as { type?: string }).type === "changeVariable" && hooks.effect) {
-          const next = hooks.effect(x as Record<string, unknown>);
-          return next && walk(next, hooks);
-        }
-        return walk(x, hooks);
-      })
-      .filter((x) => x !== null);
-  }
-  if (node && typeof node === "object") {
-    const out: Record<string, unknown> = {};
-    for (const [k, v] of Object.entries(node)) {
-      const next = walk(v, hooks);
-      // условие, из которого убрали всё, исчезает целиком
-      if (k === "enums" && Array.isArray(next) && !next.length) continue;
-      if (k === "requires" && next && typeof next === "object" && !Object.keys(next).length) continue;
-      out[k] = next;
-    }
-    return out;
-  }
-  return node;
-}
-
-const sameList = (a: string[] | undefined, fn: (x: string) => string | null) => {
-  if (!a) return undefined;
-  const out = a.map(fn).filter((x): x is string => x !== null);
-  return out;
-};
+const mapList = (a: string[] | undefined, fn: (x: string) => string | null) => a?.map(fn).filter((x): x is string => x !== null);
 
 /** Убрать перечисление: его самого, эффекты по нему и строки условий. */
-export function deleteEnum(d: CaseFile, id: string): CaseFile {
-  const { enums, ...rest } = d;
-  const cleaned = walk(rest, {
-    effect: (e) => (e.variableId === id ? null : e),
-    row: (r) => (r.enumId === id ? null : r),
-  }) as Omit<CaseFile, "enums">;
-  const left = (enums ?? []).filter((x) => x.id !== id);
-  return (left.length ? { ...cleaned, enums: left } : cleaned) as CaseFile;
-}
+export const deleteEnum = deleteVariable;
 
 /** Убрать значение: из списка, из начального, эффекты «выбрать значение» и упоминания в условиях (строка, где значений не осталось, пропадает). */
 export function deleteEnumValue(d: CaseFile, enumId: string, valueId: string): CaseFile {
   const { enums, ...rest } = d;
-  const cleaned = walk(rest, {
-    effect: (e) => (e.variableId === enumId && e.valueId === valueId ? null : e),
-    row: (r) => {
+  const cleaned = walkVariables(rest, {
+    effect: (e) => (e.type === "changeVariable" && e.variableId === enumId && e.valueId === valueId ? null : e),
+    enumRow: (r) => {
       if (r.enumId !== enumId) return r;
-      const next: Row = { enumId };
-      const inList = sameList(r.in, (x) => (x === valueId ? null : x));
-      const notIn = sameList(r.notIn, (x) => (x === valueId ? null : x));
+      const next: EnumRow = { enumId };
+      const inList = mapList(r.in, (x) => (x === valueId ? null : x));
+      const notIn = mapList(r.notIn, (x) => (x === valueId ? null : x));
       if (inList?.length) next.in = inList;
       if (notIn?.length) next.notIn = notIn;
       return next.in || next.notIn ? next : null;
     },
-  }) as Omit<CaseFile, "enums">;
+  });
   return {
     ...cleaned,
     enums: (enums ?? []).map((e) => (e.id === enumId ? { ...e, values: e.values.filter((v) => v.id !== valueId), ...(e.initial === valueId ? { initial: undefined } : {}) } : e)),
@@ -86,11 +42,11 @@ export function deleteEnumValue(d: CaseFile, enumId: string, valueId: string): C
 /** Сменить ключ значения во всех местах: список, начальное, эффекты, условия. */
 export function renameEnumValue(d: CaseFile, enumId: string, from: string, to: string): CaseFile {
   const { enums, ...rest } = d;
-  const cleaned = walk(rest, {
-    effect: (e) => (e.variableId === enumId && e.valueId === from ? { ...e, valueId: to } : e),
-    row: (r) =>
-      r.enumId === enumId ? { ...r, ...(r.in ? { in: sameList(r.in, (x) => (x === from ? to : x)) } : {}), ...(r.notIn ? { notIn: sameList(r.notIn, (x) => (x === from ? to : x)) } : {}) } : r,
-  }) as Omit<CaseFile, "enums">;
+  const swap = (x: string) => (x === from ? to : x);
+  const cleaned = walkVariables(rest, {
+    effect: (e) => (e.type === "changeVariable" && e.variableId === enumId && e.valueId === from ? { ...e, valueId: to } : e),
+    enumRow: (r) => (r.enumId === enumId ? { ...r, ...(r.in ? { in: mapList(r.in, swap) } : {}), ...(r.notIn ? { notIn: mapList(r.notIn, swap) } : {}) } : r),
+  });
   return {
     ...cleaned,
     enums: (enums ?? []).map((e) => (e.id === enumId ? { ...e, values: e.values.map((v) => (v.id === from ? { ...v, id: to } : v)), ...(e.initial === from ? { initial: to } : {}) } : e)),
@@ -100,16 +56,11 @@ export function renameEnumValue(d: CaseFile, enumId: string, from: string, to: s
 /** Сколько мест ссылается на значение (эффекты и строки условий). */
 function valueRefs(d: CaseFile, enumId: string, valueId: string): number {
   let n = 0;
-  walk(d.dialogues, {
-    effect: (e) => ((n += e.variableId === enumId && e.valueId === valueId ? 1 : 0), e),
-    row: (r) => ((n += r.enumId === enumId && (r.in?.includes(valueId) || r.notIn?.includes(valueId)) ? 1 : 0), r),
+  const { enums: _enums, ...rest } = d;
+  walkVariables(rest, {
+    effect: (e) => ((n += e.type === "changeVariable" && e.variableId === enumId && e.valueId === valueId ? 1 : 0), e),
+    enumRow: (r) => ((n += r.enumId === enumId && (r.in?.includes(valueId) || r.notIn?.includes(valueId)) ? 1 : 0), r),
   });
-  for (const part of [d.deductions, d.locations, d.evidence]) {
-    walk(part, {
-      effect: (e) => ((n += e.variableId === enumId && e.valueId === valueId ? 1 : 0), e),
-      row: (r) => ((n += r.enumId === enumId && (r.in?.includes(valueId) || r.notIn?.includes(valueId)) ? 1 : 0), r),
-    });
-  }
   return n;
 }
 

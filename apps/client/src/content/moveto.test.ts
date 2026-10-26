@@ -442,7 +442,7 @@ describe("счётчики и начальные флаги", () => {
     c.dialogues[0].nodes[0].effects.push({ type: "changeVariable", variableId: "trust", action: "add", value: 1 });
     c.dialogues[0].nodes[0].choices[0].requires = { counters: [{ counterId: "trust", min: 1 }] };
     const out = deleteCounter(c, "trust");
-    expect(out.counters).toEqual([]);
+    expect(out.counters).toBeUndefined();
     expect(JSON.stringify(out)).not.toContain("trust");
     expect(out.dialogues[0].nodes[0].choices[0].requires).toBeUndefined();
   });

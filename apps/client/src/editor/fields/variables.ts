@@ -1,7 +1,8 @@
-import type { CaseFile, Condition, Effect } from "../../../../../shared/case";
+import type { Condition, Effect } from "../../../../../shared/case";
 import { flagOfEffect } from "../../../../../shared/conditions";
-import { effectSites, mapEffectSites, type EffectOwner } from "../../../../../shared/effect-sites";
+import { effectSites, type EffectOwner } from "../../../../../shared/effect-sites";
 import type { Focus } from "../state";
+import { deleteVariable } from "./variable-walk";
 import type { FormCtx } from "../SchemaForm";
 
 /** Подпись и адрес перехода для места с эффектами (реплика, вариант, сопоставление, осмотр, область). */
@@ -131,48 +132,7 @@ export const flagUsage = (d: FormCtx["draft"]): Map<string, FlagUse[]> => collec
 export const evidenceUsage = (d: FormCtx["draft"]): Map<string, FlagUse[]> => collectUsage(d).evidence;
 
 /** Удалить флаг полностью: эффекты «поставить флаг», проверки в условиях (пустые условия исчезают), запись в списке. */
-export function deleteFlag(d: CaseFile, flag: string): CaseFile {
-  const cleanCond = (c: Condition): Condition => {
-    const r: Condition = { ...c };
-    for (const k of ["flags", "notFlags"] as const) {
-      if (!r[k]) continue;
-      r[k] = r[k]!.filter((f) => f !== flag);
-      if (!r[k]!.length) delete r[k];
-    }
-    if (r.anyOf) {
-      const alts = r.anyOf.map(cleanCond).filter((a) => Object.keys(a).length);
-      if (alts.length) r.anyOf = alts;
-      else delete r.anyOf;
-    }
-    if (r.allOf) {
-      const parts = r.allOf.map(cleanCond).filter((a) => Object.keys(a).length);
-      if (parts.length) r.allOf = parts;
-      else delete r.allOf;
-    }
-    return r;
-  };
-  const clean = <T extends { requires?: Condition }>(x: T): T => {
-    if (!x.requires) return x;
-    const r = cleanCond(x.requires);
-    const { requires: _old, ...rest } = x;
-    return (Object.keys(r).length ? { ...rest, requires: r } : rest) as T;
-  };
-  const noSet = (effects: Effect[]) => effects.filter((e) => flagOfEffect(e)?.flag !== flag).map(clean);
-  const cleaned: CaseFile = {
-    ...d,
-    flags: (d.flags ?? []).filter((f) => f.id !== flag),
-    hints: d.hints.map(clean),
-    deductions: d.deductions.map(clean),
-    dialogues: d.dialogues.map((dl) => ({ ...dl, nodes: dl.nodes.map((n) => ({ ...n, choices: n.choices.map(clean) })) })),
-    locations: d.locations.map((l) => ({
-      ...l,
-      objects: l.objects.map((o) => (o.states ? { ...o, states: o.states.map((st) => (st.when ? { ...st, when: cleanCond(st.when) } : st)) } : o)),
-      npcs: l.npcs.map((n) => ({ ...clean(n), dialogues: n.dialogues.map(clean) })),
-      zones: l.zones.map((z) => ({ ...z, actions: z.actions.map(clean) })),
-    })),
-  };
-  return mapEffectSites(cleaned, noSet);
-}
+export const deleteFlag = deleteVariable;
 
 export const flagName = (d: FormCtx["draft"], id: string) => d.flags?.find((f) => f.id === id)?.name ?? "";
 /** «Разрешён вход в архив (key_412)» — название и ключ в скобках. */
