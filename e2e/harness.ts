@@ -9,8 +9,10 @@ import { ensureAdmin } from "../apps/server/src/bootstrap";
 import { seedCases } from "../apps/server/src/cases";
 import { memoryDb } from "../apps/server/src/db";
 
-const CLIENT_PORT = 5198;
-const API_PORT = 8799;
+// Файлы идут параллельно, у каждого воркера свои порты.
+const WORKER = Number(process.env.VITEST_POOL_ID ?? 1);
+const CLIENT_PORT = 5300 + WORKER;
+const API_PORT = 8900 + WORKER;
 export const BASE = `http://localhost:${CLIENT_PORT}`;
 
 /** Хромиум из кеша playwright (его ставит `npx playwright install`); можно задать PLAYWRIGHT_CHROMIUM. */

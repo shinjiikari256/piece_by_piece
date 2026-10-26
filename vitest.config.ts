@@ -2,10 +2,19 @@ import { defineConfig } from "vitest/config";
 import react from "@vitejs/plugin-react";
 import pkg from "./package.json" with { type: "json" };
 
-// Тесты клиента и сервера запускаются из корня одной командой `pnpm test`.
-export default defineConfig({
+const shared = {
   plugins: [react()],
   define: { __GAME_VERSION__: JSON.stringify(pkg.version) },
-  // PGlite (PostgreSQL в памяти) при параллельном прогоне поднимается дольше 5 с
-  test: { include: ["apps/**/*.test.ts"], testTimeout: 30_000, hookTimeout: 30_000 },
+};
+
+// Тесты клиента и сервера запускаются из корня одной командой `pnpm test`;
+// по отдельности — `pnpm test:client` / `pnpm test:server`.
+export default defineConfig({
+  test: {
+    projects: [
+      { ...shared, test: { name: "client", include: ["apps/client/**/*.test.ts"] } },
+      // memoryDb поднимает PGlite — при параллельном прогоне это дольше 5 с
+      { ...shared, test: { name: "server", include: ["apps/server/**/*.test.ts"], testTimeout: 30_000, hookTimeout: 30_000 } },
+    ],
+  },
 });

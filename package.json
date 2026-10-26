@@ -10,6 +10,8 @@
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",
     "test": "vitest run",
+    "test:client": "vitest run --project client",
+    "test:server": "vitest run --project server",
     "test:e2e": "vitest run --config vitest.e2e.config.ts",
     "validate:cases": "tsx scripts/validate-cases.ts",
     "generate:case": "tsx scripts/generate-case.ts",

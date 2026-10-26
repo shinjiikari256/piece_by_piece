@@ -5,9 +5,9 @@ TypeScript · Vite 7 (одна страница `apps/client/index.html`: сай
 
 ## Команды
 - `pnpm typecheck` — после каждой правки кода (быстро, без вывода = ок).
-- `pnpm lint` — ESLint (в т.ч. запрет нативного `<select>`). `pnpm test:e2e` — сквозные тесты в браузере (`e2e/`, playwright-core, свой Vite + сервер на PGlite; Chromium из `~/.cache/ms-playwright` или `PLAYWRIGHT_CHROMIUM`). CI — `.github/workflows/ci.yml`.
-- `pnpm test` — vitest (корневой `vitest.config.ts`, клиент и сервер), `apps/client/src/game.test.ts` + `apps/client/src/editor/editor.test.ts` (валидность дел, баллы, прохождения).
-- `pnpm build` — в конце задачи.
+- `pnpm lint` — ESLint (в т.ч. запрет нативного `<select>`). `pnpm test:e2e` — сквозные тесты в браузере (`e2e/`, playwright-core, свой Vite + сервер на PGlite на каждый воркер, порты 5300+/8900+ по номеру воркера; локально два файла параллельно, при `CI` — по очереди; Chromium из `~/.cache/ms-playwright` или `PLAYWRIGHT_CHROMIUM`). CI — `.github/workflows/ci.yml`.
+- `pnpm test` — vitest (корневой `vitest.config.ts`, два project: клиент и сервер; по отдельности — `pnpm test:client` / `pnpm test:server`; БД серверных тестов — `memoryDb()` поднимает PGlite из снимка с миграциями), `apps/client/src/game.test.ts` + `apps/client/src/editor/editor.test.ts` (валидность дел, баллы, прохождения).
+- `pnpm build` — перед `pnpm test` (так и в CI: typecheck → lint → build → validate:cases → test).
 - `pnpm touch:cases [file]` — ОБЯЗАТЕЛЬНО после правки `apps/client/src/content/cases/*.json` (обновляет `updatedAt`; старые сохранения игроков получат предупреждение).
 - `pnpm validate:cases` — проверка дел вне тестов.
 - `pnpm audit:colors` — аудит цветов в стилях: литералы вне токенов, неопределённые `var(--…)`, сырая палитра в компонентах, полнота наборов тонов, темы (код возврата 1 при ошибках). Запускать после правок стилей и токенов.
