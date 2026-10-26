@@ -226,13 +226,13 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 ========================================================================
-phaser 3.90.0 — MIT
+phaser 4.2.1 — MIT
 https://phaserjs@github.com/phaserjs/phaser
 ========================================================================
 
 The MIT License (MIT)
 
-Copyright (c) 2024 Richard Davey, Phaser Studio Inc.
+Copyright (c) 2026 Richard Davey, Phaser Studio Inc.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
