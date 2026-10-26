@@ -42,7 +42,7 @@
     "zod": "^4.6.7"
   },
   "devDependencies": {
-    "@anthropic-ai/sdk": "^0.133.0",
+    "@anthropic-ai/sdk": "^1.3.0",
     "@electric-sql/pglite": "^0.5.11",
     "@eslint/js": "^10.0.1",
     "@types/node": "^26.6.5",
