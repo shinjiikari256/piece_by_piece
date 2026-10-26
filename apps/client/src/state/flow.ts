@@ -4,6 +4,7 @@ import { applyEffects, meets, type EffectOutcome } from "../../../../shared/cond
 import { zoneTargetCell } from "../content/case-utils";
 import { gameBridge } from "../game/bridge";
 import { platform } from "./platform";
+import { tell } from "../ui/kit/dialog";
 import { onAfterSet, set, state, toast } from "./core";
 
 /** Состояния предметов на прошлой проверке (`null` — игра не идёт; первая проверка только запоминает, эффекты не срабатывают). */
@@ -48,11 +49,14 @@ function evidenceTitle(id: string) {
   return state.caseFile?.evidence.find((e) => e.id === id)?.title ?? id;
 }
 
+/** Сообщение автора длиннее этого показывается окном, а не тостом. */
+const LONG_MESSAGE = 160;
+
 /** Итог эффектов для игрока: новые и убранные улики, сообщения автора (длинный текст висит дольше), затем перенос игрока и запуск диалога. */
 export function announce(newEvidence: string[], messages: string[], removedEvidence: string[] = [], followUp: EffectOutcome["followUp"] = {}) {
   newEvidence.forEach((id) => toast(`В дело добавлено: ${evidenceTitle(id)}`));
   removedEvidence.forEach((id) => toast(`Из дела убрано: ${evidenceTitle(id)}`));
-  messages.forEach((text) => toast(text, Math.min(9000, 2500 + text.length * 50)));
+  messages.forEach((text) => (text.length > LONG_MESSAGE ? void tell({ title: "Сообщение", text }) : toast(text, Math.min(9000, 2500 + text.length * 50))));
   runFollowUp(followUp);
 }
 
