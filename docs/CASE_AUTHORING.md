@@ -16,7 +16,7 @@
 5. **Проверки** (по порядку):
    - `pnpm validate:cases` — целостность; чинить по сообщениям (`evidence x: …`, `location l/object o: …`);
    - `pnpm touch:cases` — ОБЯЗАТЕЛЬНО после правки любого `cases/*.json`;
-   - `pnpm typecheck`, `pnpm test` (`game.test.ts`, `editor.test.ts`: валидность, баллы, прохождения), `pnpm build`;
+   - `pnpm typecheck`, `pnpm test` (`game*.test.ts`, `editor.test.ts`: валидность, баллы, прохождения), `pnpm build`;
    - по желанию открыть `/editor/case-NNN` и пройти дело вручную через `window.__game.actions` (скриншоты не нужны).
 6. Закоммитить (сообщение по-русски, в стиле репозитория), обновить `working/plans/ROADMAP.md`, если дело — часть плана.
 
