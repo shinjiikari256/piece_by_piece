@@ -2,7 +2,7 @@ import { Effect } from "../../../../shared/case";
 import { ENUM_LABELS } from "./labels";
 import { effectLabel } from "./fields/effect-label";
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- JSON-схема от z.toJSONSchema: форма узла зависит от вида поля, общего типа нет
 export type JS = any;
 
 export const isNullable = (s: JS) => (Array.isArray(s.type) && s.type.includes("null")) || (Array.isArray(s.anyOf) && s.anyOf.some((x: JS) => x.type === "null"));
