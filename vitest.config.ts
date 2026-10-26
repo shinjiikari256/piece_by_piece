@@ -11,6 +11,8 @@ const shared = {
 // по отдельности — `pnpm test:client` / `pnpm test:server`.
 export default defineConfig({
   test: {
+    // файлы по очереди: параллельный прогон сильно грузит машину
+    fileParallelism: false,
     projects: [
       { ...shared, test: { name: "client", include: ["apps/client/**/*.test.ts"] } },
       // memoryDb поднимает PGlite (первый раз с миграциями) — на слабой машине дольше 5 с
