@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { emptyProgress, applyEffects, meets, startProgress } from "../../../../shared/conditions";
 import { deleteCounter } from "../editor/sections/Counters";
-import { evidenceUsage, flagUsage } from "../editor/fields/variables";
+import { dialogueUsage, evidenceUsage, flagUsage } from "../editor/fields/variables";
 import { deleteEnum, deleteEnumValue, renameEnumValue } from "../editor/sections/Enums";
 import { caseWarnings } from "./warnings";
 import { countRefs, renameKey } from "../editor/keys";
@@ -198,6 +198,18 @@ describe("«где используется»: счётчики, перечис�
     const usage = flagUsage(base());
     expect(usage.get("hp")?.map((u) => u.kind)).toEqual(expect.arrayContaining(["отнимает", "проверяет значение"]));
     expect(usage.get("safe")?.map((u) => u.kind)).toEqual(expect.arrayContaining(["выбирает значение", "проверяет значение"]));
+  });
+  it("диалоги: человек на карте, область и эффект запуска", () => {
+    const c = base();
+    const [d1, d2] = c.dialogues;
+    const loc = c.locations[0];
+    loc.zones.push({ id: "zt", name: "Зона", cells: [[0, 0]], actions: [{ kind: "dialogue", dialogueId: d2.id }] } as never);
+    d1.nodes[0].effects.push({ type: "startDialogue", dialogueId: d2.id } as never);
+    const kinds = (dialogueUsage(c).get(d2.id) ?? []).map((u) => u.kind);
+    expect(kinds).toEqual(expect.arrayContaining(["запускает"]));
+    expect(kinds.filter((k) => k === "запускает")).toHaveLength(2);
+    const npc = c.locations.flatMap((l) => l.npcs)[0];
+    expect((dialogueUsage(c).get(npc.dialogueId) ?? []).map((u) => u.kind)).toContain("по умолчанию");
   });
   it("улики: условия, сопоставления, убирание и выдача", () => {
     const c = base();

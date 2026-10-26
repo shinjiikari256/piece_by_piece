@@ -3,6 +3,8 @@ import type { CaseFile, Dialogue, Zone } from "../../../../../shared/case";
 import { Select } from "../../ui/kit/Select";
 import { ENUM_LABELS } from "../labels";
 import { editor } from "../state";
+import { UsageList } from "./UsageList";
+import { dialogueUsage } from "./variables";
 import { ZoneCreator } from "../map/ZoneCreator";
 
 const NEW_ZONE = "__new__";
@@ -52,6 +54,7 @@ export function DialogueTrigger({ draft, dialogue }: { draft: CaseFile; dialogue
         options={[...free.map(({ loc, zone }) => ({ value: zone.id, label: `${loc.name} · ${zone.name}` })), { value: NEW_ZONE, label: "+ новая область…" }]}
         onChange={(v) => (v === NEW_ZONE ? setCreating(true) : edit(v, (z) => ({ ...z, actions: [...z.actions, { kind: "dialogue", dialogueId: dialogue.id }] })))}
       />
+      <UsageList uses={dialogueUsage(draft).get(dialogue.id) ?? []} />
       {creating && (
         <ZoneCreator
           draft={draft}

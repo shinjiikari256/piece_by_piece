@@ -79,7 +79,8 @@ export interface FlagUse {
 const ACTION_VERB: Record<string, string> = { on: "ставит", off: "снимает", toggle: "переключает", add: "прибавляет", subtract: "отнимает", set: "задаёт", assign: "выбирает значение" };
 
 /** Где используются переменные (флаги, счётчики, перечисления) и улики — с адресом для перехода. */
-function collectUsage(d: FormCtx["draft"]): { vars: Map<string, FlagUse[]>; evidence: Map<string, FlagUse[]> } {
+function collectUsage(d: FormCtx["draft"]): { vars: Map<string, FlagUse[]>; evidence: Map<string, FlagUse[]>; dialogues: Map<string, FlagUse[]> } {
+  const dialogues = new Map<string, FlagUse[]>();
   const vars = new Map<string, FlagUse[]>();
   const evidence = new Map<string, FlagUse[]>();
   const push = (m: Map<string, FlagUse[]>, id: string, use: FlagUse) => m.set(id, [...(m.get(id) ?? []), use]);
@@ -88,6 +89,7 @@ function collectUsage(d: FormCtx["draft"]): { vars: Map<string, FlagUse[]>; evid
     if (e.type === "changeVariable") add(e.variableId, { kind: ACTION_VERB[e.action] ?? e.action, where, focus });
     if (e.type === "removeEvidence") push(evidence, e.evidenceId, { kind: "убирает из дела", where, focus });
     if (e.type === "addEvidence") push(evidence, e.evidenceId, { kind: "выдаёт", where, focus });
+    if (e.type === "startDialogue") push(dialogues, e.dialogueId, { kind: "запускает", where, focus });
   };
   const who = (id: string) => d.characters.find((c) => c.id === id)?.name ?? id;
   const dialogueFocus = (dialogueId: string, sub: string): Focus => ({ section: "dialogues", id: dialogueId, sub });
@@ -116,6 +118,12 @@ function collectUsage(d: FormCtx["draft"]): { vars: Map<string, FlagUse[]>; evid
   d.deductions.forEach((x) => x.evidenceIds.forEach((id) => push(evidence, id, { kind: "в сопоставлении", where: `Сопоставление «${x.title}»`, focus: { section: "deductions", id: x.id } })));
   d.locations.forEach((l) => {
     l.objects.forEach((o) => o.states?.forEach((st) => cond(st.when, `Состояние «${st.id}» предмета «${o.label}» — ${l.name}`, { section: "locations", sub: l.id, kind: "object", id: o.id })));
+    l.npcs.forEach((n) => {
+      const at = { section: "locations", sub: l.id, kind: "npc", id: n.id } as const;
+      push(dialogues, n.dialogueId, { kind: "по умолчанию", where: `Человек на карте: ${who(n.characterId)} — ${l.name}`, focus: at });
+      n.dialogues.forEach((nd) => push(dialogues, nd.dialogueId, { kind: "по условию", where: `Человек на карте: ${who(n.characterId)} — ${l.name}`, focus: at }));
+    });
+    l.zones.forEach((z) => z.actions.forEach((a) => a.kind === "dialogue" && push(dialogues, a.dialogueId, { kind: "запускает", where: `Область «${z.name}» — ${l.name}`, focus: { section: "locations", sub: l.id, kind: "zone", id: z.id } })));
     l.npcs.forEach((n) => cond(n.requires, `Человек на карте: ${who(n.characterId)} — ${l.name}`, { section: "locations", sub: l.id, kind: "npc", id: n.id }));
     l.npcs.forEach((n) => n.dialogues.forEach((nd) => cond(nd.requires, `Диалог по условию: ${who(n.characterId)} — ${l.name}`, { section: "locations", sub: l.id, kind: "npc", id: n.id })));
     l.zones.forEach((z) => z.actions.forEach((a) => cond(a.requires, `Область «${z.name}» — ${l.name}`, { section: "locations", sub: l.id, kind: "zone", id: z.id })));
@@ -123,13 +131,16 @@ function collectUsage(d: FormCtx["draft"]): { vars: Map<string, FlagUse[]>; evid
   d.deductions.forEach((x) => cond(x.requires, `Сопоставление «${x.title}» (доступность)`, { section: "deductions", id: x.id }));
   d.hints.forEach((h) => cond(h.requires, `Подсказка ${h.level}`, { section: "hints" }));
   d.events.forEach((ev) => cond(ev.requires, `Хронология: «${ev.title.slice(0, 50)}»`, { section: "events", id: ev.id }));
-  return { vars, evidence };
+  return { vars, evidence, dialogues };
 }
 
 /** Где используется каждая переменная (флаг, счётчик, перечисление). */
 export const flagUsage = (d: FormCtx["draft"]): Map<string, FlagUse[]> => collectUsage(d).vars;
 /** Где используется каждая улика: условия, сопоставления, эффекты. */
 export const evidenceUsage = (d: FormCtx["draft"]): Map<string, FlagUse[]> => collectUsage(d).evidence;
+
+/** Откуда запускается каждый диалог: люди на карте, области, эффекты «запустить диалог». */
+export const dialogueUsage = (d: FormCtx["draft"]): Map<string, FlagUse[]> => collectUsage(d).dialogues;
 
 /** Удалить флаг полностью: эффекты «поставить флаг», проверки в условиях (пустые условия исчезают), запись в списке. */
 export const deleteFlag = deleteVariable;
