@@ -154,7 +154,9 @@ describe("касание: перетаскивание карточки в яч�
     const cdp = await ctx.newCDPSession(page);
     const pt = (x: number, y: number) => [{ x, y }];
     await cdp.send("Input.dispatchTouchEvent", { type: "touchStart", touchPoints: pt(from.x + 20, from.y + 20) });
-    await page.waitForTimeout(400);
+    // перетаскивание начинается по таймеру удержания; сдвиг раньше него — прокрутка, поэтому ждём «призрак» карточки,
+    // а не фиксированную паузу: под нагрузкой таймер страницы срабатывает позже
+    await page.waitForFunction(() => [...document.body.children].some((el) => el instanceof HTMLElement && el.style.position === "fixed" && el.style.zIndex === "1000"), undefined, { timeout: 8000 });
     for (let i = 1; i <= 5; i++) {
       await cdp.send("Input.dispatchTouchEvent", {
         type: "touchMove",
