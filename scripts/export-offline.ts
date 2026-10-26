@@ -11,7 +11,7 @@
  *
  * Шаблон (offline/.template/offline-template.html) собирается `vite build --mode offline`: игра без конструктора,
  * JS/CSS/шрифты внутри файла. Дела вшиваются в <script type="application/json" id="cases">.
- * Внимание: ответы лежат в файле — проверка идёт в браузере (см. working/plans/BACKEND.md, «Справка»).
+ * Внимание: ответы лежат в файле — проверка идёт в браузере (см. docs/ARCHITECTURE.md).
  */
 import { execFileSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, readdirSync, renameSync, statSync, writeFileSync } from "node:fs";
