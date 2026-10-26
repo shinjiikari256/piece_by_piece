@@ -1,17 +1,15 @@
 import Phaser from "phaser";
-import { isInteractive, type Location, type LocationObject } from "../../../../shared/case";
+import { type Location } from "../../../../shared/case";
 import type { PublicCase as CaseFile } from "../../../../shared/public-case";
-import type { ClipStep, ObjectState } from "../../../../shared/case";
-import { effectSites } from "../../../../shared/effect-sites";
-import { DEFAULT_STATE, clipFrameAt, findAction, findTransition, loopFrameAt, timerActive, timerDelay } from "../../../../shared/object-anim";
-import { objectView } from "../../../../shared/object-state";
 import { firstFloorCell, getLocation } from "../content/case-utils";
-import { BASE_TILE, SCALE, SPRITES, footprintCells, solidCells, TILE, WALL_TILES, drawTile } from "./art";
+import { BASE_TILE, SCALE, TILE, WALL_TILES, drawTile } from "./art";
 import { gameBridge, gameZoom } from "./bridge";
 import type { SceneHost } from "./host";
 import { collides, findPath, nearestFree, reachWithin, slideShift, type IsFree, type Tile } from "./scene/navigation";
-import { ensureCharacterTextures, ensureExitTextures, ensureObjectFrameTexture, ensureObjectTextures } from "./scene/textures";
+import { ensureCharacterTextures, ensureObjectTextures } from "./scene/textures";
 import { NpcCrowd, tileOfSprite } from "./scene/npcs";
+import { ObjectLayer } from "./scene/objects";
+import { ZoneWatcher } from "./scene/zones";
 import { SPEED } from "./scene/consts";
 import type { Interactable, Npc } from "./scene/types";
 
@@ -25,25 +23,6 @@ const UI_TARGETS = "button, input, textarea, select, a, [contenteditable]";
 const MIN_TILE_PX = 16;
 /** Отступ подписи от края видимой части поля (px). */
 const LABEL_EDGE = 4;
-
-/** Предмет на сцене: картинка, опора, кнопка осмотра и состояние анимации. */
-interface ObjEntry {
-  o: LocationObject;
-  img: Phaser.GameObjects.Image;
-  footprint: { x: number; y: number }[];
-  item: Interactable | null;
-  stateId?: string;
-  baseFrame?: string;
-  loop?: ObjectState["loop"];
-  trans?: ClipStep[];
-  /** Разовый клип поверх состояния (действие или таймер) и его время, мс. */
-  overlay?: ClipStep[];
-  overlayT: number;
-  /** Когда (по часам сцены) в следующий раз сработает каждый таймер. */
-  timerAt: number[];
-  /** Время с начала текущего перехода или цикла, мс. */
-  animT: number;
-}
 
 const labelStyle: Phaser.Types.GameObjects.Text.TextStyle = {
   fontFamily: "Rubik, system-ui, sans-serif",
@@ -62,8 +41,10 @@ export class OfficeScene extends Phaser.Scene {
   private trail: { x: number; y: number }[] = [];
   private leaving = false;
   /** Предметы с состояниями: вид и проходимость зависят от прогресса. */
-  private stateful: ObjEntry[] = [];
-  private objectTiles = new Set<string>();
+  private objects!: ObjectLayer;
+  private zones!: ZoneWatcher;
+  /** Выход под курсором (подпись показана, пока наведён). */
+  private hoveredExit: Interactable | undefined;
   private player!: Phaser.GameObjects.Sprite;
   private keys!: Record<"up" | "down" | "left" | "right" | "w" | "a" | "s" | "d", Phaser.Input.Keyboard.Key>;
   private interactables: Interactable[] = [];
@@ -89,8 +70,6 @@ export class OfficeScene extends Phaser.Scene {
     if (import.meta.env.MODE === "development") Object.assign(window, { __scene: this });
     // при scene.restart() экземпляр тот же — состояние сбрасываем вручную
     this.interactables = [];
-    this.stateful = [];
-    this.objectTiles = new Set();
     this.trail = [];
     this.path = [];
     this.focused = null;
@@ -102,8 +81,12 @@ export class OfficeScene extends Phaser.Scene {
     this.location = getLocation(this.caseFile, this.host.getState().locationId);
     this.buildTextures();
     this.buildMap();
-    this.buildObjects();
-    this.buildZones();
+    this.objects = this.makeObjects();
+    this.objects.reset();
+    this.objects.build();
+    this.zones = this.makeZones();
+    this.hoveredExit = undefined;
+    this.zones.build();
     this.buildPlayer();
     this.crowd = this.makeCrowd();
     this.crowd.sync();
@@ -151,7 +134,7 @@ export class OfficeScene extends Phaser.Scene {
       if (over.length || this.host.isBlocked() || this.time.now - this.overlayClosedAt < 250) return;
       this.pendingInteraction = null;
       const tile = { x: Math.floor(pointer.worldX / TILE), y: Math.floor(pointer.worldY / TILE) };
-      const exit = this.exitZoneAt(tile);
+      const exit = this.zones.exitAt(tile);
       if (exit) return this.goThroughExit(exit);
       this.walkTo(nearestFree(this.isFreeFn, tile));
     });
@@ -159,7 +142,7 @@ export class OfficeScene extends Phaser.Scene {
     // наведение на выход: подпись области и курсор-«рука» (клик ведёт к нему и проходит)
     this.input.on("pointermove", (pointer: Phaser.Input.Pointer, over: Phaser.GameObjects.GameObject[]) => {
       const tile = { x: Math.floor(pointer.worldX / TILE), y: Math.floor(pointer.worldY / TILE) };
-      const zone = over.length || this.host.isBlocked() ? undefined : this.exitZoneAt(tile);
+      const zone = over.length || this.host.isBlocked() ? undefined : this.zones.exitAt(tile);
       const item = zone ? this.interactables.find((i) => i.zone?.id === zone.id) : undefined;
       if (item === this.hoveredExit) return;
       if (this.hoveredExit && this.hoveredExit !== this.focused) this.hoveredExit.labelText.setVisible(false);
@@ -191,8 +174,7 @@ export class OfficeScene extends Phaser.Scene {
     this.unsubscribe = this.host.subscribe(() => this.onStoreChange());
     this.refreshChecks();
     const stopAnimations = this.host.onPlayAnimation((objectId, clip) => {
-      const e = this.stateful.find((s) => s.o.id === objectId);
-      if (e && !e.trans) this.playOverlay(e, clip);
+      this.objects.playClip(objectId, clip);
     });
     this.cleanups.push(() => {
       stopAnimations();
@@ -282,199 +264,64 @@ export class OfficeScene extends Phaser.Scene {
     });
   }
 
+  /** Предметы живут в `ObjectLayer`; сцена даёт им мир, список взаимодействий и карту проходимости. */
+  private makeObjects() {
+    // eslint-disable-next-line @typescript-eslint/no-this-alias
+    const scene = this;
+    return new ObjectLayer({
+      scene,
+      get host() {
+        return scene.host;
+      },
+      get caseFile() {
+        return scene.caseFile;
+      },
+      get location() {
+        return scene.location;
+      },
+      makeLabel: (text) => scene.makeLabel(text),
+      makeClickable: (item) => scene.makeClickable(item),
+      addInteractable: (item) => void scene.interactables.push(item),
+      removeInteractable: (item) => {
+        scene.interactables = scene.interactables.filter((i) => i !== item);
+        if (scene.focused === item) scene.focused = null;
+      },
+      setSolid: (x, y) => scene.setSolid(x, y),
+      refreshChecks: () => scene.refreshChecks(),
+    });
+  }
+
+  /** Области живут в `ZoneWatcher`. */
+  private makeZones() {
+    // eslint-disable-next-line @typescript-eslint/no-this-alias
+    const scene = this;
+    return new ZoneWatcher({
+      scene,
+      get host() {
+        return scene.host;
+      },
+      get location() {
+        return scene.location;
+      },
+      get player() {
+        return scene.player;
+      },
+      get interactables() {
+        return scene.interactables;
+      },
+      makeLabel: (text) => scene.makeLabel(text),
+      addInteractable: (item) => void scene.interactables.push(item),
+    });
+  }
+
   private makeLabel(text: string) {
     return this.add.text(0, 0, text, labelStyle).setOrigin(0.5, 1).setDepth(9_000).setVisible(false);
   }
 
-  private buildObjects() {
-    const animated = new Set(
-      effectSites(this.caseFile as unknown as Parameters<typeof effectSites>[0]) /* нужны только эффекты, ответов сопоставлений они не касаются */
-        .flatMap((s) => s.effects.flatMap((e) => (e.type === "playAnimation" ? [e.objectId] : []))),
-    );
-    for (const o of this.location.objects) {
-      const spec = SPRITES[o.sprite];
-      const cx = (o.x + spec.footprint.w / 2) * TILE;
-      const bottom = (o.y + 1) * TILE - (spec.mount ?? 0) * SCALE;
-      const img = this.add
-        .image(cx, bottom, `obj_${o.sprite}`)
-        .setOrigin(0.5, 1)
-        .setScale(SCALE)
-        .setDepth(spec.flat ? 0 : bottom);
-      const footprint = footprintCells(o.x, o.y, spec.footprint);
-      const entry: ObjEntry = { o, img, footprint, item: null, animT: 0, overlayT: 0, timerAt: (o.timers ?? []).map((t) => timerDelay(t, Math.random())) };
-      if (spec.mirrorRight && o.x >= this.location.tiles[0].length / 2) img.setFlipX(true);
-      if (o.states?.length || spec.opensNear || o.actions?.length || o.timers?.length || animated.has(o.id)) this.stateful.push(entry);
-      else {
-        solidCells(o.x, o.y, spec).forEach((t) => this.setSolid(t.x, t.y));
-        if (isInteractive(o)) this.addObjectItem(entry, o.label);
-      }
-    }
-    this.syncObjects();
-  }
-
-  /** Сделать предмет доступным для осмотра: подпись, галочка «осмотрено», клик. */
-  private addObjectItem(e: ObjEntry, label: string) {
-    const spec = SPRITES[e.o.sprite];
-    const cx = e.img.x;
-    const bottom = e.img.y;
-    const top = bottom - spec.h * SCALE;
-    const item: Interactable = {
-      id: e.o.id,
-      label,
-      x: cx,
-      y: bottom - TILE / 2,
-      footprint: e.footprint,
-      // висящий на стене предмет читается только спереди (клетка под ним), а не с обратной стороны стены
-      access: spec.mount !== undefined ? e.footprint.filter((t) => t.y === e.o.y).map((t) => ({ x: t.x, y: t.y + 1 })) : undefined,
-      sprite: e.img,
-      labelText: this.makeLabel(label),
-      labelAt: { x: cx, y: top - 4 },
-      check: this.add
-        .text(cx + (spec.w * SCALE) / 2 - 2, top + 2, "✓", {
-          fontFamily: "Rubik, system-ui, sans-serif",
-          fontSize: "14px",
-          fontStyle: "bold",
-          color: "#ffffff",
-          backgroundColor: "#2e9e5b",
-          padding: { x: 3, y: 0 },
-        })
-        .setOrigin(1, 0)
-        .setDepth(9_500)
-        .setVisible(false),
-    };
-    e.item = item;
-    this.makeClickable(item);
-    this.interactables.push(item);
-  }
-
-  private removeObjectItem(e: { img: Phaser.GameObjects.Image; item: Interactable | null }) {
-    const item = e.item;
-    if (!item) return;
-    item.labelText.destroy();
-    item.check?.destroy();
-    e.img.removeAllListeners().disableInteractive();
-    this.interactables = this.interactables.filter((i) => i !== item);
-    if (this.focused === item) this.focused = null;
-    e.item = null;
-  }
-
-  /** Вид, проходимость и доступность осмотра предметов с состояниями по текущему прогрессу. */
-  private syncObjects() {
-    if (!this.stateful.length) return;
-    const { progress, locationId } = this.host.getState();
-    this.objectTiles.clear();
-    for (const e of this.stateful) {
-      const view = objectView(e.o, progress, locationId);
-      const spec = SPRITES[e.o.sprite];
-      const sid = view.state?.id ?? DEFAULT_STATE;
-      // живая смена состояния запускает переход; первая синхронизация (старт, загрузка) только запоминает состояние
-      if (e.stateId !== undefined && e.stateId !== sid) {
-        e.trans = findTransition(e.o, e.stateId, sid) ?? undefined;
-        e.animT = 0;
-      }
-      e.stateId = sid;
-      e.baseFrame = view.state?.frame;
-      e.loop = view.state?.loop;
-      this.showObjectFrame(e);
-      solidCells(e.o.x, e.o.y, spec, view.state?.solid ?? spec.solid).forEach((t) => this.objectTiles.add(`${t.x},${t.y}`));
-      if (view.interactive && !e.item) this.addObjectItem(e, view.label);
-      else if (!view.interactive) this.removeObjectItem(e);
-      else if (e.item && e.item.label !== view.label) {
-        e.item.label = view.label;
-        e.item.labelText.setText(view.label);
-      }
-    }
-    this.refreshChecks();
-  }
-
-  /** Кадр предмета сейчас: переход, затем цикл состояния, иначе кадр состояния. */
-  private showObjectFrame(e: ObjEntry) {
-    let frame: string | null = null;
-    if (e.trans) {
-      frame = clipFrameAt(e.trans, e.animT);
-      if (frame === null) e.trans = undefined;
-    }
-    if (frame === null && e.overlay) {
-      frame = clipFrameAt(e.overlay, e.overlayT);
-      if (frame === null) e.overlay = undefined;
-    }
-    if (frame === null && e.loop) frame = loopFrameAt(e.loop, e.animT);
-    const tex = ensureObjectFrameTexture(this.textures, e.o.sprite, frame ?? e.baseFrame);
-    if (e.img.texture.key !== tex) e.img.setTexture(tex);
-  }
-
-  /** Время сцены: идёт всегда (цикл Phaser не засыпает), на паузе дела сцена не обновляется. */
-  private tickObjectAnims(deltaMs: number) {
-    for (const e of this.stateful) {
-      e.o.timers?.forEach((t, i) => {
-        if (this.animClock < e.timerAt[i]) return;
-        e.timerAt[i] = this.animClock + timerDelay(t, Math.random());
-        if (!e.trans && !e.overlay && timerActive(t, e.stateId ?? DEFAULT_STATE)) this.playOverlay(e, t.clip);
-      });
-      if (!e.trans && !e.loop && !e.overlay) continue;
-      const wasTrans = !!e.trans;
-      e.animT += deltaMs;
-      e.overlayT += deltaMs;
-      this.showObjectFrame(e);
-      if (wasTrans && !e.trans) {
-        e.animT = 0; // цикл состояния начинается после перехода
-        this.showObjectFrame(e);
-      }
-    }
-  }
-
-  private playOverlay(e: ObjEntry, clip: ClipStep[]) {
-    e.overlay = clip;
-    e.overlayT = 0;
-    this.showObjectFrame(e);
-  }
-
   /** Взаимодействие с предметом или областью: анимация действия предмета (если есть) и передача событию игры. */
   private interactWith(id: string) {
-    const e = this.stateful.find((s) => s.o.id === id);
-    const clip = e && !e.trans ? findAction(e.o, e.stateId ?? DEFAULT_STATE) : null;
-    if (e && clip) this.playOverlay(e, clip);
+    this.objects.playAction(id);
     this.host.onInteract(id);
-  }
-
-  // ---------- выходы ----------
-
-  // ---------- области-триггеры ----------
-
-  /** Области локации: взаимодействие (E) работает, пока игрок стоит внутри; вход может запускать диалог сам. */
-  private buildZones() {
-    ensureExitTextures(this.textures);
-    this.zonesIn = new Set();
-    this.hoveredExit = undefined;
-    for (const z of this.location.zones ?? []) {
-      if (!z.cells.length) continue;
-      const cells = new Set(z.cells.map((c) => `${c.x},${c.y}`));
-      // подпись — над самой верхней клеткой области, по центру её строки
-      const top = Math.min(...z.cells.map((c) => c.y));
-      const topRow = z.cells.filter((c) => c.y === top);
-      const cx = (topRow.reduce((a, c) => a + c.x, 0) / topRow.length + 0.5) * TILE;
-      const item: Interactable = {
-        id: `zone:${z.id}`,
-        label: z.name,
-        x: cx,
-        y: (top + 0.5) * TILE,
-        footprint: z.cells,
-        sprite: this.add
-          .image(cx, (top + 1) * TILE, "exit_zone")
-          .setOrigin(0.5, 1)
-          .setScale(SCALE)
-          .setDepth(0),
-        labelText: this.makeLabel(z.name),
-        labelAt: { x: cx, y: top * TILE - 4 },
-        zone: { id: z.id, cells },
-      };
-      this.interactables.push(item);
-    }
-  }
-
-  /** Область-выход под клеткой, у которой сейчас есть подходящее действие (клик по ней — идти и пройти). */
-  private exitZoneAt(tile: Tile) {
-    return this.location.zones?.find((z) => z.actions.some((a) => a.kind === "exit") && z.cells.some((c) => c.x === tile.x && c.y === tile.y) && this.host.hasZoneAction(z.id));
   }
 
   /** Клик по выходу: игрок идёт в область и по приходу проходит (автовыход срабатывает сам при входе); уже стоит внутри — проходит сразу. */
@@ -487,25 +334,6 @@ export class OfficeScene extends Phaser.Scene {
     }
     if (this.walkTo(zone.cells.filter((c) => this.isFree(c.x, c.y))) && !zone.actions.some((a) => a.kind === "exit" && (a.trigger === "enter" || a.trigger === "enterEvery")))
       this.pendingInteraction = `zone:${zone.id}`;
-  }
-
-  /** Выход под курсором (подпись показана, пока наведён). */
-  private hoveredExit: Interactable | undefined;
-
-  /** В каких областях игрок стоит сейчас (чтобы заметить вход). */
-  private zonesIn = new Set<string>();
-
-  /** Вошёл в область — сообщаем хосту (автозапуск диалога). */
-  private watchZones() {
-    const t = tileOfSprite(this.player);
-    const key = `${t.x},${t.y}`;
-    const now = new Set<string>();
-    for (const item of this.interactables) if (item.zone?.cells.has(key)) now.add(item.zone.id);
-    const entered = [...now].filter((id) => !this.zonesIn.has(id));
-    const left = [...this.zonesIn].filter((id) => !now.has(id));
-    this.zonesIn = now;
-    for (const id of left) this.host.leaveZone(id);
-    for (const id of entered) this.host.enterZone(id);
   }
 
   /**
@@ -565,25 +393,8 @@ export class OfficeScene extends Phaser.Scene {
       return;
     }
     this.refreshChecks();
-    this.syncObjects();
+    this.objects.sync();
     this.crowd.sync();
-  }
-
-  // ---------- двери ----------
-
-  /** Предметы с `opensNear` (двери) распахиваются, когда рядом игрок или сопровождающий и они сейчас проходимы. */
-  private animateDoors() {
-    const doors = this.stateful.filter((e) => SPRITES[e.o.sprite].opensNear && !e.trans);
-    if (!doors.length) return;
-    const walkers = [this.player, ...[...this.crowd.npcs.values()].filter((n) => n.mode === "follower").map((n) => n.sprite)];
-    const { progress, locationId } = this.host.getState();
-    for (const e of doors) {
-      const view = objectView(e.o, progress, locationId);
-      const solid = view.state?.solid ?? SPRITES[e.o.sprite].solid;
-      const near = !solid && walkers.some((w) => Phaser.Math.Distance.Between(w.x, w.y - TILE / 4, e.img.x, e.img.y - TILE / 2) < TILE * 1.7);
-      const tex = ensureObjectFrameTexture(this.textures, e.o.sprite, near ? "open" : view.state?.frame);
-      if (e.img.texture.key !== tex) e.img.setTexture(tex);
-    }
   }
 
   private buildPlayer() {
@@ -637,7 +448,7 @@ export class OfficeScene extends Phaser.Scene {
 
   private isFree(x: number, y: number) {
     const key = `${x},${y}`;
-    return this.solid[y]?.[x] === false && !this.crowd?.tiles.has(key) && !this.objectTiles.has(key);
+    return this.solid[y]?.[x] === false && !this.crowd?.tiles.has(key) && !this.objects.tiles.has(key);
   }
 
   private isFreeFn: IsFree = (x, y) => this.isFree(x, y);
@@ -663,7 +474,7 @@ export class OfficeScene extends Phaser.Scene {
   private reachKey = "";
   private reach = new Set<string>();
   /** Проходимая клетка (стены и закрытые двери — нет); людей и мебель не учитываем: это о том, по какую сторону стены стоит игрок. */
-  private walkable: IsFree = (x, y) => this.solid[y]?.[x] === false && !this.objectTiles.has(`${x},${y}`);
+  private walkable: IsFree = (x, y) => this.solid[y]?.[x] === false && !this.objects.tiles.has(`${x},${y}`);
 
   /** Клетки, достижимые от игрока за два шага: через стену взаимодействовать нельзя. */
   private reachableTiles() {
@@ -757,9 +568,9 @@ export class OfficeScene extends Phaser.Scene {
     this.crowd.update(blocked, dt, this.animClock, state.overlay?.kind === "dialogue" ? state.overlay.npcId : null);
     this.placeLabels();
 
-    this.animateDoors();
-    this.tickObjectAnims(deltaMs);
-    if (!blocked) this.watchZones();
+    this.objects.animateDoors([this.player, ...[...this.crowd.npcs.values()].filter((n) => n.mode === "follower").map((n) => n.sprite)]);
+    this.objects.tick(deltaMs, this.animClock);
+    if (!blocked) this.zones.watch();
     this.updateFocus(blocked);
 
     this.saveClock += deltaMs;
