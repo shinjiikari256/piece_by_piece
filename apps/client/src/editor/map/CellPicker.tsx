@@ -39,6 +39,7 @@ export function CellPicker({
   useEffect(() => {
     const cv = canvas.current;
     if (!cv) return;
+    const free = (x: number, y: number) => cellFree(loc, x, y, characterId);
     renderMap(cv, { loc, art, characters: draft.characters, tool: { kind: "select" }, npcCharacter: "", hover: null, rect: null, selected: null });
     const ctx = cv.getContext("2d")!;
     // недоступные клетки затемняем, чтобы сразу было видно, куда можно
@@ -51,7 +52,7 @@ export function CellPicker({
     };
     mark(cursor, free(cursor.x, cursor.y) ? "#ffffff" : "#e0584a", 1);
     if (chosen) mark(chosen, "#f6d55c", 2);
-  }, [loc, art, draft.characters, cursor, chosen]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [loc, art, draft.characters, cursor, chosen, characterId, w, h]);
 
   const cellAt = (e: { clientX: number; clientY: number }) => cellAtCanvas(canvas.current!, e, w, h);
   const choose = (cell: { x: number; y: number }) => free(cell.x, cell.y) && setChosen(cell);

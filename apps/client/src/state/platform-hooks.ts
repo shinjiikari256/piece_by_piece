@@ -15,7 +15,7 @@ export function usePlatformValue<T>(load: () => Promise<T>, initial: T, deps: re
     let live = true;
     void load().then((v) => live && setValue(v));
     return () => void (live = false);
-  }, [version, userId, ...deps]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [version, userId, ...deps]); // eslint-disable-line react-hooks/exhaustive-deps -- deps вызывающего подставляются списком; load читается свежим при каждом срабатывании
   const reload = useCallback(() => setVersion((n) => n + 1), []);
   return [value, reload];
 }

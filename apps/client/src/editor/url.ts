@@ -51,7 +51,7 @@ export function useEditorUrl(sectionIds: readonly string[]) {
     void ask({ title: "Несохранённые изменения пропадут", text: "В текущем деле есть несохранённые изменения. Открыть другое дело?", confirmLabel: "Продолжить", danger: true }).then((ok) =>
       ok ? open() : navigate(routeHref({ page: "editor", caseId: editorStore.get().draft.id, section: editorStore.get().section }), { replace: true }),
     );
-  }, [route.page, caseInUrl, sectionInUrl]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [route.page, caseInUrl, sectionInUrl]); // eslint-disable-line react-hooks/exhaustive-deps -- реагируем только на смену адреса; остальное читаем из стора в момент срабатывания
 
   // состояние → адрес (первый рендер не трогаем: адрес главнее)
   // useLayoutEffect: путь должен смениться раньше, чем разделы допишут в адрес свои параметры (их эффекты — после)

@@ -237,7 +237,7 @@ function Frame({ look, frame, crop }: { look: Look; frame: CharFrame; crop?: boo
     if (!ctx) return;
     ctx.clearRect(0, 0, CHAR_W, CHAR_H);
     drawCharacter(ctx, look, frame, 0);
-  }, [key]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [key]); // eslint-disable-line react-hooks/exhaustive-deps -- look сравниваем по JSON (key): объект облика новый на каждом рендере
   return (
     <span className={crop ? "look-ed__head" : "look-ed__frame"}>
       <canvas aria-hidden="true" ref={ref} width={CHAR_W} height={CHAR_H} />
@@ -260,6 +260,6 @@ function BigPreview({ look }: { look: Look }) {
     for (let x = 0; x < 2; x++) for (let y = 0; y < 2; y++) drawTile(ctx, ".", x * 16, y * 16, {});
     const cycle: CharFrame[] = ["idle", "idle", "idle2", "idle2", "walk1", "walk2", "walk1", "walk2", "talk", "idle", "talk", "idle"];
     drawCharacter(ctx, look, cycle[tick % cycle.length], 8);
-  }, [key, tick]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [key, tick]); // eslint-disable-line react-hooks/exhaustive-deps -- look сравниваем по JSON (key): объект облика новый на каждом рендере
   return <canvas aria-hidden="true" ref={ref} width={32} height={CHAR_H + 4} className="look-ed__big" />;
 }

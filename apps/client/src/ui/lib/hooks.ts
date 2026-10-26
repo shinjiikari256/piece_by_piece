@@ -179,7 +179,7 @@ export function useMenuKeys(open: boolean, root: RefObject<HTMLElement | null>) 
     }
     const el = root.current;
     if (was && el && (!document.activeElement || document.activeElement === document.body)) el.querySelector<HTMLElement>("[aria-haspopup]")?.focus();
-  }, [open]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [open]); // eslint-disable-line react-hooks/exhaustive-deps -- фокус двигаем только при открытии/закрытии меню
   useWindowKey(
     (e) => {
       if (!["ArrowDown", "ArrowUp", "Home", "End"].includes(e.key) || e.ctrlKey || e.metaKey || e.altKey) return;

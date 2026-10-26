@@ -18,7 +18,7 @@ export function ArtThumb({ kind, id, scale = 2, look }: { kind: "look" | "sprite
       const sp = SPRITES[id as keyof typeof SPRITES];
       if (sp) drawSprite(ctx, sp);
     }
-  }, [kind, id, w, h, lookKey]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [kind, id, w, h, lookKey]); // eslint-disable-line react-hooks/exhaustive-deps -- look сравниваем по JSON (lookKey): объект облика новый на каждом рендере
   return <canvas aria-hidden="true" ref={ref} width={w} height={h} className="art-thumb" style={{ width: w * scale, height: h * scale }} />;
 }
 

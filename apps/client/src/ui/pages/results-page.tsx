@@ -160,7 +160,7 @@ export function EmptyResults({ filtered }: { filtered: boolean }) {
 
 export function StatsModal({ source, onClose }: { source: () => Promise<ResultsStats>; onClose: () => void }) {
   const [s, setS] = useState<ResultsStats | null>(null);
-  useEffect(() => void source().then(setS, () => setS(null)), []); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => void source().then(setS, () => setS(null)), []); // eslint-disable-line react-hooks/exhaustive-deps -- статистику грузим один раз при открытии окна
   const n = (v: number | null, unit = "") => (v == null ? "—" : `${v}${unit}`);
   return (
     <TabbedModal tabs={[{ id: "stats", label: "Статистика по выборке", icon: "evidence" }]} onClose={onClose}>

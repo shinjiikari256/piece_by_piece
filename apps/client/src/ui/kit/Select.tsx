@@ -95,7 +95,7 @@ export function Select({
       window.removeEventListener("scroll", onScroll, true);
       window.removeEventListener("resize", close);
     };
-  }, [open]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [open]); // eslint-disable-line react-hooks/exhaustive-deps -- подписки ставятся на открытие; value/shown/close читаем из рендера открытия
 
   // клик вне кнопки и списка и Esc закрывают (Esc — верхний слой, см. useEscape)
   useDismiss(open, close, [popup, button]);

@@ -172,7 +172,7 @@ function ResultPreview({ data }: { data: ResultDocData }) {
     return () => {
       alive = false;
     };
-  }, [key]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [key]); // eslint-disable-line react-hooks/exhaustive-deps -- data сравниваем по JSON (key): объект новый на каждом рендере
   return <canvas ref={ref} className="certificate-preview" aria-label="Предпросмотр результата" />;
 }
 
@@ -185,6 +185,6 @@ function CertificatePreview({ data }: { data: CertificateData }) {
     return () => {
       alive = false;
     };
-  }, [key]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [key]); // eslint-disable-line react-hooks/exhaustive-deps -- data сравниваем по JSON (key): объект новый на каждом рендере
   return <canvas ref={ref} className="certificate-preview" aria-label="Предпросмотр грамоты" />;
 }

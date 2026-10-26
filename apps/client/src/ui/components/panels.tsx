@@ -34,7 +34,7 @@ export function Portrait({ look, talking }: { look: Look; talking?: boolean }) {
     ctx.clearRect(0, 0, CHAR_W, CHAR_H);
     const frame: CharFrame = talking && tick % 2 === 0 ? "talk" : "idle";
     drawCharacter(ctx, look, frame, 0);
-  }, [key, talking, tick]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [key, talking, tick]); // eslint-disable-line react-hooks/exhaustive-deps -- look сравниваем по JSON (key): объект облика новый на каждом рендере
   return <canvas ref={ref} width={CHAR_W} height={CHAR_H} className="portrait" aria-hidden />;
 }
 
@@ -185,7 +185,7 @@ export function DialogueWindow({ npcId, dialogueId, nodeId }: { npcId: string; d
     if (!multi || prevDialogue !== dialogueId) return setHistory([]);
     const prev = dialogue.nodes.find((n) => n.id === prevNode);
     if (prev) setHistory((h) => [...h, { key: `${h.length}`, speaker: speakerOf(prev.speaker).name, text: nodeText(prev, progress, locationId) }].slice(-3));
-  }, [dialogueId, nodeId]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [dialogueId, nodeId]); // eslint-disable-line react-hooks/exhaustive-deps -- история пополняется только при смене узла; progress берём из этого рендера
 
   // Заданные вопросы остаются на своих местах с отметкой — нумерация не прыгает
   const available: ChoiceView[] = node.choices

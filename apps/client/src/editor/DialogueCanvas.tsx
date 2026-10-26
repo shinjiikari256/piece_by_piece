@@ -69,7 +69,7 @@ export function Graph({
   // первый показ диалога без сохранённой раскладки — раскладываем по настоящим высотам карточек
   useEffect(() => {
     if (!hasSavedLayout) onAutoLayout(measured());
-  }, [dialogue.id]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [dialogue.id]); // eslint-disable-line react-hooks/exhaustive-deps -- раскладываем один раз на диалог; onAutoLayout и высоты карточек читаем по месту
 
   const local = (e: { clientX: number; clientY: number }): Pos => {
     const r = area.current!.getBoundingClientRect();

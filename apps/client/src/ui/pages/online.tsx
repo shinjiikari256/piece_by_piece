@@ -39,7 +39,7 @@ export function OnlineHeader({ route }: { route: Route }) {
   // открыли по ссылке регистрации — сразу форма
   useEffect(() => {
     if (pendingJoinToken() && route.page !== "register") navigate("/register");
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps -- только при монтировании шапки
   return (
     <>
       {server === "online" && me && <UserMenu route={route} />}
