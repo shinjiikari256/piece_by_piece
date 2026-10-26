@@ -1,6 +1,6 @@
 # Развёртывание на VPS
 
-Схема и решения — `working/plans/DEPLOY.md`. Образы собирает GitHub Actions (`deploy.yml`), на VPS — только `pull` и `up`.
+Образы собирает GitHub Actions (`deploy.yml`), на VPS — только `pull` и `up`.
 
 ## Подготовка чистого VPS (один раз)
 
