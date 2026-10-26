@@ -687,10 +687,13 @@ export class OfficeScene extends Phaser.Scene {
     return Phaser.Math.Distance.Between(this.player.x, this.player.y - TILE / 4, item.x, item.y);
   }
 
+  /** Множитель хода (игрок, люди): сквозные тесты ускоряют ходьбу; шаг за кадр при ≤3 остаётся меньше тайла. */
+  timeScale = 1;
+
   update(_: number, deltaMs: number) {
     const state = this.host.getState();
     const blocked = this.host.isBlocked();
-    const dt = Math.min(deltaMs, 50) / 1000;
+    const dt = (Math.min(deltaMs, 50) / 1000) * this.timeScale;
     this.animClock += deltaMs;
 
     let vx = 0;

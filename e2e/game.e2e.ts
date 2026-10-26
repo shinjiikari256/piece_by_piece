@@ -318,6 +318,7 @@ describe("игра в браузере", () => {
     await page.getByRole("button", { name: /Приступить к расследованию/ }).click();
     await page.waitForFunction(() => (window as any).__game.store.get().screen === "play" && (window as any).__scene);
     await page.evaluate(() => {
+      (window as any).__scene.timeScale = 3; // ходьба нужна как условие, не как предмет проверки
       const { actions } = (window as any).__game;
       actions.interact("npc_timur");
       actions.choose("t_menu");
@@ -371,6 +372,7 @@ describe("игра в браузере", () => {
     await page.waitForFunction(() => (window as any).__game.store.get().screen === "play" && (window as any).__scene);
     await page.evaluate(() => {
       const scene = (window as any).__scene;
+      scene.timeScale = 3;
       const cell = scene.location.zones.find((z: any) => z.id === "stairs_down_a").cells[0] as { x: number; y: number };
       // наведение на выход показывает подпись и курсор-«руку», уход убирает
       const at = { worldX: (cell.x + 0.5) * 32, worldY: (cell.y + 0.5) * 32 };
