@@ -1,4 +1,6 @@
+import { Effect } from "../../../../shared/case";
 import { ENUM_LABELS } from "./labels";
+import { effectLabel } from "./fields/effect-label";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type JS = any;
@@ -49,11 +51,10 @@ export function defaultFor(s: JS): unknown {
 export function itemTitle(item: unknown, index: number): string {
   if (item && typeof item === "object") {
     const o = item as Record<string, unknown>;
-    // эффекты: «поставить флаг: x», «добавить улику в дело: e1»
-    if (typeof o.type === "string" && ENUM_LABELS[o.type]) {
-      const arg = o.flag ?? o.evidenceId ?? o.characterId;
-      return arg ? `${ENUM_LABELS[o.type]}: ${String(arg)}` : ENUM_LABELS[o.type];
-    }
+    // эффекты: «улика e1», «f1: Поставить»
+    const fx = Effect.safeParse(item);
+    if (fx.success) return effectLabel(fx.data);
+    if (typeof o.type === "string" && ENUM_LABELS[o.type]) return ENUM_LABELS[o.type];
     const main = o.title ?? o.name ?? o.text ?? o.label ?? o.prompt ?? o.question;
     const id = o.id ?? o.evidenceId ?? o.characterId;
     const head = typeof main === "string" && main ? main.slice(0, 50) : "";
