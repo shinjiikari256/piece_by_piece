@@ -1,14 +1,15 @@
 import { useEffect, useState } from "react";
-import { DEBRIEF_POLICY_LABEL, type ServerCaseSummary, type ServerEvent } from "../../../../../shared/api";
+import { DEBRIEF_POLICY_LABEL, type ResultsPage, type ServerCaseSummary, type ServerEvent } from "../../../../../shared/api";
 import { useAccount } from "../../state/account";
 import { api, setReturnTo } from "../../state/api";
 import { formatDate } from "../../util/format";
 import { scoreTone } from "../components/common";
-import { ask } from "../kit/dialog";
+import { fromServer } from "../components/results";
+import { ask, tell } from "../kit/dialog";
 import { Icon } from "../kit/icons";
 import { compareEvents, durationText, PHASE, phaseOf, statusText, whenText } from "../lib/event-status";
 import { Link, navigate, siteUrl } from "../lib/router";
-import { CaseFileCard, openCase } from "./screens";
+import { CaseFileCard, openCase, openResult } from "./screens";
 import "./events-page.css";
 
 const period = (e: ServerEvent) =>
@@ -38,6 +39,18 @@ function StatusLine({ e, now, staff }: { e: ServerEvent; now: number; staff: boo
       {hidden && <span className="muted small">студентам не видно: откроется {whenText(e.publishAt!, now)}</span>}
     </span>
   );
+}
+
+/** Лучшее прохождение дела в мероприятии (при равных баллах — позднее) — на экран результата с разбором. */
+async function openBestResult(caseId: string, eventId: number) {
+  try {
+    const { items } = await api<ResultsPage>("GET", `/results?case=${encodeURIComponent(caseId)}&event=${eventId}&user=me&pageSize=100`);
+    const best = items.reduce<(typeof items)[number] | null>((a, r) => (!a || r.total > a.total || (r.total === a.total && r.finishedAt > a.finishedAt) ? r : a), null);
+    if (!best) throw new Error("нет результата");
+    await openResult(caseId, fromServer(best).record!);
+  } catch {
+    await tell({ title: "Не удалось открыть результат", text: "Попробуйте ещё раз или откройте его в разделе «Результаты»." });
+  }
 }
 
 const doneCount = (e: ServerEvent) => e.caseIds.filter((id) => (e.doneByCase?.[id] ?? 0) > 0).length;
@@ -216,13 +229,13 @@ export function EventsPage({ eventId }: { eventId?: number }) {
                     <CaseFileCard c={{ ...c, isDraft: false }} note={note} disabled={!student || !one.open || left === 0} onClick={() => void openCase(id, one.id).catch(() => undefined)} />
                     {best && (
                       <span className="case-stamps">
-                        <span className="case-stamp" data-tone={scoreTone(best.total, best.max)} title="Лучший результат в мероприятии">
+                        <button className="case-stamp" data-tone={scoreTone(best.total, best.max)} onClick={() => void openBestResult(id, one.id)} title="Открыть лучший результат и разбор">
                           <span className="case-stamp__label">Лучший</span>
                           <span>
                             <span className="case-stamp__total">{best.total}</span>
                             <span className="case-stamp__max">/{best.max}</span>
                           </span>
-                        </span>
+                        </button>
                       </span>
                     )}
                   </li>
