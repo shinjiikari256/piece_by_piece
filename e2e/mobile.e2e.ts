@@ -190,3 +190,38 @@ describe("конструктор: поворот экрана", () => {
     expect(await overflow(page)).toMatchObject({ page: 0 });
   });
 });
+
+describe.each(SIZES)("конструктор: $name", ({ width, height }) => {
+  const SECTIONS = ["general", "characters", "locations", "evidence", "dialogues", "deductions", "flags"];
+
+  it.each(SECTIONS)("раздел %s без горизонтального переполнения", async (section) => {
+    const page = await h.page();
+    await page.setViewportSize({ width, height });
+    await page.goto(`${BASE}/editor/case-001/${section}`);
+    await page.waitForFunction(() => (window as any).__editor?.editorStore.get().screen === "case");
+    await page.waitForTimeout(300);
+    const o = await overflow(page);
+    expect(o.page, `шире окна: ${o.wide.join(", ")}`).toBeLessThanOrEqual(0);
+    await page.close();
+  });
+
+  it("карта: рисование областью работает", async () => {
+    const page = await h.page();
+    await page.setViewportSize({ width, height });
+    await page.goto(`${BASE}/editor/case-001/locations`);
+    await page.waitForFunction(() => (window as any).__editor?.editorStore.get().screen === "case");
+    // на телефоне и планшете палитра открывается поверх карты кнопкой в полосе статуса
+    await page.getByRole("button", { name: "Инструменты" }).click();
+    await page.locator(".lm__tool", { hasText: "Область" }).click();
+    await page.getByRole("button", { name: "← К карте" }).click();
+    const box = (await page.locator(".lm__canvas").boundingBox())!;
+    const y = box.y + Math.min(box.height / 2, 100);
+    await page.mouse.move(box.x + 60, y);
+    await page.mouse.down();
+    await page.mouse.move(box.x + 140, y, { steps: 4 });
+    await page.mouse.up();
+    const zones = await page.evaluate(() => (window as any).__editor.editorStore.get().draft.locations[0].zones.length);
+    expect(zones).toBeGreaterThan(0);
+    await page.close();
+  });
+});

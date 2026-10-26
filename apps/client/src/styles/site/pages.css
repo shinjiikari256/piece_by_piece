@@ -132,7 +132,7 @@
   gap: 1rem;
   align-items: start;
 }
-@media (max-width: 760px) {
+@media (max-width: 1024px) {
   .cols-3 {
     grid-template-columns: 1fr;
   }
