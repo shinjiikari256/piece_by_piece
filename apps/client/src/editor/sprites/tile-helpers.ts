@@ -111,3 +111,18 @@ export function topRectAt(ops: TileOp[], x: number, y: number): number {
   }
   return -1;
 }
+
+/** Стереть один пиксель: каждый прямоугольник слоя, покрывающий его, делится на оставшиеся части (порядок слоёв сохраняется). */
+export function eraseCell(ops: TileOp[], x: number, y: number): TileOp[] {
+  return ops.flatMap((o): TileOp[] => {
+    if (!Array.isArray(o) || x < o[0] || x >= o[0] + o[2] || y < o[1] || y >= o[1] + o[3]) return [o];
+    const [ox, oy, w, h, color] = o;
+    const parts: [number, number, number, number][] = [
+      [ox, oy, w, y - oy],
+      [ox, y + 1, w, oy + h - y - 1],
+      [ox, y, x - ox, 1],
+      [x + 1, y, ox + w - x - 1, 1],
+    ];
+    return parts.filter(([, , pw, ph]) => pw > 0 && ph > 0).map(([px, py, pw, ph]) => [px, py, pw, ph, color] as TileOp);
+  });
+}

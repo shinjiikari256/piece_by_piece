@@ -6,7 +6,7 @@ import type { CaseFile as CaseFileT, Location as LocationT, LocationObject as Lo
 import { Icon } from "../../ui/kit/icons";
 import { tell } from "../../ui/kit/dialog";
 import { KeyInput } from "../fields/KeyInput";
-import { editor } from "../state";
+import { editor, useEditor } from "../state";
 import { zoneKey } from "./ZoneCreator";
 import { ObjectZones } from "./ObjectZones";
 import { AnimPreview } from "./AnimPreview";
@@ -234,10 +234,15 @@ function ZoneKeyField({ zone, draft, onRenamed }: { zone: Zone; draft: CaseFileT
 
 export function TileSwatch({ ch }: { ch: string }) {
   const ref = useRef<HTMLCanvasElement>(null);
+  // тайл могли перерисовать в разделе «Спрайты»: образец следует за описанием тайлов дела
+  const tiles = useEditor((s) => s.draft.tiles);
   useEffect(() => {
     const ctx = ref.current?.getContext("2d");
-    if (ctx) drawTile(ctx, ch, 0, 0, { below: ".", left: "#", right: "#" });
-  }, [ch]);
+    if (ctx) {
+      ctx.clearRect(0, 0, T, T);
+      drawTile(ctx, ch, 0, 0, { below: ".", left: "#", right: "#" });
+    }
+  }, [ch, tiles]);
   return <canvas aria-hidden="true" ref={ref} width={T} height={T} className="tile-swatch" />;
 }
 

@@ -25,6 +25,7 @@ import {
   tileGroups,
   tileUses,
   tileView,
+  eraseCell,
   topRectAt,
   type TileLayer,
   type TileOp,
@@ -115,8 +116,8 @@ function TileCanvas({
     if (stroke.current.last === id) return;
     stroke.current.last = id;
     if (tool === "eraser") {
-      const i = topRectAt(current(), x, y);
-      if (i >= 0) write(current().filter((_, k) => k !== i));
+      const next = eraseCell(current(), x, y);
+      if (next.length !== current().length || next.some((o, k) => o !== current()[k])) write(next);
     } else write([...current(), [x, y, 1, 1, paintColor] as TileOp]);
   };
   const pick = (x: number, y: number) => {
