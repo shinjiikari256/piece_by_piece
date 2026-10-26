@@ -13,8 +13,8 @@ export default defineConfig({
   test: {
     projects: [
       { ...shared, test: { name: "client", include: ["apps/client/**/*.test.ts"] } },
-      // memoryDb поднимает PGlite — при параллельном прогоне это дольше 5 с
-      { ...shared, test: { name: "server", include: ["apps/server/**/*.test.ts"], testTimeout: 30_000, hookTimeout: 30_000 } },
+      // memoryDb поднимает PGlite (первый раз с миграциями) — на слабой машине дольше 5 с
+      { ...shared, test: { name: "server", include: ["apps/server/**/*.test.ts"], testTimeout: 15_000, hookTimeout: 15_000 } },
     ],
   },
 });
