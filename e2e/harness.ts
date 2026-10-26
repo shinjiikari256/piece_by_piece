@@ -93,3 +93,12 @@ export async function overflow(page: Page) {
     return { page: doc.scrollWidth - w, wide };
   });
 }
+
+/** Открыть дело №001 через интерфейс и начать расследование. */
+export async function startCase(page: Page) {
+  await page.goto(`${BASE}/cases`);
+  await page.locator("button.case-file").first().click();
+  await page.getByRole("button", { name: "Приступить к расследованию" }).click();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- код внутри page.evaluate работает с window.__game
+  await page.waitForFunction(() => (window as any).__game.store.get().screen === "play");
+}
